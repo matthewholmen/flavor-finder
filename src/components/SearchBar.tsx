@@ -33,9 +33,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && filteredIngredients.length > 0) {
       onIngredientSelect(filteredIngredients[0]);
+      setSearchTerm(''); // Clear search field after selection
+      setIsSearchFocused(false); // Close dropdown
     }
-  }, [filteredIngredients, onIngredientSelect]);
-
+  }, [filteredIngredients, onIngredientSelect, setSearchTerm]);
+  
   const toggleCategory = (category: string) => {
     console.log('Toggling category:', category);
     console.log('Current active categories:', activeCategories);
@@ -67,7 +69,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   {/* Dropdown Results */}
   {isSearchFocused && filteredIngredients.length > 0 && (
-    <ul className="absolute z-10 max-w-sm w-full bg-white border rounded-lg shadow-lg overflow-auto max-h-60">
+    <ul className="absolute z-50 bottom-full mb-1 max-w-sm w-full bg-white border rounded-lg shadow-lg overflow-auto max-h-60">
     {filteredIngredients.map((ingredient, index) => (
         <li
           key={index}

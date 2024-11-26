@@ -1,18 +1,23 @@
 // utils/sorting.ts
 import { getCompatibilityScore } from './compatibility.ts';
+import { IngredientProfile, IngredientSubcategory } from '../types.ts';
 
 export interface ScoredIngredient {
   name: string;
   compatibilityScore: number;
 }
 
+// utils/sorting.ts
 export const getSortedCompatibleIngredients = (
   selectedIngredients: string[],
-  flavorMap: Map<string, Set<string>>
+  flavorMap: Map<string, Set<string>>,
+  ingredientProfiles: IngredientProfile[],
+  tasteValues: Record<string, number>,
+  activeSliders: Set<string>
 ): string[] => {
-  if (selectedIngredients.length === 0) return [];
+  if (selectedIngredients.length === 0 || flavorMap.size === 0) return [];
 
-  // Get all ingredients that pair with any selected ingredient
+  // Get compatible ingredients first
   const compatibleSets = selectedIngredients.map(ingredient => 
     flavorMap.get(ingredient) || new Set<string>()
   );
@@ -27,33 +32,28 @@ export const getSortedCompatibleIngredients = (
   });
 
   // Score and filter ingredients
-  const scoredIngredients: ScoredIngredient[] = Array.from(allCompatible)
+  const scoredIngredients = Array.from(allCompatible)
+    .filter(ingredient => {
+      // Apply taste filters
+      const profile = ingredientProfiles.find(p => 
+        p.name.toLowerCase() === ingredient.toLowerCase()
+      );
+      
+      if (!profile) return false;
+
+      // Only check active sliders
+      return Object.entries(tasteValues).every(([taste, minValue]) => {
+        if (!activeSliders.has(taste)) return true;
+        return profile.flavorProfile[taste] >= minValue;
+      });
+    })
     .map(ingredient => ({
       name: ingredient,
       compatibilityScore: getCompatibilityScore(ingredient, selectedIngredients, flavorMap)
     }));
 
-  // Sort by compatibility score (highest to lowest)
+  // Sort by compatibility score
   scoredIngredients.sort((a, b) => b.compatibilityScore - a.compatibilityScore);
 
-  // Filter based on compatibility threshold
-  const highCompatibility = scoredIngredients.filter(item => item.compatibilityScore >= 90);
-  const moderateCompatibility = scoredIngredients.filter(item => 
-    item.compatibilityScore >= 50 && item.compatibilityScore < 90
-  );
-
-  // If we have enough high compatibility matches, return just those
-  if (highCompatibility.length >= 10) {
-    return highCompatibility.map(item => item.name);
-  }
-
-  // If we have few suggestions, include moderate matches
-  const combinedResults = [...highCompatibility];
-  
-  // Only add moderate matches if we need more suggestions
-  if (combinedResults.length < 10) {
-    combinedResults.push(...moderateCompatibility);
-  }
-
-  return combinedResults.map(item => item.name);
+  return scoredIngredients.map(item => item.name);
 };

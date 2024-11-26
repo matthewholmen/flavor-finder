@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, XCircle } from 'lucide-react';
 import { IngredientProfile } from '../types';
+import { getCompatibilityScore, getCompatibilityColor } from '../utils/compatibility.ts'
+
+
 
 const TASTE_COLORS = {
   sweet: '#f97316',  // orange
@@ -63,71 +66,84 @@ const IngredientCard: React.FC<IngredientCardProps> = ({
       </div>
     );
   };
+  
 
-  return (
-    // Change the card layout to:
-<div className={`w-full rounded-lg border p-4 ${colorClass} transition-all`}>
-  <div className="flex items-center justify-between">
-    <div className="flex-1">
-      <div className="flex items-center gap-2">
+return (
+  <div className={`w-full rounded-lg border p-4 ${colorClass} relative overflow-hidden`}>
+    <div className="relative h-full flex flex-col">
+      {/* X button in upper right */}
+      <button
+        onClick={() => onRemove(ingredient)}
+        className="absolute top-0 right-0 p-2 hover:bg-black hover:bg-opacity-5 rounded-bl transition-colors text-red-600"
+      >
+        <XCircle size={18} />
+      </button>
+
+      {/* Main content */}
+      <div className="pt-2">
         <h3 className="text-lg font-semibold">{ingredient}</h3>
-        <span className="text-sm bg-white bg-opacity-50 px-2 py-1 rounded-full">
-          {compatibilityScore.toFixed(0)}% compatible
-        </span>
         {profile && (
           <span className="text-sm text-gray-600">
             {profile.category} › {profile.subcategory}
           </span>
         )}
       </div>
-    </div>
-    <div className="flex items-center gap-2">
+
+      {/* Chevron button in lower right */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="p-1 hover:bg-black hover:bg-opacity-10 rounded"
+        className="absolute bottom-0 right-0 p-2 hover:bg-black hover:bg-opacity-5 rounded-tl transition-colors"
       >
-        {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        <ChevronDown size={18} />
       </button>
-      <button
-        onClick={() => onRemove(ingredient)}
-        className="p-1 hover:bg-black hover:bg-opacity-10 rounded text-red-600"
-      >
-        <XCircle size={18} />
-      </button>
-    </div>
-  </div>
 
-  {isExpanded && profile && (
-    <div className="mt-4 space-y-3">
-      <p className="text-sm">{profile.description}</p>
-      
-      <div className="grid grid-cols-2 gap-4">
-        {/* Taste Profile */}
-        <div>
-          <div className="text-sm font-semibold mb-2">Taste Profile</div>
-          <div className="space-y-1">
-            {Object.entries(profile.flavorProfile).map(([taste, value]) => (
-              renderTasteBar(taste, value)
-            ))}
-          </div>
-        </div>
-        
-        {/* Aroma Profile */}
-        <div>
-          <div className="text-sm font-semibold mb-2">Aroma Profile</div>
-          <div className="text-sm">
-            Primary: {profile.aromas.primary}
-            {profile.aromas.secondary && (
-              <><br />Secondary: {profile.aromas.secondary}</>
+      {/* Modal */}
+      {isExpanded && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setIsExpanded(false)}>
+          <div className="bg-white rounded-lg p-6 max-w-md w-full m-4" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">{ingredient}</h3>
+              <button onClick={() => setIsExpanded(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <XCircle size={18} />
+              </button>
+            </div>
+            
+            {profile && (
+              <div className="space-y-4">
+                <p className="text-sm">{profile.description}</p>
+                
+                <div className="space-y-4">
+                  {/* Taste Profile */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Taste Profile</h4>
+                    <div className="space-y-1">
+                      {Object.entries(profile.flavorProfile).map(([taste, value]) => (
+                        renderTasteBar(taste, value)
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Aroma Profile */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Aroma Profile</h4>
+                    <div className="text-sm">
+                      Primary: {profile.aromas.primary}
+                      {profile.aromas.secondary && (
+                        <><br />Secondary: {profile.aromas.secondary}</>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
-      </div>
+      )}
     </div>
-  )}
-</div>
-  );
+  </div>
+);
 };
+
 
 
 export const SelectedIngredients: React.FC<SelectedIngredientsProps> = ({
@@ -136,6 +152,7 @@ export const SelectedIngredients: React.FC<SelectedIngredientsProps> = ({
   flavorMap,
   ingredientProfiles
 }) => {
+
   const getCompatibilityScore = (ingredient: string, otherIngredients: string[]): number => {
     if (otherIngredients.length === 0) return 100;
     const pairings = flavorMap.get(ingredient);
@@ -146,33 +163,51 @@ export const SelectedIngredients: React.FC<SelectedIngredientsProps> = ({
     return (compatibleCount / otherIngredients.length) * 100;
   };
 
+  
   const getCompatibilityColor = (percentage: number): string => {
     if (percentage >= 90) return 'bg-green-50 border-green-200';
     if (percentage >= 50) return 'bg-yellow-50 border-yellow-200';
     return 'bg-red-50 border-red-200';
   };
 
+  
   return (
-    <div className="space-y-4">
-      {ingredients.map(ingredient => {
-        const otherIngredients = ingredients.filter(i => i !== ingredient);
-        const compatibilityScore = getCompatibilityScore(ingredient, otherIngredients);
-        const colorClass = getCompatibilityColor(compatibilityScore);
-        const profile = ingredientProfiles.find(p => 
-          p.name.toLowerCase() === ingredient.toLowerCase()
-        );
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      {/* Empty grid slots */}
+      {[...Array(10)].map((_, index) => {
+        const ingredient = ingredients[index];
         
+        if (ingredient) {
+          // Existing ingredient card
+          const compatibilityScore = getCompatibilityScore(ingredient, ingredients.filter(i => i !== ingredient));
+          const colorClass = getCompatibilityColor(compatibilityScore);
+          const profile = ingredientProfiles.find(p => 
+            p.name.toLowerCase() === ingredient.toLowerCase()
+          );
+          
+          return (
+            <IngredientCard
+              key={ingredient}
+              ingredient={ingredient}
+              profile={profile}
+              compatibilityScore={compatibilityScore}
+              colorClass={colorClass}
+              onRemove={onRemove}
+            />
+          );
+        }
+        
+        // Empty slot placeholder
         return (
-          <IngredientCard
-            key={ingredient}
-            ingredient={ingredient}
-            profile={profile}
-            compatibilityScore={compatibilityScore}
-            colorClass={colorClass}
-            onRemove={onRemove}
-          />
+          <div 
+            key={`empty-${index}`}
+            className="border-2 border-dashed border-gray-200 rounded-lg h-24 flex items-center justify-center"
+          >
+            <span className="text-gray-300 text-sm">{index + 1}</span>
+          </div>
         );
       })}
     </div>
   );
 };
+export default SelectedIngredients;

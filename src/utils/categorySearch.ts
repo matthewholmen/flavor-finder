@@ -1,11 +1,9 @@
 // src/utils/categorySearch.ts
 import { IngredientProfile, IngredientSubcategory } from '../types.ts';
-import { TasteFilter as TasteFilterType } from '../components/tasteFilter.tsx';
 
 interface SearchState {
   searchTerm: string;
   activeCategories: Array<keyof IngredientSubcategory>;
-  tasteCriteria: TasteFilterType[];
 }
 
 export const filterIngredients = (
@@ -13,7 +11,6 @@ export const filterIngredients = (
   filters: {
     searchTerm: string;
     activeCategories: string[];
-    tasteCriteria: TasteFilterType[];
   },
   ingredientProfiles: IngredientProfile[],
   selectedIngredients: string[]
@@ -33,16 +30,6 @@ export const filterIngredients = (
       if (!profile || !filters.activeCategories.includes(profile.category)) {
         return false;
       }
-    }
-
-    // Taste filter
-    if (filters.tasteCriteria.length > 0) {
-      if (!profile) return false;
-      
-      // Check if ingredient meets ALL selected taste criteria
-      return filters.tasteCriteria.every(({ taste, minIntensity }) => 
-        profile.flavorProfile[taste] >= minIntensity
-      );
     }
 
     return true;

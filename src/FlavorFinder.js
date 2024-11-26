@@ -1,6 +1,7 @@
 // FlavorFinder.js
+import MobileSearchSheet from './components/MobileSearchSheet.tsx';
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -13,23 +14,27 @@ import { getCompatibilityScore, getCompatibilityColor } from './utils/compatibil
 import { getSortedCompatibleIngredients } from './utils/sorting.ts';
 import { filterIngredients } from './utils/categorySearch.ts';
 import CategoryFilter from './components/categoryFilter.tsx';
-import TasteFilter, { TasteFilter as TasteFilterType } from './components/tasteFilter.tsx';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { CATEGORIES } from './components/categoryFilter.tsx';
-import { TASTE_COLORS } from './components/tasteFilter.tsx';
-
-
-// Version tracking
-const VERSION = '2.2.0';
-const CHANGELOG = {
-  '1.0.0': 'Initial version with basic search and compatibility display',
-  '2.0.0': 'Added version control, changelog, and component organization',
-  '2.1.0': 'Enhanced suggestion algorithm with taste profile balancing',
-  '2.2.0': 'Added experimental mode with expanded flavor pairings'
-};
+import CompactTasteSliders, { TasteValues } from './components/CompactTasteSliders.tsx';
 
 // Helper functions for taste analysis
 const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
+
+const filterByTasteValues = (ingredients, tasteValues) => {
+  return ingredients.filter((ingredient) => {
+    const profile = ingredientProfiles.find(
+      (p) => p.name.toLowerCase() === ingredient.toLowerCase()
+    );
+
+    if (!profile) return false;
+
+    // Check if all flavor values meet or exceed slider values
+    return Object.entries(tasteValues).every(([taste, minValue]) => {
+      return profile.flavorProfile[taste] >= minValue;
+    });
+  });
+};
 
 const calculateAverageScores = (ingredients) => {
   const profiles = ingredients
@@ -125,246 +130,383 @@ const createFlavorMap = (includeExperimental = false) => {
 
 // Main Component
 export default function FlavorFinder() {
+  const [filteredIngredients, setFilteredIngredients] = useState([]);
   const [selectedIngredients, setSelectedIngredients] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isExperimental, setIsExperimental] = useState(false);
   const [activeCategories, setActiveCategories] = useState([]);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [selectedTastes, setSelectedTastes] = useState([]);
-  const [isTasteOpen, setIsTasteOpen] = useState(false);
-    // Add these missing states
-    const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
-    const [isTasteFilterOpen, setIsTasteFilterOpen] = useState(true);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+  const [isTasteFilterOpen, setIsTasteFilterOpen] = useState(true);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [randomCount, setRandomCount] = useState(3); // default to 3 ingredients
 
+  const [tasteValues, setTasteValues] = useState({
+    sweet: 2,
+    salty: 2,
+    sour: 2,
+    bitter: 2,
+    umami: 2,
+    fat: 2,
+    spicy: 2,
+  });
 
+  
+  const [activeSliders, setActiveSliders] = useState(new Set());
+
+  const toggleSlider = (taste) => {
+    setActiveSliders(prevSliders => {
+      const newSliders = new Set(prevSliders);
+      if (newSliders.has(taste)) {
+        newSliders.delete(taste);
+      } else {
+        newSliders.add(taste);
+      }
+      return newSliders;
+    });
+  };
+
+  const updateTasteIntensity = (values) => {
+    setTasteValues(values);
+  };
   useEffect(() => {
-  const handleEscape = (e) => {
-    if (e.key === 'Escape') {
-      setIsCategoryOpen(false);
-      setIsTasteOpen(false);
-      setIsSearchFocused(false);
-    }
-  };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        setIsCategoryOpen(false);
+      }
+    };
 
-  document.addEventListener('keydown', handleEscape);
-  
-  // Cleanup
-  return () => {
-    document.removeEventListener('keydown', handleEscape);
-  };
-}, []);
+    
+    document.addEventListener("keydown", handleEscape);
 
-  
+    // Cleanup
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
   const { flavorMap, totalPairings } = useMemo(
     () => createFlavorMap(isExperimental),
     [isExperimental]
   );
-  
-  const allIngredients = useMemo(() => 
-    Array.from(flavorMap.keys()).sort((a, b) => 
-      a.toLowerCase().localeCompare(b.toLowerCase())
-    ), 
+
+  const allIngredients = useMemo(
+    () =>
+      Array.from(flavorMap.keys()).sort((a, b) =>
+        a.toLowerCase().localeCompare(b.toLowerCase())
+      ),
     [flavorMap]
   );
 
-  const findCompatibleIngredients = () => {
-    if (selectedIngredients.length === 0) return [];
-    
+  // Dynamically filter ingredients based on taste values and categories
 
-    
-    
+  const handleIngredientSelect = (ingredient) => {
+    if (selectedIngredients.length >= 10) {
+      // Optional: add toast/notification here
+      return;
+    }
+    setSelectedIngredients((prev) => [...prev, ingredient]);
+  };
+
+  const findCompatibleIngredients = () => {
+    if (selectedIngredients.length === 0) {
+      return Array.from(allIngredients).filter(ingredient => {
+        const profile = ingredientProfiles.find(p => 
+          p.name.toLowerCase() === ingredient.toLowerCase()
+        );
+        if (!profile) return false;
+        
+        return Array.from(activeSliders).every(taste => 
+          profile.flavorProfile[taste] >= tasteValues[taste]
+        );
+      });
+    }
+  
     // Get all ingredients that pair with any selected ingredient
     const compatibleSet = new Set();
-    selectedIngredients.forEach(selected => {
+    selectedIngredients.forEach((selected) => {
       const pairings = flavorMap.get(selected);
       if (pairings) {
-        pairings.forEach(ingredient => {
+        pairings.forEach((ingredient) => {
           if (!selectedIngredients.includes(ingredient)) {
             compatibleSet.add(ingredient);
           }
         });
       }
     });
-
-    // Convert to array and sort by compatibility score
+  
+    // Convert to array and filter by taste values
     return Array.from(compatibleSet)
+      .filter(ingredient => {
+        const profile = ingredientProfiles.find(p => 
+          p.name.toLowerCase() === ingredient.toLowerCase()
+        );
+        
+        if (!profile) return false;
+  
+        // Only apply taste filters for active sliders
+        return Object.entries(tasteValues).every(([taste, minValue]) => {
+          if (!activeSliders.has(taste)) return true;
+          return profile.flavorProfile[taste] >= minValue;
+        });
+      })
       .sort((a, b) => {
         const scoreA = getCompatibilityScore(a, selectedIngredients, flavorMap);
         const scoreB = getCompatibilityScore(b, selectedIngredients, flavorMap);
         return scoreB - scoreA; // Sort highest to lowest
       });
   };
-
   const compatibleIngredients = useMemo(
-    () => getSortedCompatibleIngredients(selectedIngredients, flavorMap),
-    [selectedIngredients, flavorMap]
+    () => getSortedCompatibleIngredients(
+      selectedIngredients, 
+      flavorMap, 
+      ingredientProfiles,
+      tasteValues,
+      activeSliders
+    ),
+    [selectedIngredients, flavorMap, ingredientProfiles, tasteValues, activeSliders]
   );
 
-  const filteredIngredients = useMemo(() => {
-    return filterIngredients(
-      allIngredients,
-      { 
-        searchTerm, 
-        activeCategories,
-        tasteCriteria: selectedTastes 
-      },
-      ingredientProfiles,
-      selectedIngredients
-    );
-  }, [allIngredients, searchTerm, activeCategories, selectedTastes, ingredientProfiles, selectedIngredients]);
 
-
-
-return (
-  <div className="h-screen flex flex-col">
-    {/* Fixed Search Header */}
-    <header className="p-4 border-b shadow-sm">
-      <div className="max-w-7xl mx-auto">
-        <SearchBar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          isSearchFocused={isSearchFocused}
-          setIsSearchFocused={setIsSearchFocused}
-          filteredIngredients={filteredIngredients}
-          onIngredientSelect={(ingredient) => {
-            setSelectedIngredients(prev => [...prev, ingredient]);
-            setSearchTerm('');
-            setIsSearchFocused(false);
-          }}
-          activeCategories={activeCategories}
-          setActiveCategories={setActiveCategories}
-          ingredientProfiles={ingredientProfiles}
-        />
-      </div>
-    </header>
-
-{/* Main Grid Layout */}
-<div className="max-w-7xl mx-auto px-4">  {/* Added container */}
-
-<div className="grid grid-cols-3 gap-4 overflow-hidden">
-        {/* Categories and Taste Filter Column */}
-        <div className="p-4 border-r overflow-y-auto">
-          <div className="mb-6">
-            <div className="flex justify-between items-center cursor-pointer mb-4" 
-            >
-              <h2 className="text-lg font-semibold">Categories</h2>
-            </div>
-            {isCategoriesOpen && (
-              <CategoryFilter 
-                selectedCategories={activeCategories}
-                onChange={setActiveCategories}
-                isOpen={isCategoryOpen}
-                setIsOpen={setIsCategoryOpen}
-              />
-            )}
-          </div>
-
-          <div className="mb-6">
-            <div 
-              className="flex justify-between items-center cursor-pointer mb-4" 
-              onClick={() => setIsTasteFilterOpen(!isTasteFilterOpen)}
-            >
-              <h2 className="text-lg font-semibold">Taste Filter</h2>
-              {isTasteFilterOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </div>
-            {isTasteFilterOpen && (
-              <TasteFilter 
-                selectedTastes={selectedTastes}
-                onChange={setSelectedTastes}
-                isOpen={isTasteOpen}
-                setIsOpen={setIsTasteOpen}
-              />
-            )}
-          </div>
-        </div>          
+  const getRandomIngredients = (count = 5) => {
+    console.log("Starting randomization with count:", count);
+    
+    if (count < 1) return [];
+  
+    // Get initial pool of ingredients
+    const initialPool = selectedIngredients.length === 0 
+      ? Array.from(flavorMap.keys())
+      : Array.from(flavorMap.get(selectedIngredients[0]) || []);
+  
+    console.log("Initial pool size:", initialPool.length);
+    
+    const selections = [];
+    let currentPool = [...initialPool];
+  
+    // Pre-calculate all pairings maps to avoid repeated lookups
+    const getPairingsForIngredient = (ingredient) => {
+      if (!flavorMap.has(ingredient)) {
+        // Create empty set if ingredient not found
+        flavorMap.set(ingredient, new Set());
+      }
+      return flavorMap.get(ingredient);
+    };
+  
+    while (selections.length < count && currentPool.length > 0) {
+      const randomIndex = Math.floor(Math.random() * currentPool.length);
+      const candidate = currentPool[randomIndex];
+      
+      // Check compatibility with all previously selected ingredients
+      const isCompatible = selections.length === 0 || selections.every(selected => {
+        const candidatePairings = getPairingsForIngredient(candidate);
+        return candidatePairings.has(selected);
+      });
+  
+      if (isCompatible) {
+        selections.push(candidate);
         
+        // Update pool more efficiently - only check against the new selection
+        const candidatePairings = getPairingsForIngredient(candidate);
+        currentPool = currentPool.filter(ingredient => 
+          ingredient !== candidate && // Remove selected ingredient
+          candidatePairings.has(ingredient) && // Must be compatible with new selection
+          selections.every(selected => // Must be compatible with all previous selections
+            getPairingsForIngredient(selected).has(ingredient)
+          )
+        );
+        
+        console.log("Selected compatible ingredient:", candidate);
+        console.log("Current pool size:", currentPool.length);
+      } else {
+        // Remove incompatible candidate from pool
+        currentPool.splice(randomIndex, 1);
+      }
+    }
+  
+    console.log("Final compatible selections:", selections);
+    return selections;
+  };
 
-      {/* Suggestions Column */}
-      <div className="p-4 overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Suggested Ingredients</h2>
-        <SuggestedIngredients
-          suggestions={(() => {
-            // Start with all ingredients except already selected ones
-            const suggestions = allIngredients
-              .filter(ingredient => {
+  const handleRandomize = () => {
+    console.log("Starting randomization...");  // Debug log
+    setSelectedIngredients([]);
+    const randomlySelected = getRandomIngredients(randomCount);
+    console.log("Random selections:", randomlySelected); // Debug log
+    
+    // Only add if we have results
+    if (randomlySelected.length > 0) {
+      setSelectedIngredients(prev => {
+        // Make sure we don't exceed 10 total ingredients
+        const combined = [...prev, ...randomlySelected];
+        return combined.slice(0, 10);
+      });
+    }
+  };
 
-                
-                // Skip already selected ingredients
-                if (selectedIngredients.includes(ingredient)) return false;
-          
-                // Get ingredient profile
-                const profile = ingredientProfiles.find(p => 
-                  p.name.toLowerCase() === ingredient.toLowerCase()
-                );
-                
-                // If no profile found, don't show
-                if (!profile) return false;
-                
-                // Apply taste filters if any are selected
-                if (selectedTastes.length > 0) {
-                  if (!selectedTastes.every(({ taste, minIntensity }) => 
-                    profile.flavorProfile[taste] >= minIntensity
-                  )) return false;
-                }
-          
-                // Check compatibility - must have at least some compatibility
-                const compatibilityScore = getCompatibilityScore(ingredient, selectedIngredients, flavorMap);
-                return compatibilityScore > 0;
-              })
-              // Sort by compatibility score
-              .sort((a, b) => {
-                const scoreA = getCompatibilityScore(a, selectedIngredients, flavorMap);
-                const scoreB = getCompatibilityScore(b, selectedIngredients, flavorMap);
-                return scoreB - scoreA;
-              });
-              
-            // Find the perfect matches (100% compatible)
-            const perfectMatches = suggestions.filter(ingredient => 
-              getCompatibilityScore(ingredient, selectedIngredients, flavorMap) === 100
-            );
-          
-            // If we have enough perfect matches, just return those
-            if (perfectMatches.length >= 20) {
-              return perfectMatches;
-            }
-          
-            // Otherwise, return all perfect matches plus enough lower-scoring ones to reach 20
-            return [
-              ...perfectMatches,
-              ...suggestions
-                .filter(ingredient => 
-                  !perfectMatches.includes(ingredient)
-                )
-                .slice(0, 20 - perfectMatches.length)
-            ];
-          })()}
-          
+  return (
+    <div className="h-screen flex flex-col bg-gray-50">
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-auto pb-32">
+        <div className="max-w-6xl mx-auto p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={() => setIsMobileSearchOpen(true)}
+              className="md:hidden z-height fixed right-4 bottom-32 w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center"
+            >
+              <Search size={20} />
+            </button>
 
-          onSelect={(ingredient) => setSelectedIngredients(prev => [...prev, ingredient])}
+            <MobileSearchSheet
+              isOpen={isMobileSearchOpen}
+              onClose={() => setIsMobileSearchOpen(false)}
+              activeCategories={activeCategories}
+              setActiveCategories={setActiveCategories}
+              tasteValues={tasteValues}
+              setTasteValues={setTasteValues}
+              activeSliders={activeSliders}
+              setActiveSliders={setActiveSliders}
+            >
+              <SuggestedIngredients
+                  suggestions={compatibleIngredients}
+                  onSelect={handleIngredientSelect}
                   selectedIngredients={selectedIngredients}
                   flavorMap={flavorMap}
                   experimentalPairings={experimentalPairings}
                   flavorPairings={flavorPairings}
                   activeCategories={activeCategories}
                   ingredientProfiles={ingredientProfiles}
-/>
-      </div>
+                  tasteValues={tasteValues}
+                  activeSliders={activeSliders}
+                />
+            </MobileSearchSheet>
 
-      {/* Selected Ingredients Column */}
-      <div className="p-4 overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Selected Ingredients</h2>
-        <div className="space-y-4">
-          <SelectedIngredients
-            ingredients={selectedIngredients}
-            onRemove={(ingredient) => setSelectedIngredients(prev => prev.filter(i => i !== ingredient))}
-            flavorMap={flavorMap}
-            ingredientProfiles={ingredientProfiles}
-          />
+{/* Suggested Ingredients - Left Column */}
+<div className="space-y-2 order-2 md:order-1">
+  <h2 className="text-lg font-semibold">Suggested Ingredients</h2>
+  <SuggestedIngredients
+    suggestions={selectedIngredients.length > 0 ? compatibleIngredients : Array.from(flavorMap.keys())}
+    onSelect={handleIngredientSelect}
+    selectedIngredients={selectedIngredients}
+    flavorMap={flavorMap}
+    experimentalPairings={experimentalPairings}
+    flavorPairings={flavorPairings}
+    activeCategories={activeCategories}
+    ingredientProfiles={ingredientProfiles}
+    tasteValues={tasteValues}
+    activeSliders={activeSliders}
+  />
+</div>
+
+{/* Selected Ingredients - Right Column */}
+<div className="space-y-2 order-1 md:order-2">
+  <h2 className="text-lg font-semibold">Selected Ingredients</h2>
+  <SelectedIngredients
+    ingredients={selectedIngredients}
+    onRemove={(ingredient) => setSelectedIngredients(prev => 
+      prev.filter(i => i !== ingredient)
+    )}
+    flavorMap={flavorMap}
+    ingredientProfiles={ingredientProfiles}
+  />
+</div>
+          </div>
         </div>
+      </main>
+
+{/* Fixed Bottom Search Section */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+                    {/* Filter Section */}
+                    <div className="p-4 border-b">
+                      {/* Category Pills */}
+                      <div className="p-3 pt-4 px-2">
+                        <div className="flex gap-2 overflow-x-auto">
+                        {CATEGORIES.map(category => (
+              <button
+                key={category}
+                onClick={() => {
+                  if (activeCategories) {
+                    setActiveCategories(
+                      activeCategories.includes(category)
+                        ? activeCategories.filter(c => c !== category)
+                        : [...activeCategories, category]
+                    )
+                  }
+                }}
+                className={`flex-none px-3 py-1 rounded-full text-sm transition-colors ${
+                  activeCategories?.includes(category)
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+            </div>
+          </div>
+
+          {/* Taste Sliders */}
+          <CompactTasteSliders
+                values={tasteValues}
+                onChange={setTasteValues}
+                activeSliders={activeSliders}
+                onToggleSlider={(taste) => {
+                  console.log('Toggling:', taste); // Debug log
+                  const newActive = new Set(activeSliders);
+                  if (newActive.has(taste)) {
+                    newActive.delete(taste);
+                  } else {
+                    newActive.add(taste);
+                  }
+                  setActiveSliders(newActive);
+                  console.log('New active sliders:', Array.from(newActive)); // Debug log
+                }}
+              />  
+
+              {/* Randomizer Controls */}
+              <div className="mt-4 flex items-center justify-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label htmlFor="random-count" className="text-sm font-medium text-gray-700">
+                    Random ingredients:
+                  </label>
+                  <input
+                    id="random-count"
+                    type="number"
+                    min="1"
+                    max={Math.min(5, 10 - selectedIngredients.length)}
+                    value={Math.min(randomCount, 10 - selectedIngredients.length)}
+                    onChange={(e) => setRandomCount(Math.min(5, Math.max(1, parseInt(e.target.value) || 1)))}
+                    className="w-16 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    disabled={selectedIngredients.length >= 10}
+                  />
+                </div>
+                <button
+                  onClick={handleRandomize}
+                  disabled={selectedIngredients.length >= 10}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative group"
+                  title="Generates random compatible ingredients considering your taste preferences"
+                >
+                  Randomize!
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                    Considers taste filters and compatibility
+                  </div>
+                </button>
+              </div>
+     </div>
+
+        
       </div>
-    </div>
-    </div>
+      <MobileSearchSheet
+  isOpen={isMobileSearchOpen}
+  onClose={() => setIsMobileSearchOpen(false)}
+  activeCategories={activeCategories}
+  setActiveCategories={setActiveCategories}
+  tasteValues={tasteValues}
+  setTasteValues={setTasteValues}
+  activeSliders={activeSliders}
+  setActiveSliders={setActiveSliders}>
+    </MobileSearchSheet>
   </div>
 );
+
 }
