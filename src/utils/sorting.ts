@@ -1,6 +1,8 @@
 // utils/sorting.ts
 import { getCompatibilityScore } from './compatibility.ts';
 import { IngredientProfile, IngredientSubcategory } from '../types.ts';
+import { TasteValues } from '../components/CompactTasteSliders.tsx';
+
 
 export interface ScoredIngredient {
   name: string;
@@ -12,9 +14,10 @@ export const getSortedCompatibleIngredients = (
   selectedIngredients: string[],
   flavorMap: Map<string, Set<string>>,
   ingredientProfiles: IngredientProfile[],
-  tasteValues: Record<string, number>,
-  activeSliders: Set<string>
+  tasteValues: TasteValues,
+  activeSliders: Set<keyof TasteValues>
 ): string[] => {
+
   if (selectedIngredients.length === 0 || flavorMap.size === 0) return [];
 
   // Get compatible ingredients first
@@ -41,12 +44,12 @@ export const getSortedCompatibleIngredients = (
       
       if (!profile) return false;
 
-      // Only check active sliders
+// Only check active sliders
       return Object.entries(tasteValues).every(([taste, minValue]) => {
-        if (!activeSliders.has(taste)) return true;
-        return profile.flavorProfile[taste] >= minValue;
-      });
-    })
+        if (!activeSliders.has(taste as keyof TasteValues)) return true;
+        return profile.flavorProfile[taste as keyof TasteValues] >= minValue;
+          });   
+          })
     .map(ingredient => ({
       name: ingredient,
       compatibilityScore: getCompatibilityScore(ingredient, selectedIngredients, flavorMap)

@@ -1,22 +1,37 @@
 // FlavorFinder.js
-import MobileSearchSheet from './components/MobileSearchSheet.tsx';
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
-import TasteProfileDisplay from './components/TasteProfileDisplay';
-import { SearchBar } from './components/SearchBar.tsx';
-import ModeToggle from './components/ModeToggle.jsx';
-import { SelectedIngredients } from './components/SelectedIngredients.tsx';
+import { ThemeToggle } from './components/ThemeToggle.jsx';  
 import { SuggestedIngredients } from './components/SuggestedIngredients.tsx';
 import { getCompatibilityScore, getCompatibilityColor } from './utils/compatibility.ts';
 import { getSortedCompatibleIngredients } from './utils/sorting.ts';
-import { filterIngredients } from './utils/categorySearch.ts';
-import CategoryFilter from './components/categoryFilter.tsx';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { CATEGORIES } from './components/categoryFilter.tsx';
-import CompactTasteSliders, { TasteValues } from './components/CompactTasteSliders.tsx';
+import IngredientSlot from './components/IngredientSlot.tsx';
+import { TASTE_COLORS } from './utils/colors.ts';
+
+
+const getIngredientColor = (profile) => {
+  if (!profile) return 'rgb(249 250 251)'; // or 'bg-gray-50' for Tailwind
+  
+  let dominantTaste = 'sweet';
+  let maxValue = -1;
+  
+  Object.entries(profile.flavorProfile).forEach(([taste, value]) => {
+    if (value > maxValue) {
+      maxValue = value;
+      dominantTaste = taste;
+    }
+  });
+
+  if (maxValue <= 0) return 'rgb(249 250 251)';
+  
+  return TASTE_COLORS[dominantTaste];
+};
+
+
+
 
 // Helper functions for taste analysis
 const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
@@ -130,28 +145,79 @@ const createFlavorMap = (includeExperimental = false) => {
 
 // Main Component
 export default function FlavorFinder() {
-  const [filteredIngredients, setFilteredIngredients] = useState([]);
   const [selectedIngredients, setSelectedIngredients] = useState([]);
+  const [lockedIngredients, setLockedIngredients] = useState(new Set());
+  const [editingSlot, setEditingSlot] = useState(null);
+  const [randomCount, setRandomCount] = useState(4);
   const [isExperimental, setIsExperimental] = useState(false);
-  const [activeCategories, setActiveCategories] = useState([]);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
-  const [isTasteFilterOpen, setIsTasteFilterOpen] = useState(true);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [randomCount, setRandomCount] = useState(3); // default to 3 ingredients
+  const [slotFilters, setSlotFilters] = useState({});
+  
+
+
+  // Random pairing on start
+  useEffect(() => {
+    if (selectedIngredients.length === 0) {
+      const initialPair = getRandomIngredients(0);
+      setSelectedIngredients(initialPair);
+    }
+  }, []); // Empty dependency array means this runs once on mount
+
+
+  const addRandomIngredient = () => {
+    if (selectedIngredients.length >= 5) return;
+  
+    // Get initial pool of ingredients
+    const currentPool = selectedIngredients.length === 0 
+      ? Array.from(flavorMap.keys())
+      : Array.from(flavorMap.get(selectedIngredients[0]) || []);
+  
+    // Filter pool to only ingredients compatible with all current selections
+    const compatiblePool = currentPool.filter(ingredient => 
+      selectedIngredients.every(selected => 
+        flavorMap.get(selected)?.has(ingredient)
+      )
+    );
+  
+    if (compatiblePool.length > 0) {
+      const randomIndex = Math.floor(Math.random() * compatiblePool.length);
+      const newIngredient = compatiblePool[randomIndex];
+      setSelectedIngredients(prev => [...prev, newIngredient]);
+    }
+  };
+  
+  
 
   const [tasteValues, setTasteValues] = useState({
-    sweet: 2,
-    salty: 2,
-    sour: 2,
-    bitter: 2,
-    umami: 2,
-    fat: 2,
-    spicy: 2,
+    sweet: 5,
+    salty: 5,
+    sour: 5,
+    bitter: 5,
+    umami: 5,
+    fat: 5,
+    spicy: 5
   });
 
+  const [defaultTasteValues] = useState({
+    sweet: 5,
+    salty: 5,
+    sour: 5,
+    bitter: 5,
+    umami: 5,
+    fat: 5,
+    spicy: 5
+  });
+  
+  const handleLockToggle = (index) => {
+    setLockedIngredients(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
   
   const [activeSliders, setActiveSliders] = useState(new Set());
 
@@ -170,22 +236,7 @@ export default function FlavorFinder() {
   const updateTasteIntensity = (values) => {
     setTasteValues(values);
   };
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === "Escape") {
-        setIsCategoryOpen(false);
-      }
-    };
-
-    
-    document.addEventListener("keydown", handleEscape);
-
-    // Cleanup
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, []);
-
+  
   const { flavorMap, totalPairings } = useMemo(
     () => createFlavorMap(isExperimental),
     [isExperimental]
@@ -202,7 +253,7 @@ export default function FlavorFinder() {
   // Dynamically filter ingredients based on taste values and categories
 
   const handleIngredientSelect = (ingredient) => {
-    if (selectedIngredients.length >= 10) {
+    if (selectedIngredients.length >= 4) {
       // Optional: add toast/notification here
       return;
     }
@@ -269,244 +320,209 @@ export default function FlavorFinder() {
   );
 
 
-  const getRandomIngredients = (count = 5) => {
-    console.log("Starting randomization with count:", count);
-    
-    if (count < 1) return [];
+// Updated getRandomIngredients function
+const getRandomIngredients = (count = 4, startFresh = false, existingLocked = [], existingIngredients = new Set()) => {
+  let selections = [];
+  let maxAttempts = 100;
   
-    // Get initial pool of ingredients
-    const initialPool = selectedIngredients.length === 0 
-      ? Array.from(flavorMap.keys())
-      : Array.from(flavorMap.get(selectedIngredients[0]) || []);
+  // Create a Set of all ingredients we want to exclude
+  const excludeSet = new Set([...existingIngredients, ...selections]);
   
-    console.log("Initial pool size:", initialPool.length);
-    
-    const selections = [];
-    let currentPool = [...initialPool];
-  
-    // Pre-calculate all pairings maps to avoid repeated lookups
-    const getPairingsForIngredient = (ingredient) => {
-      if (!flavorMap.has(ingredient)) {
-        // Create empty set if ingredient not found
-        flavorMap.set(ingredient, new Set());
-      }
-      return flavorMap.get(ingredient);
-    };
-  
-    while (selections.length < count && currentPool.length > 0) {
-      const randomIndex = Math.floor(Math.random() * currentPool.length);
-      const candidate = currentPool[randomIndex];
+  while (selections.length < count && maxAttempts > 0) {
+    // For the first ingredient, use the full pool
+    if (selections.length === 0) {
+      const fullPool = Array.from(flavorMap.keys())
+        .filter(ingredient => !excludeSet.has(ingredient));
       
-      // Check compatibility with all previously selected ingredients
-      const isCompatible = selections.length === 0 || selections.every(selected => {
-        const candidatePairings = getPairingsForIngredient(candidate);
-        return candidatePairings.has(selected);
-      });
-  
-      if (isCompatible) {
-        selections.push(candidate);
-        
-        // Update pool more efficiently - only check against the new selection
-        const candidatePairings = getPairingsForIngredient(candidate);
-        currentPool = currentPool.filter(ingredient => 
-          ingredient !== candidate && // Remove selected ingredient
-          candidatePairings.has(ingredient) && // Must be compatible with new selection
-          selections.every(selected => // Must be compatible with all previous selections
-            getPairingsForIngredient(selected).has(ingredient)
-          )
-        );
-        
-        console.log("Selected compatible ingredient:", candidate);
-        console.log("Current pool size:", currentPool.length);
-      } else {
-        // Remove incompatible candidate from pool
-        currentPool.splice(randomIndex, 1);
+      if (fullPool.length > 0) {
+        const randomIndex = Math.floor(Math.random() * fullPool.length);
+        selections.push(fullPool[randomIndex]);
+        excludeSet.add(fullPool[randomIndex]);
+        continue;
       }
     }
-  
-    console.log("Final compatible selections:", selections);
-    return selections;
-  };
-
-  const handleRandomize = () => {
-    console.log("Starting randomization...");  // Debug log
-    setSelectedIngredients([]);
-    const randomlySelected = getRandomIngredients(randomCount);
-    console.log("Random selections:", randomlySelected); // Debug log
     
-    // Only add if we have results
-    if (randomlySelected.length > 0) {
-      setSelectedIngredients(prev => {
-        // Make sure we don't exceed 10 total ingredients
-        const combined = [...prev, ...randomlySelected];
-        return combined.slice(0, 10);
-      });
+    // For subsequent ingredients, ensure compatibility with ALL previous selections
+    let compatiblePool = Array.from(flavorMap.keys()).filter(candidate => {
+      // Skip if already selected or excluded
+      if (excludeSet.has(candidate)) return false;
+      
+      // Check if candidate is compatible with ALL current selections
+      // and that ALL current selections are compatible with each other
+      for (let i = 0; i < selections.length; i++) {
+        const pairings = flavorMap.get(selections[i]);
+        if (!pairings || !pairings.has(candidate)) return false;
+        
+        // Check if this candidate maintains compatibility between existing selections
+        for (let j = i + 1; j < selections.length; j++) {
+          const existingPairings = flavorMap.get(selections[j]);
+          if (!existingPairings || !existingPairings.has(candidate)) return false;
+        }
+      }
+      return true;
+    });
+    
+    if (compatiblePool.length > 0) {
+      const randomIndex = Math.floor(Math.random() * compatiblePool.length);
+      const selectedIngredient = compatiblePool[randomIndex];
+      selections.push(selectedIngredient);
+      excludeSet.add(selectedIngredient);
+    } else {
+      // If we can't find a compatible ingredient, break to avoid infinite loop
+      break;
+    }
+    
+    maxAttempts--;
+  }
+  
+  return selections;
+};
+
+// Updated handleRandomize function
+const handleRandomize = () => {
+  // If no ingredients selected yet, do a fresh randomization
+  if (selectedIngredients.length === 0) {
+    const randomIngredients = getRandomIngredients(4, true);
+    setSelectedIngredients(randomIngredients);
+    return;
+  }
+
+  // Track both locked positions and values using Sets
+  const lockedPositions = new Set();
+  const lockedValues = new Set();
+  let newIngredients = Array(4).fill(undefined);
+
+  // First, preserve locked ingredients in their positions
+  selectedIngredients.forEach((ingredient, index) => {
+    if (lockedIngredients.has(index)) {
+      lockedPositions.add(index);
+      lockedValues.add(ingredient);
+      newIngredients[index] = ingredient;
+    }
+  });
+
+  // Then get new random selections, excluding locked ingredients entirely
+  const randomSelections = getRandomIngredients(
+    4 - lockedPositions.size,     // how many new ones we need
+    true,                         // fresh start (changed this to true!)
+    [],                          // no locked ingredients in starting set
+    lockedValues                 // exclude these from being picked
+  );
+
+  // Fill remaining positions with new selections
+  let selectionIndex = 0;
+  for (let i = 0; i < 4; i++) {
+    if (!lockedPositions.has(i)) {
+      newIngredients[i] = randomSelections[selectionIndex];
+      selectionIndex++;
+    }
+  }
+
+  setSelectedIngredients(newIngredients.filter(Boolean));
+};
+
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
+  const [activeCategories, setActiveCategories] = useState([]);
+  const [filteredIngredients, setFilteredIngredients] = useState([]);
+  
+useEffect(() => {
+  const handleKeyPress = (e) => {
+    // Only handle space if search isn't focused and no modals are open
+    if (e.code === 'Space' && !isSearchFocused && !editingSlot) {
+      e.preventDefault(); // Prevent page scroll
+      handleRandomize();
     }
   };
 
-  return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-auto pb-32">
-        <div className="max-w-6xl mx-auto p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              onClick={() => setIsMobileSearchOpen(true)}
-              className="md:hidden z-height fixed right-4 bottom-32 w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center"
-            >
-              <Search size={20} />
-            </button>
+  window.addEventListener('keydown', handleKeyPress);
+  return () => window.removeEventListener('keydown', handleKeyPress);
+}, [isSearchFocused, editingSlot, handleRandomize]);
 
-            <MobileSearchSheet
-              isOpen={isMobileSearchOpen}
-              onClose={() => setIsMobileSearchOpen(false)}
-              activeCategories={activeCategories}
-              setActiveCategories={setActiveCategories}
-              tasteValues={tasteValues}
-              setTasteValues={setTasteValues}
-              activeSliders={activeSliders}
-              setActiveSliders={setActiveSliders}
-            >
-              <SuggestedIngredients
-                  suggestions={compatibleIngredients}
-                  onSelect={handleIngredientSelect}
-                  selectedIngredients={selectedIngredients}
-                  flavorMap={flavorMap}
-                  experimentalPairings={experimentalPairings}
-                  flavorPairings={flavorPairings}
-                  activeCategories={activeCategories}
-                  ingredientProfiles={ingredientProfiles}
-                  tasteValues={tasteValues}
-                  activeSliders={activeSliders}
-                />
-            </MobileSearchSheet>
+const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+const [activeCategory, setActiveCategory] = useState('');
 
-{/* Suggested Ingredients - Left Column */}
-<div className="space-y-2 order-2 md:order-1">
-  <h2 className="text-lg font-semibold">Suggested Ingredients</h2>
-  <SuggestedIngredients
-    suggestions={selectedIngredients.length > 0 ? compatibleIngredients : Array.from(flavorMap.keys())}
-    onSelect={handleIngredientSelect}
-    selectedIngredients={selectedIngredients}
-    flavorMap={flavorMap}
-    experimentalPairings={experimentalPairings}
-    flavorPairings={flavorPairings}
-    activeCategories={activeCategories}
-    ingredientProfiles={ingredientProfiles}
-    tasteValues={tasteValues}
-    activeSliders={activeSliders}
-  />
-</div>
-
-{/* Selected Ingredients - Right Column */}
-<div className="space-y-2 order-1 md:order-2">
-  <h2 className="text-lg font-semibold">Selected Ingredients</h2>
-  <SelectedIngredients
-    ingredients={selectedIngredients}
-    onRemove={(ingredient) => setSelectedIngredients(prev => 
-      prev.filter(i => i !== ingredient)
-    )}
-    flavorMap={flavorMap}
-    ingredientProfiles={ingredientProfiles}
-  />
-</div>
-          </div>
+return (
+  <div className="h-screen flex bg-white dark:bg-gray-900 overflow-hidden">
+    {/* Left Column (50%) */}
+    <div className="w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-700 ">
+      {/* Header row */}
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <img 
+          src="/flavor-finder-1.png" 
+          alt="Flavor Finder Logo" 
+          className="h-12 w-auto object-contain"
+        />
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
+          <button 
+            onClick={handleRandomize}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
+          >
+            <Sparkles size={16} />
+            Randomize!
+          </button>
         </div>
-      </main>
-
-{/* Fixed Bottom Search Section */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
-                    {/* Filter Section */}
-                    <div className="p-4 border-b">
-                      {/* Category Pills */}
-                      <div className="p-3 pt-4 px-2">
-                        <div className="flex gap-2 overflow-x-auto">
-                        {CATEGORIES.map(category => (
-              <button
-                key={category}
-                onClick={() => {
-                  if (activeCategories) {
-                    setActiveCategories(
-                      activeCategories.includes(category)
-                        ? activeCategories.filter(c => c !== category)
-                        : [...activeCategories, category]
-                    )
-                  }
-                }}
-                className={`flex-none px-3 py-1 rounded-full text-sm transition-colors ${
-                  activeCategories?.includes(category)
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-            </div>
-          </div>
-
-          {/* Taste Sliders */}
-          <CompactTasteSliders
-                values={tasteValues}
-                onChange={setTasteValues}
-                activeSliders={activeSliders}
-                onToggleSlider={(taste) => {
-                  console.log('Toggling:', taste); // Debug log
-                  const newActive = new Set(activeSliders);
-                  if (newActive.has(taste)) {
-                    newActive.delete(taste);
-                  } else {
-                    newActive.add(taste);
-                  }
-                  setActiveSliders(newActive);
-                  console.log('New active sliders:', Array.from(newActive)); // Debug log
-                }}
-              />  
-
-              {/* Randomizer Controls */}
-              <div className="mt-4 flex items-center justify-center gap-4">
-                <div className="flex items-center gap-2">
-                  <label htmlFor="random-count" className="text-sm font-medium text-gray-700">
-                    Random ingredients:
-                  </label>
-                  <input
-                    id="random-count"
-                    type="number"
-                    min="1"
-                    max={Math.min(5, 10 - selectedIngredients.length)}
-                    value={Math.min(randomCount, 10 - selectedIngredients.length)}
-                    onChange={(e) => setRandomCount(Math.min(5, Math.max(1, parseInt(e.target.value) || 1)))}
-                    className="w-16 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    disabled={selectedIngredients.length >= 10}
-                  />
-                </div>
-                <button
-                  onClick={handleRandomize}
-                  disabled={selectedIngredients.length >= 10}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative group"
-                  title="Generates random compatible ingredients considering your taste preferences"
-                >
-                  Randomize!
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    Considers taste filters and compatibility
-                  </div>
-                </button>
-              </div>
-     </div>
-
-        
       </div>
-      <MobileSearchSheet
-  isOpen={isMobileSearchOpen}
-  onClose={() => setIsMobileSearchOpen(false)}
-  activeCategories={activeCategories}
-  setActiveCategories={setActiveCategories}
-  tasteValues={tasteValues}
-  setTasteValues={setTasteValues}
-  activeSliders={activeSliders}
-  setActiveSliders={setActiveSliders}>
-    </MobileSearchSheet>
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col">
+  {/* Filters and Suggestions wrapper */}
+  <div className="flex-1 p-4 overflow-y-auto">
+    {/* Top Filters Section */}
+    <div className="space-y-4">
+          <SuggestedIngredients
+            suggestions={compatibleIngredients}
+            onSelect={handleIngredientSelect}
+            selectedIngredients={selectedIngredients}
+            flavorMap={flavorMap}
+            experimentalPairings={[]}
+            flavorPairings={[]}
+            activeCategories={activeCategory ? [activeCategory] : []}
+            ingredientProfiles={ingredientProfiles}
+            tasteValues={tasteValues}
+            activeSliders={activeSliders}
+            onTasteValuesChange={updateTasteIntensity}
+            onToggleSlider={toggleSlider}
+          />
+        </div>
+        </div>
+
+        {/* Filters section - now at bottom */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        </div>
+      </div>
+    </div>
+
+    {/* Right Column (50%): Selected Ingredients */}
+<div className="w-1/2 flex flex-col h-screen">
+  {[...Array(4)].map((_, index) => (
+    <div 
+      key={`slot-${index}`}
+      className="h-1/4 w-full"
+    >
+      <IngredientSlot
+        ingredient={selectedIngredients[index]}
+        isLocked={lockedIngredients.has(index)}
+        onLockToggle={() => handleLockToggle(index)}
+        onRemove={() => {
+          setSelectedIngredients(prev => {
+            const next = [...prev];
+            next[index] = undefined;
+            return next.filter(Boolean);
+          });
+        }}
+        onEdit={() => setEditingSlot(index)}
+        profile={ingredientProfiles.find(
+          p => p.name.toLowerCase() === selectedIngredients[index]?.toLowerCase()
+        )}
+        index={index}
+      />
+    </div>
+  ))}
+</div>
   </div>
 );
-
 }

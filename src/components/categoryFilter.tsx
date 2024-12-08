@@ -1,5 +1,4 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { JSX } from 'react';
 
 export const CATEGORIES = [
   'Alcohol',
@@ -7,45 +6,44 @@ export const CATEGORIES = [
   'Dairy',
   'Fruits',
   'Grains',
-  'Legumes', 
+  'Legumes',
   'Liquids',
   'Proteins',
   'Seasonings',
   'Vegetables'
-];
+] as const;
 
 interface CategoryFilterProps {
-  selectedCategories: string[];
-  onChange: (categories: string[]) => void;
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
 }
 
-export default function CategoryFilter({ 
-  selectedCategories, 
-  onChange,
-  isOpen,
-  setIsOpen 
+export default function CategoryFilter({
+  activeCategory,
+  onCategoryChange
 }: CategoryFilterProps) {
-  const toggleCategory = (category: string) => {
-    onChange(
-      selectedCategories.includes(category)
-        ? selectedCategories.filter(c => c !== category)
-        : [...selectedCategories, category]
-    );
-  };
-
   return (
-    <div className="flex flex-wrap gap-2">
-      {CATEGORIES.map(category => (
+    <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide" style={{
+      msOverflowStyle: 'none',  /* IE and Edge */
+      scrollbarWidth: 'none',   /* Firefox */
+      '::-webkit-scrollbar': {  /* Webkit (Safari/Chrome) */
+        display: 'none'
+      }
+    }}>
+      {CATEGORIES.map((category) => (
         <button
           key={category}
-          onClick={() => toggleCategory(category)}
-          className={`px-3 py-1 rounded-full text-sm transition-colors ${
-            selectedCategories.includes(category)
-              ? 'bg-blue-100 text-blue-800'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
+          onClick={() => onCategoryChange(category === activeCategory ? '' : category)}
+          className={`
+            relative py-1 
+            transition-all duration-200
+            text-sm
+            border-b-2 
+            ${activeCategory === category 
+              ? 'border-gray-900 dark:border-gray-100 text-gray-900 dark:text-gray-100 font-medium' 
+              : 'border-transparent hover:border-gray-400 dark:hover:border-gray-500 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+            }
+          `}
         >
           {category}
         </button>

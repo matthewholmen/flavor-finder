@@ -493,7 +493,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Cured and smoked pork belly with intense savory flavor, rich in salt and fat with sweet-smoky undertones"
   },
   {
-    name: "baked bean",
+    name: "baked beans",
     category: "Legumes",
     subcategory: "Beans",
     flavorProfile: {
@@ -967,7 +967,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Tender butterhead lettuce with mild, sweet flavor and delicate texture"
   },
   {
-    name: "bitter greens",
+    name: "mustard greens",
     category: "Vegetables",
     subcategory: "Leafy Greens",
     flavorProfile: {
@@ -1157,7 +1157,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "blackberry",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
         sweet: 6,
         salty: 0,
@@ -1214,7 +1214,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "blue cheese",
       category: "Dairy",
-      subcategory: "Hard Cheese",
+      subcategory: "Soft Cheese",
       flavorProfile: {
         sweet: 1,
         salty: 7,
@@ -1232,7 +1232,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "blueberry",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
         sweet: 7,
         salty: 0,
@@ -1363,7 +1363,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "boysenberry",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
         sweet: 6,
         salty: 0,
@@ -2529,8 +2529,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "chili pepper",
-      category: "Seasonings",
-      subcategory: "Chilis",
+      category: "Vegetables",
+      subcategory: "Fruit Vegetables",
       flavorProfile: {
         sweet: 3,
         salty: 0,
@@ -2567,8 +2567,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "chipotle",
-      category: "Seasonings",
-      subcategory: "Chilis",
+      category: "Vegetables",
+      subcategory: "Fruit Vegetables",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -3093,7 +3093,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Tart berry with astringent qualities, usually sweetened for consumption"
     },
     {
-      name: "crayfish",
+      name: "crawfish",
       category: "Proteins",
       subcategory: "Crustacean",
       flavorProfile: {
@@ -3131,7 +3131,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "cream cheese",
       category: "Dairy",
-      subcategory: "Soft Cheese",
+      subcategory: "Cultured Dairy",
       flavorProfile: {
         sweet: 2,
         salty: 2,
@@ -4312,7 +4312,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "gorgonzola",
       category: "Dairy",
-      subcategory: "Hard Cheese",
+      subcategory: "Soft Cheese",
       flavorProfile: {
         sweet: 2,
         salty: 6,
@@ -4348,7 +4348,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "grape",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
         sweet: 7,
         salty: 0,
@@ -4554,8 +4554,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "habanero",
-      category: "Seasonings",
-      subcategory: "Chilis",
+      category: "Vegetables",
+      subcategory: "Fruit Vegetables",
       flavorProfile: {
         sweet: 3,
         salty: 0,
@@ -4630,7 +4630,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "havarti cheese",
       category: "Dairy",
-      subcategory: "Hard Cheese",
+      subcategory: "Soft Cheese",
       flavorProfile: {
         sweet: 3,
         salty: 3,
@@ -4760,7 +4760,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "honeydew melon",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Melons",
       flavorProfile: {
         sweet: 7,
         salty: 0,
@@ -4797,7 +4797,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "huckleberry",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
         sweet: 5,
         salty: 0,
@@ -4889,8 +4889,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "jalapeño",
-      category: "Seasonings",
-      subcategory: "Chilis",
+      category: "Vegetables",
+      subcategory: "Fruit Vegetables",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -7183,7 +7183,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "purslane",
-        category: "Vegetables",
+        category: "Seasonings",
         subcategory: "Leafy Greens",
         flavorProfile: {
           sweet: 0,
@@ -9239,6 +9239,1393 @@ export const ingredientProfiles: IngredientProfile[] = [
           primary: "Marine"
         },
         description: "Slightly sweet, neutral-tasting seafood also known as Calamari"
-      }
-
+      },
+      {
+        name: "basmati rice",
+        category: "Grains",
+        subcategory: "Rice",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Nutty"
+        },
+        description: "Long-grain aromatic rice with a light, floral fragrance and nutty notes"
+      },
+      {
+        name: "fish",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 0,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 7,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine",
+        },
+        description: "Generic white fish with mild flavor and medium umami notes"
+      },
+      {
+        name: "green peppercorn",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 1,
+          bitter: 2,
+          umami: 0,
+          fat: 0,
+          spicy: 6
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Fresh unripe peppercorns with bright, sharp heat and herbal notes"
+      },
+      {
+        name: "lima beans",
+        category: "Legumes",
+        subcategory: "Beans",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 3,
+          fat: 1,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Large, creamy beans with a mild, buttery flavor and slight sweetness"
+      },
+      {
+        name: "mayonnaise",
+        category: "Condiments",
+        subcategory: "Sauces",
+        flavorProfile: {
+          sweet: 0,
+          salty: 2,
+          sour: 3,
+          bitter: 0,
+          umami: 1,
+          fat: 8,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Dairy",
+        },
+        description: "Emulsified sauce with rich, creamy texture and tangy notes"
+      },
+      {
+        name: "marrow",
+        category: "Vegetables",
+        subcategory: "Squash",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Summer squash with delicate, slightly sweet flavor and tender texture"
+      },
+      {
+        name: "matsutake mushroom",
+        category: "Vegetables",
+        subcategory: "Mushroom",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 0,
+          bitter: 2,
+          umami: 8,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Prized mushroom with intense pine-like aroma and rich umami flavor"
+      },
+      {
+        name: "meringue",
+        category: "Condiments",
+        subcategory: "Sweeteners",
+        flavorProfile: {
+          sweet: 9,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Caramel"
+        },
+        description: "Light, airy confection made from whipped egg whites and sugar"
+      },
+      {
+        name: "merlot",
+        category: "Alcohol",
+        subcategory: "Wines",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 3,
+          bitter: 4,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Berry"
+        },
+        description: "Medium-bodied red wine with plum and black cherry notes"
+      },
+      {
+        name: "mesclun",
+        category: "Vegetables",
+        subcategory: "Leafy Greens",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 1,
+          bitter: 4,
+          umami: 0,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Mixed young salad greens with varying levels of pepperiness and bitterness"
+      },
+      {
+        name: "piquillo pepper",
+        category: "Vegetables",
+        subcategory: "Peppers",
+        flavorProfile: {
+          sweet: 4,
+          salty: 0,
+          sour: 1,
+          bitter: 0,
+          umami: 2,
+          fat: 0,
+          spicy: 3
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Fruit-Like"
+        },
+        description: "Sweet Spanish pepper with subtle heat and smoky notes"
+      },
+      {
+        name: "pike",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 0,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 5,
+          fat: 3,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Freshwater fish with clean, mild flavor and firm texture"
+      },
+      {
+        name: "polenta",
+        category: "Grains",
+        subcategory: "Ancient Grains",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Nutty"
+        },
+        description: "Ground cornmeal with subtle sweetness and earthy notes"
+      },
+      {
+        name: "pork loin",
+        category: "Proteins",
+        subcategory: "Pork",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 5,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Lean cut with mild pork flavor and tender texture"
+      },
+      {
+        name: "pork shoulder",
+        category: "Proteins",
+        subcategory: "Pork",
+        flavorProfile: {
+          sweet: 1,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 7,
+          fat: 7,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Rich, marbled cut with deep pork flavor"
+      },
+      {
+        name: "raspberry",
+        category: "Fruits",
+        subcategory: "Berries",
+        flavorProfile: {
+          sweet: 6,
+          salty: 0,
+          sour: 5,
+          bitter: 0,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Berry"
+        },
+        description: "Bright, fragrant berries with sweet-tart flavor"
+      },
+      {
+        name: "red onion",
+        category: "Vegetables",
+        subcategory: "Allium",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 1,
+          bitter: 1,
+          umami: 2,
+          fat: 0,
+          spicy: 3
+        },
+        aromas: {
+          primary: "Pungent"
+        },
+        description: "Purple-skinned onion with sweet-sharp flavor"
+      },
+      {
+        name: "red pepper",
+        category: "Vegetables",
+        subcategory: "Peppers",
+        flavorProfile: {
+          sweet: 5,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Fruit-Like"
+        },
+        description: "Sweet bell pepper with crisp texture and mild flavor"
+      },
+      {
+        name: "red wine vinegar",
+        category: "Liquids",
+        subcategory: "Vinegars",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 8,
+          bitter: 2,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity"
+        },
+        description: "Sharp, tangy vinegar with wine-like depth"
+      },
+      {
+        name: "rhubarb",
+        category: "Vegetables",
+        subcategory: "Stalks",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 8,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Berry"
+        },
+        description: "Tart stalks with bright, astringent flavor"
+      },
+      {
+        name: "roquefort cheese",
+        category: "Dairy",
+        subcategory: "Soft Cheese",
+        flavorProfile: {
+          sweet: 0,
+          salty: 7,
+          sour: 2,
+          bitter: 3,
+          umami: 6,
+          fat: 8,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Dairy"
+        },
+        description: "Strong blue cheese with sharp, tangy flavor"
+      },
+      {
+        name: "romaine lettuce",
+        category: "Vegetables",
+        subcategory: "Leafy Greens",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 2,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Crisp lettuce with mild, slightly sweet flavor"
+      },
+      {
+        name: "rose",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Delicate floral flavor with subtle sweetness"
+      },
+      {
+        name: "rum",
+        category: "Alcohol",
+        subcategory: "Spirits",
+        flavorProfile: {
+          sweet: 4,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Caramel"
+        },
+        description: "Sugarcane-based spirit with caramel and vanilla notes"
+      },
+      {
+        name: "salsify",
+        category: "Vegetables",
+        subcategory: "Root Vegetable",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Root vegetable with oyster-like flavor when cooked"
+      },
+      {
+        name: "salt cod",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 0,
+          salty: 8,
+          sour: 0,
+          bitter: 0,
+          umami: 7,
+          fat: 2,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Preserved cod with concentrated briny flavor"
+      },
+      {
+        name: "sauerkraut",
+        category: "Condiments",
+        subcategory: "Fermented",
+        flavorProfile: {
+          sweet: 0,
+          salty: 4,
+          sour: 7,
+          bitter: 0,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Sour"
+        },
+        description: "Fermented cabbage with tangy, salty flavor"
+      },
+      {
+        name: "sausage",
+        category: "Proteins",
+        subcategory: "Pork",
+        flavorProfile: {
+          sweet: 0,
+          salty: 5,
+          sour: 0,
+          bitter: 0,
+          umami: 6,
+          fat: 7,
+          spicy: 2
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Seasoned ground meat with rich, savory flavor"
+      },
+      {
+        name: "shiitake mushroom",
+        category: "Vegetables",
+        subcategory: "Mushroom",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 7,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Wood"
+        },
+        description: "Meaty mushroom with intense umami and woodsy notes"
+      },
+      {
+        name: "shiso leaf",
+        category: "Seasonings",
+        subcategory: "Herbs",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 1,
+          bitter: 2,
+          umami: 0,
+          fat: 0,
+          spicy: 2
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Japanese herb with complex mint-basil-citrus flavor"
+      },
+      {
+        name: "shrimp",
+        category: "Proteins",
+        subcategory: "Crustacean",
+        flavorProfile: {
+          sweet: 2,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 5,
+          fat: 1,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Sweet, delicate seafood with mild briny flavor"
+      },
+      {
+        name: "skate",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 4,
+          fat: 2,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Mild white fish with tender, stringy texture"
+      },
+      {
+        name: "spinach",
+        category: "Vegetables",
+        subcategory: "Leafy Greens",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 3,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Tender greens with mineral-rich, slightly bitter flavor"
+      },
+      {
+        name: "squash",
+        category: "Vegetables",
+        subcategory: "Squash",
+        flavorProfile: {
+          sweet: 4,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Sweet, mild vegetable with tender flesh"
+      },
+      {
+        name: "star anise",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 0,
+          bitter: 2,
+          umami: 0,
+          fat: 0,
+          spicy: 2
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Licorice-like spice with sweet, warming flavor"
+      },
+      {
+        name: "steak",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 0,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 8,
+          fat: 6,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Rich beef cut with intense savory flavor"
+      },
+      {
+        name: "stilton cheese",
+        category: "Dairy",
+        subcategory: "Soft Cheese",
+        flavorProfile: {
+          sweet: 0,
+          salty: 6,
+          sour: 2,
+          bitter: 3,
+          umami: 5,
+          fat: 7,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Dairy"
+        },
+        description: "Strong blue cheese with complex, tangy flavor"
+      },
+      {
+        name: "tamarind",
+        category: "Fruits",
+        subcategory: "Other Fruits",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 7,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Dried Fruit"
+        },
+        description: "Tropical fruit with sweet-sour, date-like flavor"
+      },
+      {
+        name: "turnip",
+        category: "Vegetables",
+        subcategory: "Root Vegetable",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 2,
+          umami: 1,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Root vegetable with mild peppery flavor"
+      },
+      {
+        name: "vanilla",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 4,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Sweet, floral spice with complex woody notes"
+      },
+      {
+        name: "veal",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 5,
+          fat: 3,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Young beef with delicate, mild flavor"
+      },
+      {
+        name: "veal breast",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 4,
+          fat: 5,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Rich cut of veal with higher fat content"
+      },
+      {
+        name: "vegetable oil",
+        category: "Liquids",
+        subcategory: "Oils & Fats",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 0,
+          fat: 9,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard"
+        },
+        description: "Neutral cooking oil with minimal flavor"
+      },
+      {
+        name: "water chestnut",
+        category: "Vegetables",
+        subcategory: "Root Vegetable",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Crisp aquatic vegetable with mild, sweet flavor"
+      },
+      {
+        name: "white chocolate",
+        category: "Condiments",
+        subcategory: "Sweeteners",
+        flavorProfile: {
+          sweet: 8,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 0,
+          fat: 7,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Dairy",
+        },
+        description: "Sweet confection with vanilla and dairy notes"
+      },
+      {
+        name: "veal shank",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 6,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Rich cut of veal ideal for slow cooking"
+      },
+      {
+        name: "veal loin",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 4,
+          fat: 2,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Lean, tender cut with mild veal flavor"
+      },
+      {
+        name: "pink peppercorn",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 1,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 4
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Mild peppercorn with sweet-spicy flavor and floral notes"
+      },
+      {
+        name: "sherry vinegar",
+        category: "Liquids",
+        subcategory: "Vinegars",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 7,
+          bitter: 1,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Dried Fruit"
+        },
+        description: "Complex vinegar with nutty, caramel notes"
+      },
+      {
+        name: "green olive",
+        category: "Vegetables",
+        subcategory: "Fruit Vegetables",
+        flavorProfile: {
+          sweet: 0,
+          salty: 7,
+          sour: 2,
+          bitter: 3,
+          umami: 2,
+          fat: 3,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Fruit-Like"
+        },
+        description: "Briny, firm olive with grassy notes"
+      },
+      {
+        name: "red pepper flake",
+        category: "Seasonings",
+        subcategory: "Chilis",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 8
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Dried chili flakes with intense heat"
+      },
+      {
+        name: "pea",
+        category: "Legumes",
+        subcategory: "Peas",
+        flavorProfile: {
+          sweet: 4,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Sweet, tender legume with fresh green flavor"
+      },
+      {
+        name: "hard-boiled egg",
+        category: "Proteins",
+        subcategory: "Poultry",
+        flavorProfile: {
+          sweet: 0,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 4,
+          fat: 5,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Sulphur"
+        },
+        description: "Cooked egg with rich, creamy yolk"
+      },
+      {
+        name: "squab",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 0,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 6,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Young pigeon with rich, dark meat flavor"
+      },
+      {
+        name: "red bean",
+        category: "Legumes",
+        subcategory: "Beans",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 3,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Hearty bean with mild, earthy flavor"
+      },
+      {
+        name: "pâté",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 0,
+          salty: 3,
+          sour: 0,
+          bitter: 1,
+          umami: 7,
+          fat: 8,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Rich liver spread with complex, savory notes"
+      },
+      {
+        name: "green tea",
+        category: "Liquids",
+        subcategory: "Broths & Stocks",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 4,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Light tea with grassy, slightly bitter flavor"
+      },
+      {
+        name: "turnip greens",
+        category: "Vegetables",
+        subcategory: "Leafy Greens",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 0,
+          bitter: 5,
+          umami: 2,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Peppery greens with robust, bitter flavor"
+      },
+      {
+        name: "pinto beans",
+        category: "Legumes",
+        subcategory: "Beans",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 3,
+          fat: 1,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Creamy beans with mild, earthy flavor"
+      },
+      {
+        name: "sweetbreads",
+        category: "Proteins",
+        subcategory: "Game",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 6,
+          fat: 5,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Delicate organ meat with subtle, rich flavor"
+      },
+      {
+        name: "green plantain",
+        category: "Vegetables",
+        subcategory: "Fruit Vegetables",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 1,
+          bitter: 2,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Starchy, unripe plantain with neutral flavor"
+      },
+      {
+        name: "sweet onion",
+        category: "Vegetables",
+        subcategory: "Allium",
+        flavorProfile: {
+          sweet: 5,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 2,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Pungent"
+        },
+        description: "Mild onion with high sugar content"
+      },
+      {
+        name: "risotto",
+        category: "Grains",
+        subcategory: "Rice",
+        flavorProfile: {
+          sweet: 1,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 3,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Nutty"
+        },
+        description: "Creamy Italian rice dish with rich texture"
+      },
+      {
+        name: "lemon thyme",
+        category: "Seasonings",
+        subcategory: "Herbs",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 3,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Citrusy herb with subtle thyme notes"
+      },
+      {
+        name: "melon",
+        category: "Fruits",
+        subcategory: "Melons",
+        flavorProfile: {
+          sweet: 7,
+          salty: 0,
+          sour: 1,
+          bitter: 0,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Melon"
+        },
+        description: "Sweet, refreshing fruit with floral notes"
+      },
+      {
+        name: "sweet paprika",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 4,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 1,
+          fat: 0,
+          spicy: 2
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Mild pepper spice with sweet, earthy flavor"
+      },
+      {
+        name: "tropical fruit",
+        category: "Fruits",
+        subcategory: "Tropical Fruit",
+        flavorProfile: {
+          sweet: 8,
+          salty: 0,
+          sour: 3,
+          bitter: 0,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Tropical"
+        },
+        description: "Sweet, exotic fruits with bright flavors"
+      },
+      {
+        name: "trout",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 5,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Delicate freshwater fish with mild flavor"
+      },
+      {
+        name: "white sesame seed",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 2,
+          fat: 5,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Nutty"
+        },
+        description: "Mild seeds with nutty, toasted flavor"
+      },
+      {
+        name: "nori",
+        category: "Vegetables",
+        subcategory: "Leafy Greens",
+        flavorProfile: {
+          sweet: 0,
+          salty: 3,
+          sour: 0,
+          bitter: 1,
+          umami: 6,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Dried seaweed with intense umami and briny flavor"
+      },
+      {
+        name: "vinaigrette",
+        category: "Condiments",
+        subcategory: "Sauces",
+        flavorProfile: {
+          sweet: 0,
+          salty: 2,
+          sour: 6,
+          bitter: 0,
+          umami: 0,
+          fat: 5,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Sour"
+        },
+        description: "Oil and vinegar dressing with bright acidity"
+      },
+      {
+        name: "stuffing",
+        category: "Grains",
+        subcategory: "Bread",
+        flavorProfile: {
+          sweet: 1,
+          salty: 3,
+          sour: 0,
+          bitter: 0,
+          umami: 3,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Toasted"
+        },
+        description: "Seasoned bread mixture with savory herbs"
+      },
+      {
+        name: "kidney beans",
+        category: "Legumes",
+        subcategory: "Beans",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 2,
+          umami: 3,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Large beans with earthy, mineral flavor"
+      },
+      {
+        name: "plum",
+        category: "Fruits",
+        subcategory: "Stone Fruit",
+        flavorProfile: {
+          sweet: 6,
+          salty: 0,
+          sour: 4,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Tree Fruit"
+        },
+        description: "Sweet-tart stone fruit with juicy flesh"
+      },
     ];
