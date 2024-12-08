@@ -40,8 +40,8 @@ export default function CategoryFilter({
             text-sm
             border-b-2 
             ${activeCategory === category 
-              ? 'border-gray-900 dark:border-gray-100 text-gray-900 dark:text-gray-100 font-medium' 
-              : 'border-transparent hover:border-gray-400 dark:hover:border-gray-500 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+              ? 'border-gray-900 text-gray-900 font-medium' 
+              : 'border-transparent hover:border-gray-400 text-gray-600 hover:text-gray-900'
             }
           `}
         >

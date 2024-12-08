@@ -4,7 +4,6 @@ import { Sparkles } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
-import { ThemeToggle } from './components/ThemeToggle.jsx';  
 import { SuggestedIngredients } from './components/SuggestedIngredients.tsx';
 import { getCompatibilityScore, getCompatibilityColor } from './utils/compatibility.ts';
 import { getSortedCompatibleIngredients } from './utils/sorting.ts';
@@ -445,11 +444,11 @@ const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 const [activeCategory, setActiveCategory] = useState('');
 
 return (
-  <div className="h-screen flex bg-white dark:bg-gray-900 overflow-hidden">
+  <div className="h-screen flex overflow-hidden">
     {/* Left Column (50%) */}
-    <div className="w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-700 ">
+    <div className="w-1/2 flex flex-col border-r border-gray-200 ">
       {/* Header row */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <img 
           src="/flavor-finder-1.png" 
           alt="Flavor Finder Logo" 
@@ -458,7 +457,7 @@ return (
         <div className="flex items-center space-x-2">
           <button 
             onClick={handleRandomize}
-            className="px-4 py-2 bg-[#72A8D5] hover:bg-[#5B99C9] dark:bg-[#72A8D5] dark:hover:bg-[#5B99C9] text-white rounded-full font-sans flex items-center gap-2"
+            className="px-4 py-2 bg-[#72A8D5] hover:bg-[#5B99C9] text-white rounded-full font-sans flex items-center gap-2"
           >
             <Sparkles size={16} />
             Randomize!
@@ -488,8 +487,6 @@ return (
           />
         </div>
         </div>
-
-        
       </div>
     </div>
 

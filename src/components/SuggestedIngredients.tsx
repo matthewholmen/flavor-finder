@@ -172,7 +172,7 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
 
       {/* Divider and Ingredients List */}
       <div className="flex-1 min-h-0">
-        <div className="border-t border-gray-200 dark:border-gray-700 -mx-4">
+        <div className="border-t border-gray-200 -mx-4">
           <div className="h-[calc(100vh-280px)] overflow-y-auto">
             <div className="px-4 pt-4 pb-4">
               {filteredSuggestions.length > 0 ? (
@@ -191,7 +191,7 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
                           setSearchTerm('');
                         }}
                         className="inline-flex items-center px-3 py-1.5 rounded-full text-sm
-                          transition-all text-black bg-white ingredient-button"
+                          transition-all ingredient-button"
                         style={{
                           border: `3px solid ${borderColor}`
                         }}

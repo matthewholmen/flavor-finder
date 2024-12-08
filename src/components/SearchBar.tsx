@@ -43,7 +43,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <input
           type="text"
           placeholder="Search ingredients..."
-          className="pl-10 w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+          className="pl-10 w-full p-2 border rounded-lg"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsSearchFocused(true)}
@@ -57,11 +57,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Dropdown Results */}
       {isSearchFocused && filteredIngredients.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border rounded-lg shadow-lg overflow-auto max-h-60">
+        <ul className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg overflow-auto max-h-60">
           {filteredIngredients.map((ingredient, index) => (
             <li
               key={index}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+              className="p-2 hover:bg-gray-100 cursor-pointer"
               onMouseDown={() => {
                 onIngredientSelect(ingredient);
                 setSearchTerm('');

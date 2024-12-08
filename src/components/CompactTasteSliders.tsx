@@ -104,7 +104,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
                   : 'border-current'
                 }
                 ${currentSlider === taste && activeSliders.has(taste)
-                  ? 'ring-2 ring-offset-1 ring-gray-200 dark:ring-gray-700'
+                  ? 'ring-2 ring-offset-1 ring-gray-200'
                   : ''
                 }
                 group-hover:scale-110
@@ -147,7 +147,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
           className={`
             w-full h-3 rounded-full appearance-none cursor-pointer
             transition-all duration-200
-            border-1 border-black dark:border-white
+            border-1 border-black
             [&::-webkit-slider-thumb]:appearance-none
             [&::-webkit-slider-thumb]:w-5
             [&::-webkit-slider-thumb]:h-5

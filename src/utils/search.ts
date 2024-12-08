@@ -1,5 +1,31 @@
 // utils/search.ts
 
+
+
+
+
+
+
+
+
+
+// unused
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Normalizes text by removing diacritics and converting to lowercase
  */
