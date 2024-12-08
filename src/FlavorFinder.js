@@ -456,10 +456,9 @@ return (
           className="h-12 w-auto object-contain"
         />
         <div className="flex items-center space-x-2">
-          <ThemeToggle />
           <button 
             onClick={handleRandomize}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
+            className="px-4 py-2 bg-[#72A8D5] hover:bg-[#5B99C9] dark:bg-[#72A8D5] dark:hover:bg-[#5B99C9] text-white rounded-full font-sans flex items-center gap-2"
           >
             <Sparkles size={16} />
             Randomize!
@@ -490,9 +489,7 @@ return (
         </div>
         </div>
 
-        {/* Filters section - now at bottom */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-        </div>
+        
       </div>
     </div>
 
