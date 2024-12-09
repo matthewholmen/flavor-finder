@@ -252,7 +252,7 @@ export default function FlavorFinder() {
   // Dynamically filter ingredients based on taste values and categories
 
   const handleIngredientSelect = (ingredient) => {
-    if (selectedIngredients.length >= 4) {
+    if (selectedIngredients.length >= 5) {
       // Optional: add toast/notification here
       return;
     }
@@ -320,7 +320,7 @@ export default function FlavorFinder() {
 
 
 // Updated getRandomIngredients function
-const getRandomIngredients = (count = 4, startFresh = false, existingLocked = [], existingIngredients = new Set()) => {
+const getRandomIngredients = (count = 5, startFresh = false, existingLocked = [], existingIngredients = new Set()) => {
   let selections = [];
   let maxAttempts = 100;
   
@@ -381,7 +381,7 @@ const getRandomIngredients = (count = 4, startFresh = false, existingLocked = []
 const handleRandomize = () => {
   // If no ingredients selected yet, do a fresh randomization
   if (selectedIngredients.length === 0) {
-    const randomIngredients = getRandomIngredients(4, true);
+    const randomIngredients = getRandomIngredients(5, true);
     setSelectedIngredients(randomIngredients);
     return;
   }
@@ -389,7 +389,7 @@ const handleRandomize = () => {
   // Track both locked positions and values using Sets
   const lockedPositions = new Set();
   const lockedValues = new Set();
-  let newIngredients = Array(4).fill(undefined);
+  let newIngredients = Array(5).fill(undefined);
 
   // First, preserve locked ingredients in their positions
   selectedIngredients.forEach((ingredient, index) => {
@@ -402,7 +402,7 @@ const handleRandomize = () => {
 
   // Then get new random selections, excluding locked ingredients entirely
   const randomSelections = getRandomIngredients(
-    4 - lockedPositions.size,     // how many new ones we need
+    5 - lockedPositions.size,     // how many new ones we need
     true,                         // fresh start (changed this to true!)
     [],                          // no locked ingredients in starting set
     lockedValues                 // exclude these from being picked
@@ -410,7 +410,7 @@ const handleRandomize = () => {
 
   // Fill remaining positions with new selections
   let selectionIndex = 0;
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     if (!lockedPositions.has(i)) {
       newIngredients[i] = randomSelections[selectionIndex];
       selectionIndex++;
@@ -457,10 +457,10 @@ return (
         <div className="flex items-center space-x-2">
           <button 
             onClick={handleRandomize}
-            className="px-4 py-2 bg-[#72A8D5] hover:bg-[#5B99C9] text-white rounded-full font-sans flex items-center gap-2"
+            className="px-4 py-2 bg-[#8DC25B] hover:bg-[#83B250] text-white rounded-full font-sans flex items-center gap-2"
           >
             <Sparkles size={16} />
-            Randomize!
+            Generate
           </button>
         </div>
       </div>
@@ -490,12 +490,12 @@ return (
       </div>
     </div>
 
-    {/* Right Column (50%): Selected Ingredients */}
+{/* Right Column (50%): Selected Ingredients */}
 <div className="w-1/2 flex flex-col h-screen">
-  {[...Array(4)].map((_, index) => (
+  {[...Array(5)].map((_, index) => (
     <div 
       key={`slot-${index}`}
-      className="h-1/4 w-full"
+      className="h-1/5 w-full"
     >
       <IngredientSlot
         ingredient={selectedIngredients[index]}
@@ -513,6 +513,8 @@ return (
           p => p.name.toLowerCase() === selectedIngredients[index]?.toLowerCase()
         )}
         index={index}
+        flavorMap={flavorMap}
+        selectedIngredients={selectedIngredients}
       />
     </div>
   ))}

@@ -1,5 +1,5 @@
 // components/IngredientSlot.tsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Lock, X } from 'lucide-react';
 import { IngredientProfile } from '../types';
 import { TASTE_COLORS } from '../utils/colors.ts';
@@ -27,6 +27,8 @@ interface IngredientSlotProps {
   onRemove: () => void;
   profile?: IngredientProfile;
   index: number;
+  flavorMap: Map<string, Set<string>>;
+  selectedIngredients: string[];
 }
 
 const IngredientSlot: React.FC<IngredientSlotProps> = ({
@@ -35,10 +37,27 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   onLockToggle,
   onRemove,
   profile,
-  index
+  index,
+  flavorMap,
+  selectedIngredients
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const borderColor = ingredient ? getIngredientColor(profile) : undefined;
+
+  // Calculate if this ingredient is partially matched
+  const isPartiallyMatched = useMemo(() => {
+    if (!ingredient || selectedIngredients.length <= 1) return false;
+
+    // Check if this ingredient pairs with all other selected ingredients
+    const otherIngredients = selectedIngredients.filter((_, idx) => idx !== index);
+    
+    // Get the pairings for this ingredient
+    const currentPairings = flavorMap.get(ingredient);
+    if (!currentPairings) return true; // If no pairings found, consider it partial
+
+    // Check if this ingredient pairs with all other ingredients
+    return !otherIngredients.every(other => currentPairings.has(other));
+  }, [ingredient, selectedIngredients, index, flavorMap]);
 
   return (
     <div 
@@ -55,6 +74,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]
               cursor-pointer
               hover:scale-[1.02] hover:shadow-lg
+              ${isPartiallyMatched ? '[border-style:dashed]' : ''}
             `}
             style={{ borderColor }}
             onClick={() => setIsModalOpen(true)}
@@ -155,6 +175,15 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                       )}
                     </div>
                   </div>
+
+                  {/* Pairing Status */}
+                  {isPartiallyMatched && (
+                    <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <p className="text-sm text-yellow-800">
+                        This ingredient doesn't pair with all other selected ingredients. Consider replacing it for better flavor harmony.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

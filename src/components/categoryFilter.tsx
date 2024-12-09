@@ -26,9 +26,7 @@ export default function CategoryFilter({
     <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide" style={{
       msOverflowStyle: 'none',  /* IE and Edge */
       scrollbarWidth: 'none',   /* Firefox */
-      '::-webkit-scrollbar': {  /* Webkit (Safari/Chrome) */
-        display: 'none'
-      }
+      
     }}>
       {CATEGORIES.map((category) => (
         <button
