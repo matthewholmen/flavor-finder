@@ -39,7 +39,7 @@ export default function CategoryFilter({
             border-b-2 
             ${activeCategory === category 
               ? 'border-gray-900 text-gray-900 font-medium' 
-              : 'border-transparent hover:border-gray-400 text-gray-600 hover:text-gray-900'
+              : 'border-transparent hover:border-gray-200 text-gray-600 hover:text-gray-900'
             }
           `}
         >

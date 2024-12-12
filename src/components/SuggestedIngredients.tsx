@@ -40,6 +40,8 @@ interface SuggestedIngredientsProps {
   activeSliders?: Set<keyof TasteValues>;
   onTasteValuesChange: (values: TasteValues) => void;
   onToggleSlider: (taste: keyof TasteValues) => void;
+  setIsSearchFocused: (focused: boolean) => void;
+
 }
 
 interface GroupedIngredients {
@@ -62,7 +64,8 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
   tasteValues,
   activeSliders = new Set(),
   onTasteValuesChange,
-  onToggleSlider
+  onToggleSlider,
+  setIsSearchFocused
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
@@ -77,22 +80,29 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
     [flavorMap]
   );
 
+  const [minimumCompatibility, setMinimumCompatibility] = useState(50); // Default 50%
+
+
   const filteredAndScoredSuggestions = useMemo(() => {
     let filtered = searchTerm
       ? filterIngredients(allIngredients, searchTerm)
       : selectedIngredients.length === 0 ? allIngredients : suggestions;
 
-    if (selectedIngredients.length > 0) {
+        // When searching, show all matching ingredients but still calculate compatibility
+    // When not searching, only show compatible ingredients based on allowPartialMatches setting
+    if (selectedIngredients.length > 0 && !searchTerm && !allowPartialMatches) {
       filtered = filtered.filter(ingredient => {
         const compatibility = getCompatibilityScore(
           ingredient,
           selectedIngredients,
           flavorMap,
-          allowPartialMatches
+          true // Always calculate partial matches for the score
         );
-        return allowPartialMatches ? compatibility.matchedWith.length > 0 : compatibility.score === 100;
+        return compatibility.score === 100;
       });
     }
+
+
 
     if (activeCategory) {
       filtered = filtered.filter(ingredient => {
@@ -126,8 +136,9 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
         ingredient,
         selectedIngredients,
         flavorMap,
-        allowPartialMatches
+        true // Always calculate partial matches for the score
       )
+
     }));
   }, [
     searchTerm,
@@ -203,6 +214,8 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
           className="pl-10 w-full p-2 border rounded-lg"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onFocus={() => setIsSearchFocused(true)}   
+          onBlur={() => setIsSearchFocused(false)}   
           onKeyDown={(e) => {
             if (e.key === 'Enter' && filteredAndScoredSuggestions.length > 0) {
               onSelect(filteredAndScoredSuggestions[0].name);
@@ -239,7 +252,7 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
                 {/* Custom Toggle Switch */}
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-medium text-gray-900">
-                    Allow Partial Matches
+                    Show Partial Matches
                   </span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -248,7 +261,7 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
                       checked={allowPartialMatches}
                       onChange={(e) => setAllowPartialMatches(e.target.checked)}
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#8DC25B]"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#FFC533]"></div>
                   </label>
                 </div>
               </div>
@@ -278,46 +291,50 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
                             p => p.name.toLowerCase() === name.toLowerCase()
                           );
                           const borderColor = getIngredientColor(profile);
-                          const isPartialMatch = allowPartialMatches && 
-                            compatibility.score > 0 && 
-                            compatibility.score < 100;
-
-                          return (
-                            <button
-                              key={name}
-                              onClick={() => {
-                                onSelect(name);
-                                setSearchTerm('');
-                              }}
-                              className={`
-                                inline-flex items-center px-3 py-1.5 rounded-full text-sm
-                                transition-all ingredient-button relative
-                                ${isPartialMatch ? 'border-dashed' : 'border-solid'}
-                              `}
-                              style={{
-                                border: `3px ${isPartialMatch ? 'dashed' : 'solid'} ${borderColor}`,
-                                opacity: isPartialMatch ? 0.9 : 1
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = borderColor;
-                                e.currentTarget.style.color = 'white';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = 'white';
-                                e.currentTarget.style.color = 'black';
-                              }}
-                              title={isPartialMatch ? 
-                                `Matches with: ${compatibility.matchedWith.join(', ')}` : 
-                                undefined}
-                            >
-                              {name}
-                              {isPartialMatch && (
-                                <span className="ml-1 text-xs">
-                                  ({Math.round(compatibility.score)}%)
-                                </span>
-                              )}
-                            </button>
+                          const isPartialMatch = (
+                            // Show dashed border if searching and not fully compatible
+                            (searchTerm && compatibility.score < 100) ||
+                            // Or if partial matches are enabled and score is between 0 and 100
+                            (allowPartialMatches && compatibility.score > 0 && compatibility.score < 100)
                           );
+                          
+
+                            return (
+                              <button
+                                key={name}
+                                onClick={() => {
+                                  onSelect(name);
+                                  setSearchTerm('');
+                                }}
+                                className={`
+                                  inline-flex items-center px-3 py-1.5 rounded-full text-sm
+                                  transition-all text-black bg-white ingredient-button
+                                  ${isPartialMatch ? 'border-dashed' : 'border-solid'}
+                                `}
+                                style={{
+                                  border: `3px ${isPartialMatch ? 'dashed' : 'solid'} ${borderColor}`
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = borderColor;
+                                  e.currentTarget.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'white';
+                                  e.currentTarget.style.color = 'black';
+                                }}
+                                title={isPartialMatch ? 
+                                  `Matches with: ${compatibility.matchedWith.join(', ')}` : 
+                                  undefined}
+                              >
+                                {name}
+                                {isPartialMatch && (
+                                  <span className="ml-1 text-xs">
+                                    ({Math.round(compatibility.score)}%)
+                                  </span>
+                                )}
+                              </button>
+                            );
+                            
                         })}
                       </div>
                     </div>
@@ -339,3 +356,6 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
 };
 
 export default SuggestedIngredients;
+
+
+

@@ -703,7 +703,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 2,
@@ -719,10 +719,10 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     description: "Rich, robust meat with deep savory flavor that intensifies when cooked"
   },
-  {
+  { 
     name: "beef brisket",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 2,
@@ -741,7 +741,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef cheek",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 1,
@@ -760,7 +760,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef roast",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 2,
@@ -779,7 +779,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef round steak",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 1,
@@ -798,7 +798,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef shank",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 1,
@@ -817,7 +817,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef sirloin",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 2,
@@ -836,7 +836,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef steak",
     category: "Proteins",
-    subcategory: "Game",
+    subcategory: "Meat",
     flavorProfile: {
       sweet: 1,
       salty: 2,
@@ -1004,7 +1004,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Fresh water fish with firm, white flesh and clean, mild flavor ideal for various cooking methods"
     },
     {
-      name: "black bean",
+      name: "black beans",
       category: "Legumes",
       subcategory: "Beans",
       flavorProfile: {
@@ -2397,7 +2397,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "chicken liver",
       category: "Proteins",
-      subcategory: "Poultry",
+      subcategory: "Offal",
       flavorProfile: {
         sweet: 1,
         salty: 2,
@@ -3955,7 +3955,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "flank steak",
       category: "Proteins",
-      subcategory: "Game",
+      subcategory: "Meat",
       flavorProfile: {
         sweet: 1,
         salty: 1,
@@ -4143,7 +4143,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "game bird",
       category: "Proteins",
-      subcategory: "Game",
+      subcategory: "Poultry",
       flavorProfile: {
         sweet: 1,
         salty: 1,
@@ -4611,7 +4611,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "hanger steak",
       category: "Proteins",
-      subcategory: "Game",
+      subcategory: "Meat",
       flavorProfile: {
         sweet: 1,
         salty: 2,
@@ -5327,7 +5327,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "liver",
       category: "Proteins",
-      subcategory: "Game",
+      subcategory: "Offal",
       flavorProfile: {
         sweet: 1,
         salty: 2,
@@ -6278,7 +6278,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "oxtail",
       category: "Proteins",
-      subcategory: "Game",
+      subcategory: "Meat",
       flavorProfile: {
         sweet: 1,
         salty: 2,
@@ -7203,7 +7203,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "quail",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Poultry",
         flavorProfile: {
           sweet: 0,
           salty: 1,
@@ -9898,7 +9898,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "steak",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Meat",
         flavorProfile: {
           sweet: 0,
           salty: 1,
@@ -9992,7 +9992,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "veal",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Meat",
         flavorProfile: {
           sweet: 1,
           salty: 1,
@@ -10011,7 +10011,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "veal breast",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Meat",
         flavorProfile: {
           sweet: 1,
           salty: 1,
@@ -10085,7 +10085,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "veal shank",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Meat",
         flavorProfile: {
           sweet: 1,
           salty: 1,
@@ -10104,7 +10104,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "veal loin",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Meat",
         flavorProfile: {
           sweet: 1,
           salty: 1,
@@ -10236,7 +10236,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "squab",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Poultry",
         flavorProfile: {
           sweet: 0,
           salty: 1,
@@ -10274,7 +10274,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "pâté",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Offal",
         flavorProfile: {
           sweet: 0,
           salty: 3,
@@ -10350,7 +10350,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "sweetbreads",
         category: "Proteins",
-        subcategory: "Game",
+        subcategory: "Offal",
         flavorProfile: {
           sweet: 1,
           salty: 1,
@@ -10628,4 +10628,458 @@ export const ingredientProfiles: IngredientProfile[] = [
         },
         description: "Sweet-tart stone fruit with juicy flesh"
       },
+      {
+        name: "short rib",
+        category: "Proteins",
+        subcategory: "Meat",
+        flavorProfile: {
+          sweet: 2,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 8,
+          fat: 7,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Meaty",
+          secondary: "Roasted"
+        },
+        description: "Rich, well-marbled beef cut with intense beefy flavor and buttery tenderness when slow-cooked, featuring excellent marbling and deep umami notes"
+      },
+      {
+        name: "lemon basil",
+        category: "Seasonings",
+        subcategory: "Herbs",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 4,
+          bitter: 2,
+          umami: 0,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Citrus",
+          secondary: "Herbal"
+        },
+        description: "Aromatic herb combining traditional basil's sweet spiciness with bright citrus notes, offering a unique lemony twist to dishes"
+      },
+      {
+        name: "sardine",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 0,
+          salty: 5,
+          sour: 1,
+          bitter: 0,
+          umami: 9,
+          fat: 6,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine",
+          secondary: "Oily"
+        },
+        description: "Small, oily fish with intense savory flavor, rich in umami and natural saltiness, often used in Mediterranean and Asian cuisines"
+      },
+      {
+        name: "white asparagus",
+        category: "Vegetables",
+        subcategory: "Stalks",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 1,
+          bitter: 2,
+          umami: 4,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Delicate, tender asparagus variety with subtle sweetness and mild nutty notes, prized in European cuisine for its refined flavor"
+      },
+      {
+        name: "white rice",
+        category: "Grains",
+        subcategory: "Rice",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Starchy",
+          secondary: "Floral"
+        },
+        description: "Mild, clean-tasting grain with subtle sweetness and floral aroma, providing a neutral base that readily absorbs other flavors"
+      },
+      {
+        name: "tabasco sauce",
+        category: "Condiments",
+        subcategory: "Hot Sauce",
+        flavorProfile: {
+          sweet: 0,
+          salty: 3,
+          sour: 7,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 9
+        },
+        aromas: {
+          primary: "Pungent",
+          secondary: "Vinegar"
+        },
+        description: "Fermented hot sauce made from tabasco peppers, featuring intense heat balanced with sharp vinegar acidity and subtle fruity notes"
+      },
+      {
+        name: "red cabbage",
+        category: "Vegetables",
+        subcategory: "Brassicas",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 2,
+          bitter: 3,
+          umami: 1,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Sulfurous",
+          secondary: "Peppery"
+        },
+        description: "Crisp, colorful cabbage variety with a robust flavor profile, offering a balance of sweet and peppery notes with slight bitterness"
+      },
+      {
+        name: "white beans",
+        category: "Legumes",
+        subcategory: "Beans",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 3,
+          fat: 1,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Earthy",
+          secondary: "Nutty"
+        },
+        description: "Creamy, mild-flavored beans with subtle earthiness and natural sweetness, excellent at absorbing surrounding flavors while maintaining texture"
+      },
+      {
+        name: "skirt steak",
+        category: "Proteins",
+        subcategory: "Meat",
+        flavorProfile: {
+          sweet: 1,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 7,
+          fat: 5,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Meaty",
+          secondary: "Metallic"
+        },
+        description: "Intensely flavored, long-fibered beef cut with robust beefiness and mineral notes, ideal for quick-cooking methods and marinades"
+      },
+      {
+        name: "pheasant",
+        category: "Proteins",
+        subcategory: "Poultry",
+        flavorProfile: {
+          sweet: 2,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 5,
+          fat: 3,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Gamey",
+          secondary: "Earthy"
+        },
+        description: "Lean game bird with subtle gamey flavor and delicate meat, offering a more complex and earthier taste than chicken while remaining mild"
+      },
+
+      {
+        name: "veal tenderloin",
+        category: "Proteins",
+        subcategory: "Meat",
+        flavorProfile: {
+          sweet: 2,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 6,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Delicate cut of young beef with mild flavor, tender texture, and subtle sweetness"
+      },
+      {
+        name: "red wine",
+        category: "Alcohol",
+        subcategory: "Wines",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 3,
+          bitter: 4,
+          umami: 3,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Berry"
+        },
+        description: "Fermented grape wine with complex tannins, dark fruit notes, and varying levels of dryness"
+      },
+      {
+        name: "wine",
+        category: "Alcohol",
+        subcategory: "Wines",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 4,
+          bitter: 3,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Tree Fruit"
+        },
+        description: "Fermented grape beverage with complex flavors varying by variety and production method"
+      },
+      {
+        name: "pinot noir",
+        category: "Alcohol",
+        subcategory: "Wines",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 4,
+          bitter: 3,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Berry"
+        },
+        description: "Light to medium-bodied red wine with red berry notes, silky texture, and elegant complexity"
+      },
+      {
+        name: "pickles",
+        category: "Vegetables",
+        subcategory: "Fruit Vegetables",
+        flavorProfile: {
+          sweet: 1,
+          salty: 7,
+          sour: 8,
+          bitter: 1,
+          umami: 2,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Brined cucumber with sharp vinegar tang and crisp texture, common condiment"
+      },
+      {
+        name: "turbot",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 2,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 5,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Prized flatfish with delicate, sweet flavor and firm, meaty texture"
+      },
+      {
+        name: "noodles",
+        category: "Grains",
+        subcategory: "Pasta",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 2,
+          fat: 1,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Versatile pasta in various forms, providing neutral base for sauces and dishes"
+      },
+      {
+        name: "sole fish",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 2,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 4,
+          fat: 2,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Marine"
+        },
+        description: "Delicate white fish with mild, sweet flavor and tender texture"
+      },
+      {
+        name: "tapioca",
+        category: "Grains",
+        subcategory: "Starches",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Starchy"
+        },
+        description: "Neutral starch extracted from cassava root, used in puddings and as a thickener"
+      },
+      {
+        name: "white peppercorn",
+        category: "Seasonings",
+        subcategory: "Spices",
+        flavorProfile: {
+          sweet: 0,
+          salty: 0,
+          sour: 0,
+          bitter: 2,
+          umami: 1,
+          fat: 0,
+          spicy: 6
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "Fermented, hulled black peppercorn with sharp heat and earthy complexity"
+      },
+      {
+        name: "new potato",
+        category: "Vegetables",
+        subcategory: "Root Vegetable",
+        flavorProfile: {
+          sweet: 3,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 2,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Young, freshly harvested potatoes with tender skins and sweet, delicate flavor"
+      },
+      {
+        name: "pernod",
+        category: "Alcohol",
+        subcategory: "Spirits",
+        flavorProfile: {
+          sweet: 5,
+          salty: 0,
+          sour: 0,
+          bitter: 3,
+          umami: 0,
+          fat: 0,
+          spicy: 2
+        },
+        aromas: {
+          primary: "Terpene",
+          secondary: "Spice"
+        },
+        description: "French anise-flavored spirit with strong licorice notes, often used in cooking"
+      },
+      {
+        name: "white sugar",
+        category: "Condiments",
+        subcategory: "Sweeteners",
+        flavorProfile: {
+          sweet: 10,
+          salty: 0,
+          sour: 0,
+          bitter: 0,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Sweet"
+        },
+        description: "Refined sugar with pure sweetness and no additional flavor notes"
+      },
+      {
+        name: "navy beans",
+        category: "Legumes",
+        subcategory: "Beans",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 3,
+          fat: 1,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Small white beans with mild flavor and creamy texture when cooked"
+      }
     ];

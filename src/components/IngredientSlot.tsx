@@ -1,8 +1,9 @@
-// components/IngredientSlot.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Lock, X } from 'lucide-react';
+import { PieChart, Pie, Cell } from 'recharts';
 import { IngredientProfile } from '../types';
 import { TASTE_COLORS } from '../utils/colors.ts';
+
 
 const getIngredientColor = (profile?: IngredientProfile) => {
   if (!profile) return undefined;
@@ -44,20 +45,61 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const borderColor = ingredient ? getIngredientColor(profile) : undefined;
 
-  // Calculate if this ingredient is partially matched
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+  
+    if (isModalOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+  
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isModalOpen]);
+
   const isPartiallyMatched = useMemo(() => {
     if (!ingredient || selectedIngredients.length <= 1) return false;
-
-    // Check if this ingredient pairs with all other selected ingredients
     const otherIngredients = selectedIngredients.filter((_, idx) => idx !== index);
-    
-    // Get the pairings for this ingredient
     const currentPairings = flavorMap.get(ingredient);
-    if (!currentPairings) return true; // If no pairings found, consider it partial
-
-    // Check if this ingredient pairs with all other ingredients
+    if (!currentPairings) return true;
     return !otherIngredients.every(other => currentPairings.has(other));
   }, [ingredient, selectedIngredients, index, flavorMap]);
+
+  const pieData = useMemo(() => {
+    if (!profile) return [];
+    return Object.entries(profile.flavorProfile)
+      .filter(([_, value]) => value > 0) // Only include non-zero values
+      .map(([taste, value]) => ({
+        name: taste,
+        value: value
+      }));
+  }, [profile]);
+
+  const renderTasteLegend = () => {
+    if (!profile) return null;
+    
+    return (
+      <div className="grid grid-cols-2 gap-2 mt-4">
+        {Object.entries(profile.flavorProfile)
+          .filter(([_, value]) => value > 0)
+          .map(([taste, value]) => (
+            <div key={taste} className="flex items-center gap-2">
+              <div 
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: TASTE_COLORS[taste as keyof typeof TASTE_COLORS] }}
+              />
+              <span className="text-sm capitalize">
+                {taste}: {value}
+              </span>
+            </div>
+          ))}
+      </div>
+    );
+  };
 
   return (
     <div 
@@ -88,7 +130,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 absolute right-4">
+              <div className="flex items-center gap-2 absolute left-4">
                 <button 
                   className={`p-1 transition-colors ${isLocked ? 'text-blue-500' : 'text-gray-300'}`}
                   onClick={(e) => {
@@ -118,7 +160,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               onClick={() => setIsModalOpen(false)}
             >
               <div 
-                className="bg-white rounded-lg p-6 w-full mx-4" 
+                className="bg-white rounded-lg p-6 w-3/4 mx-4" 
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center mb-4">
@@ -138,41 +180,33 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                   
                   <p className="text-sm">{profile.description}</p>
                   
-                  {/* Taste Profile */}
+                  {/* Taste Profile with Pie Chart */}
                   <div>
-                    <h4 className="text-sm font-semibold mb-2">Taste Profile</h4>
-                    <div className="space-y-1">
-                      {Object.entries(profile.flavorProfile).map(([taste, value]) => (
-                        <div key={taste} className="flex items-center gap-2 text-sm">
-                          <span className="w-20 capitalize" style={{ color: TASTE_COLORS[taste as keyof typeof TASTE_COLORS] }}>
-                            {taste}
-                          </span>
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="rounded-full h-2 transition-all duration-500"
-                              style={{ 
-                                width: `${value * 10}%`,
-                                backgroundColor: TASTE_COLORS[taste as keyof typeof TASTE_COLORS],
-                                opacity: 0.85
-                              }}
-                            />
-                          </div>
-                          <span className="w-8 text-right" style={{ color: TASTE_COLORS[taste as keyof typeof TASTE_COLORS] }}>
-                            {value}
-                          </span>
-                        </div>
-                      ))}
+                  <h4 className="text-sm font-semibold mb-2">Taste Profile</h4>
+                    <div className="flex items-center justify-center gap-8">
+                      <div className="w-48 h-48">
+                        <PieChart width={192} height={192}>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={80}
+                            dataKey="value"
+                            isAnimationActive={false}
+                          >
+                            {pieData.map((entry) => (
+                              <Cell
+                                key={entry.name}
+                                fill={TASTE_COLORS[entry.name as keyof typeof TASTE_COLORS]}
+                              />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2">
+                      {renderTasteLegend()}
                     </div>
-                  </div>
-                  
-                  {/* Aroma Profile */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-2">Aroma Profile</h4>
-                    <div className="text-sm">
-                      Primary: {profile.aromas.primary}
-                      {profile.aromas.secondary && (
-                        <><br />Secondary: {profile.aromas.secondary}</>
-                      )}
                     </div>
                   </div>
 

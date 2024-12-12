@@ -1,6 +1,6 @@
 // FlavorFinder.js
 import React, { useState, useMemo, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ChartPieIcon, Table } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -9,6 +9,9 @@ import { getCompatibilityScore, getCompatibilityColor } from './utils/compatibil
 import { getSortedCompatibleIngredients } from './utils/sorting.ts';
 import IngredientSlot from './components/IngredientSlot.tsx';
 import { TASTE_COLORS } from './utils/colors.ts';
+import InfoTooltip from './components/InfoTooltip.js';
+import TasteAnalysisModal from './components/TasteAnalysisModal.tsx';
+import FlavorMatrixModal from './components/FlavorMatrixModal.tsx';
 
 
 const getIngredientColor = (profile) => {
@@ -28,9 +31,6 @@ const getIngredientColor = (profile) => {
   
   return TASTE_COLORS[dominantTaste];
 };
-
-
-
 
 // Helper functions for taste analysis
 const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
@@ -150,7 +150,8 @@ export default function FlavorFinder() {
   const [randomCount, setRandomCount] = useState(4);
   const [isExperimental, setIsExperimental] = useState(false);
   const [slotFilters, setSlotFilters] = useState({});
-  
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const [isMatrixModalOpen, setIsMatrixModalOpen] = useState(false);
 
 
   // Random pairing on start
@@ -328,10 +329,19 @@ const getRandomIngredients = (count = 5, startFresh = false, existingLocked = []
   const excludeSet = new Set([...existingIngredients, ...selections]);
   
   while (selections.length < count && maxAttempts > 0) {
-    // For the first ingredient, use the full pool
+    // For the first ingredient, we need to ensure compatibility with locked ingredients
     if (selections.length === 0) {
-      const fullPool = Array.from(flavorMap.keys())
+      let fullPool = Array.from(flavorMap.keys())
         .filter(ingredient => !excludeSet.has(ingredient));
+      
+      // If we have locked ingredients, filter for compatibility
+      if (existingLocked.length > 0) {
+        fullPool = fullPool.filter(ingredient => 
+          existingLocked.every(locked => 
+            flavorMap.get(locked)?.has(ingredient)
+          )
+        );
+      }
       
       if (fullPool.length > 0) {
         const randomIndex = Math.floor(Math.random() * fullPool.length);
@@ -341,24 +351,17 @@ const getRandomIngredients = (count = 5, startFresh = false, existingLocked = []
       }
     }
     
-    // For subsequent ingredients, ensure compatibility with ALL previous selections
+    // For subsequent ingredients, ensure compatibility with ALL previous selections AND locked ingredients
     let compatiblePool = Array.from(flavorMap.keys()).filter(candidate => {
       // Skip if already selected or excluded
       if (excludeSet.has(candidate)) return false;
       
-      // Check if candidate is compatible with ALL current selections
-      // and that ALL current selections are compatible with each other
-      for (let i = 0; i < selections.length; i++) {
-        const pairings = flavorMap.get(selections[i]);
-        if (!pairings || !pairings.has(candidate)) return false;
-        
-        // Check if this candidate maintains compatibility between existing selections
-        for (let j = i + 1; j < selections.length; j++) {
-          const existingPairings = flavorMap.get(selections[j]);
-          if (!existingPairings || !existingPairings.has(candidate)) return false;
-        }
-      }
-      return true;
+      // Check compatibility with ALL current selections AND locked ingredients
+      const allIngredientsToCheck = [...selections, ...existingLocked];
+      return allIngredientsToCheck.every(existing => {
+        const pairings = flavorMap.get(existing);
+        return pairings?.has(candidate);
+      });
     });
     
     if (compatiblePool.length > 0) {
@@ -386,26 +389,26 @@ const handleRandomize = () => {
     return;
   }
 
-  // Track both locked positions and values using Sets
+  // Track both locked positions and values
   const lockedPositions = new Set();
-  const lockedValues = new Set();
+  const lockedIngredientsList = [];
   let newIngredients = Array(5).fill(undefined);
 
   // First, preserve locked ingredients in their positions
   selectedIngredients.forEach((ingredient, index) => {
     if (lockedIngredients.has(index)) {
       lockedPositions.add(index);
-      lockedValues.add(ingredient);
+      lockedIngredientsList.push(ingredient);
       newIngredients[index] = ingredient;
     }
   });
 
-  // Then get new random selections, excluding locked ingredients entirely
+  // Then get new random selections, ensuring compatibility with locked ingredients
   const randomSelections = getRandomIngredients(
-    5 - lockedPositions.size,     // how many new ones we need
-    true,                         // fresh start (changed this to true!)
-    [],                          // no locked ingredients in starting set
-    lockedValues                 // exclude these from being picked
+    5 - lockedPositions.size,     
+    false,                        // Don't start fresh - consider locked ingredients
+    lockedIngredientsList,        // Pass the actual locked ingredients
+    new Set(lockedIngredientsList)// Exclude locked ingredients from being picked again
   );
 
   // Fill remaining positions with new selections
@@ -420,25 +423,25 @@ const handleRandomize = () => {
   setSelectedIngredients(newIngredients.filter(Boolean));
 };
 
-
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
   const [activeCategories, setActiveCategories] = useState([]);
   const [filteredIngredients, setFilteredIngredients] = useState([]);
   
-useEffect(() => {
-  const handleKeyPress = (e) => {
-    // Only handle space if search isn't focused and no modals are open
-    if (e.code === 'Space' && !isSearchFocused && !editingSlot) {
-      e.preventDefault(); // Prevent page scroll
-      handleRandomize();
-    }
-  };
 
-  window.addEventListener('keydown', handleKeyPress);
-  return () => window.removeEventListener('keydown', handleKeyPress);
-}, [isSearchFocused, editingSlot, handleRandomize]);
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Only handle space if search isn't focused and no modals are open
+      if (e.code === 'Space' && !isSearchFocused && !editingSlot) {
+        e.preventDefault(); // Prevent page scroll
+        handleRandomize();  // This will use the latest version of handleRandomize
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isSearchFocused, editingSlot, lockedIngredients]); // Removed handleRandomize from dependencies
 
 const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 const [activeCategory, setActiveCategory] = useState('');
@@ -446,18 +449,27 @@ const [activeCategory, setActiveCategory] = useState('');
 return (
   <div className="h-screen flex overflow-hidden">
     {/* Left Column (50%) */}
-    <div className="w-1/2 flex flex-col border-r border-gray-200 ">
-      {/* Header row */}
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+    <div className="w-1/2 flex flex-col border-r border-gray-200">
+  {/* Header */}
+
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <img 
           src="/flavor-finder-1.png" 
           alt="Flavor Finder Logo" 
           className="h-12 w-auto object-contain"
         />
         <div className="flex items-center space-x-2">
+        
+          <button 
+            onClick={() => setIsAnalysisModalOpen(true)}
+            className="px-4 py-2 border-2 border-[#72A8D5] text-[#000000] hover:bg-[#72A8D5] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
+          >
+            <ChartPieIcon size={16} />
+            Analyze
+          </button>
           <button 
             onClick={handleRandomize}
-            className="px-4 py-2 bg-[#8DC25B] hover:bg-[#83B250] text-white rounded-full font-sans flex items-center gap-2"
+            className="px-4 py-2 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
           >
             <Sparkles size={16} />
             Generate
@@ -465,10 +477,11 @@ return (
         </div>
       </div>
 
+
       {/* Main content area */}
       <div className="flex-1 flex flex-col">
   {/* Filters and Suggestions wrapper */}
-  <div className="flex-1 p-4 overflow-y-auto">
+  <div className="flex-1 p-4 pb-0 overflow-y-auto border-b border-gray-200">
     {/* Top Filters Section */}
     <div className="space-y-4">
           <SuggestedIngredients
@@ -484,9 +497,16 @@ return (
             activeSliders={activeSliders}
             onTasteValuesChange={updateTasteIntensity}
             onToggleSlider={toggleSlider}
+            setIsSearchFocused={setIsSearchFocused}
           />
         </div>
         </div>
+            {/* Fixed bottom section */}
+    <div className="p-2">
+
+      <InfoTooltip />
+    </div>
+
       </div>
     </div>
 
@@ -519,6 +539,20 @@ return (
     </div>
   ))}
 </div>
+<TasteAnalysisModal
+  isOpen={isAnalysisModalOpen}
+  onClose={() => setIsAnalysisModalOpen(false)}
+  selectedIngredients={selectedIngredients}
+  ingredientProfiles={ingredientProfiles}
+  onIngredientsChange={setSelectedIngredients}
+  flavorMap={flavorMap} // Fix: Pass the entire flavorMap object
+/>
+<FlavorMatrixModal 
+  isOpen={isMatrixModalOpen}
+  onClose={() => setIsMatrixModalOpen(false)}
+  selectedIngredients={selectedIngredients}
+  flavorMap={flavorMap}
+/>
   </div>
 );
 }

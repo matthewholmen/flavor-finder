@@ -116,7 +116,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
                 borderColor: TASTE_COLORS[taste]
               }}
             />
-            <span className="ml-1 text-sm capitalize">
+            <span className="ml-3 text-sm capitalize">
               {taste}
             </span>
           </button>

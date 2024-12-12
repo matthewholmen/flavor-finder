@@ -16,7 +16,7 @@ type AromaSubcategory = {
 }
 
 type IngredientSubcategory = {
-  Proteins: "Plant Proteins" | "Fish" | "Pork" | "Poultry" | "Game" | "Crustacean" | "Mollusk";
+  Proteins: "Plant Proteins" | "Fish" | "Pork" | "Poultry" | "Game" | "Crustacean" | "Mollusk" | "Meat" | "Offal";
   Vegetables: "Allium" | "Brassicas" | "Leafy Greens" | "Root Vegetable" | "Squash" | "Mushroom" | "Peppers" | "Stalks" | "Fruit Vegetables";
   Fruits: "Citrus" | "Pome Fruit" | "Stone Fruit" | "Tropical Fruit" | "Berries" | "Melons" | "Other Fruits";
   Seasonings: "Herbs" | "Spices" | "Chilis";

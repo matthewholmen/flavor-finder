@@ -1,5 +1,5 @@
 export const TASTE_COLORS = {
-    sweet: '#FF87A3',
+    sweet: '#FF91C3',
     salty: '#72A8D5',
     sour: '#8DC25B',
     bitter: '#9994DB',
