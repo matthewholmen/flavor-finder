@@ -449,7 +449,7 @@ const [activeCategory, setActiveCategory] = useState('');
 return (
   <div className="h-screen flex overflow-hidden">
     {/* Left Column (50%) */}
-    <div className="w-1/2 flex flex-col border-r border-gray-200">
+    <div className="w-full md:w-1/2 flex flex-col border-r border-gray-200">
   {/* Header */}
 
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -479,11 +479,11 @@ return (
 
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
   {/* Filters and Suggestions wrapper */}
   <div className="flex-1 p-4 pb-0 overflow-y-auto border-b border-gray-200">
-    {/* Top Filters Section */}
-    <div className="space-y-4">
+  {/* Top Filters Section */}
+    <div className="space-y-2 md:space-y-4">
           <SuggestedIngredients
             suggestions={compatibleIngredients}
             onSelect={handleIngredientSelect}
@@ -498,12 +498,12 @@ return (
             onTasteValuesChange={updateTasteIntensity}
             onToggleSlider={toggleSlider}
             setIsSearchFocused={setIsSearchFocused}
+            className="h-[calc(100vh-16rem)] md:h-[calc(100vh-24rem)]"
           />
         </div>
         </div>
             {/* Fixed bottom section */}
     <div className="p-2">
-
       <InfoTooltip />
     </div>
 
@@ -511,11 +511,11 @@ return (
     </div>
 
 {/* Right Column (50%): Selected Ingredients */}
-<div className="w-1/2 flex flex-col h-screen">
+<div className="w-full md:w-1/2 flex flex-col h-screen">
   {[...Array(5)].map((_, index) => (
     <div 
       key={`slot-${index}`}
-      className="h-1/5 w-full"
+      className="h-1/5 w-full md:min-h-[120px]"
     >
       <IngredientSlot
         ingredient={selectedIngredients[index]}
@@ -535,6 +535,7 @@ return (
         index={index}
         flavorMap={flavorMap}
         selectedIngredients={selectedIngredients}
+        className="h-full p-2 md:p-4"
       />
     </div>
   ))}

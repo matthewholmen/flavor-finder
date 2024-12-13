@@ -41,6 +41,7 @@ interface SuggestedIngredientsProps {
   onTasteValuesChange: (values: TasteValues) => void;
   onToggleSlider: (taste: keyof TasteValues) => void;
   setIsSearchFocused: (focused: boolean) => void;
+  className?: string;
 
 }
 
@@ -65,7 +66,8 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
   activeSliders = new Set(),
   onTasteValuesChange,
   onToggleSlider,
-  setIsSearchFocused
+  setIsSearchFocused,
+  className = '' 
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
@@ -204,7 +206,7 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
   }, [filteredAndScoredSuggestions, ingredientProfiles, activeSorting]);
 
   return (
-    <div className="flex flex-col h-full space-y-4">
+    <div className={`flex flex-col h-full space-y-2 md:space-y-4 ${className}`}>
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -227,15 +229,15 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
       </div>
 
       {/* Filters Section */}
-      <div className="space-y-3">
+      <div className="space-y-2 md:space-y-3">
         {isFiltersExpanded && (
-          <div className="space-y-4">
+          <div className="space-y-2 md:space-y-4">
             <CategoryFilter
               activeCategory={activeCategory}
               onCategoryChange={setActiveCategory}
             />
 
-            <div className="px-3 space-y-4">
+            <div className="px-2 md:px-3 space-y-3 md:space-y-4">
               <CompactTasteSliders
                 values={tasteValues}
                 onChange={onTasteValuesChange}
@@ -271,10 +273,11 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
         )}
       </div>
 
-      {/* Ingredients List */}
+      {/* Ingredients List - Adjusted height calculation */}
       <div className="flex-1 min-h-0">
-        <div className="border-t border-gray-200 -mx-4">
-          <div className="h-[calc(100vh-24rem)] overflow-y-auto">
+        <div className="border-t border-gray-200 -mx-2 md:-mx-4">
+          <div className="h-[calc(100vh-20rem)] md:h-[calc(100vh-24rem)] overflow-y-auto">
+            <div className="px-3 md:px-4 pt-3 md:pt-4 pb-3 md:pb-4">
             <div className="px-4 pt-4 pb-4">
               {filteredAndScoredSuggestions.length > 0 ? (
                 <div className="space-y-6">
@@ -285,7 +288,7 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
                           {group.label}
                         </h3>
                       )}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5 md:gap-2">
                         {group.ingredients.map(({ name, compatibility }) => {
                           const profile = ingredientProfiles.find(
                             p => p.name.toLowerCase() === name.toLowerCase()
@@ -351,6 +354,7 @@ export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

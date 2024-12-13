@@ -11,6 +11,8 @@ import { TASTE_COLORS } from '../utils/colors.ts';
 import EnhancedTasteAnalysis from './EnhancedTasteAnalysis.tsx';
 import { IngredientProfile } from '../types';
 import { getCompatibilityScore } from '../utils/compatibility.ts';
+import { generateTasteSuggestions } from '../utils/tasteSuggestions.ts';
+
 
 interface TasteAnalysisModalProps {
   isOpen: boolean;
@@ -86,24 +88,42 @@ const TasteAnalysisModal: React.FC<TasteAnalysisModalProps> = ({
     }))
     .sort((a, b) => b.value - a.value);
 
-  const CustomizedLegend = () => (
-    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-      {pieData.map((entry, index) => (
-        <div key={index} className="flex items-center gap-2">
-          <div 
-            className="w-3 h-3 rounded-full flex-shrink-0" 
-            style={{ backgroundColor: entry.color }}
-          />
-          <span className="text-sm font-medium">
-            {entry.name}
-          </span>
-          <span className="text-sm text-gray-500">
-            {entry.percentage}%
-          </span>
-        </div>
-      ))}
-    </div>
-  );
+    const CustomizedLegend = () => (
+      <div className="flex flex-col gap-1.5 w-full max-w-sm">
+        {pieData.map((entry, index) => (
+          <div key={index} className="flex items-center gap-3 px-2 w-full">
+            <span className="text-sm text-gray-400 w-4 shrink-0">
+              {index + 1}.
+            </span>
+            <div 
+              className="w-3 h-3 rounded-full shrink-0" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm font-medium shrink-0">
+              {entry.name}
+            </span>
+            <div className="flex-grow mx-2 border-b border-dotted border-gray-300" />
+            <span className="text-sm text-gray-500 shrink-0">
+              {entry.value.toFixed(1)}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+    
+
+// Convert flavorMap to Record format
+const flavorPairingsRecord: Record<string, string[]> = {};
+flavorMap.forEach((value, key) => {
+  flavorPairingsRecord[key] = Array.from(value);
+});
+
+// Get suggestions using our new algorithm
+const tasteSuggestions = generateTasteSuggestions(
+  profiles,
+  ingredientProfiles,
+  flavorPairingsRecord
+);
 
   return (
     <div 
@@ -199,13 +219,13 @@ const TasteAnalysisModal: React.FC<TasteAnalysisModalProps> = ({
           {/* Left column: Pie chart */}
           <div className="w-1/2 pr-3 flex flex-col">
             <div className="space-y-4">
-              <div className="h-[45vh]">
+              <div className="h-[35vh]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieData}
                       cx="50%"
-                      cy="45%"
+                      cy="50%"
                       outerRadius={120}
                       dataKey="value"
                       startAngle={90}
@@ -226,7 +246,7 @@ const TasteAnalysisModal: React.FC<TasteAnalysisModalProps> = ({
               </div>
               
               {/* Compact Legend */}
-              <div className="px-6 mt-4">
+              <div className="mt-0">
                 <CustomizedLegend />
               </div>
             </div>
@@ -235,7 +255,7 @@ const TasteAnalysisModal: React.FC<TasteAnalysisModalProps> = ({
           {/* Right column: Scrollable Enhanced analysis */}
           <div className="w-1/2 pl-3 flex flex-col h-full">
             <h3 className="text-l font-sans sticky top-0 bg-white pb-3 z-10 border-b">
-              Suggested Adjustments
+              Enhanced Taste Analysis
             </h3>
             <div className="overflow-y-auto flex-1">
               <EnhancedTasteAnalysis 
