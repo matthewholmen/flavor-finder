@@ -1,6 +1,7 @@
 // components/SearchBar.tsx
 import React, { useCallback, useMemo } from 'react';
 import { Search } from 'lucide-react';
+import { IngredientProfile } from '../types';
 import { filterIngredients } from '../utils/search.ts';
 
 interface SearchBarProps {
@@ -31,7 +32,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     if (e.key === 'Enter' && filteredIngredients.length > 0) {
       onIngredientSelect(filteredIngredients[0]);
       setSearchTerm(''); // Clear search field after selection
-      setIsSearchFocused(false);
+      setIsSearchFocused(false); // Close dropdown
     }
   }, [filteredIngredients, onIngredientSelect, setSearchTerm, setIsSearchFocused]);
 
@@ -46,10 +47,31 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsSearchFocused(true)}
-          onBlur={() => setIsSearchFocused(false)}
+          onBlur={() => {
+            // Delay to allow click events on dropdown
+            setTimeout(() => setIsSearchFocused(false), 200);
+          }}
           onKeyDown={handleKeyDown}
         />
       </div>
+
+      {/* Dropdown Results */}
+      {isSearchFocused && filteredIngredients.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg overflow-auto max-h-60">
+          {filteredIngredients.map((ingredient, index) => (
+            <li
+              key={index}
+              className="p-2 hover:bg-gray-100 cursor-pointer"
+              onMouseDown={() => {
+                onIngredientSelect(ingredient);
+                setSearchTerm('');
+              }}
+            >
+              {ingredient}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

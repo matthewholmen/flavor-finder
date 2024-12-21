@@ -1,21 +1,20 @@
 // FlavorFinder.js
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Sparkles, ChartPieIcon } from 'lucide-react';
+import { Sparkles, ChartPieIcon, Table } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { SuggestedIngredients } from './components/SuggestedIngredients.tsx';
-import CompactTasteSliders from './components/CompactTasteSliders.tsx';
-import CategoryFilter from './components/categoryFilter.tsx';
-import SortingFilter from './components/SortingFilter.tsx';
-import { getCompatibilityScore } from './utils/compatibility.ts';
+import { getCompatibilityScore, getCompatibilityColor } from './utils/compatibility.ts';
+import { getSortedCompatibleIngredients } from './utils/sorting.ts';
 import IngredientSlot from './components/IngredientSlot.tsx';
+import { TASTE_COLORS } from './utils/colors.ts';
 import InfoTooltip from './components/InfoTooltip.js';
 import TasteAnalysisModal from './components/TasteAnalysisModal.tsx';
-import { TASTE_COLORS } from './utils/colors.ts';
-import { getSortedCompatibleIngredients, applySortingOption } from './utils/sorting.ts';
-import { SearchBar } from './components/SearchBar.tsx';
-import { filterIngredients, matchesIngredient } from './utils/searchUtils.ts';
+import FlavorMatrixModal from './components/FlavorMatrixModal.tsx';
+
+
+
 
 
 const getIngredientColor = (profile) => {
@@ -226,6 +225,18 @@ export default function FlavorFinder() {
   };
   
   const [activeSliders, setActiveSliders] = useState(new Set());
+
+  const toggleSlider = (taste) => {
+    setActiveSliders(prevSliders => {
+      const newSliders = new Set(prevSliders);
+      if (newSliders.has(taste)) {
+        newSliders.delete(taste);
+      } else {
+        newSliders.add(taste);
+      }
+      return newSliders;
+    });
+  };
 
   const updateTasteIntensity = (values) => {
     setTasteValues(values);
@@ -456,96 +467,11 @@ const handleRandomize = () => {
   setSelectedIngredients(newIngredients.filter(Boolean));
 };
 
-const [searchTerm, setSearchTerm] = useState('');
-const [isSearchFocused, setIsSearchFocused] = useState(false);
-const [activeSorting, setActiveSorting] = useState('alphabetical');
-const [showPartialMatches, setShowPartialMatches] = useState(false);
-
-// Filter and process ingredients
-const filteredIngredients = useMemo(() => {
-  // First, get the base list of ingredients
-  let filtered = searchTerm
-    ? filterIngredients(allIngredients, searchTerm)
-    : selectedIngredients.length === 0 
-      ? allIngredients 
-      : getSortedCompatibleIngredients(
-          selectedIngredients,
-          flavorMap,
-          ingredientProfiles,
-          tasteValues,
-          activeSliders,
-          activeSorting
-        );
-
-  // Apply filters...
-  if (activeFilters.category || activeFilters.subcategories.length > 0) {
-    filtered = filtered.filter(ingredient => {
-      const profile = ingredientProfiles.find(p =>
-        p.name.toLowerCase() === ingredient.toLowerCase()
-      );
-      
-      if (!profile) return false;
-      
-      // Check category match if a category is selected
-      if (activeFilters.category && profile.category !== activeFilters.category) {
-        return false;
-      }
-      
-      // Check subcategory match if any subcategories are selected
-      if (activeFilters.subcategories.length > 0) {
-        return activeFilters.subcategories.includes(profile.subcategory);
-      }
-      
-      return true;
-    });
-  }
-
-  // Filter by taste values
-  filtered = filtered.filter(ingredient => {
-    const profile = ingredientProfiles.find(p =>
-      p.name.toLowerCase() === ingredient.toLowerCase()
-    );
-
-    if (!profile) return false;
-
-    return Object.entries(tasteValues).every(([taste, minValue]) => {
-      if (!activeSliders.has(taste)) return true;
-      return profile.flavorProfile[taste] >= minValue;
-    });
-  });
-
-  return applySortingOption(
-    Array.from(new Set(filtered)).filter(
-      ingredient => !selectedIngredients.includes(ingredient)
-    ),
-    activeSorting,
-    ingredientProfiles
-  );
-}, [
-  searchTerm,
-  allIngredients,
-  selectedIngredients,
-  flavorMap,
-  ingredientProfiles,
-  tasteValues,
-  activeSliders,
-  activeFilters,
-  activeSorting
-]);
-
-
-const toggleSlider = (taste) => {
-  setActiveSliders(prev => {
-    const next = new Set(prev);
-    if (next.has(taste)) {
-      next.delete(taste);
-    } else {
-      next.add(taste);
-    }
-    return next;
-  });
-};
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
+  const [activeCategories, setActiveCategories] = useState([]);
+  const [filteredIngredients, setFilteredIngredients] = useState([]);
   
 
   useEffect(() => {
@@ -568,14 +494,16 @@ return (
   <div className="h-screen flex overflow-hidden">
     {/* Left Column (50%) */}
     <div className="w-full md:w-1/2 flex flex-col border-r border-gray-200">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+  {/* Header */}
+
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <img 
           src="/flavor-finder-1.png" 
           alt="Flavor Finder Logo" 
           className="h-12 w-auto object-contain"
         />
         <div className="flex items-center space-x-2">
+        
           <button 
             onClick={() => setIsAnalysisModalOpen(true)}
             className="px-4 py-2 border-2 border-[#72A8D5] text-[#000000] hover:bg-[#72A8D5] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
@@ -593,82 +521,40 @@ return (
         </div>
       </div>
 
+
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-h-0 p-4">
-{/* Search Bar */}
-      <div className="relative">
-        <SearchBar 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          ingredients={allIngredients}
-          selectedIngredients={selectedIngredients}
-          onIngredientSelect={handleIngredientSelect}
-          isSearchFocused={isSearchFocused}
-          setIsSearchFocused={setIsSearchFocused}
-        />
-      </div>
-        {/* Filters Section */}
-        <div className="space-y-4 mb-4">
-          <CategoryFilter
-            activeCategory={activeFilters.category}
-            selectedSubcategories={activeFilters.subcategories}
-            onFiltersChange={(filters) => setActiveFilters(filters)}
-          />
-
-          <div className="px-3 space-y-4">
-            <CompactTasteSliders
-              values={tasteValues}
-              onChange={setTasteValues}
-              activeSliders={activeSliders}
-              onToggleSlider={toggleSlider}
-            />
-            
-            <div className="flex items-center justify-between">
-                <SortingFilter
-                  activeSorting={activeSorting}
-                  onSortingChange={setActiveSorting}
-                />
-
-              {/* Partial Matches Toggle */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-900">
-                  Show Partial Matches
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={showPartialMatches}
-                    onChange={(e) => setShowPartialMatches(e.target.checked)}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#FFC533]"></div>
-                </label>
-              </div>
-            </div>
-          </div>
+      <div className="flex-1 flex flex-col min-h-0">
+  {/* Filters and Suggestions wrapper */}
+  <div className="flex-1 p-4 pb-0 overflow-y-auto border-b border-gray-200">
+  {/* Top Filters Section */}
+    <div className="space-y-2 md:space-y-4">
+    <SuggestedIngredients
+        suggestions={compatibleIngredients}
+        onSelect={handleIngredientSelect}
+        selectedIngredients={selectedIngredients}
+        flavorMap={flavorMap}
+        experimentalPairings={[]}
+        flavorPairings={[]}
+        activeCategory={activeFilters.category}
+        selectedSubcategories={activeFilters.subcategories}
+        onFiltersChange={handleFiltersChange}
+        ingredientProfiles={ingredientProfiles}
+        tasteValues={tasteValues}
+        activeSliders={activeSliders}
+        onTasteValuesChange={updateTasteIntensity}
+        onToggleSlider={toggleSlider}
+        setIsSearchFocused={setIsSearchFocused}
+        className="h-[calc(100vh-16rem)] md:h-[calc(100vh-24rem)]"
+      />
         </div>
-
-        {/* Ingredients List */}
-        <div className="flex-1 min-h-0 border-t border-gray-200 -mx-4">
-        <SuggestedIngredients
-          suggestions={filteredIngredients}
-          onSelect={handleIngredientSelect}
-          selectedIngredients={selectedIngredients}
-          flavorMap={flavorMap}
-          ingredientProfiles={ingredientProfiles}
-          showPartialMatches={showPartialMatches}
-          className="h-full"
-          sortingOption={activeSorting} // Add this
-        />
         </div>
-      </div>
-
-      {/* Info Tooltip */}
-      <div className="p-2">
-        <InfoTooltip />
-      </div>
+            {/* Fixed bottom section */}
+    <div className="p-2">
+      <InfoTooltip />
     </div>
 
+      </div>
+    </div>
 
 {/* Right Column (50%): Selected Ingredients */}
 <div className="w-full md:w-1/2 flex flex-col h-screen">
@@ -707,6 +593,12 @@ return (
   ingredientProfiles={ingredientProfiles}
   onIngredientsChange={setSelectedIngredients}
   flavorMap={flavorMap} // Fix: Pass the entire flavorMap object
+/>
+<FlavorMatrixModal 
+  isOpen={isMatrixModalOpen}
+  onClose={() => setIsMatrixModalOpen(false)}
+  selectedIngredients={selectedIngredients}
+  flavorMap={flavorMap}
 />
   </div>
 );

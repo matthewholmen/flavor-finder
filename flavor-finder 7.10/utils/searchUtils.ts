@@ -32,12 +32,11 @@ export const normalizeText = (text: string): string => {
    */
   export const filterIngredients = (
     ingredients: string[],
-    searchTerm: string,
-    selectedIngredients: string[] = []  // Add this parameter
+    searchTerm: string
   ): string[] => {
-    if (!searchTerm) return ingredients.filter(i => !selectedIngredients.includes(i));
+    if (!searchTerm) return ingredients;
     
-    return ingredients
-      .filter(ingredient => !selectedIngredients.includes(ingredient))  // Filter out selected
-      .filter(ingredient => matchesIngredient(ingredient, searchTerm));
+    return ingredients.filter(ingredient => 
+      matchesIngredient(ingredient, searchTerm)
+    );
   };

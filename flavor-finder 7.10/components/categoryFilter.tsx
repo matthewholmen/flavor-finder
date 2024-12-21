@@ -61,10 +61,11 @@ export default function CategoryFilter({
         subcategories: []
       });
     } else {
-      // Changed: Don't automatically select all subcategories
+      // When selecting a new category, automatically select all its subcategories
+      const newSubcategories = getSubcategories(newCategory);
       onFiltersChange({
         category: newCategory,
-        subcategories: []
+        subcategories: newSubcategories
       });
     }
   };
@@ -76,7 +77,7 @@ export default function CategoryFilter({
       {/* Main categories */}
       <div className="relative">
         <div 
-          className="flex items-center gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide pr-20"
+          className="flex items-center gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide"
           style={{
             msOverflowStyle: 'none',
             scrollbarWidth: 'none',
@@ -113,7 +114,7 @@ export default function CategoryFilter({
       {activeCategory && subcategories.length > 0 && (
         <div className="relative">
           <div 
-            className="flex items-center gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide pr-20"
+            className="flex items-center gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide"
             style={{
               msOverflowStyle: 'none',
               scrollbarWidth: 'none',
