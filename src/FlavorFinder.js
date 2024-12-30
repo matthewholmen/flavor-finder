@@ -831,7 +831,7 @@ return (
   {[...Array(5)].map((_, index) => (
     <div 
       key={`slot-${index}`}
-      className="h-1/5 w-full md:min-h-[120px]"
+      className="h-1/5 w-full min-h-[100px] px-1 sm:px-2 md:px-4" // Adjusted padding based on breakpoints
     >
       <IngredientSlot
         ingredient={selectedIngredients[index]}
@@ -851,7 +851,6 @@ return (
         index={index}
         flavorMap={flavorMap}
         selectedIngredients={selectedIngredients}
-        className="h-full p-2 md:p-4"
         onSubstitute={() => handleSubstitute(index)}
         isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
       />      
