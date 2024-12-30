@@ -27,12 +27,13 @@ interface IngredientSlotProps {
   isLocked: boolean;
   onLockToggle: () => void;
   onRemove: () => void;
-  onSubstitute: () => void; // New prop
+  onSubstitute: () => void;
+  onExitSubstitute?: () => void;  
+  isInSubstitutionMode?: boolean;
   profile?: IngredientProfile;
   index: number;
   flavorMap: Map<string, Set<string>>;
   selectedIngredients: string[];
-  isInSubstitutionMode?: boolean; // New prop to show if we're substituting this ingredient
 }
 
 const IngredientSlot: React.FC<IngredientSlotProps> = ({
@@ -41,6 +42,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   onLockToggle,
   onRemove,
   onSubstitute,
+  onExitSubstitute,
   profile,
   index,
   flavorMap,
@@ -165,15 +167,19 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                 </button>
 
                 <button
-                  className={`p-1 transition-colors ${isInSubstitutionMode ? 'text-gray-800 scale-110' : 'text-gray-400 hover:text-gray-600 hover:scale-110'}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSubstitute();
-                  }}
-                  title="Substitute Ingredient"
-                >
-                  <SendToBack size={16} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
-                </button>
+  className={`p-1 transition-colors ${isInSubstitutionMode ? 'text-gray-800 scale-110' : 'text-gray-400 hover:text-gray-600 hover:scale-110'}`}
+  onClick={(e) => {
+    e.stopPropagation();
+    if (isInSubstitutionMode && onExitSubstitute) {
+      onExitSubstitute();
+    } else {
+      onSubstitute();
+    }
+  }}
+  title={isInSubstitutionMode ? "Exit Substitute Mode" : "Substitute Ingredient"}
+>
+  <SendToBack size={16} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
+</button>
                 
               </div>
               <div className="flex-1 text-center">

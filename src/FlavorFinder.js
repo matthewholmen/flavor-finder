@@ -38,6 +38,7 @@ const getIngredientColor = (profile) => {
 // Helper functions for taste analysis
 const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
 
+
 const filterByTasteValues = (ingredients, tasteValues) => {
   return ingredients.filter((ingredient) => {
     const profile = ingredientProfiles.find(
@@ -164,60 +165,122 @@ export default function FlavorFinder() {
     active: false,
     sourceIngredient: null,
     sourceProfile: null,
-    slotIndex: null
+    slotIndex: null,
+    type: 'taste' // Add this new field
   });
+  const handleExitSubstitution = () => {
+    exitSubstitutionMode();
+  };
+  
+  const handleModeChange = (newMode) => {
+    setSubstitutionMode(prev => ({
+      ...prev,
+      type: newMode
+    }));
+  
+    // Set up appropriate filters based on mode
+    if (newMode === 'taste' && substitutionMode.sourceProfile) {
+      // Reset category filters first
+      setActiveFilters({
+        category: '',
+        subcategories: []
+      });
+      
+      // Set up taste filters
+      const newActiveSliders = new Set(
+        Object.entries(substitutionMode.sourceProfile.flavorProfile)
+          .filter(([_, value]) => value > 0)
+          .map(([taste]) => taste)
+      );
+      setActiveSliders(newActiveSliders);
+  
+      const newTasteValues = { ...tasteValues };
+      Object.entries(substitutionMode.sourceProfile.flavorProfile).forEach(([taste, value]) => {
+        newTasteValues[taste] = value * 0.5;
+      });
+      setTasteValues(newTasteValues);
+    } else if (newMode === 'category' && substitutionMode.sourceProfile) {
+      // Reset taste filters first
+      setActiveSliders(new Set());
+      setTasteValues({
+        sweet: 5,
+        salty: 5,
+        sour: 5,
+        bitter: 5,
+        umami: 5,
+        fat: 5,
+        spicy: 5
+      });
+      
+      // Set up category filters
+      setActiveFilters({
+        category: substitutionMode.sourceProfile.category,
+        subcategories: [substitutionMode.sourceProfile.subcategory]
+      });
+    }
+  };
+
+  const handleFilterTypeToggle = (type) => {
+    setSubstitutionMode(prev => ({
+      ...prev,
+      filterType: type
+    }));
+  };
 
   const suggestedIngredientsRef = useRef(null);
 
 
   // Modified handleSubstitute function
-const handleSubstitute = (index) => {
-  // If we're already in substitution mode for this slot, exit it
-  if (substitutionMode.active && substitutionMode.slotIndex === index) {
-    exitSubstitutionMode();
-    return;
-  }
-
-  const sourceIngredient = selectedIngredients[index];
-  const sourceProfile = ingredientProfiles.find(
-    p => p.name.toLowerCase() === sourceIngredient?.toLowerCase()
-  );
-      
-  if (sourceProfile) {
-    // Set active sliders for all non-zero taste values
-    const newActiveSliders = new Set(
-      Object.entries(sourceProfile.flavorProfile)
-        .filter(([_, value]) => value > 0)
-        .map(([taste]) => taste)
+  const handleSubstitute = (index) => {
+    // If we're already in substitution mode for this slot, toggle between taste and category
+    if (substitutionMode.active && substitutionMode.slotIndex === index) {
+      if (substitutionMode.type === 'taste') {
+        setSubstitutionMode(prev => ({
+          ...prev,
+          type: 'category'
+        }));
+      } else {
+        exitSubstitutionMode();
+      }
+      return;
+    }
+  
+    const sourceIngredient = selectedIngredients[index];
+    const sourceProfile = ingredientProfiles.find(
+      p => p.name.toLowerCase() === sourceIngredient?.toLowerCase()
     );
-    setActiveSliders(newActiveSliders);
-
-    // Set taste values to 50% of the source ingredient's values
-    const newTasteValues = { ...tasteValues };
-    Object.entries(sourceProfile.flavorProfile).forEach(([taste, value]) => {
-      newTasteValues[taste] = value * 0.5;
+        
+    if (sourceProfile) {
+      // Reset taste filters
+      setActiveSliders(new Set());
+      setTasteValues({
+        sweet: 5,
+        salty: 5,
+        sour: 5,
+        bitter: 5,
+        umami: 5,
+        fat: 5,
+        spicy: 5
+      });
+  
+      // Set up category filters
+      setActiveFilters({
+        category: sourceProfile.category,
+        subcategories: [sourceProfile.subcategory]
+      });
+    }
+  
+    setSubstitutionMode({
+      active: true,
+      sourceIngredient,
+      sourceProfile,
+      slotIndex: index,
+      type: 'category'  // Start with category mode by default
     });
-    setTasteValues(newTasteValues);
-
-    // Enable partial matches for substitute mode
+  
+    setIsFiltersOpen(true);
     setShowPartialMatches(true);
-  }
-
-  setSubstitutionMode({
-    active: true,
-    sourceIngredient,
-    sourceProfile,
-    slotIndex: index
-  });
-
-  // Automatically open filters when entering substitution mode
-  setIsFiltersOpen(true);
-
-  // Scroll back to top
-  if (suggestedIngredientsRef.current) {
-    suggestedIngredientsRef.current.scrollTo(0, 0);
-  }
-};
+  };
 
 // Modified exitSubstitutionMode function
 const exitSubstitutionMode = () => {
@@ -225,10 +288,11 @@ const exitSubstitutionMode = () => {
     active: false,
     sourceIngredient: null,
     sourceProfile: null,
-    slotIndex: null
+    slotIndex: null,
+    type: 'category'
   });
   
-  // Reset taste filters to default
+  // Reset filters
   setActiveSliders(new Set());
   setTasteValues({
     sweet: 5,
@@ -240,6 +304,10 @@ const exitSubstitutionMode = () => {
     spicy: 5
   });
   setShowPartialMatches(false);
+  setActiveFilters({
+    category: '',
+    subcategories: []
+  });
 };
 
   useEffect(() => {
@@ -563,7 +631,6 @@ const [showPartialMatches, setShowPartialMatches] = useState(false);
 
 // Filter and process ingredients
 const filteredIngredients = useMemo(() => {
-  // First, get the base list of ingredients
   let filtered = searchTerm
     ? filterIngredients(allIngredients, searchTerm)
     : selectedIngredients.length === 0 
@@ -577,42 +644,56 @@ const filteredIngredients = useMemo(() => {
           activeSorting
         );
 
-  // Apply filters...
-  if (activeFilters.category || activeFilters.subcategories.length > 0) {
-    filtered = filtered.filter(ingredient => {
-      const profile = ingredientProfiles.find(p =>
-        p.name.toLowerCase() === ingredient.toLowerCase()
-      );
-      
-      if (!profile) return false;
-      
-      // Check category match if a category is selected
-      if (activeFilters.category && profile.category !== activeFilters.category) {
-        return false;
-      }
-      
-      // Check subcategory match if any subcategories are selected
-      if (activeFilters.subcategories.length > 0) {
-        return activeFilters.subcategories.includes(profile.subcategory);
-      }
-      
-      return true;
-    });
+  // Apply filters based on substitution mode
+  if (substitutionMode.active) {
+    if (substitutionMode.type === 'category' && substitutionMode.sourceProfile) {
+      // Only apply category filters in category mode
+      filtered = filtered.filter(ingredient => {
+        const profile = ingredientProfiles.find(p =>
+          p.name.toLowerCase() === ingredient.toLowerCase()
+        );
+        
+        if (!profile) return false;
+        return profile.category === substitutionMode.sourceProfile.category &&
+               profile.subcategory === substitutionMode.sourceProfile.subcategory;
+      });
+    } else if (substitutionMode.type === 'taste') {
+      // Only apply taste filters in taste mode
+      filtered = filtered.filter(ingredient => {
+        const profile = ingredientProfiles.find(p =>
+          p.name.toLowerCase() === ingredient.toLowerCase()
+        );
+
+        if (!profile) return false;
+
+        return Object.entries(tasteValues).every(([taste, minValue]) => {
+          if (!activeSliders.has(taste)) return true;
+          return profile.flavorProfile[taste] >= minValue;
+        });
+      });
+    }
+  } else {
+    // Normal mode - apply both filters if they're set
+    if (activeFilters.category || activeFilters.subcategories.length > 0) {
+      filtered = filtered.filter(ingredient => {
+        const profile = ingredientProfiles.find(p =>
+          p.name.toLowerCase() === ingredient.toLowerCase()
+        );
+        
+        if (!profile) return false;
+        
+        if (activeFilters.category && profile.category !== activeFilters.category) {
+          return false;
+        }
+        
+        if (activeFilters.subcategories.length > 0) {
+          return activeFilters.subcategories.includes(profile.subcategory);
+        }
+        
+        return true;
+      });
+    }
   }
-
-  // Filter by taste values
-  filtered = filtered.filter(ingredient => {
-    const profile = ingredientProfiles.find(p =>
-      p.name.toLowerCase() === ingredient.toLowerCase()
-    );
-
-    if (!profile) return false;
-
-    return Object.entries(tasteValues).every(([taste, minValue]) => {
-      if (!activeSliders.has(taste)) return true;
-      return profile.flavorProfile[taste] >= minValue;
-    });
-  });
 
   return applySortingOption(
     Array.from(new Set(filtered)).filter(
@@ -630,7 +711,8 @@ const filteredIngredients = useMemo(() => {
   tasteValues,
   activeSliders,
   activeFilters,
-  activeSorting
+  activeSorting,
+  substitutionMode // Add this dependency
 ]);
 
 
@@ -794,11 +876,21 @@ return (
           ingredientProfiles={ingredientProfiles}
           showPartialMatches={showPartialMatches}
           className="h-full"
-          sortingOption={activeSorting}substitutionMode={{
+          sortingOption={activeSorting}
+          substitutionMode={{
             active: substitutionMode.active,
-            sourceIngredient: substitutionMode.sourceIngredient
+            sourceIngredient: substitutionMode.sourceIngredient,
+            type: substitutionMode.type,
+            slotIndex: substitutionMode.slotIndex
+          }}
+          onModeSelect={handleModeChange}
+          onModeToggle={() => {
+            if (substitutionMode.active) {
+              handleSubstitute(substitutionMode.slotIndex);
+            }
           }}
         />
+        
         </div>
       </div>
 
@@ -853,6 +945,7 @@ return (
         flavorMap={flavorMap}
         selectedIngredients={selectedIngredients}
         onSubstitute={() => handleSubstitute(index)}
+        onExitSubstitute={handleExitSubstitution}
         isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
       />      
     </div>

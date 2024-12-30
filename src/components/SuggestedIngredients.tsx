@@ -29,6 +29,7 @@ const getIngredientColor = (profile?: IngredientProfile) => {
 interface SuggestedIngredientsProps {
   suggestions: string[];
   onSelect: (ingredient: string) => void;
+  onModeSelect?: (mode: 'taste' | 'category') => void;
   selectedIngredients: string[];
   flavorMap: Map<string, Set<string>>;
   ingredientProfiles: IngredientProfile[];
@@ -38,8 +39,13 @@ interface SuggestedIngredientsProps {
   substitutionMode?: {
     active: boolean;
     sourceIngredient: string | null;
+    type: 'taste' | 'category';
+    slotIndex: number;
   };
+  onModeToggle?: () => void; // Add this for the toggle functionality
 }
+
+
 
 
 
@@ -68,7 +74,9 @@ const SuggestedIngredients = React.forwardRef<HTMLDivElement, SuggestedIngredien
     showPartialMatches = false,
     className = '',
     sortingOption,
-    substitutionMode
+    substitutionMode,
+    onModeToggle,
+    onModeSelect
   }, 
   ref
 ) => {
@@ -176,25 +184,72 @@ useEffect(() => {
   return (
     <div ref={ref} className={`h-full overflow-y-auto ${className}`}>
 
-      {substitutionMode?.active && (
-              <div className="sticky bg-white top-0 z-20 border-b border-gray-400 ">
-                <div 
-                  className="border-b-4 py-4 md:px-4"
-                  style={{ 
-                    borderColor: getIngredientColor(ingredientProfiles.find(
-                      p => p.name.toLowerCase() === substitutionMode.sourceIngredient?.toLowerCase()
-                    ))
-                  }}
-                >
-                  <div className="pl-4">
-                    Substituting for <strong>{substitutionMode.sourceIngredient}</strong>
-                  </div>
-                  <div className="pl-4 pt-1 text-gray-500 text-sm italic">
-                    These ingredients share some taste.
-                  </div>
-                </div>
-              </div>
-      )}
+{substitutionMode?.active && (
+  <div className="sticky bg-white top-0 z-20 border-b border-gray-400">
+    <div 
+      className="border-b-4 py-4"
+      style={{ 
+        borderColor: getIngredientColor(ingredientProfiles.find(
+          p => p.name.toLowerCase() === substitutionMode.sourceIngredient?.toLowerCase()
+        ))
+      }}
+    >
+      <div className="flex items-center justify-between px-4">
+  <div>
+    <div>
+      Substituting for <strong>{substitutionMode.sourceIngredient}</strong>
+    </div>
+    <div className="pt-1 text-gray-500 text-sm italic">
+      {substitutionMode.type === 'taste' 
+        ? "These ingredients share similar tastes."
+        : "These ingredients share similar types."}
+    </div>
+  </div>
+  
+  {/* Pill buttons */}
+  <div className="flex items-center gap-4">
+  <button
+    onClick={() => onModeSelect?.('taste')}
+    className={`
+      flex items-center gap-2
+      py-1.5 px-4
+      text-sm
+      rounded-full
+      border-2
+      transition-all duration-200
+      ${substitutionMode.type === 'taste'
+        ? 'bg-white text-gray-800 border-gray-800' 
+        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600'
+      }
+    `}
+  >
+    Taste
+  </button>
+  
+  <button
+    onClick={() => onModeSelect?.('category')}
+    className={`
+      flex items-center gap-2
+      py-1.5 px-4
+      text-sm
+      rounded-full
+      border-2
+      transition-all duration-200
+      ${substitutionMode.type === 'category'
+        ? 'bg-white text-gray-800 border-gray-800' 
+        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600'
+      }
+    `}
+  >
+    Type
+  </button>
+</div>
+
+
+    </div>
+  </div>
+  </div>
+)}
 
       <div className="px-3 md:px-4 py-3 md:py-4 bg-white">
           {filteredAndScoredSuggestions.length > 0 ? (
