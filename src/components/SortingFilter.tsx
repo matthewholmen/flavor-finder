@@ -37,18 +37,22 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-white px-4 py-1.5 rounded-full text-sm
-          border-2 border-gray-300 hover:border-gray-400 
+          border-2 border-gray-300 hover:border-gray-800 
           transition-colors duration-200 focus:outline-none
           focus:border-gray-500 flex items-center gap-2 min-w-[140px]"
       >
         <span className="flex-grow text-left">
           {SORTING_OPTIONS.find(opt => opt.value === activeSorting)?.label}
         </span>
-        <ChevronDown className="h-4 w-4 text-gray-500" />
+        <ChevronDown 
+    className={`h-4 w-4 text-gray-500 transition-transform ${
+      isOpen ? 'rotate-180' : 'hover:rotate-0'
+    }`} 
+  />
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full">
+        <div className="absolute z-10 bottom-full mb-1 w-full">
           <div className="bg-white rounded-xl border-2 border-gray-300 shadow-lg overflow-hidden">
             {SORTING_OPTIONS.map((option) => (
               <button

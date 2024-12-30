@@ -494,8 +494,8 @@ export const ingredientProfiles: IngredientProfile[] = [
   },
   {
     name: "baked beans",
-    category: "Legumes",
-    subcategory: "Beans",
+    category: "Proteins",
+    subcategory: "Plant Proteins",
     flavorProfile: {
       sweet: 5,
       salty: 4,
@@ -683,8 +683,8 @@ export const ingredientProfiles: IngredientProfile[] = [
   },
   {
     name: "beans",
-    category: "Legumes",
-    subcategory: "Beans",
+    category: "Proteins",
+    subcategory: "Plant Proteins",
     flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -1005,8 +1005,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "black beans",
-      category: "Legumes",
-      subcategory: "Beans",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -1137,8 +1137,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "black-eyed peas",
-      category: "Legumes",
-      subcategory: "Peas",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -1812,8 +1812,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "cannellini beans",
-      category: "Legumes",
-      subcategory: "Beans",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -2434,8 +2434,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "chickpea",
-      category: "Legumes",
-      subcategory: "Beans",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -3691,8 +3691,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "fava beans",
-      category: "Legumes",
-      subcategory: "Beans",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 3,
         salty: 0,
@@ -3935,8 +3935,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "flageolet beans",
-      category: "Legumes",
-      subcategory: "Beans",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -5022,8 +5022,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "kidney bean",
-      category: "Legumes",
-      subcategory: "Beans",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -5193,8 +5193,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "legume",
-      category: "Legumes",
-      subcategory: "Beans",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -5269,8 +5269,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "lentils",
-      category: "Legumes",
-      subcategory: "Lentils",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 1,
         salty: 0,
@@ -6502,8 +6502,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "peas",
-      category: "Legumes",
-      subcategory: "Peas",
+      category: "Proteins",
+      subcategory: "Plant Proteins",
       flavorProfile: {
         sweet: 5,
         salty: 0,
@@ -9298,8 +9298,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "lima beans",
-        category: "Legumes",
-        subcategory: "Beans",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
         flavorProfile: {
           sweet: 2,
           salty: 0,
@@ -10198,8 +10198,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "pea",
-        category: "Legumes",
-        subcategory: "Peas",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
         flavorProfile: {
           sweet: 4,
           salty: 0,
@@ -10253,9 +10253,9 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Young pigeon with rich, dark meat flavor"
       },
       {
-        name: "red bean",
-        category: "Legumes",
-        subcategory: "Beans",
+        name: "red beans",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
         flavorProfile: {
           sweet: 2,
           salty: 0,
@@ -10330,8 +10330,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "pinto beans",
-        category: "Legumes",
-        subcategory: "Beans",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
         flavorProfile: {
           sweet: 1,
           salty: 0,
@@ -10592,8 +10592,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "kidney beans",
-        category: "Legumes",
-        subcategory: "Beans",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
         flavorProfile: {
           sweet: 1,
           salty: 0,
@@ -10763,8 +10763,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "white beans",
-        category: "Legumes",
-        subcategory: "Beans",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
         flavorProfile: {
           sweet: 2,
           salty: 0,
@@ -11065,8 +11065,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "navy beans",
-        category: "Legumes",
-        subcategory: "Beans",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
         flavorProfile: {
           sweet: 2,
           salty: 0,
@@ -11081,5 +11081,157 @@ export const ingredientProfiles: IngredientProfile[] = [
           secondary: "Earthy"
         },
         description: "Small white beans with mild flavor and creamy texture when cooked"
+      },
+      {
+        name: "tangerine",
+        category: "Fruits",
+        subcategory: "Citrus",
+        flavorProfile: {
+          sweet: 6,
+          salty: 0,
+          sour: 4,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Citrus"
+        },
+        description: "Sweet-tart citrus fruit with bright, floral notes and honey-like sweetness"
+      },
+      {
+        name: "poblano chili",
+        category: "Vegetables",
+        subcategory: "Peppers",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 2,
+          fat: 0,
+          spicy: 4
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Fruit-Like"
+        },
+        description: "Large mild-to-medium heat chile with earthy flavor and subtle fruity notes"
+      },
+      {
+        name: "skate",
+        category: "Proteins",
+        subcategory: "Fish",
+        flavorProfile: {
+          sweet: 1,
+          salty: 2,
+          sour: 0,
+          bitter: 0,
+          umami: 6,
+          fat: 4,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Delicate white fish with sweet, nutty flavor and firm, stringy texture"
+      },
+      {
+        name: "sprouts",
+        category: "Vegetables",
+        subcategory: "Brassicas",
+        flavorProfile: {
+          sweet: 2,
+          salty: 0,
+          sour: 0,
+          bitter: 3,
+          umami: 1,
+          fat: 0,
+          spicy: 1
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Green"
+        },
+        description: "Young vegetable shoots with crisp texture and subtle peppery, nutty flavor"
+      },
+      {
+        name: "veal chop",
+        category: "Proteins",
+        subcategory: "Meat",
+        flavorProfile: {
+          sweet: 1,
+          salty: 1,
+          sour: 0,
+          bitter: 0,
+          umami: 7,
+          fat: 5,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Meaty"
+        },
+        description: "Tender, mild-flavored meat with subtle sweetness and buttery richness"
+      },
+      {
+        name: "lemon verbena",
+        category: "Seasonings",
+        subcategory: "Herbs",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 2,
+          bitter: 1,
+          umami: 0,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Herbaceous"
+        },
+        description: "Aromatic herb with intense citrusy flavor and floral notes"
+      },
+      {
+        name: "plantain",
+        category: "Fruits",
+        subcategory: "Other Fruits",
+        flavorProfile: {
+          sweet: 4,
+          salty: 0,
+          sour: 1,
+          bitter: 0,
+          umami: 1,
+          fat: 0,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Fruity",
+          secondary: "Tropical"
+        },
+        description: "Starchy cooking banana with subtle sweetness that increases with ripeness"
+      },
+      {
+        name: "legumes",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
+        flavorProfile: {
+          sweet: 1,
+          salty: 0,
+          sour: 0,
+          bitter: 1,
+          umami: 5,
+          fat: 1,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Vegetal",
+          secondary: "Earthy"
+        },
+        description: "Plant family including beans, peas, and lentils."
       }
     ];

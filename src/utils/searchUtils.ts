@@ -21,11 +21,11 @@ export const normalizeText = (text: string): string => {
     const normalizedSearch = normalizeText(searchTerm);
     const normalizedIngredient = normalizeText(ingredient);
     
-    // Split ingredient into words and check if any word starts with the search term
-    const words = normalizedIngredient.split(' ');
-    return words.some(word => word.startsWith(normalizedSearch));
+    // Don't split the search term, use it as is
+    return normalizedIngredient.includes(normalizedSearch);
   };
   
+    
   /**
    * Filters a list of ingredients based on search term
    * Returns ingredients where any word starts with the search term

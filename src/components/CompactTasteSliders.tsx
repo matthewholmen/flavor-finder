@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TASTE_COLORS } from '../utils/colors.ts';
+import { X } from 'lucide-react';
 
 export interface TasteValues {
   sweet: number;
@@ -29,17 +30,31 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
   const [currentSlider, setCurrentSlider] = useState<keyof TasteValues>('sweet');
   const [isDragging, setIsDragging] = useState(false);
   const [initializedSliders] = useState(new Set<keyof TasteValues>());
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        container.scrollLeft += e.deltaY;
+      }
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
 
   const handleTasteToggle = (taste: keyof TasteValues) => {
     if (!isDragging) {
       onToggleSlider(taste);
       
-      // Only update currentSlider when activating a taste, not when deactivating
       if (!activeSliders.has(taste)) {
         setCurrentSlider(taste);
       }
       
-      // Set default value only on first activation
       if (!activeSliders.has(taste) && !initializedSliders.has(taste)) {
         initializedSliders.add(taste);
         onChange({
@@ -74,7 +89,6 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
 
   const areAllSlidersDisabled = activeSliders.size === 0;
 
-  // Initialize values for newly mounted sliders
   useEffect(() => {
     const uninitialized = Array.from(activeSliders).filter(
       taste => !initializedSliders.has(taste) && values[taste] === 0
@@ -92,46 +106,101 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Taste Toggle Buttons with justified layout */}
-      <div className="flex justify-between">
-        {(Object.keys(values) as Array<keyof TasteValues>).map((taste) => (
-          <button
-            key={taste}
-            onClick={() => handleTasteToggle(taste)}
-            className="relative inline-flex items-center group"
-            onMouseDown={() => setIsDragging(false)}
-          >
-            <div
-              className={`w-5 h-5 rounded-full transition-all duration-200 border-4
-                ${activeSliders.has(taste)
-                  ? 'border-transparent'
-                  : 'border-current'
-                }
-                ${currentSlider === taste && activeSliders.has(taste)
-                  ? 'ring-2 ring-offset-1 ring-gray-200'
-                  : ''
-                }
-                group-hover:scale-110
+      {/* Wrap the buttons in a scrollable container */}
+      <div className="relative">
+      <div 
+        ref={scrollContainerRef}
+        className="flex items-center gap-3 overflow-x-auto whitespace-nowrap scrollbar-hide py-2 px-0.5"
+      >
+          {(Object.keys(values) as Array<keyof TasteValues>).map((taste) => (
+            <button
+              key={taste}
+              className={`
+                px-3 py-1.5 rounded-full font-sans text-sm
+                flex items-center gap-1.5
+                border-2 transition-all
+                ${activeSliders.has(taste) ? 'text-white' : 'text-black'}
+                ${currentSlider === taste && activeSliders.has(taste) ? 'ring-2 ring-gray-800' : ''}
+                hover:text-white
+                flex-shrink-0
               `}
               style={{
-                backgroundColor: activeSliders.has(taste)
-                  ? TASTE_COLORS[taste]
-                  : 'transparent',
-                borderColor: TASTE_COLORS[taste]
+                borderColor: TASTE_COLORS[taste],
+                backgroundColor: activeSliders.has(taste) ? TASTE_COLORS[taste] : 'white',
               }}
-            />
-            <span 
-              className={`ml-2 text-base capitalize
-                ${activeSliders.has(taste) ? 'font-medium' : 'font-normal'}
-              `}
+              onClick={() => !activeSliders.has(taste) && handleTasteToggle(taste)}
+              onMouseEnter={(e) => {
+                if (!activeSliders.has(taste)) {
+                  e.currentTarget.style.backgroundColor = TASTE_COLORS[taste];
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!activeSliders.has(taste)) {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.color = 'black';
+                  e.currentTarget.style.borderColor = TASTE_COLORS[taste];
+                }
+              }}
             >
-              {taste}
-            </span>
-          </button>
-        ))}
-      </div>
+              <span 
+                className="capitalize cursor-pointer" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (activeSliders.has(taste)) {
+                    setCurrentSlider(taste);
+                  } else {
+                    handleTasteToggle(taste);
+                  }
+                }}
+              >
+                {taste}
+              </span>
+              {activeSliders.has(taste) && (
+                <X 
+                  size={14}
+                  className="ml-0.5 hover:scale-110 transition-transform cursor-pointer" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTasteToggle(taste);
+                  }}
+                />
+              )}
+            </button>
+          ))}
+          
+          {activeSliders.size > 0 && (
+            <button
+              onClick={() => {
+                Array.from(activeSliders).forEach(taste => onToggleSlider(taste));
+              }}
+              className="
+                py-2 px-2
+                rounded-full
+                border-2
+                bg-white
+                text-gray-400
+                border-gray-400
+                hover:text-gray-800
+                hover:bg-white
+                hover:border-gray-800
+                transition-colors
+                flex-shrink-0
+              "
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
 
-      {/* Slider */}
+        {/* Gradient fade */}
+        <div 
+          className="absolute right-0 top-0 h-full w-16 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to left, white, transparent)'
+          }}
+        />
+      </div>
+      
       <div className={`relative transition-opacity duration-200 ${areAllSlidersDisabled ? 'opacity-30' : 'opacity-100'}`}>
         <style>{`
           input[type="range"]::-webkit-slider-thumb {
@@ -147,23 +216,21 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
           type="range"
           min="0"
           max="10"
-          step="0.1"
+          step=".1"
           value={values[currentSlider]}
           onChange={handleSliderChange}
-          onMouseDown={() => setIsDragging(false)}
-          onMouseUp={() => setIsDragging(true)}
           className={`
             w-full h-3 rounded-full appearance-none cursor-pointer
             transition-all duration-200
-            border-1 border-black
+            border-0 border-gray-800
             [&::-webkit-slider-thumb]:appearance-none
-            [&::-webkit-slider-thumb]:w-5
-            [&::-webkit-slider-thumb]:h-5
+            [&::-webkit-slider-thumb]:w-4
+            [&::-webkit-slider-thumb]:h-4
             [&::-webkit-slider-thumb]:rounded-full
             [&::-webkit-slider-thumb]:transition-transform
             [&::-webkit-slider-thumb]:hover:scale-110
-            [&::-moz-range-thumb]:w-5
-            [&::-moz-range-thumb]:h-5
+            [&::-moz-range-thumb]:w-4
+            [&::-moz-range-thumb]:h-4
             [&::-moz-range-thumb]:rounded-full
             [&::-moz-range-thumb]:transition-transform
             [&::-moz-range-thumb]:hover:scale-110

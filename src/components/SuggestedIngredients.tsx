@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, forwardRef } from 'react';
 import { getCompatibilityScore, CompatibilityResult } from '../utils/compatibility.ts';
 import { IngredientProfile } from '../types';
 import { TASTE_COLORS } from '../utils/colors.ts';
@@ -7,6 +7,7 @@ import CategoryFilter, { CATEGORIES } from './categoryFilter.tsx';
 import SortingFilter, { SortingOption } from './SortingFilter.tsx';
 import { TasteValues } from './CompactTasteSliders';
 import { filterIngredients } from '../utils/searchUtils.ts';
+import { color } from 'framer-motion';
 
 
 const getIngredientColor = (profile?: IngredientProfile) => {
@@ -34,7 +35,13 @@ interface SuggestedIngredientsProps {
   showPartialMatches?: boolean;
   className?: string;
   sortingOption: 'alphabetical' | 'category' | 'taste';
+  substitutionMode?: {
+    active: boolean;
+    sourceIngredient: string | null;
+  };
 }
+
+
 
 interface GroupedIngredients {
   label: string;
@@ -51,53 +58,50 @@ interface GroupedIngredients {
   }>;
 }
 
-export const SuggestedIngredients: React.FC<SuggestedIngredientsProps> = ({
-  suggestions,
-  onSelect,
-  selectedIngredients,
-  flavorMap,
-  ingredientProfiles,
-  showPartialMatches = false,
-  className = '',
-  sortingOption, // Add this
-}) => {
-  const filteredAndScoredSuggestions = applySortingOption(
+const SuggestedIngredients = React.forwardRef<HTMLDivElement, SuggestedIngredientsProps>((
+  {
     suggestions,
+    onSelect,
+    selectedIngredients,
+    flavorMap,
+    ingredientProfiles,
+    showPartialMatches = false,
+    className = '',
     sortingOption,
-    ingredientProfiles
-).map(ingredient => ({
-    name: ingredient,
-    compatibility: getCompatibilityScore(
-      ingredient,
-      selectedIngredients,
-      flavorMap,
-      true
-    )
-})).filter(item => // Add this filter
-    showPartialMatches || item.compatibility.score === 100
-).sort((a, b) => {
-    // Sort by compatibility score first
-    if (b.compatibility.score !== a.compatibility.score) {
-      return b.compatibility.score - a.compatibility.score;
-    }
-    // Then alphabetically
-    return a.name.localeCompare(b.name);
-});
+    substitutionMode
+  }, 
+  ref
+) => {
 
-  interface GroupedIngredients {
-    label: string;
-    subgroups?: {
-      label: string;
-      ingredients: Array<{
-        name: string;
-        compatibility: CompatibilityResult;
-      }>;
-    }[];
-    ingredients?: Array<{
-      name: string;
-      compatibility: CompatibilityResult;
-    }>;
-  }
+
+
+    // Rest of the component implementation remains the same...
+    const filteredAndScoredSuggestions = applySortingOption(
+      suggestions,
+      sortingOption,
+      ingredientProfiles
+    ).map(ingredient => {
+      const ingredientsToCompare = substitutionMode?.active 
+        ? (selectedIngredients || []).filter(ing => ing !== substitutionMode.sourceIngredient)
+        : selectedIngredients || [];
+      
+      return {
+        name: ingredient,
+        compatibility: getCompatibilityScore(
+          ingredient,
+          ingredientsToCompare,
+          flavorMap,
+          true
+        )
+      };
+    }).filter(item => 
+      showPartialMatches || item.compatibility.score === 100
+    ).sort((a, b) => {
+      if (b.compatibility.score !== a.compatibility.score) {
+        return b.compatibility.score - a.compatibility.score;
+      }
+      return a.name.localeCompare(b.name);
+    });
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -170,14 +174,35 @@ useEffect(() => {
   }, [filteredAndScoredSuggestions, sortingOption, ingredientProfiles]);
   
   return (
-    <div ref={scrollContainerRef} className={`h-full overflow-y-auto ${className}`}>
-      <div className="px-3 md:px-4 py-3 md:py-4">
-        {filteredAndScoredSuggestions.length > 0 ? (
+    <div ref={ref} className={`h-full overflow-y-auto ${className}`}>
+
+      {substitutionMode?.active && (
+              <div className="sticky bg-white top-0 z-20 border-b border-gray-200 ">
+                <div 
+                  className="border-b-4 py-4 md:px-4"
+                  style={{ 
+                    borderColor: getIngredientColor(ingredientProfiles.find(
+                      p => p.name.toLowerCase() === substitutionMode.sourceIngredient?.toLowerCase()
+                    ))
+                  }}
+                >
+                  <div className="pl-4">
+                    Substituting for <strong>{substitutionMode.sourceIngredient}</strong>
+                  </div>
+                  <div className="pl-4 pt-1 text-gray-500 text-sm italic">
+                    These ingredients share some taste similarities.
+                  </div>
+                </div>
+              </div>
+      )}
+
+      <div className="px-3 md:px-4 py-3 md:py-4 bg-white">
+          {filteredAndScoredSuggestions.length > 0 ? (
           <div className="relative space-y-8">
             {groupedIngredients.map(group => (
               <div key={group.label} className="space-y-4">
                 {group.label && (
-                  <h3 className="sticky top-0 bg-white z-[5] text-lg font-medium text-gray-900 py-2 shadow-sm -mx-3 px-3 md:-mx-4 md:px-4">
+                  <h3 className="sticky top-0 bg-white z-[10] text-lg font-medium text-gray-900 py-2 shadow-sm -mx-3 px-3 md:-mx-4 md:px-4">
                     {group.label}
                   </h3>
                 )}
@@ -234,7 +259,7 @@ useEffect(() => {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-wrap gap-1.5 md:gap-2">
+                  <div className="flex flex-wrap gap-1.5 md:gap-2 bg-white">
                     {group.ingredients?.map(({ name, compatibility }) => {
                       const profile = ingredientProfiles.find(
                         p => p.name.toLowerCase() === name.toLowerCase()
@@ -281,11 +306,14 @@ useEffect(() => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 italic">No matching ingredients found</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <p className="text-gray-700 font-medium mb-2">Dang! No perfect matches found.</p>
+            <p className="text-gray-500 text-sm italic">Try Show Partial Matches below.</p>
+          </div>
         )}
       </div>
     </div>
   );
-};
+});
 
 export default SuggestedIngredients;

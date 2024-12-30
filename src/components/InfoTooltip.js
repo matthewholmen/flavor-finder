@@ -29,11 +29,11 @@ const InfoTooltip = () => {
     <div className="relative">
       <button
         onClick={toggleModal}
-        className="flex items-center gap-2 p-2 text-gray-800 hover:text-gray-400 transition-colors"
+        className="flex items-center gap-2 p-2 text-gray-400 hover:text-gray-600 transition-colors"
         aria-label="About FlavorFinder"
       >
         <Info size={20} />
-        <span className="text-sm">Info</span>
+        <span className="text-sm"></span>
       </button>
 
       {isModalOpen && (

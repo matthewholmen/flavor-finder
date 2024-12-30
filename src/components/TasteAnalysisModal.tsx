@@ -131,7 +131,7 @@ const tasteSuggestions = generateTasteSuggestions(
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg w-11/12 mx-4 h-[90vh] flex flex-col overflow-hidden"
+        className="bg-white border-2 border-gray-800 rounded-3xl w-11/12 mx-4 h-[90vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Fixed Header Section */}
@@ -254,8 +254,8 @@ const tasteSuggestions = generateTasteSuggestions(
   
           {/* Right column: Scrollable Enhanced analysis */}
           <div className="w-1/2 pl-3 flex flex-col h-full">
-            <h3 className="text-l font-sans sticky top-0 bg-white pb-3 z-10 border-b">
-              Enhanced Taste Analysis
+            <h3 className="text-l font-sans sticky py-4 top-0 bg-white pb-0 z-10">
+              <strong>Suggested additions:</strong>
             </h3>
             <div className="overflow-y-auto flex-1">
               <EnhancedTasteAnalysis 

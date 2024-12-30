@@ -29,11 +29,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && filteredIngredients.length > 0) {
-      onIngredientSelect(filteredIngredients[0]);
-      setSearchTerm(''); // Clear search field after selection
-      setIsSearchFocused(false);
+      handleSelection(filteredIngredients[0]);
     }
-  }, [filteredIngredients, onIngredientSelect, setSearchTerm, setIsSearchFocused]);
+  }, [filteredIngredients]);
+
+  // New handler for ingredient selection
+  const handleSelection = useCallback((ingredient: string) => {
+    onIngredientSelect(ingredient);
+    setSearchTerm(''); // Clear search field after selection
+    setIsSearchFocused(false);
+  }, [onIngredientSelect, setSearchTerm, setIsSearchFocused]);
 
   return (
     <div className="relative">
@@ -42,7 +47,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <input
           type="text"
           placeholder="Search ingredients..."
-          className="pl-10 w-full p-2 border rounded-lg"
+          className="pl-10 w-full p-2 border-2 border-gray-400 rounded-3xl"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsSearchFocused(true)}

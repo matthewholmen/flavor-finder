@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Lock, X } from 'lucide-react';
+import { Lock, LockOpen, X, GitCompare, SendToBack, TriangleAlert } from 'lucide-react';
 import { PieChart, Pie, Cell } from 'recharts';
 import { IngredientProfile } from '../types';
 import { TASTE_COLORS } from '../utils/colors.ts';
+
 
 
 const getIngredientColor = (profile?: IngredientProfile) => {
@@ -26,10 +27,12 @@ interface IngredientSlotProps {
   isLocked: boolean;
   onLockToggle: () => void;
   onRemove: () => void;
+  onSubstitute: () => void; // New prop
   profile?: IngredientProfile;
   index: number;
   flavorMap: Map<string, Set<string>>;
   selectedIngredients: string[];
+  isInSubstitutionMode?: boolean; // New prop to show if we're substituting this ingredient
 }
 
 const IngredientSlot: React.FC<IngredientSlotProps> = ({
@@ -37,11 +40,14 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   isLocked,
   onLockToggle,
   onRemove,
+  onSubstitute,
   profile,
   index,
   flavorMap,
-  selectedIngredients
+  selectedIngredients,
+  isInSubstitutionMode
 }) => {
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const borderColor = ingredient ? getIngredientColor(profile) : undefined;
 
@@ -82,25 +88,39 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   const renderTasteLegend = () => {
     if (!profile) return null;
     
+    const sortedTastes = Object.entries(profile.flavorProfile)
+      .filter(([_, value]) => value > 0)
+      .sort(([_t1, a], [_t2, b]) => b - a)
+      .map(([taste, value], index) => ({
+        name: taste,
+        value: value,
+        color: TASTE_COLORS[taste as keyof typeof TASTE_COLORS]
+      }));
+  
     return (
-      <div className="grid grid-cols-2 gap-2 mt-4">
-        {Object.entries(profile.flavorProfile)
-          .filter(([_, value]) => value > 0)
-          .map(([taste, value]) => (
-            <div key={taste} className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: TASTE_COLORS[taste as keyof typeof TASTE_COLORS] }}
-              />
-              <span className="text-sm capitalize">
-                {taste}: {value}
-              </span>
-            </div>
-          ))}
+      <div className="flex flex-col gap-1.5 w-full max-w-sm">
+        {sortedTastes.map((entry, index) => (
+          <div key={index} className="flex items-center gap-3 px-2 w-full">
+            <span className="text-sm text-gray-400 w-4 shrink-0">
+              {index + 1}.
+            </span>
+            <div 
+              className="w-3 h-3 rounded-full shrink-0" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm font-medium capitalize shrink-0">
+              {entry.name}
+            </span>
+            <div className="flex-grow mx-2 border-b border-dotted border-gray-300" />
+            <span className="text-sm text-gray-500 shrink-0">
+              {entry.value.toFixed(1)}
+            </span>
+          </div>
+        ))}
       </div>
     );
   };
-
+  
   return (
     <div 
       className="relative h-full flex flex-col items-center justify-center
@@ -114,6 +134,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               relative rounded-full py-6 px-6 bg-white
               border-[3px] transition-all duration-200 mx-4 w-full max-w-xl
               shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]
+              ${isInSubstitutionMode ? 'ring-4 ring-gray-200 ring-offset-8' : ''}
               cursor-pointer
               hover:scale-[1.02] hover:shadow-lg
               ${isPartiallyMatched ? '[border-style:dashed]' : ''}
@@ -122,6 +143,39 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
             onClick={() => setIsModalOpen(true)}
           >
             <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 absolute left-6">
+                
+              <button 
+                  className={`p-1 transition-all rounded-full ${
+                    isLocked 
+                      ? 'text-gray-800 scale-110' 
+                      : 'text-gray-400 hover:scale-110 hover:text-gray-600'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLockToggle();
+                  }}
+                  title={isLocked ? "Unlock Ingredient" : "Lock Ingredient"}
+                >
+                  {isLocked ? (
+                    <Lock size={16} strokeWidth={2.5} />
+                  ) : (
+                    <LockOpen size={16} strokeWidth={2} />
+                  )}
+                </button>
+
+                <button
+                  className={`p-1 transition-colors ${isInSubstitutionMode ? 'text-gray-800 scale-110' : 'text-gray-400 hover:text-gray-600 hover:scale-110'}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSubstitute();
+                  }}
+                  title="Substitute Ingredient"
+                >
+                  <SendToBack size={16} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
+                </button>
+                
+              </div>
               <div className="flex-1 text-center">
                 <div className="font-medium text-lg">{ingredient}</div>
                 {profile && (
@@ -130,18 +184,9 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 absolute left-4">
-                <button 
-                  className={`p-1 transition-colors ${isLocked ? 'text-blue-500' : 'text-gray-300'}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onLockToggle();
-                  }}
-                >
-                  <Lock size={16} />
-                </button>
+              <div className="absolute right-8">
                 <button
-                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="p-1 text-gray-400 hover:text-gray-600 hover:scale-110 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemove();
@@ -160,14 +205,14 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               onClick={() => setIsModalOpen(false)}
             >
               <div 
-                className="bg-white rounded-lg p-6 w-3/4 mx-4" 
+                className="bg-white border-2 border-gray-800 rounded-3xl p-8 w-3/4 mx-4" 
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold">{ingredient}</h3>
                   <button 
                     onClick={() => setIsModalOpen(false)} 
-                    className="p-2 hover:bg-gray-100 rounded-full"
+                    className="p-2 color-gray-100 hover:scale-110 hover:color-gray-800"
                   >
                     <X size={18} />
                   </button>
@@ -182,8 +227,9 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                   
                   {/* Taste Profile with Pie Chart */}
                   <div>
-                  <h4 className="text-sm font-semibold mb-2">Taste Profile</h4>
-                    <div className="flex items-center justify-center gap-8">
+                  <div className="h-px bg-gray-200 mb-4" />
+                    <h4 className="text-sm font-semibold mb-1">Taste Profile</h4>
+                    <div className="flex items-center justify-between">
                       <div className="w-48 h-48">
                         <PieChart width={192} height={192}>
                           <Pie
@@ -204,19 +250,20 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                           </Pie>
                         </PieChart>
                       </div>
-                      <div className="grid grid-cols-1 gap-2">
-                      {renderTasteLegend()}
-                    </div>
+                      <div className="flex-1 flex items-center">
+                        {renderTasteLegend()}
+                      </div>
                     </div>
                   </div>
 
                   {/* Pairing Status */}
                   {isPartiallyMatched && (
                     <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <p className="text-sm text-yellow-800">
-                        This ingredient doesn't pair with all other selected ingredients. Consider replacing it for better flavor harmony.
-                      </p>
-                    </div>
+                    <p className="text-sm text-yellow-800 flex items-center gap-3 pl-2">
+                      <TriangleAlert size={24} strokeWidth={2} /> 
+                      We don't have this ingredient as a perfect match with all other selected ingredients — but that doesn't mean it can't be delicious.
+                    </p>
+                  </div>
                   )}
                 </div>
               </div>

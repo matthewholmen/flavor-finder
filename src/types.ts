@@ -22,7 +22,7 @@ type IngredientSubcategory = {
   Seasonings: "Herbs" | "Spices" | "Chilis";
   Dairy: "Cultured Dairy" | "Hard Cheese" | "Soft Cheese" | "Milk & Cream";
   Grains: "Rice" | "Pasta" | "Bread" | "Ancient Grains";
-  Legumes: "Beans" | "Lentils" | "Peas" | "Soy";
+  // Legumes: "Beans" | "Lentils" | "Peas" | "Soy";
   Liquids: "Broths & Stocks" | "Oils & Fats" | "Fruit Juices" | "Vinegars";
   Condiments: "Fermented" | "Sauces" | "Preserves" | "Sweeteners";
   Alcohol: "Wines" | "Spirits" | "Liqueurs";

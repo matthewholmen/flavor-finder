@@ -1,10 +1,10 @@
 // FlavorFinder.js
-import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Sparkles, ChartPieIcon } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
-import { SuggestedIngredients } from './components/SuggestedIngredients.tsx';
+import SuggestedIngredients from './components/SuggestedIngredients.tsx';
 import CompactTasteSliders from './components/CompactTasteSliders.tsx';
 import CategoryFilter from './components/categoryFilter.tsx';
 import SortingFilter from './components/SortingFilter.tsx';
@@ -16,7 +16,6 @@ import { TASTE_COLORS } from './utils/colors.ts';
 import { getSortedCompatibleIngredients, applySortingOption } from './utils/sorting.ts';
 import { SearchBar } from './components/SearchBar.tsx';
 import { filterIngredients, matchesIngredient } from './utils/searchUtils.ts';
-
 
 const getIngredientColor = (profile) => {
   if (!profile) return 'rgb(249 250 251)'; // or 'bg-gray-50' for Tailwind
@@ -148,6 +147,7 @@ const createFlavorMap = (includeExperimental = false) => {
 
 // Main Component
 export default function FlavorFinder() {
+
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [lockedIngredients, setLockedIngredients] = useState(new Set());
   const [editingSlot, setEditingSlot] = useState(null);
@@ -160,7 +160,88 @@ export default function FlavorFinder() {
     category: '',
     subcategories: []
   });
-  // Random pairing on start
+  const [substitutionMode, setSubstitutionMode] = useState({
+    active: false,
+    sourceIngredient: null,
+    sourceProfile: null,
+    slotIndex: null
+  });
+
+  const suggestedIngredientsRef = useRef(null);
+
+
+  // Modified handleSubstitute function
+const handleSubstitute = (index) => {
+  // If we're already in substitution mode for this slot, exit it
+  if (substitutionMode.active && substitutionMode.slotIndex === index) {
+    exitSubstitutionMode();
+    return;
+  }
+
+  const sourceIngredient = selectedIngredients[index];
+  const sourceProfile = ingredientProfiles.find(
+    p => p.name.toLowerCase() === sourceIngredient?.toLowerCase()
+  );
+      
+  if (sourceProfile) {
+    // Set active sliders for all non-zero taste values
+    const newActiveSliders = new Set(
+      Object.entries(sourceProfile.flavorProfile)
+        .filter(([_, value]) => value > 0)
+        .map(([taste]) => taste)
+    );
+    setActiveSliders(newActiveSliders);
+
+    // Set taste values to 50% of the source ingredient's values
+    const newTasteValues = { ...tasteValues };
+    Object.entries(sourceProfile.flavorProfile).forEach(([taste, value]) => {
+      newTasteValues[taste] = value * 0.5;
+    });
+    setTasteValues(newTasteValues);
+
+    // Enable partial matches for substitute mode
+    setShowPartialMatches(true);
+  }
+
+  setSubstitutionMode({
+    active: true,
+    sourceIngredient,
+    sourceProfile,
+    slotIndex: index
+  });
+
+  // Automatically open filters when entering substitution mode
+  setIsFiltersOpen(true);
+
+  // Scroll back to top
+  if (suggestedIngredientsRef.current) {
+    suggestedIngredientsRef.current.scrollTo(0, 0);
+  }
+};
+
+// Modified exitSubstitutionMode function
+const exitSubstitutionMode = () => {
+  setSubstitutionMode({
+    active: false,
+    sourceIngredient: null,
+    sourceProfile: null,
+    slotIndex: null
+  });
+  
+  // Reset taste filters to default
+  setActiveSliders(new Set());
+  setTasteValues({
+    sweet: 5,
+    salty: 5,
+    sour: 5,
+    bitter: 5,
+    umami: 5,
+    fat: 5,
+    spicy: 5
+  });
+  setShowPartialMatches(false);
+};
+
   useEffect(() => {
     if (selectedIngredients.length === 0) {
       const initialPair = getRandomIngredients(0);
@@ -171,6 +252,7 @@ export default function FlavorFinder() {
 
   const addRandomIngredient = () => {
     if (selectedIngredients.length >= 5) return;
+  
   
     // Get initial pool of ingredients
     const currentPool = selectedIngredients.length === 0 
@@ -247,13 +329,28 @@ export default function FlavorFinder() {
   // Dynamically filter ingredients based on taste values and categories
 
   const handleIngredientSelect = (ingredient) => {
-    if (selectedIngredients.length >= 5) {
-      // Optional: add toast/notification here
+    if (substitutionMode.active) {
+      // Replace the ingredient at the substitution slot
+      setSelectedIngredients(prev => {
+        const newIngredients = [...prev];
+        newIngredients[substitutionMode.slotIndex] = ingredient;
+        return newIngredients;
+      });
+      exitSubstitutionMode();
+      setSearchTerm(''); // Add this
       return;
     }
+    
+    // Add check for 5-ingredient limit
+    if (selectedIngredients.length >= 5) {
+      // Optionally show a notification to the user that the limit is reached
+      return;
+    }
+    
     setSelectedIngredients((prev) => [...prev, ingredient]);
+    setSearchTerm(''); // Add this
   };
-
+  
   const findCompatibleIngredients = () => {
     if (selectedIngredients.length === 0) {
       return Array.from(allIngredients).filter(ingredient => {
@@ -355,6 +452,9 @@ export default function FlavorFinder() {
 
 // Updated getRandomIngredients function
 const getRandomIngredients = (count = 5, startFresh = false, existingLocked = [], existingIngredients = new Set()) => {
+  // Ensure count doesn't exceed 5
+  const targetCount = Math.min(count, 5);
+
   let selections = [];
   let maxAttempts = 100;
   
@@ -561,74 +661,152 @@ const toggleSlider = (taste) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isSearchFocused, editingSlot, lockedIngredients]); // Removed handleRandomize from dependencies
 
-const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-const [activeCategory, setActiveCategory] = useState('');
-
+  const [isTasteDropdownOpen, setIsTasteDropdownOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  
 return (
   <div className="h-screen flex overflow-hidden">
     {/* Left Column (50%) */}
-    <div className="w-full md:w-1/2 flex flex-col border-r border-gray-200">
+    <div className="w-full md:w-1/2 flex flex-col border-r border-gray-200">    
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <img 
-          src="/flavor-finder-1.png" 
-          alt="Flavor Finder Logo" 
-          className="h-12 w-auto object-contain"
-        />
-        <div className="flex items-center space-x-2">
-          <button 
-            onClick={() => setIsAnalysisModalOpen(true)}
-            className="px-4 py-2 border-2 border-[#72A8D5] text-[#000000] hover:bg-[#72A8D5] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
-          >
-            <ChartPieIcon size={16} />
-            Analyze
-          </button>
-          <button 
-            onClick={handleRandomize}
-            className="px-4 py-2 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
-          >
-            <Sparkles size={16} />
-            Generate
-          </button>
-        </div>
-      </div>
+<div className="p-4 border-b border-gray-200 flex items-center">
+  <div className="flex items-center flex-1">
+    <img 
+      src="/flavor-finder-1.png" 
+      alt="Flavor Finder Logo" 
+      className="h-12 w-auto object-contain mr-2"
+    />
+    <InfoTooltip />
+  </div>
+  <div className="flex items-center space-x-2">
+  <button 
+      onClick={() => setSelectedIngredients([])}
+      disabled={selectedIngredients.length === 0}
+      className={`px-3 py-3 border-2 rounded-full font-sans flex items-center gap-2 transition-colors ${
+        selectedIngredients.length === 0
+          ? 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+          : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
+      }`}
+    >
+      <X size={16} />
+    </button>
+    <button 
+      onClick={() => setIsAnalysisModalOpen(prev => !prev)}
+      disabled={selectedIngredients.length === 0}
+      className={`px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors ${
+        selectedIngredients.length === 0 
+          ? 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
+          : isAnalysisModalOpen 
+            ? 'bg-[#72A8D5] text-white' 
+            : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
+      }`}
+    >
+      <ChartPie size={16} />
+      
+    </button>
+    <button 
+      onClick={handleRandomize}
+      className="px-3 py-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
+    >
+      <Sparkles size={16} />
+      
+    </button>
+  </div>
+</div>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-h-0 p-4">
-{/* Search Bar */}
-      <div className="relative">
-        <SearchBar 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          ingredients={allIngredients}
-          selectedIngredients={selectedIngredients}
-          onIngredientSelect={handleIngredientSelect}
-          isSearchFocused={isSearchFocused}
-          setIsSearchFocused={setIsSearchFocused}
-        />
-      </div>
-        {/* Filters Section */}
-        <div className="space-y-4 mb-4">
-          <CategoryFilter
-            activeCategory={activeFilters.category}
-            selectedSubcategories={activeFilters.subcategories}
-            onFiltersChange={(filters) => setActiveFilters(filters)}
-          />
+  <div className="flex-1 flex flex-col min-h-0 px-4 pt-4">
+    {/* Search Bar */}
+    <div className="relative">
+    <SearchBar 
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      ingredients={allIngredients}
+      selectedIngredients={selectedIngredients}
+      onIngredientSelect={handleIngredientSelect}
+      isSearchFocused={isSearchFocused}
+      setIsSearchFocused={setIsSearchFocused}
+    />
+    </div>
+    {/* Filters Section */}
+<div className="space-y-2 mb-0">
+  <div className="px-0 mt-4">
+    {/* Top Filters button - only show when collapsed */}
+    {!isFiltersOpen && (
+      <button
+        onClick={() => setIsFiltersOpen(true)}
+        className="w-full flex items-center justify-between px-4 py-2 text-med rounded-lg mb-2 text-gray-400 hover:text-gray-800"
+      >
+        <span className="font-medium">
+          Filters
+        </span>
+        <ChevronDown size={16} />
+      </button>
+    )}
 
-          <div className="px-3 space-y-4">
+    {/* Filter Content */}
+    <div className={`px-4 overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'opacity-100' : 'opacity-0 h-0'}`}>
+      {isFiltersOpen && (
+        <>
+          {/* Category Filter */}
+          <div className="mb-4 mt-">
+           {/* <div className="h-px bg-gray-200 w-full my-4" /> */}
+            <CategoryFilter
+              activeCategory={activeFilters.category}
+              selectedSubcategories={activeFilters.subcategories}
+              onFiltersChange={setActiveFilters}
+            />
+          </div>
+          <div className="h-px bg-gray-200 w-full my-4" />
+          {/* Taste Filter */}
+          <div className="mb-0 -mx-4 px-4">
             <CompactTasteSliders
               values={tasteValues}
               onChange={setTasteValues}
               activeSliders={activeSliders}
               onToggleSlider={toggleSlider}
             />
-            
-            <div className="flex items-center justify-between">
-                <SortingFilter
-                  activeSorting={activeSorting}
-                  onSortingChange={setActiveSorting}
-                />
+          </div>
+          
+          {/* Bottom collapse button */}
+          <button
+            onClick={() => setIsFiltersOpen(false)}
+            className="w-full flex items-end justify-end py-4 text-gray-400 hover:text-gray-800 transition-colors"          >
+            <ChevronDown size={16} className="rotate-180" />
+          </button>
+        </>
+      )}
+    </div>
+  </div>
+</div>
 
+
+        {/* Ingredients List */}
+        <div className="flex-1 min-h-0 border border-gray-200 -mx-4">
+        <SuggestedIngredients
+          ref={suggestedIngredientsRef}
+          suggestions={filteredIngredients}
+          onSelect={handleIngredientSelect}
+          selectedIngredients={selectedIngredients}
+          flavorMap={flavorMap}
+          ingredientProfiles={ingredientProfiles}
+          showPartialMatches={showPartialMatches}
+          className="h-full"
+          sortingOption={activeSorting}substitutionMode={{
+            active: substitutionMode.active,
+            sourceIngredient: substitutionMode.sourceIngredient
+          }}
+        />
+        </div>
+      </div>
+
+      {/* Sorting and Partial Matches Row */}
+      <div className="flex items-center justify-between bg-gray-100 py-4 px-4 border-t border-gray-200">
+              <SortingFilter
+                activeSorting={activeSorting}
+                onSortingChange={setActiveSorting}
+              />
               {/* Partial Matches Toggle */}
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-gray-900">
@@ -641,33 +819,11 @@ return (
                     checked={showPartialMatches}
                     onChange={(e) => setShowPartialMatches(e.target.checked)}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#FFC533]"></div>
+                  <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#8DC25B]"></div>
                 </label>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Ingredients List */}
-        <div className="flex-1 min-h-0 border-t border-gray-200 -mx-4">
-        <SuggestedIngredients
-          suggestions={filteredIngredients}
-          onSelect={handleIngredientSelect}
-          selectedIngredients={selectedIngredients}
-          flavorMap={flavorMap}
-          ingredientProfiles={ingredientProfiles}
-          showPartialMatches={showPartialMatches}
-          className="h-full"
-          sortingOption={activeSorting} // Add this
-        />
-        </div>
-      </div>
-
-      {/* Info Tooltip */}
-      <div className="p-2">
-        <InfoTooltip />
-      </div>
-    </div>
 
 
 {/* Right Column (50%): Selected Ingredients */}
@@ -696,7 +852,9 @@ return (
         flavorMap={flavorMap}
         selectedIngredients={selectedIngredients}
         className="h-full p-2 md:p-4"
-      />
+        onSubstitute={() => handleSubstitute(index)}
+        isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
+      />      
     </div>
   ))}
 </div>
