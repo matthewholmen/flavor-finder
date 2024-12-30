@@ -105,7 +105,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
   }, [activeSliders]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Wrap the buttons in a scrollable container */}
       <div className="relative">
       <div 
@@ -156,15 +156,16 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
                 {taste}
               </span>
               {activeSliders.has(taste) && (
-                <X 
-                  size={14}
-                  className="ml-0.5 hover:scale-110 transition-transform cursor-pointer" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleTasteToggle(taste);
-                  }}
-                />
-              )}
+            <button 
+              className="p-2 -m-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTasteToggle(taste);
+              }}
+            >
+              <X size={14} className="hover:scale-110 transition-transform" />
+            </button>
+          )}
             </button>
           ))}
           
@@ -194,7 +195,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
 
         {/* Gradient fade */}
         <div 
-          className="absolute right-0 top-0 h-full w-16 pointer-events-none"
+          className="absolute right-0 top-0 h-full w-8 pointer-events-none"
           style={{
             background: 'linear-gradient(to left, white, transparent)'
           }}

@@ -1081,7 +1081,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "black sesame seed",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Seeds & Botanicals",
       flavorProfile: {
         sweet: 1,
         salty: 0,
@@ -1099,7 +1099,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "black tea",
-      category: "Liquids",
+      category: "Seasonings",
       subcategory: "Fruit Juices",
       flavorProfile: {
         sweet: 1,
@@ -2868,8 +2868,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
     {
       name: "coffee",
-      category: "Liquids",
-      subcategory: "Broths & Stocks",
+      category: "Seasonings",
+      subcategory: "Seeds & Botanicals",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -4928,7 +4928,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "juniper berry",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Seeds & Botanicals",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -6844,7 +6844,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "poppy seed",
         category: "Seasonings",
-        subcategory: "Spices",
+        subcategory: "Seeds & Botanicals",
         flavorProfile: {
           sweet: 1,
           salty: 0,
@@ -7184,7 +7184,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "purslane",
         category: "Seasonings",
-        subcategory: "Leafy Greens",
+        subcategory: "Herbs",
         flavorProfile: {
           sweet: 0,
           salty: 0,
@@ -7482,7 +7482,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "rosemary",
         category: "Seasonings",
-        subcategory: "Herbs",
+        subcategory: "Seeds & Botanicals",
         flavorProfile: {
           sweet: 0,
           salty: 0,
@@ -7855,7 +7855,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "sesame seed",
         category: "Seasonings",
-        subcategory: "Spices",
+        subcategory: "Seeds & Botanicals",
         flavorProfile: {
           sweet: 1,
           salty: 0,
@@ -8508,8 +8508,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "tea",
-        category: "Liquids",
-        subcategory: "Fruit Juices",
+        category: "Seasonings",
+        subcategory: "Seeds & Botanicals",
         flavorProfile: {
           sweet: 1,
           salty: 0,
@@ -9335,22 +9335,22 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
       {
         name: "marrow",
-        category: "Vegetables",
-        subcategory: "Squash",
+        category: "Proteins",
+        subcategory: "Offal",
         flavorProfile: {
-          sweet: 3,
-          salty: 0,
+          sweet: 0,
+          salty: 2,
           sour: 0,
-          bitter: 1,
-          umami: 2,
-          fat: 0,
+          bitter: 0,
+          umami: 8,
+          fat: 9,
           spicy: 0
         },
         aromas: {
-          primary: "Vegetal",
-          secondary: "Green"
+          primary: "Maillard",
+          secondary: "Roasted"
         },
-        description: "Summer squash with delicate, slightly sweet flavor and tender texture"
+        description: "Rich, buttery substance found in beef bones with a smooth, custard-like texture"
       },
       {
         name: "matsutake mushroom",
@@ -9431,7 +9431,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "piquillo pepper",
         category: "Vegetables",
-        subcategory: "Peppers",
+        subcategory: "Fruit Vegetables",
         flavorProfile: {
           sweet: 4,
           salty: 0,
@@ -9562,7 +9562,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "red pepper",
         category: "Vegetables",
-        subcategory: "Peppers",
+        subcategory: "Fruit Vegetables",
         flavorProfile: {
           sweet: 5,
           salty: 0,
@@ -10519,7 +10519,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "white sesame seed",
         category: "Seasonings",
-        subcategory: "Spices",
+        subcategory: "Seeds & Botanicals",
         flavorProfile: {
           sweet: 1,
           salty: 0,
@@ -11104,7 +11104,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "poblano chili",
         category: "Vegetables",
-        subcategory: "Peppers",
+        subcategory: "Fruit Vegetables",
         flavorProfile: {
           sweet: 2,
           salty: 0,

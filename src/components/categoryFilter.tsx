@@ -3,13 +3,12 @@ import { X } from 'lucide-react';
 
 const SUBCATEGORIES: Record<string, string[]> = {
   Proteins: ["Plant Proteins", "Fish", "Pork", "Poultry", "Game", "Crustacean", "Mollusk", "Meat", "Offal"],
-  Vegetables: ["Allium", "Brassicas", "Leafy Greens", "Root Vegetable", "Squash", "Mushroom", "Peppers", "Stalks", "Fruit Vegetables"],
+  Vegetables: ["Allium", "Brassicas", "Leafy Greens", "Root Vegetable", "Squash", "Mushroom", "Stalks", "Fruit Vegetables"],
   Fruits: ["Citrus", "Pome Fruit", "Stone Fruit", "Tropical Fruit", "Berries", "Melons", "Other Fruits"],
-  Seasonings: ["Herbs", "Spices", "Chilis"],
+  Seasonings: ["Herbs", "Spices", "Chilis", "Seeds & Botanicals"],
   Dairy: ["Cultured Dairy", "Hard Cheese", "Soft Cheese", "Milk & Cream"],
   Grains: ["Rice", "Pasta", "Bread", "Ancient Grains"],
-  // Legumes: ["Beans", "Lentils", "Peas", "Soy"],
-  Liquids: ["Broths & Stocks", "Oils & Fats", "Fruit Juices", "Vinegars"],
+  Liquids: ["Broths & Stocks", "Oils & Fats", "Vinegars"],
   Condiments: ["Fermented", "Sauces", "Preserves", "Sweeteners"],
   Alcohol: ["Wines", "Spirits", "Liqueurs"]
 };

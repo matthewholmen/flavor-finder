@@ -681,86 +681,86 @@ return (
   </div>
   <div className="flex items-center space-x-2">
   <button 
-      onClick={() => setSelectedIngredients([])}
-      disabled={selectedIngredients.length === 0}
-      className={`px-3 py-3 border-2 rounded-full font-sans flex items-center gap-2 transition-colors ${
-        selectedIngredients.length === 0
-          ? 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
-          : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
-      }`}
-    >
-      <X size={16} />
-    </button>
-    <button 
-      onClick={() => setIsAnalysisModalOpen(prev => !prev)}
-      disabled={selectedIngredients.length === 0}
-      className={`px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors ${
-        selectedIngredients.length === 0 
-          ? 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400'
-          : isAnalysisModalOpen 
-            ? 'bg-[#72A8D5] text-white' 
-            : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
-      }`}
-    >
-      <ChartPie size={16} />
-      
-    </button>
-    <button 
-      onClick={handleRandomize}
-      className="px-3 py-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
-    >
-      <Sparkles size={16} />
-      
-    </button>
-  </div>
+    onClick={() => setSelectedIngredients([])}
+    disabled={selectedIngredients.length === 0}
+    
+    className={`px-3 py-3 border-2 rounded-full font-sans flex items-center gap-2 transition-colors ${
+      selectedIngredients.length === 0
+        ? 'opacity-50 border-gray-300 text-gray-400'
+        : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
+    }`}
+  >
+    <X size={16} />
+  </button>
+  <button 
+    onClick={() => setIsAnalysisModalOpen(prev => !prev)}
+    disabled={selectedIngredients.length === 0}
+    title="Analyze"
+    className={`px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors ${
+      selectedIngredients.length === 0 
+        ? 'opacity-50 border-gray-300 text-gray-400'
+        : isAnalysisModalOpen 
+          ? 'bg-[#72A8D5] text-white' 
+          : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
+    }`}
+  >
+    <ChartPie size={16} />
+  </button>
+  <button 
+    onClick={handleRandomize}
+    title="Generate"
+    className="px-3 py-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
+  >
+    <Sparkles size={16} />
+  </button>
+</div>
 </div>
 
-      {/* Main content area */}
-  <div className="flex-1 flex flex-col min-h-0 px-4 pt-4">
-    {/* Search Bar */}
-    <div className="relative">
-    <SearchBar 
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      ingredients={allIngredients}
-      selectedIngredients={selectedIngredients}
-      onIngredientSelect={handleIngredientSelect}
-      isSearchFocused={isSearchFocused}
-      setIsSearchFocused={setIsSearchFocused}
-    />
-    </div>
-    {/* Filters Section */}
-<div className="space-y-2 mb-0">
-  <div className="px-0 mt-4">
-    {/* Top Filters button - only show when collapsed */}
-    {!isFiltersOpen && (
-      <button
-        onClick={() => setIsFiltersOpen(true)}
-        className="w-full flex items-center justify-between px-4 py-2 text-med rounded-lg mb-2 text-gray-400 hover:text-gray-800"
-      >
-        <span className="font-medium">
-          Filters
-        </span>
-        <ChevronDown size={16} />
-      </button>
-    )}
+        {/* Main content area */}
+    <div className="flex-1 flex flex-col min-h-0 px-4 pt-4">
+      {/* Search Bar */}
+      <div className="relative">
+      <SearchBar 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        ingredients={allIngredients}
+        selectedIngredients={selectedIngredients}
+        onIngredientSelect={handleIngredientSelect}
+        isSearchFocused={isSearchFocused}
+        setIsSearchFocused={setIsSearchFocused}
+      />
+      </div>
+      {/* Filters Section */}
+    <div className="space-y-2 mb-0">
+      <div className="px-0 mt-2">
+        {/* Top Filters button - only show when collapsed */}
+        {!isFiltersOpen && (
+          <button
+            onClick={() => setIsFiltersOpen(true)}
+            className="w-full flex items-center justify-between px-4 py-2 text-med rounded-lg mb-2 text-gray-400 hover:text-gray-800"
+          >
+            <span className="font-medium">
+              Filters
+            </span>
+            <ChevronDown size={16} />
+          </button>
+        )}
 
-    {/* Filter Content */}
+      {/* Filter Content Section in FlavorFinder.js */}
     <div className={`px-4 overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'opacity-100' : 'opacity-0 h-0'}`}>
       {isFiltersOpen && (
         <>
-          {/* Category Filter */}
-          <div className="mb-4 mt-">
-           {/* <div className="h-px bg-gray-200 w-full my-4" /> */}
+          {/* Category Filter - kept small bottom margin */}
+          <div className="mb-2">
             <CategoryFilter
               activeCategory={activeFilters.category}
               selectedSubcategories={activeFilters.subcategories}
               onFiltersChange={setActiveFilters}
             />
           </div>
-          <div className="h-px bg-gray-200 w-full my-4" />
-          {/* Taste Filter */}
-          <div className="mb-0 -mx-4 px-4">
+          
+          {/* Taste Filter - adjusted top margin */}
+          <div className="-mx-4 px-4 -mt-1">
             <CompactTasteSliders
               values={tasteValues}
               onChange={setTasteValues}
@@ -772,14 +772,15 @@ return (
           {/* Bottom collapse button */}
           <button
             onClick={() => setIsFiltersOpen(false)}
-            className="w-full flex items-end justify-end py-4 text-gray-400 hover:text-gray-800 transition-colors"          >
+            className="w-full flex items-end justify-end py-2 text-gray-400 hover:text-gray-800 transition-colors"
+          >
             <ChevronDown size={16} className="rotate-180" />
           </button>
         </>
       )}
     </div>
-  </div>
-</div>
+      </div>
+    </div>
 
 
         {/* Ingredients List */}
@@ -809,7 +810,7 @@ return (
               />
               {/* Partial Matches Toggle */}
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm text-gray-800">
                   Show Partial Matches
                 </span>
                 <label className="relative inline-flex items-center cursor-pointer">

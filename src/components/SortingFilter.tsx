@@ -34,26 +34,43 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
+      {/* Main Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white px-4 py-1.5 rounded-full text-sm
-          border-2 border-gray-300 hover:border-gray-800 
-          transition-colors duration-200 focus:outline-none
-          focus:border-gray-500 flex items-center gap-2 min-w-[140px]"
+        className="
+          bg-white px-4 py-2 
+          rounded-full text-sm
+          border-2 border-gray-200 
+          hover:border-gray-400
+          transition-all duration-200 
+          focus:outline-none
+          focus:border-gray-400 
+          flex items-center 
+          gap-2 min-w-[140px]
+          text-gray-700
+        "
       >
         <span className="flex-grow text-left">
           {SORTING_OPTIONS.find(opt => opt.value === activeSorting)?.label}
         </span>
         <ChevronDown 
-    className={`h-4 w-4 text-gray-500 transition-transform ${
-      isOpen ? 'rotate-180' : 'hover:rotate-0'
-    }`} 
-  />
+          className={`h-4 w-4 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`} 
+        />
       </button>
 
+      {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-10 bottom-full mb-1 w-full">
-          <div className="bg-white rounded-xl border-2 border-gray-300 shadow-lg overflow-hidden">
+        <div className="absolute z-10 bottom-full mb-2 w-[140px]">
+          <div className="
+            bg-white 
+            rounded-2xl
+            border-2 border-gray-200
+            shadow-lg 
+            overflow-hidden
+            py-1
+          ">
             {SORTING_OPTIONS.map((option) => (
               <button
                 key={option.value}
@@ -61,11 +78,24 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
                   onSortingChange(option.value);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50
-                  transition-colors duration-150
-                  ${activeSorting === option.value ? 'bg-gray-50' : ''}`}
+                className={`
+                  w-full text-left py-2 text-sm
+                  transition-all duration-200
+                  ${activeSorting === option.value 
+                    ? 'text-gray-900' 
+                    : 'text-gray-600 hover:text-gray-900'
+                  }
+                `}
               >
-                {option.label}
+                <span className={`
+                  inline-block px-4 relative
+                  ${activeSorting === option.value 
+                    ? 'font-medium' 
+                    : 'hover:font-medium'
+                  }
+                `}>
+                                  {option.label}
+                </span>
               </button>
             ))}
           </div>

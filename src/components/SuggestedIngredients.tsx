@@ -177,7 +177,7 @@ useEffect(() => {
     <div ref={ref} className={`h-full overflow-y-auto ${className}`}>
 
       {substitutionMode?.active && (
-              <div className="sticky bg-white top-0 z-20 border-b border-gray-200 ">
+              <div className="sticky bg-white top-0 z-20 border-b border-gray-400 ">
                 <div 
                   className="border-b-4 py-4 md:px-4"
                   style={{ 
@@ -190,7 +190,7 @@ useEffect(() => {
                     Substituting for <strong>{substitutionMode.sourceIngredient}</strong>
                   </div>
                   <div className="pl-4 pt-1 text-gray-500 text-sm italic">
-                    These ingredients share some taste similarities.
+                    These ingredients share some taste.
                   </div>
                 </div>
               </div>
@@ -202,7 +202,7 @@ useEffect(() => {
             {groupedIngredients.map(group => (
               <div key={group.label} className="space-y-4">
                 {group.label && (
-                  <h3 className="sticky top-0 bg-white z-[10] text-lg font-medium text-gray-900 py-2 shadow-sm -mx-3 px-3 md:-mx-4 md:px-4">
+                  <h3 className="sticky top-0 bg-white z-[10] text-lg font-medium text-gray-900 py-2 shadow-sm -mx-3 px-3 md:-mx-4 md:px-4 border-gray-400 ">
                     {group.label}
                   </h3>
                 )}
@@ -226,7 +226,7 @@ useEffect(() => {
                                 key={name}
                                 onClick={() => onSelect(name)}
                                 className={`
-                                  inline-flex items-center px-3 py-1.5 rounded-full text-sm
+                                  inline-flex items-center px-3 py-1.5 rounded-full text-l
                                   transition-all text-black bg-white
                                   ${isPartialMatch ? 'border-dashed' : 'border-solid'}
                                 `}
@@ -272,7 +272,7 @@ useEffect(() => {
                           key={name}
                           onClick={() => onSelect(name)}
                           className={`
-                            inline-flex items-center px-3 py-1.5 rounded-full text-sm
+                            inline-flex items-center px-4 py-2 rounded-full text-l
                             transition-all text-black bg-white
                             ${isPartialMatch ? 'border-dashed' : 'border-solid'}
                           `}
