@@ -1011,17 +1011,26 @@ const toggleSlider = (taste) => {
           onSortingChange={setActiveSorting}
         />
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-800">Show Partial Matches</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={showPartialMatches}
-              onChange={(e) => setShowPartialMatches(e.target.checked)}
-            />
-            <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#8DC25B]"></div>
-          </label>
-        </div>
+  <span className="text-lg text-gray-800">
+    
+  </span>
+  <button
+    onClick={() => setShowPartialMatches(!showPartialMatches)}
+    className={`
+      py-2 px-2
+      rounded-full
+      border-0
+      transition-colors
+      flex-shrink-0
+      ${showPartialMatches 
+        ? ' text-gray-800 border-[#8DC25B]' 
+        : 'text-gray-400 border-gray-400 hover:text-gray-400 hover:border-gray-400'
+      }
+    `}
+  >
+    <Zap size={24} />
+  </button>
+</div>
       </div>
     </div>
 
