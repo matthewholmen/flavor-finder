@@ -183,7 +183,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                 
               </div>
               <div className="flex-1 text-center">
-                <div className="font-medium text-lg">{ingredient}</div>
+                <div className="font-medium text-xl">{ingredient}</div>
                 {profile && (
                   <div className="text-sm text-gray-600">
                     {profile.category} › {profile.subcategory}
@@ -207,11 +207,11 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
           {/* Modal */}
           {isModalOpen && profile && (
             <div 
-              className="fixed right-0 w-1/2 inset-y-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
-              onClick={() => setIsModalOpen(false)}
-            >
+            className="fixed inset-0 md:left-1/2 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setIsModalOpen(false)}
+          >
               <div 
-                className="bg-white border-2 border-gray-800 rounded-3xl p-8 w-3/4 mx-4" 
+                className="bg-white border-2 border-gray-800 rounded-3xl p-6 md:p-8 w-[95%] md:w-3/4 mx-4 max-w-2xl"
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center mb-4">
@@ -229,14 +229,14 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                     {profile.category} › {profile.subcategory}
                   </p>
                   
-                  <p className="text-sm">{profile.description}</p>
+                  <p className="text-sm max-w-[95%]">{profile.description}</p>
                   
                   {/* Taste Profile with Pie Chart */}
                   <div>
                   <div className="h-px bg-gray-200 mb-4" />
                     <h4 className="text-sm font-semibold mb-1">Taste Profile</h4>
-                    <div className="flex items-center justify-between">
-                      <div className="w-48 h-48">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div className="w-40 h-40 md:w-48 md:h-48 shrink-0">
                         <PieChart width={192} height={192}>
                           <Pie
                             data={pieData}
@@ -256,7 +256,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                           </Pie>
                         </PieChart>
                       </div>
-                      <div className="flex-1 flex items-center">
+                      <div className="flex-1 min-w-0">
                         {renderTasteLegend()}
                       </div>
                     </div>

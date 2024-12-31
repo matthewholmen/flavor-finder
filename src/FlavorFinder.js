@@ -1,6 +1,6 @@
 // FlavorFinder.js
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown } from 'lucide-react';
+import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -310,6 +310,10 @@ const exitSubstitutionMode = () => {
   });
 };
 
+const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+
+
+
   useEffect(() => {
     if (selectedIngredients.length === 0) {
       const initialPair = getRandomIngredients(0);
@@ -420,53 +424,37 @@ const exitSubstitutionMode = () => {
   };
   
   const findCompatibleIngredients = () => {
-    if (selectedIngredients.length === 0) {
-      return Array.from(allIngredients).filter(ingredient => {
-        const profile = ingredientProfiles.find(p => 
-          p.name.toLowerCase() === ingredient.toLowerCase()
-        );
-        if (!profile) return false;
-        
-        return Array.from(activeSliders).every(taste => 
-          profile.flavorProfile[taste] >= tasteValues[taste]
-        );
-      });
-    }
-  
-    // Get all ingredients that pair with any selected ingredient
-    const compatibleSet = new Set();
-    selectedIngredients.forEach((selected) => {
-      const pairings = flavorMap.get(selected);
-      if (pairings) {
-        pairings.forEach((ingredient) => {
-          if (!selectedIngredients.includes(ingredient)) {
-            compatibleSet.add(ingredient);
-          }
-        });
-      }
+    // First filter all ingredients by taste values
+    let filteredIngredients = Array.from(allIngredients).filter(ingredient => {
+      const profile = ingredientProfiles.find(p => 
+        p.name.toLowerCase() === ingredient.toLowerCase()
+      );
+      if (!profile) return false;
+      
+      // Only apply filters for active sliders
+      return Array.from(activeSliders).every(taste => 
+        profile.flavorProfile[taste] >= tasteValues[taste]
+      );
     });
   
-    // Convert to array and filter by taste values
-    return Array.from(compatibleSet)
-      .filter(ingredient => {
-        const profile = ingredientProfiles.find(p => 
-          p.name.toLowerCase() === ingredient.toLowerCase()
-        );
-        
-        if (!profile) return false;
+    // If no ingredients are selected, return the taste-filtered list
+    if (selectedIngredients.length === 0) {
+      return filteredIngredients;
+    }
   
-        // Only apply taste filters for active sliders
-        return Object.entries(tasteValues).every(([taste, minValue]) => {
-          if (!activeSliders.has(taste)) return true;
-          return profile.flavorProfile[taste] >= minValue;
-        });
-      })
-      .sort((a, b) => {
-        const scoreA = getCompatibilityScore(a, selectedIngredients, flavorMap);
-        const scoreB = getCompatibilityScore(b, selectedIngredients, flavorMap);
-        return scoreB - scoreA; // Sort highest to lowest
-      });
+    // Otherwise, filter further by compatibility
+    return filteredIngredients.filter(ingredient => {
+      // Skip if already selected
+      if (selectedIngredients.includes(ingredient)) return false;
+      
+      // Check compatibility with all selected ingredients
+      return selectedIngredients.every(selected => 
+        flavorMap.get(selected)?.has(ingredient)
+      );
+    });
   };
+  
+  
   const compatibleIngredients = useMemo(() => {
     let ingredients = getSortedCompatibleIngredients(
       selectedIngredients, 
@@ -631,18 +619,36 @@ const [showPartialMatches, setShowPartialMatches] = useState(false);
 
 // Filter and process ingredients
 const filteredIngredients = useMemo(() => {
+  // First apply search filter if exists
   let filtered = searchTerm
     ? filterIngredients(allIngredients, searchTerm)
-    : selectedIngredients.length === 0 
-      ? allIngredients 
-      : getSortedCompatibleIngredients(
-          selectedIngredients,
-          flavorMap,
-          ingredientProfiles,
-          tasteValues,
-          activeSliders,
-          activeSorting
-        );
+    : allIngredients;
+
+  // Apply taste filters regardless of whether ingredients are selected
+  if (activeSliders.size > 0) {
+    filtered = filtered.filter(ingredient => {
+      const profile = ingredientProfiles.find(p => 
+        p.name.toLowerCase() === ingredient.toLowerCase()
+      );
+      if (!profile) return false;
+      
+      return Array.from(activeSliders).every(taste => 
+        profile.flavorProfile[taste] >= tasteValues[taste]
+      );
+    });
+  }
+
+  // If ingredients are selected, then filter by compatibility
+  if (selectedIngredients.length > 0) {
+    filtered = getSortedCompatibleIngredients(
+      selectedIngredients,
+      flavorMap,
+      ingredientProfiles,
+      tasteValues,
+      activeSliders,
+      activeSorting
+    );
+  }
 
   // Apply filters based on substitution mode
   if (substitutionMode.active) {
@@ -657,23 +663,9 @@ const filteredIngredients = useMemo(() => {
         return profile.category === substitutionMode.sourceProfile.category &&
                profile.subcategory === substitutionMode.sourceProfile.subcategory;
       });
-    } else if (substitutionMode.type === 'taste') {
-      // Only apply taste filters in taste mode
-      filtered = filtered.filter(ingredient => {
-        const profile = ingredientProfiles.find(p =>
-          p.name.toLowerCase() === ingredient.toLowerCase()
-        );
-
-        if (!profile) return false;
-
-        return Object.entries(tasteValues).every(([taste, minValue]) => {
-          if (!activeSliders.has(taste)) return true;
-          return profile.flavorProfile[taste] >= minValue;
-        });
-      });
     }
   } else {
-    // Normal mode - apply both filters if they're set
+    // Normal mode - apply category filters if they're set
     if (activeFilters.category || activeFilters.subcategories.length > 0) {
       filtered = filtered.filter(ingredient => {
         const profile = ingredientProfiles.find(p =>
@@ -712,9 +704,8 @@ const filteredIngredients = useMemo(() => {
   activeSliders,
   activeFilters,
   activeSorting,
-  substitutionMode // Add this dependency
+  substitutionMode
 ]);
-
 
 const toggleSlider = (taste) => {
   setActiveSliders(prev => {
@@ -747,130 +738,303 @@ const toggleSlider = (taste) => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   
-return (
-  <div className="h-screen flex overflow-hidden">
-    {/* Left Column (50%) */}
-    <div className="w-full md:w-1/2 flex flex-col border-r border-gray-200">    
-      {/* Header */}
-<div className="p-4 border-b border-gray-200 flex items-center">
-  <div className="flex items-center flex-1">
-    <img 
-      src="/flavor-finder-1.png" 
-      alt="Flavor Finder Logo" 
-      className="h-12 w-auto object-contain mr-2"
-    />
-    <InfoTooltip />
-  </div>
-  <div className="flex items-center space-x-2">
-  <button 
-    onClick={() => setSelectedIngredients([])}
-    disabled={selectedIngredients.length === 0}
-    
-    className={`px-3 py-3 border-2 rounded-full font-sans flex items-center gap-2 transition-colors ${
-      selectedIngredients.length === 0
-        ? 'opacity-50 border-gray-300 text-gray-400'
-        : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
-    }`}
-  >
-    <X size={16} />
-  </button>
-  <button 
-    onClick={() => setIsAnalysisModalOpen(prev => !prev)}
-    disabled={selectedIngredients.length === 0}
-    title="Analyze"
-    className={`px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors ${
-      selectedIngredients.length === 0 
-        ? 'opacity-50 border-gray-300 text-gray-400'
-        : isAnalysisModalOpen 
-          ? 'bg-[#72A8D5] text-white' 
-          : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
-    }`}
-  >
-    <ChartPie size={16} />
-  </button>
-  <button 
-    onClick={handleRandomize}
-    title="Generate"
-    className="px-3 py-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
-  >
-    <Sparkles size={16} />
-  </button>
-</div>
-</div>
-
-        {/* Main content area */}
-    <div className="flex-1 flex flex-col min-h-0 px-4 pt-4">
-      {/* Search Bar */}
-      <div className="relative">
-      <SearchBar 
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        ingredients={allIngredients}
-        selectedIngredients={selectedIngredients}
-        onIngredientSelect={handleIngredientSelect}
-        isSearchFocused={isSearchFocused}
-        setIsSearchFocused={setIsSearchFocused}
-      />
+  return (
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
+      {/* Selected Ingredients Column */}
+      <div className="flex-1 h-[calc(100vh-64px)] md:h-screen md:w-1/2 flex flex-col order-first md:order-last">
+        {[...Array(5)].map((_, index) => (
+          <div 
+            key={`slot-${index}`}
+            className="flex-1 w-full min-h-[60px] md:min-h-[100px] px-1 sm:px-2 md:px-4 mt-8"
+            >
+            <IngredientSlot
+              ingredient={selectedIngredients[index]}
+              isLocked={lockedIngredients.has(index)}
+              onLockToggle={() => handleLockToggle(index)}
+              onRemove={() => {
+                setSelectedIngredients(prev => {
+                  const next = [...prev];
+                  next[index] = undefined;
+                  return next.filter(Boolean);
+                });
+              }}
+              onEdit={() => setEditingSlot(index)}
+              profile={ingredientProfiles.find(
+                p => p.name.toLowerCase() === selectedIngredients[index]?.toLowerCase()
+              )}
+              index={index}
+              flavorMap={flavorMap}
+              selectedIngredients={selectedIngredients}
+              onSubstitute={() => handleSubstitute(index)}
+              onExitSubstitute={handleExitSubstitution}
+              isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
+            />      
+          </div>
+        ))}
       </div>
-      {/* Filters Section */}
+  
+      {/* Search/Filters Column */}
+      <div className="w-full h-1/2 md:h-screen md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 order-last md:order-first">
+        {/* Header/Toolbar */}
+        <div className="p-2 md:p-4 z-20 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first">
+          <div className="flex items-center flex-1">
+            <img 
+              src="/flavor-finder-1.png" 
+              alt="Flavor Finder Logo" 
+              className="h-8 md:h-12 w-auto object-contain mr-2"
+            />
+            <InfoTooltip />
+          </div>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => setIsSearchModalOpen(true)}
+              className="md:hidden px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors"
+            >
+              <Search size={16} />
+            </button>
+            <button 
+              onClick={() => setSelectedIngredients([])}
+              disabled={selectedIngredients.length === 0}
+              className={`px-3 py-3 border-2 rounded-full font-sans flex items-center gap-2 transition-colors ${
+                selectedIngredients.length === 0
+                  ? 'opacity-50 border-gray-300 text-gray-400'
+                  : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
+              }`}
+            >
+              <X size={16} />
+            </button>
+            <button 
+              onClick={() => setIsAnalysisModalOpen(prev => !prev)}
+              disabled={selectedIngredients.length === 0}
+              title="Analyze"
+              className={`px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors ${
+                selectedIngredients.length === 0 
+                  ? 'opacity-50 border-gray-300 text-gray-400'
+                  : isAnalysisModalOpen 
+                    ? 'bg-[#72A8D5] text-white' 
+                    : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
+              }`}
+            >
+              <ChartPie size={16} />
+            </button>
+            <button 
+              onClick={handleRandomize}
+              title="Generate"
+              className="px-3 py-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
+            >
+              <Sparkles size={16} />
+            </button>
+          </div>
+        </div>
+  
+        {/* Desktop Search/Filters Content */}
+        <div className="hidden md:flex flex-1 flex-col min-h-0">
+          <div className="px-4 pt-4">
+            <SearchBar 
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              ingredients={allIngredients}
+              selectedIngredients={selectedIngredients}
+              onIngredientSelect={handleIngredientSelect}
+              isSearchFocused={isSearchFocused}
+              setIsSearchFocused={setIsSearchFocused}
+            />
+          </div>
+           {/* Filters Section */}
     <div className="space-y-2 mb-0">
       <div className="px-0 mt-2">
         {/* Top Filters button - only show when collapsed */}
         {!isFiltersOpen && (
           <button
             onClick={() => setIsFiltersOpen(true)}
-            className="w-full flex items-center justify-between px-4 py-2 text-med rounded-lg mb-2 text-gray-400 hover:text-gray-800"
+            className="w-full flex items-center justify-between px-6 py-2 text-lg rounded-lg mb-2 text-gray-400 hover:text-gray-800"
           >
             <span className="font-medium">
               Filters
             </span>
-            <ChevronDown size={16} />
+            <ChevronDown size={24} />
           </button>
         )}
 
       {/* Filter Content Section in FlavorFinder.js */}
-    <div className={`px-4 overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'opacity-100' : 'opacity-0 h-0'}`}>
+    <div className={`overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'opacity-100' : 'opacity-0 h-0'}`}>
       {isFiltersOpen && (
         <>
           {/* Category Filter - kept small bottom margin */}
-          <div className="mb-2">
-            <CategoryFilter
-              activeCategory={activeFilters.category}
-              selectedSubcategories={activeFilters.subcategories}
-              onFiltersChange={setActiveFilters}
-            />
-          </div>
-          
-          {/* Taste Filter - adjusted top margin */}
-          <div className="-mx-4 px-4 -mt-1">
-            <CompactTasteSliders
-              values={tasteValues}
-              onChange={setTasteValues}
-              activeSliders={activeSliders}
-              onToggleSlider={toggleSlider}
-            />
-          </div>
+          <div className="overflow-hidden ">
+  <CategoryFilter
+    activeCategory={activeFilters.category}
+    selectedSubcategories={activeFilters.subcategories}
+    onFiltersChange={setActiveFilters}
+  />
+  <div className="overflow-x-auto">
+    <CompactTasteSliders
+      values={tasteValues}
+      onChange={setTasteValues}
+      activeSliders={activeSliders}
+      onToggleSlider={toggleSlider}
+    />
+  </div>
+</div>
           
           {/* Bottom collapse button */}
           <button
             onClick={() => setIsFiltersOpen(false)}
-            className="w-full flex items-end justify-end py-2 text-gray-400 hover:text-gray-800 transition-colors"
+            className="w-full py-2 px-6 flex items-end justify-end py-2 text-gray-400 hover:text-gray-800 transition-colors"
           >
-            <ChevronDown size={16} className="rotate-180" />
+            <ChevronDown size={24} className="rotate-180" />
           </button>
         </>
       )}
     </div>
       </div>
     </div>
+              {/* Sorting and Partial Matches Row */}
+              <div className="flex items-center justify-between bg-white py-4 px-4 border-t border-gray-200">
+              <SortingFilter
+                activeSorting={activeSorting}
+                onSortingChange={setActiveSorting}
+              />
+              {/* Partial Matches Toggle */}
+              <div className="flex items-center space-x-2">
+  <span className="text-lg text-gray-800">
+    
+  </span>
+  <button
+    onClick={() => setShowPartialMatches(!showPartialMatches)}
+    className={`
+      py-2 px-2
+      rounded-full
+      border-0
+      transition-colors
+      flex-shrink-0
+      ${showPartialMatches 
+        ? ' text-gray-800 border-[#8DC25B]' 
+        : 'text-gray-400 border-gray-400 hover:text-gray-400 hover:border-gray-400'
+      }
+    `}
+  >
+    <Zap size={24} />
+  </button>
+</div>
+            </div>
+  
+          <div className="flex-1 min-h-0 border border-gray-200 mt-0">
+            <SuggestedIngredients
+              ref={suggestedIngredientsRef}
+              suggestions={filteredIngredients}
+              onSelect={handleIngredientSelect}
+              selectedIngredients={selectedIngredients}
+              flavorMap={flavorMap}
+              ingredientProfiles={ingredientProfiles}
+              showPartialMatches={showPartialMatches}
+              className="h-full"
+              sortingOption={activeSorting}
+              substitutionMode={{
+                active: substitutionMode.active,
+                sourceIngredient: substitutionMode.sourceIngredient,
+                type: substitutionMode.type,
+                slotIndex: substitutionMode.slotIndex
+              }}
+              onModeSelect={handleModeChange}
+              onModeToggle={() => {
+                if (substitutionMode.active) {
+                  handleSubstitute(substitutionMode.slotIndex);
+                }
+              }}
+            />
+          </div>
+        </div>
 
+{/* Mobile Search Modal */}
+<div className={`
+  md:hidden fixed inset-0 z-30 bg-black bg-opacity-50 transition-opacity duration-300
+  ${isSearchModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+`}>
+  {/* Modal Container */}
+  <div className={`
+    fixed inset-x-0 bottom-0 bg-white rounded-t-xl transform transition-transform duration-300
+    h-[90vh] flex flex-col
+    ${isSearchModalOpen ? 'translate-y-0' : 'translate-y-full'}
+  `}>
+    {/* Fixed Header Section */}
+    <div className="flex-none">
+      <div className="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 className="text-lg font-medium">Search Ingredients</h2>
+        <button onClick={() => setIsSearchModalOpen(false)} className="p-2">
+          <X size={20} />
+        </button>
+      </div>
 
-        {/* Ingredients List */}
-        <div className="flex-1 min-h-0 border border-gray-200 -mx-4">
+      {/* Search Bar - Fixed */}
+      <div className="px-4 pt-4">
+        <SearchBar 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          ingredients={allIngredients}
+          selectedIngredients={selectedIngredients}
+          onIngredientSelect={handleIngredientSelect}
+          isSearchFocused={isSearchFocused}
+          setIsSearchFocused={setIsSearchFocused}
+        />
+      </div>
+
+      {/* Filters - Fixed */}
+      <div className="overflow-hidden px-0">
+        <div className="overflow-hidden pl-0 pt-4 pb-4">
+          <div className="w-full">
+          <div className="pl-0"> {/* Left padding only */}
+        <div className="-ml-0"> {/* Negative margin to allow full scroll */}
+          <CategoryFilter
+            activeCategory={activeFilters.category}
+            selectedSubcategories={activeFilters.subcategories}
+            onFiltersChange={setActiveFilters}
+          />
+          <div className="overflow-x-auto">
+            <CompactTasteSliders
+              values={tasteValues}
+              onChange={setTasteValues}
+              activeSliders={activeSliders}
+              onToggleSlider={toggleSlider}
+            />
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+      </div>
+
+      {/* Sorting and Partial Matches - Fixed */}
+      <div className="flex items-center justify-between bg-gray-100 py-4 px-4 border-t border-gray-200">
+        <SortingFilter
+          activeSorting={activeSorting}
+          onSortingChange={setActiveSorting}
+        />
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-800">Show Partial Matches</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={showPartialMatches}
+              onChange={(e) => setShowPartialMatches(e.target.checked)}
+            />
+            <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#8DC25B]"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    {/* Scrollable Content Section */}
+    <div className="flex-1 overflow-y-auto min-h-0">
+      <div className="h-full border-t border-gray-200">
         <SuggestedIngredients
           ref={suggestedIngredientsRef}
           suggestions={filteredIngredients}
-          onSelect={handleIngredientSelect}
+          onSelect={(ingredient) => {
+            handleIngredientSelect(ingredient);
+            setIsSearchModalOpen(false);
+          }}
           selectedIngredients={selectedIngredients}
           flavorMap={flavorMap}
           ingredientProfiles={ingredientProfiles}
@@ -890,75 +1054,20 @@ return (
             }
           }}
         />
-        
-        </div>
       </div>
-
-      {/* Sorting and Partial Matches Row */}
-      <div className="flex items-center justify-between bg-gray-100 py-4 px-4 border-t border-gray-200">
-              <SortingFilter
-                activeSorting={activeSorting}
-                onSortingChange={setActiveSorting}
-              />
-              {/* Partial Matches Toggle */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-800">
-                  Show Partial Matches
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={showPartialMatches}
-                    onChange={(e) => setShowPartialMatches(e.target.checked)}
-                  />
-                  <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#8DC25B]"></div>
-                </label>
-              </div>
-            </div>
-          </div>
-
-
-{/* Right Column (50%): Selected Ingredients */}
-<div className="w-full md:w-1/2 flex flex-col h-screen">
-  {[...Array(5)].map((_, index) => (
-    <div 
-      key={`slot-${index}`}
-      className="h-1/5 w-full min-h-[100px] px-1 sm:px-2 md:px-4" // Adjusted padding based on breakpoints
-    >
-      <IngredientSlot
-        ingredient={selectedIngredients[index]}
-        isLocked={lockedIngredients.has(index)}
-        onLockToggle={() => handleLockToggle(index)}
-        onRemove={() => {
-          setSelectedIngredients(prev => {
-            const next = [...prev];
-            next[index] = undefined;
-            return next.filter(Boolean);
-          });
-        }}
-        onEdit={() => setEditingSlot(index)}
-        profile={ingredientProfiles.find(
-          p => p.name.toLowerCase() === selectedIngredients[index]?.toLowerCase()
-        )}
-        index={index}
-        flavorMap={flavorMap}
-        selectedIngredients={selectedIngredients}
-        onSubstitute={() => handleSubstitute(index)}
-        onExitSubstitute={handleExitSubstitution}
-        isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
-      />      
     </div>
-  ))}
-</div>
-<TasteAnalysisModal
-  isOpen={isAnalysisModalOpen}
-  onClose={() => setIsAnalysisModalOpen(false)}
-  selectedIngredients={selectedIngredients}
-  ingredientProfiles={ingredientProfiles}
-  onIngredientsChange={setSelectedIngredients}
-  flavorMap={flavorMap} // Fix: Pass the entire flavorMap object
-/>
   </div>
-);
+</div>
+
+      <TasteAnalysisModal
+        isOpen={isAnalysisModalOpen}
+        onClose={() => setIsAnalysisModalOpen(false)}
+        selectedIngredients={selectedIngredients}
+        ingredientProfiles={ingredientProfiles}
+        onIngredientsChange={setSelectedIngredients}
+        flavorMap={flavorMap}
+      />
+    </div>
+    </div>
+  );
 }

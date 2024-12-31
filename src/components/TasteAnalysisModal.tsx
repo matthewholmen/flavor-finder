@@ -127,13 +127,13 @@ const tasteSuggestions = generateTasteSuggestions(
 
   return (
     <div 
-      className="fixed right-0 w-1/2 inset-y-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white border-2 border-gray-800 rounded-3xl w-11/12 mx-4 h-[90vh] flex flex-col overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+  className="fixed inset-0 md:left-1/2 bg-black bg-opacity-50 flex items-center justify-center z-40"
+  onClick={onClose}
+>
+        <div 
+          className="bg-white border-2 border-gray-800 rounded-3xl w-[95%] md:w-11/12 mx-4 h-[90vh] flex flex-col overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Fixed Header Section */}
         <div className="px-6 pt-6">
           <div className="flex justify-between items-center">
@@ -217,7 +217,8 @@ const tasteSuggestions = generateTasteSuggestions(
         {/* Main Content Area */}
         <div className="flex-1 flex min-h-0 p-6 pt-4">
           {/* Left column: Pie chart */}
-          <div className="w-1/2 pr-3 flex flex-col">
+          <div className="w-full md:w-1/2 pr-0 md:pr-3 flex flex-col">
+
             <div className="space-y-4">
               <div className="h-[35vh]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -253,7 +254,7 @@ const tasteSuggestions = generateTasteSuggestions(
           </div>
   
           {/* Right column: Scrollable Enhanced analysis */}
-          <div className="w-1/2 pl-3 flex flex-col h-full">
+          <div className="w-full md:w-1/2 pl-0 md:pl-3 flex flex-col h-full mt-6 md:mt-0">
             <h3 className="text-l font-sans sticky py-4 top-0 bg-white pb-0 z-10">
               <strong>Suggested additions:</strong>
             </h3>

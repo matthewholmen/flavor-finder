@@ -19,7 +19,6 @@ export const CATEGORIES = [
   'Dairy',
   'Fruits',
   'Grains',
-  // 'Legumes',
   'Liquids',
   'Proteins',
   'Seasonings',
@@ -93,12 +92,12 @@ export default function CategoryFilter({
     <div className="relative">
       <div 
         ref={scrollContainerRef}
-        className="flex items-start gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide"
+        className="flex items-center gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide py-2"
       >
         {/* Categories list */}
         <div 
           className={`
-            flex items-center gap-6 pr-12 h-[44px]
+            flex items-center gap-4 px-8 py-2
             transition-all duration-300 ease-in-out
             ${activeCategory ? 'opacity-0 w-0 overflow-hidden pointer-events-none' : 'opacity-100 w-auto'}
           `}
@@ -108,88 +107,85 @@ export default function CategoryFilter({
               key={category}
               onClick={() => handleCategoryChange(category)}
               className={`
-                py-0.5
+                py-2 px-6
                 transition-all duration-200
-                text-base whitespace-nowrap
-                border-b-2 border-transparent
-                hover:border-gray-200 text-gray-600 hover:text-gray-900
+                text-lg whitespace-nowrap
+                rounded-full
+                border-2 border-gray-300
+                hover:border-gray-600 text-gray-600 hover:text-gray-900
               `}
             >
               {category}
             </button>
           ))}
         </div>
-
+  
         {/* Active category and subcategories */}
         {activeCategory && (
-          <div className="flex items-center gap-6 pr-12 h-[44px]">  {/* Added h-[44px] to match */}
+          <div className="flex items-center gap-4 pr-12 py-2">
+            <button
+              onClick={handleClearAll}
+              className="
+                py-3 px-3
+                rounded-full
+                border-2
+                bg-white
+                text-gray-800
+                border-gray-800
+                hover:text-gray-400
+                hover:bg-white
+                hover:border-gray-400
+                transition-colors
+                -ml-16
+              "
+            >
+              <X size={18} />
+            </button>
+  
             <button
               onClick={() => handleCategoryChange(activeCategory)}
-              className="py-0.5 text-base whitespace-nowrap border-b-2 border-gray-800 text-gray-900 font-medium -ml-16"
+              className="py-2 px-6 text-lg whitespace-nowrap rounded-full border-2 border-gray-800 bg-gray-800 text-white font-medium"
             >
               {activeCategory}
             </button>
-
+  
             {subcategories.length > 0 && (
               <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
                 {subcategories.map((subcat) => {
-  const isSelected = selectedSubcategories.includes(subcat);
-  return (
-    <button
-      key={subcat}
-      onClick={() => handleSubcategoryToggle(subcat)}
-      className={`
-        flex items-center gap-2
-        py-1.5 px-4
-        text-sm
-        rounded-full
-        border-2
-        transition-all duration-200
-        ${isSelected 
-          ? 'bg-white text-gray-800 border-gray-800' 
-          : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600'
-        }
-      `}
-    >
-      {subcat}
-      {isSelected && (
-        <span className="ml-1">
-           <X size={16} />
-        </span>
-      )}
-    </button>
-  );
-})}
-
-                <button
-                  onClick={handleClearAll}
-                  className="
-                    py-2 px-2
-                    rounded-full
-                    border-2
-                    bg-white
-                    text-gray-400
-                    border-gray-400
-                    hover:text-gray-800
-                    hover:bg-white
-                    hover:border-gray-800
-                    transition-colors
-                  "
-                >
-                   <X size={16} />
-                </button>
+                  const isSelected = selectedSubcategories.includes(subcat);
+                  return (
+                    <button
+                      key={subcat}
+                      onClick={() => handleSubcategoryToggle(subcat)}
+                      className={`
+                        flex items-center gap-4
+                        py-2 px-6
+                        text-lg
+                        rounded-full
+                        border-2
+                        transition-all duration-200
+                        ${isSelected 
+                          ? 'bg-white text-gray-800 border-gray-800' 
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-gray-600'
+                        }
+                      `}
+                    >
+                      {subcat}
+                      {isSelected && (
+                        <span className="ml-1">
+                          <X size={18} />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
         )}
-
+  
         {/* Gradient fade */}
-        <div 
-          className="absolute right-0 top-0 h-full w-16 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to left, white, transparent)'
-          }}
-        />
+        
       </div>
     </div>
   );

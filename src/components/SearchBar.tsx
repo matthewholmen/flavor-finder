@@ -1,5 +1,5 @@
 // components/SearchBar.tsx
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { filterIngredients } from '../utils/search.ts';
 
@@ -28,17 +28,35 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   );
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Prevent space from triggering random pairing
+    if (e.key === ' ') {
+      e.stopPropagation();
+    }
+    
+    // Handle enter key
     if (e.key === 'Enter' && filteredIngredients.length > 0) {
+      e.preventDefault();
       handleSelection(filteredIngredients[0]);
     }
   }, [filteredIngredients]);
+
+  // Handle focus events
+  const handleFocus = useCallback(() => {
+    setIsSearchFocused(true);
+  }, [setIsSearchFocused]);
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    // Small delay to allow click events to complete
+    setTimeout(() => {
+      setIsSearchFocused(false);
+    }, 100);
+  }, [setIsSearchFocused]);
 
   // New handler for ingredient selection
   const handleSelection = useCallback((ingredient: string) => {
     onIngredientSelect(ingredient);
     setSearchTerm(''); // Clear search field after selection
-    setIsSearchFocused(false);
-  }, [onIngredientSelect, setSearchTerm, setIsSearchFocused]);
+  }, [onIngredientSelect, setSearchTerm]);
 
   return (
     <div className="relative">
@@ -50,8 +68,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           className="pl-10 w-full p-2 border-2 border-gray-400 rounded-3xl"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onFocus={() => setIsSearchFocused(true)}
-          onBlur={() => setIsSearchFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           onKeyDown={handleKeyDown}
         />
       </div>

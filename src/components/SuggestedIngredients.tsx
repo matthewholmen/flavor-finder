@@ -281,7 +281,7 @@ useEffect(() => {
                                 key={name}
                                 onClick={() => onSelect(name)}
                                 className={`
-                                  inline-flex items-center px-3 py-1.5 rounded-full text-l
+                                  inline-flex items-center px-3 py-1.5 rounded-full text-lg
                                   transition-all text-black bg-white
                                   ${isPartialMatch ? 'border-dashed' : 'border-solid'}
                                 `}
@@ -327,7 +327,7 @@ useEffect(() => {
                           key={name}
                           onClick={() => onSelect(name)}
                           className={`
-                            inline-flex items-center px-4 py-2 rounded-full text-l
+                            inline-flex items-center px-4 py-2 rounded-full text-lg
                             transition-all text-black bg-white
                             ${isPartialMatch ? 'border-dashed' : 'border-solid'}
                           `}
@@ -363,7 +363,7 @@ useEffect(() => {
         ) : (
           <div className="flex flex-col items-center justify-center py-20">
             <p className="text-gray-700 font-medium mb-2">Dang! No perfect matches found.</p>
-            <p className="text-gray-500 text-sm italic">Try Show Partial Matches below.</p>
+            <p className="text-gray-500 text-sm italic">Try using Show Partial Matches.</p>
           </div>
         )}
       </div>

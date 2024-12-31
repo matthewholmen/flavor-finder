@@ -106,18 +106,19 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
 
   return (
     <div className="space-y-2">
-      {/* Wrap the buttons in a scrollable container */}
       <div className="relative">
-      <div 
-        ref={scrollContainerRef}
-        className="flex items-center gap-3 overflow-x-auto whitespace-nowrap scrollbar-hide py-2 px-0.5"
-      >
+        <div 
+          ref={scrollContainerRef}
+          className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-2 px-8"
+        >
           {(Object.keys(values) as Array<keyof TasteValues>).map((taste) => (
             <button
               key={taste}
               className={`
-                px-3 py-1.5 rounded-full font-sans text-sm
-                flex items-center gap-1.5
+                py-2 px-4
+                rounded-full
+                font-sans text-lg
+                flex items-center gap-2
                 border-2 transition-all
                 ${activeSliders.has(taste) ? 'text-white' : 'text-black'}
                 ${currentSlider === taste && activeSliders.has(taste) ? 'ring-2 ring-gray-800' : ''}
@@ -156,16 +157,16 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
                 {taste}
               </span>
               {activeSliders.has(taste) && (
-            <button 
-              className="p-2 -m-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleTasteToggle(taste);
-              }}
-            >
-              <X size={14} className="hover:scale-110 transition-transform" />
-            </button>
-          )}
+                <button 
+                  className="p-2 -m-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTasteToggle(taste);
+                  }}
+                >
+                  <X size={18} className="hover:scale-110 transition-transform" />
+                </button>
+              )}
             </button>
           ))}
           
@@ -192,61 +193,57 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
             </button>
           )}
         </div>
-
-        {/* Gradient fade */}
-        <div 
-          className="absolute right-0 top-0 h-full w-8 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to left, white, transparent)'
-          }}
-        />
+  
       </div>
       
-      <div className={`relative transition-opacity duration-200 ${areAllSlidersDisabled ? 'opacity-30' : 'opacity-100'}`}>
-        <style>{`
-          input[type="range"]::-webkit-slider-thumb {
-            background-color: var(--thumb-color) !important;
-            box-shadow: 0 0 0 2px black;
-          }
-          input[type="range"]::-moz-range-thumb {
-            background-color: var(--thumb-color) !important;
-            box-shadow: 0 0 0 2px black;
-          }
-        `}</style>
-        <input
-          type="range"
-          min="0"
-          max="10"
-          step=".1"
-          value={values[currentSlider]}
-          onChange={handleSliderChange}
-          className={`
-            w-full h-3 rounded-full appearance-none cursor-pointer
-            transition-all duration-200
-            border-0 border-gray-800
-            [&::-webkit-slider-thumb]:appearance-none
-            [&::-webkit-slider-thumb]:w-4
-            [&::-webkit-slider-thumb]:h-4
-            [&::-webkit-slider-thumb]:rounded-full
-            [&::-webkit-slider-thumb]:transition-transform
-            [&::-webkit-slider-thumb]:hover:scale-110
-            [&::-moz-range-thumb]:w-4
-            [&::-moz-range-thumb]:h-4
-            [&::-moz-range-thumb]:rounded-full
-            [&::-moz-range-thumb]:transition-transform
-            [&::-moz-range-thumb]:hover:scale-110
-          `}
-          style={{
-            color: TASTE_COLORS[currentSlider],
-            background: `linear-gradient(to right, 
-              ${TASTE_COLORS[currentSlider]} 0%, 
-              ${TASTE_COLORS[currentSlider]} ${values[currentSlider] * 10}%, 
-              ${getDesaturatedColor(TASTE_COLORS[currentSlider])} ${values[currentSlider] * 10}%, 
-              ${getDesaturatedColor(TASTE_COLORS[currentSlider])} 100%)`,
-            ['--thumb-color' as string]: TASTE_COLORS[currentSlider]
-          }}
-          disabled={areAllSlidersDisabled}
-        />
+      <div className="flex justify-center w-full px-8">
+        <div className={`relative w-full transition-opacity duration-200 ${areAllSlidersDisabled ? 'opacity-30' : 'opacity-100'}`}>
+          <style>{`
+            input[type="range"]::-webkit-slider-thumb {
+              background-color: var(--thumb-color) !important;
+              box-shadow: 0 0 0 2px black;
+            }
+            input[type="range"]::-moz-range-thumb {
+              background-color: var(--thumb-color) !important;
+              box-shadow: 0 0 0 2px black;
+            }
+          `}</style>
+          <input
+            type="range"
+            min="0"
+            max="10"
+            step=".1"
+            value={values[currentSlider]}
+            onChange={handleSliderChange}
+            className={`
+              w-full h-3 rounded-full appearance-none cursor-pointer
+              items-center
+              transition-all duration-200
+              border-0 border-gray-800
+              [&::-webkit-slider-thumb]:appearance-none
+              [&::-webkit-slider-thumb]:w-4
+              [&::-webkit-slider-thumb]:h-4
+              [&::-webkit-slider-thumb]:rounded-full
+              [&::-webkit-slider-thumb]:transition-transform
+              [&::-webkit-slider-thumb]:hover:scale-110
+              [&::-moz-range-thumb]:w-4
+              [&::-moz-range-thumb]:h-4
+              [&::-moz-range-thumb]:rounded-full
+              [&::-moz-range-thumb]:transition-transform
+              [&::-moz-range-thumb]:hover:scale-110
+            `}
+            style={{
+              color: TASTE_COLORS[currentSlider],
+              background: `linear-gradient(to right, 
+                ${TASTE_COLORS[currentSlider]} 0%, 
+                ${TASTE_COLORS[currentSlider]} ${values[currentSlider] * 10}%, 
+                ${getDesaturatedColor(TASTE_COLORS[currentSlider])} ${values[currentSlider] * 10}%, 
+                ${getDesaturatedColor(TASTE_COLORS[currentSlider])} 100%)`,
+              ['--thumb-color' as string]: TASTE_COLORS[currentSlider]
+            }}
+            disabled={areAllSlidersDisabled}
+          />
+        </div>
       </div>
     </div>
   );
