@@ -16371,7 +16371,8 @@ export const flavorPairings= [
   "zucchini blossom,sage",
   "zucchini blossom,savory",
   "zucchini blossom,shrimp",
-  "zucchini blossom,tomato"
+  "zucchini blossom,tomato",
+  "garlic,butter"
   
   ];
   

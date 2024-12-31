@@ -1,8 +1,3 @@
-// utils/searchUtils.ts
-
-/**
- * Normalizes text by removing diacritics and converting to lowercase
- */
 export const normalizeText = (text: string): string => {
   return text
     .normalize('NFD')
@@ -10,10 +5,6 @@ export const normalizeText = (text: string): string => {
     .toLowerCase();
 };
 
-/**
- * Checks if ingredient starts with the search term
- * Only matches at the beginning of the ingredient name or after spaces
- */
 export const matchesIngredient = (ingredient: string, searchTerm: string): boolean => {
   if (!searchTerm) return true;
   
@@ -25,15 +16,11 @@ export const matchesIngredient = (ingredient: string, searchTerm: string): boole
     return true;
   }
 
-  // Check if any part after a space starts with the search term
-  // We use ' ' + searchTerm to ensure we only match at word boundaries
-  return normalizedIngredient.includes(' ' + normalizedSearch);
+  // Check if any word starts with the search term
+  const words = normalizedIngredient.split(/\s+/);
+  return words.some(word => word.startsWith(normalizedSearch));
 };
 
-/**
- * Filters a list of ingredients based on search term
- * Returns ingredients where any word starts with the search term
- */
 export const filterIngredients = (
   ingredients: string[],
   searchTerm: string,
@@ -43,5 +30,16 @@ export const filterIngredients = (
   
   return ingredients
     .filter(ingredient => !selectedIngredients.includes(ingredient))
-    .filter(ingredient => matchesIngredient(ingredient, searchTerm));
+    .filter(ingredient => matchesIngredient(ingredient, searchTerm))
+    .sort((a, b) => {
+      // Prioritize exact matches and matches at the start
+      const normalizedSearch = normalizeText(searchTerm);
+      const aStarts = normalizeText(a).startsWith(normalizedSearch);
+      const bStarts = normalizeText(b).startsWith(normalizedSearch);
+      
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      
+      return a.localeCompare(b);
+    });
 };

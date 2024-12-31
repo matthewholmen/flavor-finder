@@ -157,6 +157,8 @@ export default function FlavorFinder() {
   const [slotFilters, setSlotFilters] = useState({});
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
   const [isMatrixModalOpen, setIsMatrixModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeSorting, setActiveSorting] = useState('alphabetical');
   const [activeFilters, setActiveFilters] = useState({
     category: '',
     subcategories: []
@@ -612,19 +614,16 @@ const handleRandomize = () => {
   setSelectedIngredients(newIngredients.filter(Boolean));
 };
 
-const [searchTerm, setSearchTerm] = useState('');
+
 const [isSearchFocused, setIsSearchFocused] = useState(false);
-const [activeSorting, setActiveSorting] = useState('alphabetical');
 const [showPartialMatches, setShowPartialMatches] = useState(false);
 
 // Filter and process ingredients
 const filteredIngredients = useMemo(() => {
-  // First apply search filter if exists
-  let filtered = searchTerm
-    ? filterIngredients(allIngredients, searchTerm)
-    : allIngredients;
+  // First apply search filter
+  let filtered = filterIngredients(allIngredients, searchTerm, selectedIngredients);
 
-  // Apply taste filters regardless of whether ingredients are selected
+  // Apply taste filters
   if (activeSliders.size > 0) {
     filtered = filtered.filter(ingredient => {
       const profile = ingredientProfiles.find(p => 
@@ -638,22 +637,26 @@ const filteredIngredients = useMemo(() => {
     });
   }
 
-  // If ingredients are selected, then filter by compatibility
+  // If ingredients are selected, filter by compatibility
   if (selectedIngredients.length > 0) {
-    filtered = getSortedCompatibleIngredients(
-      selectedIngredients,
-      flavorMap,
-      ingredientProfiles,
-      tasteValues,
-      activeSliders,
-      activeSorting
-    );
+    filtered = filtered.filter(ingredient => {
+      if (!showPartialMatches) {
+        // Strict matching - all ingredients must match
+        return selectedIngredients.every(selected => 
+          flavorMap.get(selected)?.has(ingredient)
+        );
+      } else {
+        // Partial matching - at least one ingredient must match
+        return selectedIngredients.some(selected => 
+          flavorMap.get(selected)?.has(ingredient)
+        );
+      }
+    });
   }
 
-  // Apply filters based on substitution mode
+  // Apply substitution mode filters
   if (substitutionMode.active) {
     if (substitutionMode.type === 'category' && substitutionMode.sourceProfile) {
-      // Only apply category filters in category mode
       filtered = filtered.filter(ingredient => {
         const profile = ingredientProfiles.find(p =>
           p.name.toLowerCase() === ingredient.toLowerCase()
@@ -665,7 +668,7 @@ const filteredIngredients = useMemo(() => {
       });
     }
   } else {
-    // Normal mode - apply category filters if they're set
+    // Normal mode - apply category filters if set
     if (activeFilters.category || activeFilters.subcategories.length > 0) {
       filtered = filtered.filter(ingredient => {
         const profile = ingredientProfiles.find(p =>
@@ -688,9 +691,7 @@ const filteredIngredients = useMemo(() => {
   }
 
   return applySortingOption(
-    Array.from(new Set(filtered)).filter(
-      ingredient => !selectedIngredients.includes(ingredient)
-    ),
+    Array.from(new Set(filtered)),
     activeSorting,
     ingredientProfiles
   );
@@ -704,7 +705,8 @@ const filteredIngredients = useMemo(() => {
   activeSliders,
   activeFilters,
   activeSorting,
-  substitutionMode
+  substitutionMode,
+  showPartialMatches  // Added to dependencies
 ]);
 
 const toggleSlider = (taste) => {
@@ -861,13 +863,13 @@ const toggleSlider = (taste) => {
       {isFiltersOpen && (
         <>
           {/* Category Filter - kept small bottom margin */}
-          <div className="overflow-hidden ">
+          <div className="overflow-hidden -mb-2 -mt-2">
   <CategoryFilter
     activeCategory={activeFilters.category}
     selectedSubcategories={activeFilters.subcategories}
     onFiltersChange={setActiveFilters}
   />
-  <div className="overflow-x-auto">
+  <div className="overflow-x-auto -mt-2">
     <CompactTasteSliders
       values={tasteValues}
       onChange={setTasteValues}
@@ -901,21 +903,21 @@ const toggleSlider = (taste) => {
     
   </span>
   <button
-    onClick={() => setShowPartialMatches(!showPartialMatches)}
-    className={`
-      py-2 px-2
-      rounded-full
-      border-0
-      transition-colors
-      flex-shrink-0
-      ${showPartialMatches 
-        ? ' text-gray-800 border-[#8DC25B]' 
-        : 'text-gray-400 border-gray-400 hover:text-gray-400 hover:border-gray-400'
-      }
-    `}
-  >
-    <Zap size={24} />
-  </button>
+  onClick={() => setShowPartialMatches(!showPartialMatches)}
+  className={`
+    flex items-center
+    p-2.5
+    rounded-full
+    border-2
+    transition-colors
+    ${showPartialMatches 
+      ? 'text-gray-800 border-[#FFC533]' 
+      : 'bg-white text-gray-400 hover:text-white hover:bg-[#FFC533] hover:border-[#FFC533]'
+    }
+  `}
+>
+  <Zap size={20} />
+</button>
 </div>
             </div>
   

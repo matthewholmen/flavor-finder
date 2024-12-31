@@ -117,7 +117,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
               className={`
                 py-2 px-4
                 rounded-full
-                font-sans text-lg
+                font-sans text-md
                 flex items-center gap-2
                 border-2 transition-all
                 ${activeSliders.has(taste) ? 'text-white' : 'text-black'}
@@ -176,7 +176,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
                 Array.from(activeSliders).forEach(taste => onToggleSlider(taste));
               }}
               className="
-                py-2 px-2
+                py-3 px-3
                 rounded-full
                 border-2
                 bg-white

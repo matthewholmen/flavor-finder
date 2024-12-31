@@ -109,7 +109,7 @@ export default function CategoryFilter({
               className={`
                 py-2 px-6
                 transition-all duration-200
-                text-lg whitespace-nowrap
+                text-md whitespace-nowrap
                 rounded-full
                 border-2 border-gray-300
                 hover:border-gray-600 text-gray-600 hover:text-gray-900
@@ -139,12 +139,12 @@ export default function CategoryFilter({
                 -ml-16
               "
             >
-              <X size={18} />
+              <X size={16} />
             </button>
   
             <button
               onClick={() => handleCategoryChange(activeCategory)}
-              className="py-2 px-6 text-lg whitespace-nowrap rounded-full border-2 border-gray-800 bg-gray-800 text-white font-medium"
+              className="py-2 px-6 text-md whitespace-nowrap rounded-full border-2 border-gray-800 bg-gray-800 text-white font-medium"
             >
               {activeCategory}
             </button>
@@ -160,7 +160,7 @@ export default function CategoryFilter({
                       className={`
                         flex items-center gap-4
                         py-2 px-6
-                        text-lg
+                        text-md
                         rounded-full
                         border-2
                         transition-all duration-200

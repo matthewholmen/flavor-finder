@@ -1,7 +1,7 @@
 // components/SearchBar.tsx
 import React, { useCallback, useMemo, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { filterIngredients } from '../utils/search.ts';
+import { filterIngredients } from '../utils/searchUtils.ts';
 
 interface SearchBarProps {
   searchTerm: string;
@@ -28,34 +28,29 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   );
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Prevent space from triggering random pairing
     if (e.key === ' ') {
       e.stopPropagation();
     }
     
-    // Handle enter key
     if (e.key === 'Enter' && filteredIngredients.length > 0) {
       e.preventDefault();
       handleSelection(filteredIngredients[0]);
     }
   }, [filteredIngredients]);
 
-  // Handle focus events
   const handleFocus = useCallback(() => {
     setIsSearchFocused(true);
   }, [setIsSearchFocused]);
 
-  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    // Small delay to allow click events to complete
+  const handleBlur = useCallback(() => {
     setTimeout(() => {
       setIsSearchFocused(false);
     }, 100);
   }, [setIsSearchFocused]);
 
-  // New handler for ingredient selection
   const handleSelection = useCallback((ingredient: string) => {
     onIngredientSelect(ingredient);
-    setSearchTerm(''); // Clear search field after selection
+    setSearchTerm('');
   }, [onIngredientSelect, setSearchTerm]);
 
   return (

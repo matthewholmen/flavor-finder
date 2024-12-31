@@ -38,8 +38,8 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="
-          bg-white px-4 py-2 
-          rounded-full text-lg
+          bg-white px-6 py-2 
+          rounded-full text-md
           border-2 border-gray-200 
           hover:border-gray-400
           transition-all duration-200 
@@ -79,7 +79,7 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
                   setIsOpen(false);
                 }}
                 className={`
-                  w-full text-left py-2 text-lg
+                  w-full text-left py-2 text-md
                   transition-all duration-200
                   ${activeSorting === option.value 
                     ? 'text-gray-900' 
