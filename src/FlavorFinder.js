@@ -318,7 +318,7 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   useEffect(() => {
     if (selectedIngredients.length === 0) {
-      const initialPair = getRandomIngredients(0);
+      const initialPair = getRandomIngredients(5, true);
       setSelectedIngredients(initialPair);
     }
   }, []); // Empty dependency array means this runs once on mount
@@ -616,7 +616,7 @@ const handleRandomize = () => {
 
 
 const [isSearchFocused, setIsSearchFocused] = useState(false);
-const [showPartialMatches, setShowPartialMatches] = useState(false);
+const [showPartialMatches, setShowPartialMatches] = useState(true);
 
 // Filter and process ingredients
 const filteredIngredients = useMemo(() => {
@@ -747,7 +747,7 @@ const toggleSlider = (taste) => {
         {[...Array(5)].map((_, index) => (
           <div 
             key={`slot-${index}`}
-            className="flex-1 w-full min-h-[60px] md:min-h-[100px] px-1 sm:px-2 md:px-4 mt-8"
+            className="flex-1 w-full min-h-[60px] md:min-h-[100px] px-1 sm:px-2 md:px-4"
             >
             <IngredientSlot
               ingredient={selectedIngredients[index]}
@@ -778,56 +778,59 @@ const toggleSlider = (taste) => {
       {/* Search/Filters Column */}
       <div className="w-full h-1/2 md:h-screen md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 order-last md:order-first">
         {/* Header/Toolbar */}
-        <div className="p-2 md:p-4 z-20 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first">
-          <div className="flex items-center flex-1">
-            <img 
-              src="/flavor-finder-1.png" 
-              alt="Flavor Finder Logo" 
-              className="h-8 md:h-12 w-auto object-contain mr-2"
-            />
-            <InfoTooltip />
-          </div>
-          <div className="flex items-center space-x-2">
-            <button 
-              onClick={() => setIsSearchModalOpen(true)}
-              className="md:hidden px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors"
-            >
-              <Search size={16} />
-            </button>
-            <button 
-              onClick={() => setSelectedIngredients([])}
-              disabled={selectedIngredients.length === 0}
-              className={`px-3 py-3 border-2 rounded-full font-sans flex items-center gap-2 transition-colors ${
-                selectedIngredients.length === 0
-                  ? 'opacity-50 border-gray-300 text-gray-400'
-                  : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
-              }`}
-            >
-              <X size={16} />
-            </button>
-            <button 
-              onClick={() => setIsAnalysisModalOpen(prev => !prev)}
-              disabled={selectedIngredients.length === 0}
-              title="Analyze"
-              className={`px-3 py-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center gap-2 transition-colors ${
-                selectedIngredients.length === 0 
-                  ? 'opacity-50 border-gray-300 text-gray-400'
-                  : isAnalysisModalOpen 
-                    ? 'bg-[#72A8D5] text-white' 
-                    : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
-              }`}
-            >
-              <ChartPie size={16} />
-            </button>
-            <button 
-              onClick={handleRandomize}
-              title="Generate"
-              className="px-3 py-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center gap-2 transition-colors"
-            >
-              <Sparkles size={16} />
-            </button>
-          </div>
-        </div>
+<div className="p-3 md:p-4 z-20 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first">
+  <div className="hidden md:flex items-center flex-1">
+    <img 
+      src="/flavor-finder-1.png" 
+      alt="Flavor Finder Logo" 
+      className="h-12 w-auto object-contain mr-2"
+    />
+    <InfoTooltip 
+    handleRandomize={handleRandomize}
+    handleAnalyze={() => setIsAnalysisModalOpen(true)}
+  />
+  </div>
+  <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
+    <button 
+      onClick={() => setIsSearchModalOpen(true)}
+      className="md:hidden p-4 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
+    >
+      <Search size={20} />
+    </button>
+    <button 
+      onClick={() => setSelectedIngredients([])}
+      disabled={selectedIngredients.length === 0}
+      className={`p-4 border-2 rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
+        selectedIngredients.length === 0
+          ? 'opacity-50 border-gray-300 text-gray-400'
+          : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
+      }`}
+    >
+      <X size={20} />
+    </button>
+    <button 
+      onClick={() => setIsAnalysisModalOpen(prev => !prev)}
+      disabled={selectedIngredients.length === 0}
+      title="Analyze"
+      className={`p-4 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
+        selectedIngredients.length === 0 
+          ? 'opacity-50 border-gray-300 text-gray-400'
+          : isAnalysisModalOpen 
+            ? 'bg-[#72A8D5] text-white' 
+            : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
+      }`}
+    >
+      <ChartPie size={20} />
+    </button>
+    <button 
+      onClick={handleRandomize}
+      title="Generate"
+      className="p-4 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
+    >
+      <Sparkles size={20} />
+    </button>
+  </div>
+</div>
   
         {/* Desktop Search/Filters Content */}
         <div className="hidden md:flex flex-1 flex-col min-h-0">
@@ -891,35 +894,7 @@ const toggleSlider = (taste) => {
     </div>
       </div>
     </div>
-              {/* Sorting and Partial Matches Row */}
-              <div className="flex items-center justify-between bg-white py-4 px-4 border-t border-gray-200">
-              <SortingFilter
-                activeSorting={activeSorting}
-                onSortingChange={setActiveSorting}
-              />
-              {/* Partial Matches Toggle */}
-              <div className="flex items-center space-x-2">
-  <span className="text-lg text-gray-800">
-    
-  </span>
-  <button
-  onClick={() => setShowPartialMatches(!showPartialMatches)}
-  className={`
-    flex items-center
-    p-2.5
-    rounded-full
-    border-2
-    transition-colors
-    ${showPartialMatches 
-      ? 'text-gray-800 border-[#FFC533]' 
-      : 'bg-white text-gray-400 hover:text-white hover:bg-[#FFC533] hover:border-[#FFC533]'
-    }
-  `}
->
-  <Zap size={20} />
-</button>
-</div>
-            </div>
+              
   
           <div className="flex-1 min-h-0 border border-gray-200 mt-0">
             <SuggestedIngredients
@@ -946,6 +921,35 @@ const toggleSlider = (taste) => {
               }}
             />
           </div>
+          {/* Sorting and Partial Matches Row */}
+          <div className="flex items-center justify-between bg-white py-4 px-4 border-t border-gray-200">
+              <SortingFilter
+                activeSorting={activeSorting}
+                onSortingChange={setActiveSorting}
+              />
+              {/* Partial Matches Toggle */}
+              <div className="flex items-center space-x-2">
+  <span className="text-lg text-gray-800">
+    
+  </span>
+  <button
+  onClick={() => setShowPartialMatches(!showPartialMatches)}
+  className={`
+    flex items-center
+    p-4
+    rounded-full
+    border-2 border-dashed
+    transition-colors
+    ${showPartialMatches 
+      ? 'text-gray-800 border-[#FFC533]' 
+      : 'bg-white text-gray-400   hover:border-[#FFC533]'
+    }
+  `}
+>
+  <Zap size={20} />
+</button>
+</div>
+            </div>
         </div>
 
 {/* Mobile Search Modal */}
@@ -1007,13 +1011,13 @@ const toggleSlider = (taste) => {
       </div>
 
       {/* Sorting and Partial Matches - Fixed */}
-      <div className="flex items-center justify-between bg-gray-100 py-4 px-4 border-t border-gray-200">
+      <div className="flex items-center justify-between bg-white py-4 px-4 border-t border-gray-200">
         <SortingFilter
           activeSorting={activeSorting}
           onSortingChange={setActiveSorting}
         />
         <div className="flex items-center space-x-2">
-  <span className="text-lg text-gray-800">
+      <span className="text-lg text-gray-800">
     
   </span>
   <button
@@ -1021,12 +1025,13 @@ const toggleSlider = (taste) => {
     className={`
       py-2 px-2
       rounded-full
-      border-0
+      border-2
+      border-dashed
       transition-colors
       flex-shrink-0
       ${showPartialMatches 
-        ? ' text-gray-800 border-[#8DC25B]' 
-        : 'text-gray-400 border-gray-400 hover:text-gray-400 hover:border-gray-400'
+        ? 'text-gray-800 border-[#FFC533]' 
+        : 'text-gray-400'
       }
     `}
   >

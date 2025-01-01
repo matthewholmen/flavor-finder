@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Info } from 'lucide-react';
+import { Info, X, Lock, SendToBack, Sparkles, ChartPie, Zap } from 'lucide-react';
+import PropTypes from 'prop-types';
 import { TASTE_COLORS } from '../utils/colors.ts';
 
-const InfoTooltip = () => {
+const InfoTooltip = ({ handleRandomize, handleAnalyze }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -37,88 +38,223 @@ const InfoTooltip = () => {
       </button>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-lg p-6 max-w-3xl w-full relative border border-gray-700 max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={toggleModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-200"
-              aria-label="Close modal"
-            >
-              ×
-            </button>
+        <div 
+          className="fixed inset-y-0 left-0 bg-black bg-opacity-0 flex items-stretch z-50 w-full md:w-1/2"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div 
+            className="bg-white border-r border-gray-200 w-full overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="p-12">
+              {/* Header */}
+              <div className="flex justify-between items-start">
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-3 -ml-2 transition-colors rounded-full border-2 text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
-            <div className="space-y-6">
-              {/* Overview - Full Width */}
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-gray-100">FlavorFinder</h2>
-                <p className="text-gray-300 text-sm leading-relaxed">
+              {/* Title */}
+              <div className="mt-8">
+                <h2 className="text-3xl font-bold tracking-tight mb-2">
+                  About FlavorFinder
+                </h2>
+                <div className="text-xs tracking-[0.3em] text-gray-500 uppercase">
+                  Discover Perfect Ingredient Combinations
+                </div>
+              </div>
+
+              {/* Overview */}
+              <div className="mt-8">
+                <p className="text-xl leading-relaxed text-gray-600">
                   Discover unique ingredient combinations using chef-recommended pairings backed by culinary tradition and food science. Perfect for creative cooks looking to understand and craft harmonious flavor combinations.
                 </p>
               </div>
 
-              {/* Two Column Layout for Features */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Create & Discover Column */}
-                <div className="space-y-3">
-                  <h3 className="text-lg font-medium text-gray-200">Create & Discover</h3>
-                  <ul className="space-y-2 text-gray-300 text-sm">
-                    <li>• Select ingredients to see what pairs well with them</li>
-                    <li>• Press Generate (or spacebar) for instant harmonious combinations</li>
-                    <li>• Use filters to find specific types of ingredients (e.g., sour liquids, spicy vegetables)</li>
-                    <li>• Toggle "Partial Matches" to explore less conventional combinations</li>
+              {/* Features Section */}
+              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-12">
+                {/* Create & Discover */}
+                <div>
+                  <h3 className="text-lg font-medium mb-6">Create & Discover</h3>
+                  <ul className="space-y-4">
+                    {[
+                      'Select ingredients to see what pairs well with them',
+                      'Press Generate (or spacebar) for instant harmonious combinations',
+                      'Use filters to find specific types of ingredients',
+                      'Toggle "Partial Matches" to explore less conventional combinations'
+                    ].map((item, index) => (
+                      <li key={index} className="flex items-start gap-3 text-gray-600">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2" />
+                        {item}
+                      </li>
+                    ))}
                   </ul>
                 </div>
 
-                {/* Analyze & Refine Column */}
-                <div className="space-y-3">
-                  <h3 className="text-lg font-medium text-gray-200">Analyze & Refine</h3>
-                  <ul className="space-y-2 text-gray-300 text-sm">
-                    <li>• See how ingredients complement each other through taste profiles</li>
-                    <li>• Adjust taste sliders to fine-tune your search</li>
-                    <li>• Lock favorite ingredients while exploring variations</li>
-                    <li>• Higher match scores (in green) indicate stronger pairings</li>
+                {/* Analyze & Refine */}
+                <div>
+                  <h3 className="text-lg font-medium mb-6">Analyze & Refine</h3>
+                  <ul className="space-y-4">
+                    {[
+                      'See how ingredients complement each other through taste profiles',
+                      'Adjust taste sliders to fine-tune your search',
+                      'Lock favorite ingredients while exploring variations',
+                      'Higher match scores indicate stronger pairings'
+                    ].map((item, index) => (
+                      <li key={index} className="flex items-start gap-3 text-gray-600">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2" />
+                        {item}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
 
-              {/* Taste Profiles - Full Width */}
-              <div className="space-y-3 pt-4 border-t border-gray-700">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium text-gray-200">Understanding Taste Profiles</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
+              {/* Interface Controls */}
+              <div className="mt-12">
+                <h3 className="text-lg font-medium mb-6">Interface Controls</h3>
+                <p className="text-gray-600 mb-8">
+                  FlavorFinder's interface is designed to help you explore and refine ingredient combinations efficiently.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Main Controls */}
+                  <div className="space-y-6">
+                    <h4 className="text-base font-medium text-gray-800 mb-4">Main Controls</h4>
+                    
+                                {/* Generate Button */}
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
+              <div className="shrink-0">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRandomize(); // Now properly passed as a prop
+                  }}
+                  className="p-4 border-2 border-[#8DC25B] text-black rounded-full flex items-center justify-center transition-colors hover:bg-[#8DC25B] hover:text-white group"
+                >
+                  <Sparkles size={20} className="transform group-hover:scale-110 transition-transform" />
+                </button>
+              </div>
+              <div>
+                <div className="font-medium mb-1">Generate</div>
+                <p className="text-sm text-gray-600">
+                  Try it! Press this (or spacebar) to instantly create new ingredient combinations. Each suggestion is carefully chosen based on proven flavor pairings.
+                </p>
+              </div>
+            </div>
+
+            {/* Analyze Button */}
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
+              <div className="shrink-0">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAnalyze(); // Now properly passed as a prop
+                  }}
+                  className="p-4 border-2 border-[#72A8D5] text-black rounded-full flex items-center justify-center transition-colors hover:bg-[#72A8D5] hover:text-white group"
+                >
+                  <ChartPie size={20} className="transform group-hover:scale-110 transition-transform" />
+                </button>
+              </div>
+              <div>
+                <div className="font-medium mb-1">Analyze</div>
+                <p className="text-sm text-gray-600">Opens the taste analysis panel to see the combined flavor profile of your ingredients and get suggestions for balance.</p>
+              </div>
+            </div>
+
+
+                    {/* Partial Matches Toggle */}
+                    <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
+                      <div className="shrink-0">
+                        <button className="p-4 border-2 border-dashed border- text-gray-400 rounded-full flex items-center justify-center transition-colors hover:border-[#FFC533] hover:text-gray-800">
+                          <Zap size={20} className="transform transition-transform" />
+                        </button>
+                      </div>
+                      <div>
+                        <div className="font-medium mb-1">Show Partial Matches</div>
+                        <p className="text-sm text-gray-600">When enabled, shows ingredient combinations that might not be traditionally paired but could create interesting flavors.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ingredient Controls */}
+                  <div className="space-y-6">
+                    <h4 className="text-base font-medium text-gray-800 mb-4">Ingredient Controls</h4>
+                    
+                    {/* Lock/Unlock */}
+                    <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
+                      <div className="shrink-0">
+                        <button className="p-4 rounded-full border-0 border-gray-800 text-gray-800">
+                          <Lock size={24} strokeWidth={2} className="" />
+                        </button>
+                      </div>
+                      <div>
+                        <div className="font-medium mb-1">Lock/Unlock</div>
+                        <p className="text-sm text-gray-600">Lock ingredients you want to keep while generating new combinations. Locked ingredients won't be replaced.</p>
+                      </div>
+                    </div>
+
+                    {/* Swap */}
+                    <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
+                      <div className="shrink-0">
+                        <button className="p-4 rounded-full border-0 border-gray-800 text-gray-800">
+                          <SendToBack size={28} strokeWidth={2} className="" />
+                        </button>
+                      </div>
+                      <div>
+                        <div className="font-medium mb-1">Find Alternatives</div>
+                        <p className="text-sm text-gray-600">Explore alternative ingredients that would work well in place of the selected ingredient while maintaining flavor harmony.</p>
+                      </div>
+                    </div>
+
+                    {/* Remove */}
+                    <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
+                      <div className="shrink-0">
+                        <button className="p-2.5 rounded-full border-0 border-transparent text-gray-800">
+                          <X size={28} strokeWidth={2} className="" />
+                        </button>
+                      </div>
+                      <div>
+                        <div className="font-medium mb-1">Remove</div>
+                        <p className="text-sm text-gray-600">Remove an ingredient from your combination. You can add new ingredients by clicking the empty slot or generating new combinations.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Taste Profiles */}
+              <div className="mt-12">
+                <h3 className="text-lg font-medium mb-6">Understanding Taste Profiles</h3>
+                <p className="text-gray-600 mb-8">
                   Each ingredient is a unique blend of tastes, but is sorted into categories based on their dominant taste.
                 </p>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TASTE_COLORS.sweet }}></div>
-                    <span className="text-gray-300">Sweet (honey, raisin)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TASTE_COLORS.salty }}></div>
-                    <span className="text-gray-300">Salty (capers, pecorino)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TASTE_COLORS.sour }}></div>
-                    <span className="text-gray-300">Sour (citrus, vinegar)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TASTE_COLORS.bitter }}></div>
-                    <span className="text-gray-300">Bitter (coffee, chicory)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TASTE_COLORS.umami }}></div>
-                    <span className="text-gray-300">Umami (dashi, anchovy)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TASTE_COLORS.fat }}></div>
-                    <span className="text-gray-300">Fat (oil, nuts)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: TASTE_COLORS.spicy }}></div>
-                    <span className="text-gray-300">Spicy (chili, horseradish)</span>
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  {[
+                    { taste: 'sweet', examples: 'honey, raisin' },
+                    { taste: 'salty', examples: 'capers, pecorino' },
+                    { taste: 'sour', examples: 'citrus, vinegar' },
+                    { taste: 'bitter', examples: 'coffee, chicory' },
+                    { taste: 'umami', examples: 'dashi, anchovy' },
+                    { taste: 'fat', examples: 'oil, nuts' },
+                    { taste: 'spicy', examples: 'chili, horseradish' }
+                  ].map(({ taste, examples }) => (
+                    <div key={taste} className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: TASTE_COLORS[taste] }}
+                        />
+                        <span className="font-medium capitalize">{taste}</span>
+                      </div>
+                      <div className="text-sm text-gray-500 pl-6">
+                        {examples}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

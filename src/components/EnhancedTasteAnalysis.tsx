@@ -1,9 +1,8 @@
 import React from 'react';
-import { AlertCircle, TrendingDown, TrendingUp, Tags, Scale, Plus } from 'lucide-react';
+import { Scale, TrendingUp, Tags } from 'lucide-react';
 import { IngredientProfile } from '../types';
 import { TASTE_COLORS } from '../utils/colors.ts';
-import { getCompatibilityScore } from '../utils/compatibility.ts';
-import { analyzeTasteBalance, calculateEnhancedTasteScores } from '../utils/tasteAnalysis.ts';
+import { analyzeTasteBalance } from '../utils/tasteAnalysis.ts';
 
 interface EnhancedTasteAnalysisProps {
   averageScores: TasteProfile;
@@ -23,46 +22,6 @@ interface TasteProfile {
   spicy: number;
 }
 
-// Modified to use new threshold system and enhanced taste analysis
-const findSuggestedIngredients = (
-  taste: string,
-  targetScore: number,
-  profiles: IngredientProfile[],
-  selectedIngredients: string[],
-  flavorMap: Map<string, Set<string>>,
-): string[] => {
-  if (!flavorMap) return [];
-
-  // Calculate how much of the taste we need
-  const desiredIntensity = Math.max(targetScore / 2, 3); // At least 3 to make an impact
-  
-  return profiles
-    .filter(profile => {
-      const hasTaste = profile.flavorProfile[taste as keyof TasteProfile] >= desiredIntensity;
-      const compatibility = getCompatibilityScore(
-        profile.name,
-        selectedIngredients,
-        flavorMap,
-        true
-      );
-      const notSelected = !selectedIngredients.includes(profile.name);
-      
-      return hasTaste && compatibility.score >= 50 && notSelected;
-    })
-    .sort((a, b) => {
-      // Sort by a combination of taste intensity and compatibility
-      const aComp = getCompatibilityScore(a.name, selectedIngredients, flavorMap, true).score;
-      const bComp = getCompatibilityScore(b.name, selectedIngredients, flavorMap, true).score;
-      const aTaste = a.flavorProfile[taste as keyof TasteProfile];
-      const bTaste = b.flavorProfile[taste as keyof TasteProfile];
-      
-      // Weighted scoring: 60% compatibility, 40% taste intensity
-      return (bComp * 0.6 + bTaste * 0.4) - (aComp * 0.6 + aTaste * 0.4);
-    })
-    .slice(0, 2)
-    .map(profile => profile.name);
-};
-
 const EnhancedTasteAnalysis: React.FC<EnhancedTasteAnalysisProps> = ({
   averageScores,
   ingredientProfiles,
@@ -70,105 +29,128 @@ const EnhancedTasteAnalysis: React.FC<EnhancedTasteAnalysisProps> = ({
   flavorMap,
   handleIngredientSelect
 }) => {
-  // Get the profiles of currently selected ingredients
+  if (!selectedIngredients || !ingredientProfiles || !flavorMap) {
+    return null;
+  }
+
+  // Get the profiles of currently selected ingredients with proper type safety
   const selectedProfiles = selectedIngredients
     .map(name => ingredientProfiles.find(p => p.name.toLowerCase() === name.toLowerCase()))
-    .filter((p): p is IngredientProfile => p !== undefined);
+    .filter((profile): profile is IngredientProfile => profile !== undefined);
 
-  // Get enhanced analysis
+  // Get enhanced analysis using the original logic
   const analysis = analyzeTasteBalance(selectedProfiles, ingredientProfiles, flavorMap);
-  const enhancedScores = analysis.averageScores;  // Get scores from analysis result
 
-
-  // Convert suggestions to UI format
-  const suggestions = analysis.suggestions.map(suggestion => {
-    if (suggestion.type === 'category') {
-      // Handle category suggestion
-      return {
-        type: suggestion.type,
-        suggestion: `Try adding: ${suggestion.category}`,
-        ingredientSuggestions: suggestion.ingredientSuggestions,
-        reason: suggestion.reason,
-        score: null  // or undefined if you prefer
-      };
-    } else {
-      // Handle taste-based suggestions
-      return {
-        type: suggestion.type,
-        suggestion: suggestion.type === 'balance'
-          ? `Balance ${suggestion.primaryTaste} with ${suggestion.suggestedTaste}`
-          : `Complement ${suggestion.primaryTaste} with ${suggestion.suggestedTaste}`,
-        ingredientSuggestions: findSuggestedIngredients(
-          suggestion.suggestedTaste,
-          suggestion.targetScore,
-          ingredientProfiles,
-          selectedIngredients,
-          flavorMap
-        ),
-        reason: suggestion.reason,
-        score: suggestion.currentScore
-      };
-    }
-  });
+  if (!analysis || !analysis.suggestions) {
+    return null;
+  }
 
   return (
-    <div className="mt-6 space-y-4">
-  {/* Suggestions */}
-      {suggestions.map((suggestion, index) => (
-        <div 
-          key={index}
-          className="flex flex-col gap-2 p-3 rounded-lg bg-gray-50"
-        >
-          <div className="flex items-center gap-2">
-            {suggestion.type === 'balance' ? (
-              <Scale className="h-5 w-5 text-gray-500" />
-            ) : suggestion.type === 'category' ? (
-              <Plus className="h-5 w-5 text-gray-500" /> // New icon for category
-            ) : (
-              <TrendingUp className="h-5 w-5 text-gray-500" />
-            )}
-            <span className="text-sm">{suggestion.suggestion}</span>
-          </div>
-          {suggestion.ingredientSuggestions.length > 0 && (
-            <div className="ml-7 mt-2 flex flex-wrap gap-2">
-              {suggestion.ingredientSuggestions.map((ingredient) => {
-                const profile = ingredientProfiles.find(p => 
-                  p.name.toLowerCase() === ingredient.toLowerCase()
-                );
-                const dominantTaste = Object.entries(profile?.flavorProfile || {})
-                  .reduce((a, b) => a[1] > b[1] ? a : b)[0];
-                const backgroundColor = TASTE_COLORS[dominantTaste as keyof typeof TASTE_COLORS];
-                
-                const isPartialMatch = getCompatibilityScore(
-                  ingredient, 
-                  selectedIngredients, 
-                  flavorMap, 
-                  true
-                ).score < 100;
-                
-                return (
-                  <div
-                    key={ingredient}
-                    className={`
-                      inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium
-                      cursor-pointer hover:opacity-90 transition-opacity
-                      ${isPartialMatch ? 'border-2 border-dashed' : ''}
-                    `}
-                    style={{
-                      backgroundColor: isPartialMatch ? 'white' : backgroundColor,
-                      borderColor: backgroundColor,
-                      color: isPartialMatch ? 'black' : 'white'
-                    }}
-                    onClick={() => handleIngredientSelect(ingredient)}
-                  >
-                    {ingredient}
-                  </div>
-                );
-              })}
+    <div className="space-y-6">
+      {analysis.suggestions.map((suggestion, index) => {
+        if (suggestion.type === 'category') {
+          // Render category-based suggestion
+          return (
+            <div key={index} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Tags size={16} className="text-gray-400" />
+                <span className="text-sm text-gray-600">
+                  {suggestion.reason}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {suggestion.ingredientSuggestions.map((ingredientName, idx) => {
+                  const ingredient = ingredientProfiles.find(p => p.name === ingredientName);
+                  if (!ingredient) return null;
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleIngredientSelect(ingredientName)}
+                      disabled={selectedIngredients.length >= 5}
+                      className={`
+                        text-left p-4 rounded-lg border border-gray-200 
+                        transition-all duration-200 
+                        ${selectedIngredients.length >= 5 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'hover:border-gray-300 hover:shadow-sm'
+                        }
+                      `}
+                    >
+                      <div className="font-medium">{ingredientName}</div>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {ingredient.category} › {ingredient.subcategory}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </div>
-      ))}
+          );
+        } else {
+          // Render taste-based suggestion
+          const icon = suggestion.type === 'balance' 
+            ? <Scale size={16} className="text-gray-400" />
+            : <TrendingUp size={16} className="text-gray-400" />;
+
+          // Handle taste properties safely
+          const primaryTaste = 'primaryTaste' in suggestion ? suggestion.primaryTaste : '';
+          const suggestedTaste = 'suggestedTaste' in suggestion ? suggestion.suggestedTaste : '';
+          const dominantTaste = suggestion.type === 'balance' ? primaryTaste : suggestedTaste;
+
+          return (
+            <div key={index} className="space-y-3">
+              <div className="flex items-center gap-2">
+                {icon}
+                <span className="text-sm text-gray-600">
+                  {suggestion.reason}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {suggestion.ingredientSuggestions.map((ingredientName, idx) => {
+                  const ingredient = ingredientProfiles.find(p => p.name === ingredientName);
+                  if (!ingredient || !dominantTaste) return null;
+
+                  const tasteValue = ingredient.flavorProfile[dominantTaste as keyof TasteProfile] || 0;
+                  const tasteColor = TASTE_COLORS[dominantTaste as keyof typeof TASTE_COLORS];
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleIngredientSelect(ingredientName)}
+                      disabled={selectedIngredients.length >= 5}
+                      className={`
+                        text-left p-4 rounded-lg border border-gray-200 
+                        transition-all duration-200 
+                        ${selectedIngredients.length >= 5 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'hover:border-gray-300 hover:shadow-sm'
+                        }
+                      `}
+                    >
+                      <div className="font-medium">{ingredientName}</div>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {ingredient.category} › {ingredient.subcategory}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div 
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: tasteColor }}
+                        />
+                        <span className="text-xs text-gray-600">
+                          {tasteValue.toFixed(1)} {dominantTaste}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+      })}
     </div>
   );
 };

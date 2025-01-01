@@ -62,7 +62,7 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-30 top-full mb-2 w-[140px]">
+        <div className="absolute z-30 bottom-full mb-2 w-[140px]">
           <div className="
             bg-white 
             rounded-2xl
@@ -94,7 +94,7 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
                     : 'hover:font-medium'
                   }
                 `}>
-                                  {option.label}
+                  {option.label}
                 </span>
               </button>
             ))}

@@ -777,7 +777,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Large cut suitable for roasting, develops rich crust and tender interior when properly cooked"
   },
   {
-    name: "beef round steak",
+    name: "round steak",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: {
@@ -1342,7 +1342,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Classic French herb bundle typically containing parsley, thyme, and bay leaf for flavoring stocks and stews"
     },
     {
-      name: "bourbon whiskey",
+      name: "bourbon",
       category: "Alcohol",
       subcategory: "Spirits",
       flavorProfile: {
@@ -4758,7 +4758,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Natural sweetener with complex flavor varying by floral source"
     },
     {
-      name: "honeydew melon",
+      name: "honeydew",
       category: "Fruits",
       subcategory: "Melons",
       flavorProfile: {
@@ -5568,7 +5568,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Dark vinegar made from malted barley with rich, complex flavor"
     },
     {
-      name: "manchego cheese",
+      name: "manchego",
       category: "Dairy",
       subcategory: "Hard Cheese",
       flavorProfile: {
@@ -6407,7 +6407,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Ground sweet pepper with varying heat levels and subtle earthiness"
     },
     {
-      name: "parmesan cheese",
+      name: "parmesan",
       category: "Dairy",
       subcategory: "Hard Cheese",
       flavorProfile: {
@@ -8414,7 +8414,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Unique spice producing numbing sensation with citrusy notes"
       },
       {
-        name: "tabasco sauce",
+        name: "tabasco",
         category: "Condiments",
         subcategory: "Sauces",
         flavorProfile: {
@@ -8452,7 +8452,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Ground sesame paste with rich, nutty flavor"
       },
       {
-        name: "taleggio cheese",
+        name: "taleggio",
         category: "Dairy",
         subcategory: "Soft Cheese",
         flavorProfile: {
@@ -9130,7 +9130,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Dense, sweet squash varieties with firm flesh and rich flavor"
       },
       {
-        name: "worcestershire sauce",
+        name: "worcestershire",
         category: "Condiments",
         subcategory: "Sauces",
         flavorProfile: {
@@ -9353,7 +9353,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Rich, buttery substance found in beef bones with a smooth, custard-like texture"
       },
       {
-        name: "matsutake mushroom",
+        name: "matsutake",
         category: "Vegetables",
         subcategory: "Mushroom",
         flavorProfile: {
@@ -9616,7 +9616,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Tart stalks with bright, astringent flavor"
       },
       {
-        name: "roquefort cheese",
+        name: "roquefort",
         category: "Dairy",
         subcategory: "Soft Cheese",
         flavorProfile: {
@@ -10178,7 +10178,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Briny, firm olive with grassy notes"
       },
       {
-        name: "red pepper flake",
+        name: "chili flake",
         category: "Seasonings",
         subcategory: "Chilis",
         flavorProfile: {
@@ -11233,5 +11233,24 @@ export const ingredientProfiles: IngredientProfile[] = [
           secondary: "Earthy"
         },
         description: "Plant family including beans, peas, and lentils."
-      }
+      },
+      {
+        name: "nuts",
+        category: "Proteins",
+        subcategory: "Plant Proteins",
+        flavorProfile: {
+          sweet: 3,
+          salty: 1,
+          sour: 0,
+          bitter: 1,
+          umami: 3,
+          fat: 7,
+          spicy: 0
+        },
+        aromas: {
+          primary: "Maillard",
+          secondary: "Nutty"
+        },
+        description: "Versatile plant-based ingredients characterized by rich, buttery flavors and substantial fat content."
+      },
     ];

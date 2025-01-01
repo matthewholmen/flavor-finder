@@ -124,168 +124,225 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   };
   
   return (
-    <div 
-      className="relative h-full flex flex-col items-center justify-center
-        bg-[linear-gradient(to_right,rgb(243_244_246)_1px,transparent_1px),linear-gradient(to_bottom,rgb(243_244_246)_1px,transparent_1px)]
-        bg-[size:20px_20px]"
-    >
-      {ingredient ? (
-        <>
-          <div 
-            className={`
-              relative rounded-full py-6 px-6 bg-white
-              border-[3px] transition-all duration-200 mx-4 w-full max-w-xl
-              shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]
-              ${isInSubstitutionMode ? 'ring-4 ring-gray-200 ring-offset-8' : ''}
-              cursor-pointer
-              hover:scale-[1.02] hover:shadow-lg
-              ${isPartiallyMatched ? '[border-style:dashed]' : ''}
-            `}
-            style={{ borderColor }}
-            onClick={() => setIsModalOpen(true)}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 absolute left-6">
-                
-              <button 
-                  className={`p-1 transition-all rounded-full ${
-                    isLocked 
-                      ? 'text-gray-800 scale-110' 
-                      : 'text-gray-400 hover:scale-110 hover:text-gray-600'
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onLockToggle();
-                  }}
-                  title={isLocked ? "Unlock Ingredient" : "Lock Ingredient"}
-                >
-                  {isLocked ? (
-                    <Lock size={16} strokeWidth={2.5} />
-                  ) : (
-                    <LockOpen size={16} strokeWidth={2} />
-                  )}
-                </button>
-
-                <button
-  className={`p-1 transition-colors ${isInSubstitutionMode ? 'text-gray-800 scale-110' : 'text-gray-400 hover:text-gray-600 hover:scale-110'}`}
-  onClick={(e) => {
-    e.stopPropagation();
-    if (isInSubstitutionMode && onExitSubstitute) {
-      onExitSubstitute();
-    } else {
-      onSubstitute();
-    }
-  }}
-  title={isInSubstitutionMode ? "Exit Substitute Mode" : "Substitute Ingredient"}
+    <div className="relative h-full flex flex-col items-center justify-center py-4">
+  {ingredient ? (
+    <>
+<div 
+  className={`
+    relative py-4 md:py-6 pl-2 pr-12 bg-white w-full
+    flex items-center
+    ${index > 0 ? 'border-t border-gray-200' : ''}
+  `}
+  onClick={() => setIsModalOpen(true)}
 >
-  <SendToBack size={16} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
-</button>
-                
-              </div>
-              <div className="flex-1 text-center">
-                <div className="font-medium text-xl">{ingredient}</div>
-                {profile && (
-                  <div className="text-sm text-gray-600">
-                    {profile.category} › {profile.subcategory}
-                  </div>
-                )}
-              </div>
-              <div className="absolute right-8">
-                <button
-                  className="p-1 text-gray-400 hover:text-gray-600 hover:scale-110 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemove();
-                  }}
-                >
-                  <X size={16} />
-                </button>
-              </div>
+  
+  <div className="flex items-center gap-4"> 
+       {/* Left side UI controls */}
+       <div className="flex flex-col gap-2 pr-4">
+  {/* Lock button */}
+  <button 
+    className={`
+      p-2.5 transition-colors rounded-full border-2
+      ${isLocked 
+        ? 'text-gray-800 border-gray-800' 
+        : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600'
+      }
+    `}
+    onClick={(e) => {
+      e.stopPropagation();
+      onLockToggle();
+    }}
+    title={isLocked ? "Unlock Ingredient" : "Lock Ingredient"}
+  >
+    {isLocked ? (
+      <Lock size={18} strokeWidth={2.5} />
+    ) : (
+      <LockOpen size={18} strokeWidth={2} />
+    )}
+  </button>
+
+  {/* Substitute button */}
+  <button
+    className={`
+      p-2.5 transition-colors rounded-full border-2
+      ${isInSubstitutionMode 
+        ? 'text-gray-800 border-gray-800' 
+        : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600'
+      }
+    `}
+    onClick={(e) => {
+      e.stopPropagation();
+      if (isInSubstitutionMode && onExitSubstitute) {
+        onExitSubstitute();
+      } else {
+        onSubstitute();
+      }
+    }}
+  >
+    <SendToBack size={18} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
+  </button>
+</div>
+
+
+
+        {/* Ingredient name and category */}
+        <div className="flex-1">
+        <div 
+  className={`
+    text-7xl font-bold leading-[0.85] transition-opacity hover:opacity-40
+    ${isPartiallyMatched ? 'tracking-normal' : 'tracking-tight'}
+  `}
+  style={{ 
+    color: isPartiallyMatched ? 'white' : getIngredientColor(profile),
+    textShadow: isPartiallyMatched ? `
+      -1.5px -1.5px 0 ${getIngredientColor(profile)},
+      1.5px -1.5px 0 ${getIngredientColor(profile)},
+      -1.5px 1.5px 0 ${getIngredientColor(profile)},
+      1.5px 1.5px 0 ${getIngredientColor(profile)},
+      -2px 0 0 ${getIngredientColor(profile)},
+      2px 0 0 ${getIngredientColor(profile)},
+      0 -2px 0 ${getIngredientColor(profile)},
+      0 2px 0 ${getIngredientColor(profile)}
+    ` : 'none'
+  }}
+>
+  {ingredient}
+</div>
+  {profile && (
+    <div className="text-xs tracking-[0.2em] text-gray-500 uppercase mt-4 pl-0.5">
+      {profile.category} › {profile.subcategory}
+    </div>
+  )}
+</div>
+
+
+
+      </div>
+      
+      <button
+    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 md:p-2.5 transition-colors rounded-full border-2 text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600"
+    onClick={(e) => {
+      e.stopPropagation();
+      onRemove();
+    }}
+  >
+    <X size={16} className="md:w-[18px] md:h-[18px]" />
+  </button>
+</div>
+
+
+{/* Modal */}
+{isModalOpen && profile && (
+  <div 
+  className="fixed inset-y-0 right-0 bg-black bg-opacity-0 flex items-stretch z-50 w-full md:w-1/2"
+  onClick={() => setIsModalOpen(false)}
+>
+<div 
+  className="bg-white border-l border-gray-200 w-full"
+  onClick={e => e.stopPropagation()}
+>
+      {/* Header */}
+      <div className="p-12">
+        <div className="flex justify-between items-start">
+          {/* Close button */}
+          <button 
+            onClick={() => setIsModalOpen(false)} 
+            className="p-3 -ml-2 transition-colors rounded-full border-2 text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Title and Category */}
+        <div className="mt-8">
+          <div className="leading-[0.9] mb-2">
+            <div 
+              className="text-7xl font-bold tracking-tight"
+              style={{ color: getIngredientColor(profile) }}
+            >
+              {ingredient}
             </div>
           </div>
+          <div className="text-xs tracking-[0.3em] text-gray-500 uppercase">
+            {profile.category} › {profile.subcategory}
+          </div>
+        </div>
 
-          {/* Modal */}
-          {isModalOpen && profile && (
-            <div 
-            className="fixed inset-0 md:left-1/2 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            onClick={() => setIsModalOpen(false)}
-          >
-              <div 
-                className="bg-white border-2 border-gray-800 rounded-3xl p-6 md:p-8 w-[95%] md:w-3/4 mx-4 max-w-2xl"
-                onClick={e => e.stopPropagation()}
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold">{ingredient}</h3>
-                  <button 
-                    onClick={() => setIsModalOpen(false)} 
-                    className="p-2 color-gray-100 hover:scale-110 hover:color-gray-800"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-                
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600 mb-4">
-                    {profile.category} › {profile.subcategory}
-                  </p>
-                  
-                  <p className="text-sm max-w-[95%]">{profile.description}</p>
-                  
-                  {/* Taste Profile with Pie Chart */}
-                  <div>
-                  <div className="h-px bg-gray-200 mb-4" />
-                    <h4 className="text-sm font-semibold mb-1">Taste Profile</h4>
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                      <div className="w-40 h-40 md:w-48 md:h-48 shrink-0">
-                        <PieChart width={192} height={192}>
-                          <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={40}
-                            outerRadius={80}
-                            dataKey="value"
-                            isAnimationActive={false}
-                          >
-                            {pieData.map((entry) => (
-                              <Cell
-                                key={entry.name}
-                                fill={TASTE_COLORS[entry.name as keyof typeof TASTE_COLORS]}
-                              />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        {renderTasteLegend()}
-                      </div>
-                    </div>
-                  </div>
+        {/* Description */}
+        <div className="mt-12 text-xl leading-relaxed text-gray-600">
+          {profile.description}
+        </div>
 
-                  {/* Pairing Status */}
-                  {isPartiallyMatched && (
-                    <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <p className="text-sm text-yellow-800 flex items-center gap-3 pl-2">
-                      <TriangleAlert size={24} strokeWidth={2} /> 
-                      We don't have this ingredient as a perfect match with all other selected ingredients — but that doesn't mean it can't be delicious.
-                    </p>
-                  </div>
-                  )}
-                </div>
-              </div>
+        {/* Taste Profile Section */}
+        <div className="mt-12">
+          <h4 className="text-lg font-medium mb-8">Taste Profile</h4>
+          <div className="flex items-start justify-between gap-12">
+            <div className="w-[240px] h-[240px] shrink-0">
+              <PieChart width={200} height={200}>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  dataKey="value"
+                  isAnimationActive={false}
+                >
+                  {pieData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={TASTE_COLORS[entry.name as keyof typeof TASTE_COLORS]}
+                    />
+                  ))}
+                </Pie>
+              </PieChart>
             </div>
-          )}
+            <div className="flex-1 min-w-0">
+              {renderTasteLegend()}
+            </div>
+          </div>
+        </div>
+
+        {/* Pairing Status */}
+        {isPartiallyMatched && (
+          <div className="mt-12 p-6 bg-yellow-50 rounded-lg border border-yellow-200">
+            <p className="text-base text-yellow-800 flex items-center gap-3">
+              <TriangleAlert size={24} strokeWidth={2} />
+              We don't have this ingredient as a perfect match with all other selected ingredients — but that doesn't mean it can't be delicious.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
         </>
       ) : (
-        <div 
-          className="
-            relative rounded-full py-6 px-6
-            border-[3px] border-gray-200 bg-white mx-4
-            w-full max-w-xl
-          "
-        >
-          <div className="h-[42px]"></div>
-        </div>
+        <div className={`
+          relative py-6 pl-2 pr-8 bg-white w-full
+          ${index > 0 ? 'border-t border-gray-200' : ''}
+        `}>
+  <div className="flex items-center gap-4">
+    {/* Left side controls placeholder to maintain spacing */}
+    <div className="flex items-center gap-2 w-30">
+      <div className="p-3"></div>
+      <div className="p-3"></div>
+    </div>
+    
+    {/* Main content area placeholder */}
+    <div className="flex-1">
+      <div className="text-7xl font-bold tracking-tight leading-[0.85] text-transparent">
+        {/* Empty space to maintain height */}
+        &nbsp;
+      </div>
+      <div className="text-xs tracking-[0.3em] text-transparent uppercase mt-4 pl-0.5">
+        &nbsp;
+      </div>
+    </div>
+  </div>
+</div>
+
+
       )}
     </div>
   );
