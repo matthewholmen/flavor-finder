@@ -954,18 +954,18 @@ const toggleSlider = (taste) => {
 
 {/* Mobile Search Modal */}
 <div className={`
-  md:hidden fixed inset-0 z-30 bg-black bg-opacity-50 transition-opacity duration-300
+  md:hidden fixed inset-0 z-30 bg-black bg-opacity-50 transition-opacity duration-300 safe-area-top
   ${isSearchModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
 `}>
   {/* Modal Container */}
   <div className={`
     fixed inset-x-0 bottom-0 bg-white rounded-t-xl transform transition-transform duration-300
-    h-[90vh] flex flex-col
+    h-[85vh] flex flex-col
     ${isSearchModalOpen ? 'translate-y-0' : 'translate-y-full'}
   `}>
     {/* Fixed Header Section */}
     <div className="flex-none">
-      <div className="flex justify-between items-center p-4 border-b border-gray-200">
+      <div className="flex justify-between items-center p-4 border-b border-gray-200 pt-6">
         <h2 className="text-base md:text-lg font-medium">Search Ingredients</h2>
         <button onClick={() => setIsSearchModalOpen(false)} className="p-2">
           <X size={18} />

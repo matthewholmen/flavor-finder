@@ -124,12 +124,12 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   };
   
   return (
-    <div className="relative h-full flex flex-col items-center justify-center py-4">
+    <div className="relative h-full flex flex-col items-center justify-center">
   {ingredient ? (
     <>
 <div 
   className={`
-    relative py-4 md:py-6 pl-2 pr-12 bg-white w-full
+    relative py-6 md:py-8 pl-2 pr-12 bg-white w-full
     flex items-center
     ${index > 0 ? 'border-t border-gray-200' : ''}
   `}
@@ -138,7 +138,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   
   <div className="flex items-center gap-4"> 
        {/* Left side UI controls */}
-       <div className="flex flex-col gap-2 pr-4">
+       <div className="flex flex-col gap-3 pr-4 py-1">
   {/* Lock button */}
   <button 
     className={`
@@ -189,8 +189,9 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
         <div className="flex-1">
         <div 
   className={`
-    text-7xl font-bold leading-[0.85] transition-opacity hover:opacity-40
+    text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.85] transition-opacity hover:opacity-40
     ${isPartiallyMatched ? 'tracking-normal' : 'tracking-tight'}
+    whitespace-nowrap overflow-hidden text-ellipsis
   `}
   style={{ 
     color: isPartiallyMatched ? 'white' : getIngredientColor(profile),
@@ -209,7 +210,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   {ingredient}
 </div>
   {profile && (
-    <div className="text-xs tracking-[0.2em] text-gray-500 uppercase mt-4 pl-0.5">
+    <div className="text-xs tracking-[0.2em] text-gray-500 uppercase mt-3 pl-0.5">
       {profile.category} › {profile.subcategory}
     </div>
   )}
@@ -220,7 +221,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
       </div>
       
       <button
-    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 md:p-2.5 transition-colors rounded-full border-2 text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600"
+    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 md:p-2.5 transition-colors rounded-full border-2 text-gray-600 border-gray-200 hover:text-gray-800 hover:border-gray-400 bg-white z-10 flex items-center justify-center"
     onClick={(e) => {
       e.stopPropagation();
       onRemove();
@@ -257,7 +258,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
         <div className="mt-8">
           <div className="leading-[0.9] mb-2">
             <div 
-              className="text-7xl font-bold tracking-tight"
+              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis"
               style={{ color: getIngredientColor(profile) }}
             >
               {ingredient}
@@ -319,7 +320,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
         </>
       ) : (
         <div className={`
-          relative py-6 pl-2 pr-8 bg-white w-full
+          relative py-8 md:py-10 pl-2 pr-8 bg-white w-full
           ${index > 0 ? 'border-t border-gray-200' : ''}
         `}>
   <div className="flex items-center gap-4">
@@ -331,7 +332,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
     
     {/* Main content area placeholder */}
     <div className="flex-1">
-      <div className="text-7xl font-bold tracking-tight leading-[0.85] text-transparent">
+      <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.85] text-transparent">
         {/* Empty space to maintain height */}
         &nbsp;
       </div>
