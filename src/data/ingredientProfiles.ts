@@ -3147,7 +3147,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Fresh, mild cheese with smooth, creamy texture and slight tang"
     },
     {
-      name: "cremini mushroom",
+      name: "cremini",
       category: "Vegetables",
       subcategory: "Mushroom",
       flavorProfile: {
@@ -7462,7 +7462,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Aromatic white wine with bright acidity and varying levels of sweetness"
       },
       {
-        name: "romano cheese",
+        name: "romano",
         category: "Dairy",
         subcategory: "Hard Cheese",
         flavorProfile: {
@@ -7909,7 +7909,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Various sea creatures with sweet, briny flavor and tender flesh"
       },
       {
-        name: "sherry wine",
+        name: "sherry",
         category: "Alcohol",
         subcategory: "Wines",
         flavorProfile: {

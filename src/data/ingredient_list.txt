@@ -165,7 +165,7 @@ cranberry
 crawfish
 cream
 cream cheese
-cremini mushroom
+cremini
 crème anglaise
 crème fraîche
 cucumber
@@ -439,7 +439,7 @@ ricotta
 riesling
 risotto
 romaine lettuce
-romano cheese
+romano
 roquefort cheese
 rose
 rosemary

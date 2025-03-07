@@ -741,13 +741,13 @@ const toggleSlider = (taste) => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   
   return (
-    <div className="h-screen flex flex-col md:flex-row overflow-hidden">
+    <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
       {/* Selected Ingredients Column */}
-      <div className="flex-1 h-[calc(100vh-64px)] md:h-screen md:w-1/2 flex flex-col order-first md:order-last">
+      <div className="flex-1 h-[calc(100vh-56px)] md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden pb-14 md:pb-0">
         {[...Array(5)].map((_, index) => (
           <div 
             key={`slot-${index}`}
-            className="flex-1 w-full min-h-[60px] md:min-h-[100px] px-1 sm:px-2 md:px-4"
+            className="flex-1 w-full min-h-[50px] md:min-h-[100px] px-1 sm:px-2 md:px-4"
             >
             <IngredientSlot
               ingredient={selectedIngredients[index]}
@@ -776,9 +776,9 @@ const toggleSlider = (taste) => {
       </div>
   
       {/* Search/Filters Column */}
-      <div className="w-full h-1/2 md:h-screen md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 order-last md:order-first">
+      <div className="w-full h-1/2 md:h-screen md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 order-last md:order-first overflow-hidden pb-14 md:pb-0">
         {/* Header/Toolbar */}
-<div className="p-3 md:p-4 z-20 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first">
+<div className="p-2 md:p-4 z-30 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first fixed bottom-0 left-0 right-0 md:static">
   <div className="hidden md:flex items-center flex-1">
     <img 
       src="/flavor-finder-1.png" 
@@ -793,26 +793,26 @@ const toggleSlider = (taste) => {
   <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
     <button 
       onClick={() => setIsSearchModalOpen(true)}
-      className="md:hidden p-4 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
+      className="md:hidden p-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
     >
-      <Search size={20} />
+      <Search size={18} />
     </button>
     <button 
       onClick={() => setSelectedIngredients([])}
       disabled={selectedIngredients.length === 0}
-      className={`p-4 border-2 rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
+      className={`p-3 border-2 rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
         selectedIngredients.length === 0
           ? 'opacity-50 border-gray-300 text-gray-400'
           : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
       }`}
     >
-      <X size={20} />
+      <X size={18} />
     </button>
     <button 
       onClick={() => setIsAnalysisModalOpen(prev => !prev)}
       disabled={selectedIngredients.length === 0}
       title="Analyze"
-      className={`p-4 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
+      className={`p-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
         selectedIngredients.length === 0 
           ? 'opacity-50 border-gray-300 text-gray-400'
           : isAnalysisModalOpen 
@@ -820,14 +820,14 @@ const toggleSlider = (taste) => {
             : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
       }`}
     >
-      <ChartPie size={20} />
+      <ChartPie size={18} />
     </button>
     <button 
       onClick={handleRandomize}
       title="Generate"
-      className="p-4 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
+      className="p-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
     >
-      <Sparkles size={20} />
+      <Sparkles size={18} />
     </button>
   </div>
 </div>
@@ -852,7 +852,7 @@ const toggleSlider = (taste) => {
         {!isFiltersOpen && (
           <button
             onClick={() => setIsFiltersOpen(true)}
-            className="w-full flex items-center justify-between px-6 py-2 text-lg rounded-lg mb-2 text-gray-400 hover:text-gray-800"
+            className="w-full flex items-center justify-between px-6 py-2 text-base md:text-lg rounded-lg mb-2 text-gray-400 hover:text-gray-800"
           >
             <span className="font-medium">
               Filters
@@ -929,7 +929,7 @@ const toggleSlider = (taste) => {
               />
               {/* Partial Matches Toggle */}
               <div className="flex items-center space-x-2">
-  <span className="text-lg text-gray-800">
+  <span className="text-sm md:text-lg text-gray-800">
     
   </span>
   <button
@@ -966,9 +966,9 @@ const toggleSlider = (taste) => {
     {/* Fixed Header Section */}
     <div className="flex-none">
       <div className="flex justify-between items-center p-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium">Search Ingredients</h2>
+        <h2 className="text-base md:text-lg font-medium">Search Ingredients</h2>
         <button onClick={() => setIsSearchModalOpen(false)} className="p-2">
-          <X size={20} />
+          <X size={18} />
         </button>
       </div>
 
@@ -1035,7 +1035,7 @@ const toggleSlider = (taste) => {
       }
     `}
   >
-    <Zap size={24} />
+    <Zap size={20} />
   </button>
 </div>
       </div>
