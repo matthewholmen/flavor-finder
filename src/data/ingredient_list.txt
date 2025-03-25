@@ -28,7 +28,7 @@ baked beans
 balsamic vinegar
 banana
 banyuls vinegar
-barbecue
+bbq
 barley
 basil
 basmati rice
@@ -115,7 +115,7 @@ ceviche
 chamomile
 champagne
 champagne vinegar
-chanterelle mushroom
+chanterelle
 chard
 chardonnay
 cheddar cheese

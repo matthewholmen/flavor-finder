@@ -569,7 +569,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "French wine vinegar with complex nutty and cocoa notes, made from fortified Banyuls wine"
   },
   {
-    name: "barbecue",
+    name: "bbq",
     category: "Condiments",
     subcategory: "Sauces",
     flavorProfile: {
@@ -2207,7 +2207,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Delicate vinegar made from champagne, lighter and more refined than white wine vinegar"
     },
     {
-      name: "chanterelle mushroom",
+      name: "chanterelle",
       category: "Vegetables",
       subcategory: "Mushroom",
       flavorProfile: {
@@ -8528,7 +8528,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "tenderloin",
         category: "Proteins",
-        subcategory: "Pork",
+        subcategory: "Meat",
         flavorProfile: {
           sweet: 1,
           salty: 1,
@@ -8905,7 +8905,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "wagyu beef",
         category: "Proteins",
-        subcategory: "Pork",
+        subcategory: "Meat",
         flavorProfile: {
           sweet: 2,
           salty: 1,

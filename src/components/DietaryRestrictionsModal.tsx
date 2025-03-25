@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { X, Check } from 'lucide-react';
+import { X, Check, ChevronDown } from 'lucide-react';
 import { IngredientSubcategory } from '../types';
 
 interface CategoryRestriction {
   name: string;
   enabled: boolean;
+  expanded: boolean;
   subcategories: {
     name: string;
     enabled: boolean;
@@ -43,6 +44,7 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
     const initialCategories = Object.entries(categoryNames).map(([categoryName, subcategories]) => ({
       name: categoryName,
       enabled: !subcategories.some(sub => !restrictions[`${categoryName}:${sub}`]),
+      expanded: false, // Start collapsed
       subcategories: subcategories.map(subcategoryName => ({
         name: subcategoryName,
         enabled: restrictions[`${categoryName}:${subcategoryName}`] ?? true
@@ -70,6 +72,18 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  // Toggle category expanded state
+  const toggleCategoryExpanded = (categoryIndex: number) => {
+    setCategories(prevCategories => {
+      const newCategories = [...prevCategories];
+      newCategories[categoryIndex] = {
+        ...newCategories[categoryIndex],
+        expanded: !newCategories[categoryIndex].expanded
+      };
+      return newCategories;
+    });
+  };
 
   // Toggle category and all its subcategories
   const toggleCategory = (categoryIndex: number) => {
@@ -120,6 +134,20 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
     });
   };
 
+  // Reset all filters to default state (all ON)
+  const resetFilters = () => {
+    setCategories(prevCategories => {
+      return prevCategories.map(category => ({
+        ...category,
+        enabled: true,
+        subcategories: category.subcategories.map(sub => ({
+          ...sub,
+          enabled: true
+        }))
+      }));
+    });
+  };
+
   // Save changes
   const saveChanges = () => {
     const newRestrictions = {...restrictions};
@@ -159,7 +187,7 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
         {/* Description */}
         <div className="px-6 pt-4">
           <p className="text-gray-600 mb-6">
-            Select the ingredient categories you want to include in your flavor combinations. 
+            Select the ingredient categories you want to include in your generated flavor combinations. 
             Deselected categories will be excluded when generating new combinations.
           </p>
         </div>
@@ -170,11 +198,11 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
             {categories.map((category, categoryIndex) => (
               <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
                 {/* Category Header */}
-                <button 
-                  className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
-                  onClick={() => toggleCategory(categoryIndex)}
-                >
-                  <div className="flex items-center">
+                <div className="w-full flex items-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <button 
+                    className="flex-1 flex items-center px-4 py-3 text-left"
+                    onClick={() => toggleCategory(categoryIndex)}
+                  >
                     <div className={`
                       w-5 h-5 rounded border flex items-center justify-center mr-3
                       ${category.enabled 
@@ -185,44 +213,64 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
                       {category.enabled && <Check size={14} className="text-white" />}
                     </div>
                     <span className="font-medium">{category.name}</span>
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {category.subcategories.filter(sub => sub.enabled).length} of {category.subcategories.length}
-                  </span>
-                </button>
-                
-                {/* Subcategories */}
-                <div className="divide-y divide-gray-100">
-                  {category.subcategories.map((subcategory, subcategoryIndex) => (
-                    <div 
-                      key={subcategory.name}
-                      className="px-4 py-2 flex items-center hover:bg-gray-50"
+                  </button>
+                  
+                  <div className="flex items-center px-4">
+                    <span className="text-sm text-gray-500 mr-3">
+                      {category.subcategories.filter(sub => sub.enabled).length} of {category.subcategories.length}
+                    </span>
+                    <button
+                      onClick={() => toggleCategoryExpanded(categoryIndex)}
+                      className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
                     >
-                      <button 
-                        className="flex items-center flex-1"
-                        onClick={() => toggleSubcategory(categoryIndex, subcategoryIndex)}
-                      >
-                        <div className={`
-                          w-5 h-5 rounded border flex items-center justify-center mr-3
-                          ${subcategory.enabled 
-                            ? 'bg-[#8DC25B] border-[#8DC25B]' 
-                            : 'border-gray-300 bg-white'
-                          }
-                        `}>
-                          {subcategory.enabled && <Check size={14} className="text-white" />}
-                        </div>
-                        <span>{subcategory.name}</span>
-                      </button>
-                    </div>
-                  ))}
+                      <ChevronDown 
+                        size={20} 
+                        className={`transform transition-transform ${category.expanded ? 'rotate-180' : ''}`} 
+                      />
+                    </button>
+                  </div>
                 </div>
+                
+                {/* Subcategories - only shown when expanded */}
+                {category.expanded && (
+                  <div className="divide-y divide-gray-100">
+                    {category.subcategories.map((subcategory, subcategoryIndex) => (
+                      <div 
+                        key={subcategory.name}
+                        className="px-4 py-2 flex items-center hover:bg-gray-50"
+                      >
+                        <button 
+                          className="flex items-center flex-1"
+                          onClick={() => toggleSubcategory(categoryIndex, subcategoryIndex)}
+                        >
+                          <div className={`
+                            w-5 h-5 rounded border flex items-center justify-center mr-3
+                            ${subcategory.enabled 
+                              ? 'bg-[#8DC25B] border-[#8DC25B]' 
+                              : 'border-gray-300 bg-white'
+                            }
+                          `}>
+                            {subcategory.enabled && <Check size={14} className="text-white" />}
+                          </div>
+                          <span>{subcategory.name}</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
         
         {/* Sticky Footer with Save button */}
-        <div className="sticky bottom-0 left-0 right-0 px-6 py-4 bg-white border-t border-gray-200 shadow-md flex justify-end">
+        <div className="sticky bottom-0 left-0 right-0 px-6 py-4 bg-white border-t border-gray-200 shadow-md flex justify-between">
+          <button
+            onClick={resetFilters}
+            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Reset Filters
+          </button>
           <button
             onClick={saveChanges}
             className="px-6 py-3 bg-[#8DC25B] border border-[#8DC25B] rounded-lg text-white hover:bg-[#7db14a] transition-colors font-medium"
