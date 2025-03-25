@@ -1,6 +1,5 @@
-// FlavorFinder.js
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack } from 'lucide-react';
+import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack, Settings } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -12,6 +11,7 @@ import { getCompatibilityScore } from './utils/compatibility.ts';
 import IngredientSlot from './components/IngredientSlot.tsx';
 import InfoTooltip from './components/InfoTooltip.js';
 import TasteAnalysisModal from './components/TasteAnalysisModal.tsx';
+import DietaryRestrictionsModal from './components/DietaryRestrictionsModal.tsx';
 import { TASTE_COLORS } from './utils/colors.ts';
 import { getSortedCompatibleIngredients, applySortingOption } from './utils/sorting.ts';
 import { SearchBar } from './components/SearchBar.tsx';
@@ -170,6 +170,63 @@ export default function FlavorFinder() {
     slotIndex: null,
     type: 'taste' // Add this new field
   });
+  
+  // Add dietary restrictions state and modal
+  const [isDietaryModalOpen, setIsDietaryModalOpen] = useState(false);
+  const [dietaryRestrictions, setDietaryRestrictions] = useState({});
+
+  // Initialize dietary restrictions from ingredient profiles
+  useEffect(() => {
+    const categories = new Set();
+    const categorySubcategories = new Map();
+    
+    // Collect all unique categories and subcategories
+    ingredientProfiles.forEach(profile => {
+      const category = profile.category;
+      const subcategory = profile.subcategory;
+      
+      categories.add(category);
+      
+      if (!categorySubcategories.has(category)) {
+        categorySubcategories.set(category, new Set());
+      }
+      
+      categorySubcategories.get(category)?.add(subcategory);
+    });
+    
+    // Initialize all to enabled (true)
+    const initialRestrictions = {};
+    
+    categories.forEach(category => {
+      const subcategories = categorySubcategories.get(category) || new Set();
+      subcategories.forEach(subcategory => {
+        initialRestrictions[`${category}:${subcategory}`] = true;
+      });
+    });
+    
+    // Check if we have saved restrictions in localStorage
+    const savedRestrictions = localStorage.getItem('dietaryRestrictions');
+    if (savedRestrictions) {
+      try {
+        const parsed = JSON.parse(savedRestrictions);
+        // Merge saved with initial to handle any new categories that might have been added
+        setDietaryRestrictions({...initialRestrictions, ...parsed});
+      } catch (e) {
+        console.error('Failed to parse saved dietary restrictions', e);
+        setDietaryRestrictions(initialRestrictions);
+      }
+    } else {
+      setDietaryRestrictions(initialRestrictions);
+    }
+  }, []);
+
+  // Save restrictions to localStorage whenever they change
+  useEffect(() => {
+    if (Object.keys(dietaryRestrictions).length > 0) {
+      localStorage.setItem('dietaryRestrictions', JSON.stringify(dietaryRestrictions));
+    }
+  }, [dietaryRestrictions]);
+  
   const handleExitSubstitution = () => {
     exitSubstitutionMode();
   };
@@ -531,11 +588,23 @@ const getRandomIngredients = (count = 5, startFresh = false, existingLocked = []
   // Create a Set of all ingredients we want to exclude
   const excludeSet = new Set([...existingIngredients, ...selections]);
   
+  // Filter ingredients based on dietary restrictions
+  const isAllowedIngredient = (ingredient) => {
+    const profile = ingredientProfiles.find(p => 
+      p.name.toLowerCase() === ingredient.toLowerCase()
+    );
+    
+    if (!profile) return true; // If we can't find a profile, allow it
+    
+    const key = `${profile.category}:${profile.subcategory}`;
+    return dietaryRestrictions[key] !== false; // If restriction doesn't exist or is true, allow it
+  };
+  
   while (selections.length < count && maxAttempts > 0) {
     // For the first ingredient, we need to ensure compatibility with locked ingredients
     if (selections.length === 0) {
       let fullPool = Array.from(flavorMap.keys())
-        .filter(ingredient => !excludeSet.has(ingredient));
+        .filter(ingredient => !excludeSet.has(ingredient) && isAllowedIngredient(ingredient));
       
       // If we have locked ingredients, filter for compatibility
       if (existingLocked.length > 0) {
@@ -556,8 +625,8 @@ const getRandomIngredients = (count = 5, startFresh = false, existingLocked = []
     
     // For subsequent ingredients, ensure compatibility with ALL previous selections AND locked ingredients
     let compatiblePool = Array.from(flavorMap.keys()).filter(candidate => {
-      // Skip if already selected or excluded
-      if (excludeSet.has(candidate)) return false;
+      // Skip if already selected or excluded or restricted by dietary settings
+      if (excludeSet.has(candidate) || !isAllowedIngredient(candidate)) return false;
       
       // Check compatibility with ALL current selections AND locked ingredients
       const allIngredientsToCheck = [...selections, ...existingLocked];
@@ -762,7 +831,6 @@ const toggleSlider = (taste) => {
   const [isTasteDropdownOpen, setIsTasteDropdownOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
       {/* Selected Ingredients Column */}
@@ -800,37 +868,70 @@ const toggleSlider = (taste) => {
   
       {/* Search/Filters Column */}
       <div className="w-full h-1/2 md:h-screen md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 order-last md:order-first overflow-hidden pb-14 md:pb-0">
-        {/* Header/Toolbar */}
-        <div className="p-2 md:p-4 z-30 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first fixed bottom-0 left-0 right-0 md:static">
-          <div className="hidden md:flex items-center flex-1">
-            <img 
-              src="/flavor-finder-1.png" 
-              alt="Flavor Finder Logo" 
-              className="h-12 w-auto object-contain mr-2"
-            />
-            <InfoTooltip 
-              handleRandomize={handleRandomize}
-              handleAnalyze={() => setIsAnalysisModalOpen(true)}
-            />
-          </div>
-          <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
-            <button 
-              onClick={() => setIsSearchModalOpen(true)}
-              className="md:hidden py-4 px-6 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-2 text-base"
-            >
-              <Search size={20} className="mr-2" />
-              <span>Search</span>
-            </button>
-            <button 
-              onClick={handleRandomize}
-              title="Generate"
-              className="py-4 px-6 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-2 text-base"
-            >
-              <Sparkles size={20} className="mr-2" />
-              <span>Generate</span>
-            </button>
-          </div>
-        </div>
+        {/* Header/Toolbar - Desktop */}
+<div className="p-2 md:p-4 z-30 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first fixed bottom-0 left-0 right-0 md:static">
+  <div className="hidden md:flex items-center flex-1">
+    <img 
+      src="/flavor-finder-1.png" 
+      alt="Flavor Finder Logo" 
+      className="h-12 w-auto object-contain mr-2"
+    />
+    <InfoTooltip 
+      handleRandomize={handleRandomize}
+      handleAnalyze={() => setIsAnalysisModalOpen(true)}
+    />
+  </div>
+  <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
+    {/* Mobile toolbar with 3 buttons */}
+    <div className="flex w-full items-center justify-between md:hidden">
+      {/* Search button - 25% width and icon only on mobile */}
+      <button 
+        onClick={() => setIsSearchModalOpen(true)}
+        className="py-4 h-14 w-1/4 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors"
+      >
+        <Search size={20} />
+      </button>
+      
+      {/* Generate button - 50% width in the middle on mobile */}
+      <button 
+        onClick={handleRandomize}
+        title="Generate"
+        className="py-4 h-14 w-1/2 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2"
+      >
+        <Sparkles size={20} className="mr-2" />
+        <span>Generate</span>
+      </button>
+      
+      {/* Settings button - 25% width and icon only on mobile */}
+      <button 
+        onClick={() => setIsDietaryModalOpen(true)}
+        title="Dietary Restrictions"
+        className="py-4 h-14 w-1/4 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors"
+      >
+        <Settings size={20} />
+      </button>
+    </div>
+    
+    {/* Desktop buttons */}
+    <div className="hidden md:flex items-center">
+      <button 
+        onClick={() => setIsDietaryModalOpen(true)}
+        title="Dietary Restrictions"
+        className="p-4 h-14 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full transition-colors mr-2"
+      >
+        <Settings size={20} />
+      </button>
+      <button 
+        onClick={handleRandomize}
+        title="Generate"
+        className="py-4 px-6 h-14 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2"
+      >
+        <Sparkles size={20} className="mr-2" />
+        <span>Generate</span>
+      </button>
+    </div>
+  </div>
+</div>
   
         {/* Desktop Search/Filters Content */}
         <div className="hidden md:flex flex-1 flex-col min-h-0">
@@ -1093,5 +1194,14 @@ const toggleSlider = (taste) => {
         onClose={() => setIsAnalysisModalOpen(false)}
         selectedIngredients={selectedIngredients}
       />
+  
+      {/* DietaryRestrictionsModal */}
+      <DietaryRestrictionsModal
+        isOpen={isDietaryModalOpen}
+        onClose={() => setIsDietaryModalOpen(false)}
+        restrictions={dietaryRestrictions}
+        onRestrictionsChange={setDietaryRestrictions}
+      />
     </div>
-  );}
+  );
+}
