@@ -11,6 +11,7 @@ interface SearchBarProps {
   onIngredientSelect: (ingredient: string) => void;
   isSearchFocused: boolean;
   setIsSearchFocused: (focused: boolean) => void;
+  largerMobile?: boolean;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
@@ -21,6 +22,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onIngredientSelect,
   isSearchFocused,
   setIsSearchFocused,
+  largerMobile = false,
 }) => {
   const filteredIngredients = useMemo(() => 
     filterIngredients(ingredients, searchTerm, selectedIngredients),
@@ -56,11 +58,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <div className="relative">
       <div className="relative">
-        <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        <Search className={`absolute left-3 ${largerMobile ? 'top-3.5' : 'top-2.5'} ${largerMobile ? 'h-6 w-6' : 'h-5 w-5'} text-gray-400`} />
         <input
           type="text"
           placeholder="Search ingredients..."
-          className="pl-10 w-full p-2 border-2 border-gray-400 rounded-full"
+          className={`pl-10 w-full ${largerMobile ? 'p-3 text-lg' : 'p-2'} border-2 border-gray-400 rounded-full`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={handleFocus}

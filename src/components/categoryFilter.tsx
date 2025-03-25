@@ -29,12 +29,14 @@ interface CategoryFilterProps {
   activeCategory: string;
   selectedSubcategories: string[];
   onFiltersChange: (filters: { category: string; subcategories: string[] }) => void;
+  compact?: boolean;
 }
 
 export default function CategoryFilter({
   activeCategory,
   selectedSubcategories,
-  onFiltersChange
+  onFiltersChange,
+  compact = false
 }: CategoryFilterProps) {
   // Initialize the ref here
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -92,12 +94,12 @@ export default function CategoryFilter({
     <div className="relative">
       <div 
         ref={scrollContainerRef}
-        className="flex items-center gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide py-2"
+        className={`flex items-center ${compact ? 'gap-2' : 'gap-6'} overflow-x-auto whitespace-nowrap scrollbar-hide ${compact ? 'py-1' : 'py-2'}`}
       >
         {/* Categories list */}
         <div 
           className={`
-            flex items-center gap-4 px-8 py-2
+            flex items-center ${compact ? 'gap-2' : 'gap-4'} ${compact ? 'px-4' : 'px-8'} ${compact ? 'py-1' : 'py-2'}
             transition-all duration-300 ease-in-out
             ${activeCategory ? 'opacity-0 w-0 overflow-hidden pointer-events-none' : 'opacity-100 w-auto'}
           `}
@@ -107,9 +109,9 @@ export default function CategoryFilter({
               key={category}
               onClick={() => handleCategoryChange(category)}
               className={`
-                py-2 px-6
+                ${compact ? 'py-1 px-3 text-sm' : 'py-2 px-6 text-md'}
                 transition-all duration-200
-                text-md whitespace-nowrap
+                whitespace-nowrap
                 rounded-full
                 border-2 border-gray-300
                 hover:border-gray-600 text-gray-600 hover:text-gray-900
@@ -122,11 +124,11 @@ export default function CategoryFilter({
   
         {/* Active category and subcategories */}
         {activeCategory && (
-          <div className="flex items-center gap-4 pr-12 py-2">
+          <div className={`flex items-center ${compact ? 'gap-2' : 'gap-4'} ${compact ? 'pr-6' : 'pr-12'} ${compact ? 'py-1' : 'py-2'}`}>
             <button
               onClick={handleClearAll}
-              className="
-                py-3 px-3
+              className={`
+                ${compact ? 'py-1.5 px-1.5' : 'py-3 px-3'}
                 rounded-full
                 border-2
                 bg-white
@@ -136,21 +138,21 @@ export default function CategoryFilter({
                 hover:bg-white
                 hover:border-gray-400
                 transition-colors
-                -ml-16
-              "
+                ${compact ? '-ml-8' : '-ml-16'}
+              `}
             >
-              <X size={16} />
+              <X size={compact ? 14 : 16} />
             </button>
   
             <button
               onClick={() => handleCategoryChange(activeCategory)}
-              className="py-2 px-6 text-md whitespace-nowrap rounded-full border-2 border-gray-800 bg-gray-800 text-white font-medium"
+              className={`${compact ? 'py-1 px-3 text-sm' : 'py-2 px-6 text-md'} whitespace-nowrap rounded-full border-2 border-gray-800 bg-gray-800 text-white font-medium`}
             >
               {activeCategory}
             </button>
   
             {subcategories.length > 0 && (
-              <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
+              <div className={`flex items-center ${compact ? 'gap-2' : 'gap-4'} overflow-x-auto whitespace-nowrap scrollbar-hide`}>
                 {subcategories.map((subcat) => {
                   const isSelected = selectedSubcategories.includes(subcat);
                   return (
@@ -158,9 +160,8 @@ export default function CategoryFilter({
                       key={subcat}
                       onClick={() => handleSubcategoryToggle(subcat)}
                       className={`
-                        flex items-center gap-4
-                        py-2 px-6
-                        text-md
+                        flex items-center ${compact ? 'gap-1' : 'gap-4'}
+                        ${compact ? 'py-1 px-3 text-sm' : 'py-2 px-6 text-md'}
                         rounded-full
                         border-2
                         transition-all duration-200
@@ -173,7 +174,7 @@ export default function CategoryFilter({
                       {subcat}
                       {isSelected && (
                         <span className="ml-1">
-                          <X size={18} />
+                          <X size={compact ? 14 : 18} />
                         </span>
                       )}
                     </button>

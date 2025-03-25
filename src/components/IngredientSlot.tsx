@@ -100,21 +100,18 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
       }));
   
     return (
-      <div className="flex flex-col gap-1.5 w-full max-w-sm">
+      <div className="flex flex-col gap-2 w-full">
         {sortedTastes.map((entry, index) => (
-          <div key={index} className="flex items-center gap-3 px-2 w-full">
-            <span className="text-sm text-gray-400 w-4 shrink-0">
-              {index + 1}.
-            </span>
+          <div key={index} className="flex items-center gap-2 w-full">
             <div 
               className="w-3 h-3 rounded-full shrink-0" 
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-sm font-medium capitalize shrink-0">
+            <span className="text-sm font-medium capitalize">
               {entry.name}
             </span>
-            <div className="flex-grow mx-2 border-b border-dotted border-gray-300" />
-            <span className="text-sm text-gray-500 shrink-0">
+            <div className="flex-grow mx-1 border-b border-dotted border-gray-200" />
+            <span className="text-sm text-gray-500">
               {entry.value.toFixed(1)}
             </span>
           </div>
@@ -125,225 +122,224 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   
   return (
     <div className="relative h-full flex flex-col items-center justify-center">
-  {ingredient ? (
-    <>
-<div 
-  className={`
-    relative py-6 md:py-8 pl-2 pr-12 bg-white w-full
-    flex items-center
-    ${index > 0 ? 'border-t border-gray-200' : ''}
-  `}
-  onClick={() => setIsModalOpen(true)}
->
-  
-  <div className="flex items-center gap-4"> 
-       {/* Left side UI controls */}
-       <div className="flex flex-col gap-3 pr-4 py-1">
-  {/* Lock button */}
-  <button 
-    className={`
-      p-2.5 transition-colors rounded-full border-2
-      ${isLocked 
-        ? 'text-gray-800 border-gray-800' 
-        : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600'
-      }
-    `}
-    onClick={(e) => {
-      e.stopPropagation();
-      onLockToggle();
-    }}
-    title={isLocked ? "Unlock Ingredient" : "Lock Ingredient"}
-  >
-    {isLocked ? (
-      <Lock size={18} strokeWidth={2.5} />
-    ) : (
-      <LockOpen size={18} strokeWidth={2} />
-    )}
-  </button>
-
-  {/* Substitute button */}
-  <button
-    className={`
-      p-2.5 transition-colors rounded-full border-2
-      ${isInSubstitutionMode 
-        ? 'text-gray-800 border-gray-800' 
-        : 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600'
-      }
-    `}
-    onClick={(e) => {
-      e.stopPropagation();
-      if (isInSubstitutionMode && onExitSubstitute) {
-        onExitSubstitute();
-      } else {
-        onSubstitute();
-      }
-    }}
-  >
-    <SendToBack size={18} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
-  </button>
-</div>
-
-
-
-        {/* Ingredient name and category */}
-        <div className="flex-1">
-        <div 
-  className={`
-    text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.85] transition-opacity hover:opacity-40
-    ${isPartiallyMatched ? 'tracking-normal' : 'tracking-tight'}
-    whitespace-nowrap overflow-hidden text-ellipsis
-  `}
-  style={{ 
-    color: isPartiallyMatched ? 'white' : getIngredientColor(profile),
-    textShadow: isPartiallyMatched ? `
-      -1.5px -1.5px 0 ${getIngredientColor(profile)},
-      1.5px -1.5px 0 ${getIngredientColor(profile)},
-      -1.5px 1.5px 0 ${getIngredientColor(profile)},
-      1.5px 1.5px 0 ${getIngredientColor(profile)},
-      -2px 0 0 ${getIngredientColor(profile)},
-      2px 0 0 ${getIngredientColor(profile)},
-      0 -2px 0 ${getIngredientColor(profile)},
-      0 2px 0 ${getIngredientColor(profile)}
-    ` : 'none'
-  }}
->
-  {ingredient}
-</div>
-  {profile && (
-    <div className="text-xs tracking-[0.2em] text-gray-500 uppercase mt-3 pl-0.5">
-      {profile.category} › {profile.subcategory}
-    </div>
-  )}
-</div>
-
-
-
-      </div>
-      
-      <button
-    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 md:p-2.5 transition-colors rounded-full border-2 text-gray-600 border-gray-200 hover:text-gray-800 hover:border-gray-400 bg-white z-10 flex items-center justify-center"
-    onClick={(e) => {
-      e.stopPropagation();
-      onRemove();
-    }}
-  >
-    <X size={16} className="md:w-[18px] md:h-[18px]" />
-  </button>
-</div>
-
-
-{/* Modal */}
-{isModalOpen && profile && (
-  <div 
-  className="fixed inset-y-0 right-0 bg-black bg-opacity-0 flex items-stretch z-50 w-full md:w-1/2"
-  onClick={() => setIsModalOpen(false)}
->
-<div 
-  className="bg-white border-l border-gray-200 w-full"
-  onClick={e => e.stopPropagation()}
->
-      {/* Header */}
-      <div className="p-12">
-        <div className="flex justify-between items-start">
-          {/* Close button */}
-          <button 
-            onClick={() => setIsModalOpen(false)} 
-            className="p-3 -ml-2 transition-colors rounded-full border-2 text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Title and Category */}
-        <div className="mt-8">
-          <div className="leading-[0.9] mb-2">
-            <div 
-              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis"
-              style={{ color: getIngredientColor(profile) }}
+      <div 
+        className="relative py-6 md:py-8 pl-4 pr-14 bg-white w-full h-full flex items-center overflow-visible"
+        onClick={() => ingredient && setIsModalOpen(true)}
+      >
+        <div className="flex items-center gap-4 h-full w-full"> 
+          {/* Left side UI controls - Always visible */}
+          <div className="flex flex-col gap-3 pr-4 py-1 h-full justify-center">
+            {/* Lock button */}
+            <button 
+              className={`
+                p-2.5 transition-colors rounded-full border-2
+                ${isLocked 
+                  ? 'text-gray-800 border-gray-800' 
+                  : ingredient 
+                    ? 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600'
+                    : 'text-gray-300 border-transparent'
+                }
+              `}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (ingredient) onLockToggle();
+              }}
+              disabled={!ingredient}
+              title={isLocked ? "Unlock Ingredient" : "Lock Ingredient"}
             >
-              {ingredient}
+              {isLocked ? (
+                <Lock size={18} strokeWidth={2.5} />
+              ) : (
+                <LockOpen size={18} strokeWidth={2} />
+              )}
+            </button>
+
+            {/* Substitute button */}
+            <button
+              className={`
+                p-2.5 transition-colors rounded-full border-2
+                ${isInSubstitutionMode 
+                  ? 'text-gray-800 border-gray-800' 
+                  : ingredient
+                    ? 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600'
+                    : 'text-gray-200 border-transparent'
+                }
+                relative
+              `}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!ingredient) return;
+                if (isInSubstitutionMode && onExitSubstitute) {
+                  onExitSubstitute();
+                } else {
+                  onSubstitute();
+                }
+              }}
+              disabled={!ingredient}
+              aria-label={isInSubstitutionMode ? "Cancel Substitution" : "Find Substitutes"}
+              title={isInSubstitutionMode ? "Cancel Substitution" : "Find Substitutes"}
+            >
+              <SendToBack size={18} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
+            </button>
+          </div>
+
+          {/* Ingredient name and category */}
+          <div className="flex-1 pl-4 pr-4 text-clip overflow-visible flex flex-col justify-center">
+            <div className="-ml-2 -mr-2">
+              {ingredient ? (
+                <>
+                  <div 
+                    className={`
+                      text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-normal transition-opacity hover:opacity-40
+                      ${isPartiallyMatched ? 'tracking-normal' : 'tracking-tight'}
+                      whitespace-nowrap overflow-visible
+                      pb-2 max-w-full
+                    `}
+                    style={{ 
+                      color: isPartiallyMatched ? 'white' : getIngredientColor(profile),
+                      textShadow: isPartiallyMatched ? `
+                        -2px -2px 0 ${getIngredientColor(profile)},
+                        2px -2px 0 ${getIngredientColor(profile)},
+                        -2px 2px 0 ${getIngredientColor(profile)},
+                        2px 2px 0 ${getIngredientColor(profile)},
+                        -2.5px 0 0 ${getIngredientColor(profile)},
+                        2.5px 0 0 ${getIngredientColor(profile)},
+                        0 -2.5px 0 ${getIngredientColor(profile)},
+                        0 2.5px 0 ${getIngredientColor(profile)}
+                      ` : 'none'
+                    }}
+                  >
+                    {ingredient}
+                  </div>
+                  {profile && (
+                    <div className="text-xs tracking-[0.2em] text-gray-500 uppercase mt-2 pl-0.5">
+                      {profile.category} › {profile.subcategory}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Empty placeholders to maintain height */}
+                  <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-normal text-transparent">
+                    &nbsp;
+                  </div>
+                  <div className="text-xs tracking-[0.2em] text-transparent uppercase mt-2 pl-0.5">
+                    &nbsp;
+                  </div>
+                </>
+              )}
             </div>
           </div>
-          <div className="text-xs tracking-[0.3em] text-gray-500 uppercase">
-            {profile.category} › {profile.subcategory}
-          </div>
         </div>
+        
+        {/* Remove button - Always visible */}
+        <button
+          className={`
+            absolute right-4 top-1/2 -translate-y-1/2 p-2 md:p-2.5 transition-colors rounded-full border-2 
+            ${ingredient 
+              ? 'text-gray-600 border-gray-200 hover:text-gray-800 hover:border-gray-400' 
+              : 'text-gray-300 border-gray-200'
+            } bg-white z-10 flex items-center justify-center
+          `}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (ingredient) onRemove();
+          }}
+          disabled={!ingredient}
+        >
+          <X size={16} className="md:w-[18px] md:h-[18px]" />
+        </button>
+      </div>
 
-        {/* Description */}
-        <div className="mt-12 text-xl leading-relaxed text-gray-600">
-          {profile.description}
-        </div>
-
-        {/* Taste Profile Section */}
-        <div className="mt-12">
-          <h4 className="text-lg font-medium mb-8">Taste Profile</h4>
-          <div className="flex items-start justify-between gap-12">
-            <div className="w-[240px] h-[240px] shrink-0">
-              <PieChart width={200} height={200}>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  dataKey="value"
-                  isAnimationActive={false}
+      {/* Modal */}
+      {isModalOpen && ingredient && profile && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div 
+            className="bg-white border border-gray-200 w-full sm:max-w-md rounded-t-lg sm:rounded-lg overflow-auto max-h-[90vh] transition-transform duration-300 ease-out"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-6 pb-10">
+              {/* Drag indicator for mobile */}
+              <div className="sm:hidden flex justify-center mb-2">
+                <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+              </div>
+              <div className="flex justify-end items-center">
+                {/* Close button */}
+                <button 
+                  onClick={() => setIsModalOpen(false)} 
+                  className="p-2 transition-colors rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                  aria-label="Close"
                 >
-                  {pieData.map((entry) => (
-                    <Cell
-                      key={entry.name}
-                      fill={TASTE_COLORS[entry.name as keyof typeof TASTE_COLORS]}
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
-            </div>
-            <div className="flex-1 min-w-0">
-              {renderTasteLegend()}
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Title and Category */}
+              <div className="mt-6">
+                <div className="leading-[0.9] mb-2">
+                  <div 
+                    className="text-3xl sm:text-4xl font-bold tracking-tight overflow-hidden text-ellipsis leading-normal pb-1"
+                    style={{ color: getIngredientColor(profile) }}
+                  >
+                    {ingredient}
+                  </div>
+                </div>
+                <div className="text-xs tracking-[0.2em] text-gray-500 uppercase">
+                  {profile.category} › {profile.subcategory}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mt-6 text-base leading-relaxed text-gray-600">
+                {profile.description}
+              </div>
+
+              {/* Taste Profile Section */}
+              <div className="mt-8">
+                <h4 className="text-lg font-medium mb-4">Taste Profile</h4>
+                <div className="flex flex-col items-center gap-6">
+                  <div className="w-[180px] h-[180px]">
+                    <PieChart width={180} height={180}>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={80}
+                        dataKey="value"
+                        isAnimationActive={false}
+                      >
+                        {pieData.map((entry) => (
+                          <Cell
+                            key={entry.name}
+                            fill={TASTE_COLORS[entry.name as keyof typeof TASTE_COLORS]}
+                          />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </div>
+                  <div className="w-full">
+                    {renderTasteLegend()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Pairing Status */}
+              {isPartiallyMatched && (
+                <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <p className="text-sm text-yellow-800 flex items-start gap-2">
+                    <TriangleAlert size={18} className="shrink-0 mt-0.5" strokeWidth={2} />
+                    <span>We don't have this ingredient as a perfect match with all other selected ingredients — but that doesn't mean it can't be delicious.</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Pairing Status */}
-        {isPartiallyMatched && (
-          <div className="mt-12 p-6 bg-yellow-50 rounded-lg border border-yellow-200">
-            <p className="text-base text-yellow-800 flex items-center gap-3">
-              <TriangleAlert size={24} strokeWidth={2} />
-              We don't have this ingredient as a perfect match with all other selected ingredients — but that doesn't mean it can't be delicious.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
-        </>
-      ) : (
-        <div className={`
-          relative py-8 md:py-10 pl-2 pr-8 bg-white w-full
-          ${index > 0 ? 'border-t border-gray-200' : ''}
-        `}>
-  <div className="flex items-center gap-4">
-    {/* Left side controls placeholder to maintain spacing */}
-    <div className="flex items-center gap-2 w-30">
-      <div className="p-3"></div>
-      <div className="p-3"></div>
-    </div>
-    
-    {/* Main content area placeholder */}
-    <div className="flex-1">
-      <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.85] text-transparent">
-        {/* Empty space to maintain height */}
-        &nbsp;
-      </div>
-      <div className="text-xs tracking-[0.3em] text-transparent uppercase mt-4 pl-0.5">
-        &nbsp;
-      </div>
-    </div>
-  </div>
-</div>
-
-
       )}
     </div>
   );

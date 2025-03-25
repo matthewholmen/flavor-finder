@@ -6,6 +6,7 @@ export type SortingOption = 'alphabetical' | 'category' | 'taste';
 interface SortingFilterProps {
   activeSorting: SortingOption;
   onSortingChange: (sorting: SortingOption) => void;
+  compact?: boolean;
 }
 
 const SORTING_OPTIONS: { value: SortingOption; label: string }[] = [
@@ -17,6 +18,7 @@ const SORTING_OPTIONS: { value: SortingOption; label: string }[] = [
 const SortingFilter: React.FC<SortingFilterProps> = ({
   activeSorting,
   onSortingChange,
+  compact = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -37,32 +39,37 @@ const SortingFilter: React.FC<SortingFilterProps> = ({
       {/* Main Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="
-          bg-white px-6 py-2 
-          rounded-full text-md
+        className={`
+          bg-white ${compact ? 'px-3 py-1 text-sm' : 'px-6 py-2 text-md'} 
+          rounded-full
           border-2 border-gray-200 
           hover:border-gray-400
           transition-all duration-200 
           focus:outline-none
           focus:border-gray-400 
           flex items-center 
-          gap-2 min-w-[140px]
+          gap-2 ${compact ? 'min-w-[100px]' : 'min-w-[140px]'}
           text-gray-700
-        "
+        `}
       >
         <span className="flex-grow text-left">
-          {SORTING_OPTIONS.find(opt => opt.value === activeSorting)?.label}
+          {compact ? 
+            (SORTING_OPTIONS.find(opt => opt.value === activeSorting)?.label.substring(0, 1) + '↓') :
+            SORTING_OPTIONS.find(opt => opt.value === activeSorting)?.label
+          }
         </span>
-        <ChevronDown 
-          className={`h-4 w-4 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
-          }`} 
-        />
+        {!compact && (
+          <ChevronDown 
+            className={`h-4 w-4 transition-transform duration-200 ${
+              isOpen ? 'rotate-180' : ''
+            }`} 
+          />
+        )}
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-30 bottom-full mb-2 w-[140px]">
+        <div className="absolute z-30 bottom-full mb-2 left-1/2 -translate-x-1/2 w-[140px]">
           <div className="
             bg-white 
             rounded-2xl

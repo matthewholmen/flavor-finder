@@ -1,6 +1,6 @@
 // FlavorFinder.js
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap } from 'lucide-react';
+import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -282,6 +282,12 @@ export default function FlavorFinder() {
   
     setIsFiltersOpen(true);
     setShowPartialMatches(true);
+    
+    // Open search modal on mobile devices
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      setIsSearchModalOpen(true);
+    }
   };
 
 // Modified exitSubstitutionMode function
@@ -310,6 +316,12 @@ const exitSubstitutionMode = () => {
     category: '',
     subcategories: []
   });
+  
+  // If on mobile, close the search modal when exiting substitution mode
+  const isMobile = window.innerWidth < 768;
+  if (isMobile && isSearchModalOpen) {
+    setIsSearchModalOpen(false);
+  }
 };
 
 const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -735,6 +747,17 @@ const toggleSlider = (taste) => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isSearchFocused, editingSlot, lockedIngredients]); // Removed handleRandomize from dependencies
+  
+  // Add a resize listener to update isMobile state
+  useEffect(() => {
+    const handleResize = () => {
+      // You could add isMobile state if needed in other places
+      // For now we're just using inline checks when needed
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [isTasteDropdownOpen, setIsTasteDropdownOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
@@ -743,12 +766,12 @@ const toggleSlider = (taste) => {
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
       {/* Selected Ingredients Column */}
-      <div className="flex-1 h-[calc(100vh-56px)] md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden pb-14 md:pb-0">
+      <div className="flex-1 h-[calc(100vh-56px)] md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden pb-0 md:pb-0 divide-y divide-gray-200">
         {[...Array(5)].map((_, index) => (
           <div 
             key={`slot-${index}`}
-            className="flex-1 w-full min-h-[50px] md:min-h-[100px] px-1 sm:px-2 md:px-4"
-            >
+            className="h-[20%] w-full px-2 sm:px-3 md:px-6"
+          >
             <IngredientSlot
               ingredient={selectedIngredients[index]}
               isLocked={lockedIngredients.has(index)}
@@ -778,59 +801,36 @@ const toggleSlider = (taste) => {
       {/* Search/Filters Column */}
       <div className="w-full h-1/2 md:h-screen md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 order-last md:order-first overflow-hidden pb-14 md:pb-0">
         {/* Header/Toolbar */}
-<div className="p-2 md:p-4 z-30 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first fixed bottom-0 left-0 right-0 md:static">
-  <div className="hidden md:flex items-center flex-1">
-    <img 
-      src="/flavor-finder-1.png" 
-      alt="Flavor Finder Logo" 
-      className="h-12 w-auto object-contain mr-2"
-    />
-    <InfoTooltip 
-    handleRandomize={handleRandomize}
-    handleAnalyze={() => setIsAnalysisModalOpen(true)}
-  />
-  </div>
-  <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
-    <button 
-      onClick={() => setIsSearchModalOpen(true)}
-      className="md:hidden p-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
-    >
-      <Search size={18} />
-    </button>
-    <button 
-      onClick={() => setSelectedIngredients([])}
-      disabled={selectedIngredients.length === 0}
-      className={`p-3 border-2 rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
-        selectedIngredients.length === 0
-          ? 'opacity-50 border-gray-300 text-gray-400'
-          : 'border-[#FF5C5C] text-[#000000] hover:bg-[#FF5C5C] hover:text-white'
-      }`}
-    >
-      <X size={18} />
-    </button>
-    <button 
-      onClick={() => setIsAnalysisModalOpen(prev => !prev)}
-      disabled={selectedIngredients.length === 0}
-      title="Analyze"
-      className={`p-3 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1 ${
-        selectedIngredients.length === 0 
-          ? 'opacity-50 border-gray-300 text-gray-400'
-          : isAnalysisModalOpen 
-            ? 'bg-[#72A8D5] text-white' 
-            : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'
-      }`}
-    >
-      <ChartPie size={18} />
-    </button>
-    <button 
-      onClick={handleRandomize}
-      title="Generate"
-      className="p-3 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-1"
-    >
-      <Sparkles size={18} />
-    </button>
-  </div>
-</div>
+        <div className="p-2 md:p-4 z-30 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first fixed bottom-0 left-0 right-0 md:static">
+          <div className="hidden md:flex items-center flex-1">
+            <img 
+              src="/flavor-finder-1.png" 
+              alt="Flavor Finder Logo" 
+              className="h-12 w-auto object-contain mr-2"
+            />
+            <InfoTooltip 
+              handleRandomize={handleRandomize}
+              handleAnalyze={() => setIsAnalysisModalOpen(true)}
+            />
+          </div>
+          <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
+            <button 
+              onClick={() => setIsSearchModalOpen(true)}
+              className="md:hidden py-4 px-6 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-2 text-base"
+            >
+              <Search size={20} className="mr-2" />
+              <span>Search</span>
+            </button>
+            <button 
+              onClick={handleRandomize}
+              title="Generate"
+              className="py-4 px-6 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors flex-1 mx-2 text-base"
+            >
+              <Sparkles size={20} className="mr-2" />
+              <span>Generate</span>
+            </button>
+          </div>
+        </div>
   
         {/* Desktop Search/Filters Content */}
         <div className="hidden md:flex flex-1 flex-col min-h-0">
@@ -845,57 +845,56 @@ const toggleSlider = (taste) => {
               setIsSearchFocused={setIsSearchFocused}
             />
           </div>
-           {/* Filters Section */}
-    <div className="space-y-2 mb-0">
-      <div className="px-0 mt-2">
-        {/* Top Filters button - only show when collapsed */}
-        {!isFiltersOpen && (
-          <button
-            onClick={() => setIsFiltersOpen(true)}
-            className="w-full flex items-center justify-between px-6 py-2 text-base md:text-lg rounded-lg mb-2 text-gray-400 hover:text-gray-800"
-          >
-            <span className="font-medium">
-              Filters
-            </span>
-            <ChevronDown size={24} />
-          </button>
-        )}
-
-      {/* Filter Content Section in FlavorFinder.js */}
-    <div className={`overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'opacity-100' : 'opacity-0 h-0'}`}>
-      {isFiltersOpen && (
-        <>
-          {/* Category Filter - kept small bottom margin */}
-          <div className="overflow-hidden -mb-2 -mt-2">
-  <CategoryFilter
-    activeCategory={activeFilters.category}
-    selectedSubcategories={activeFilters.subcategories}
-    onFiltersChange={setActiveFilters}
-  />
-  <div className="overflow-x-auto -mt-2">
-    <CompactTasteSliders
-      values={tasteValues}
-      onChange={setTasteValues}
-      activeSliders={activeSliders}
-      onToggleSlider={toggleSlider}
-    />
-  </div>
-</div>
-          
-          {/* Bottom collapse button */}
-          <button
-            onClick={() => setIsFiltersOpen(false)}
-            className="w-full py-2 px-6 flex items-end justify-end py-2 text-gray-400 hover:text-gray-800 transition-colors"
-          >
-            <ChevronDown size={24} className="rotate-180" />
-          </button>
-        </>
-      )}
-    </div>
-      </div>
-    </div>
-              
+          {/* Filters Section */}
+          <div className="space-y-2 mb-0">
+            <div className="px-0 mt-2">
+              {/* Top Filters button - only show when collapsed */}
+              {!isFiltersOpen && (
+                <button
+                  onClick={() => setIsFiltersOpen(true)}
+                  className="w-full flex items-center justify-between px-6 py-2 text-base md:text-lg rounded-lg mb-2 text-gray-400 hover:text-gray-800"
+                >
+                  <span className="font-medium">
+                    Filters
+                  </span>
+                  <ChevronDown size={24} />
+                </button>
+              )}
   
+              {/* Filter Content Section in FlavorFinder.js */}
+              <div className={`overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'opacity-100' : 'opacity-0 h-0'}`}>
+                {isFiltersOpen && (
+                  <>
+                    {/* Category Filter - kept small bottom margin */}
+                    <div className="overflow-hidden -mb-2 -mt-2">
+                      <CategoryFilter
+                        activeCategory={activeFilters.category}
+                        selectedSubcategories={activeFilters.subcategories}
+                        onFiltersChange={setActiveFilters}
+                      />
+                      <div className="overflow-x-auto -mt-2">
+                        <CompactTasteSliders
+                          values={tasteValues}
+                          onChange={setTasteValues}
+                          activeSliders={activeSliders}
+                          onToggleSlider={toggleSlider}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Bottom collapse button */}
+                    <button
+                      onClick={() => setIsFiltersOpen(false)}
+                      className="w-full py-2 px-6 flex items-end justify-end py-2 text-gray-400 hover:text-gray-800 transition-colors"
+                    >
+                      <ChevronDown size={24} className="rotate-180" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+              
           <div className="flex-1 min-h-0 border border-gray-200 mt-0">
             <SuggestedIngredients
               ref={suggestedIngredientsRef}
@@ -923,167 +922,176 @@ const toggleSlider = (taste) => {
           </div>
           {/* Sorting and Partial Matches Row */}
           <div className="flex items-center justify-between bg-white py-4 px-4 border-t border-gray-200">
-              <SortingFilter
-                activeSorting={activeSorting}
-                onSortingChange={setActiveSorting}
-              />
-              {/* Partial Matches Toggle */}
-              <div className="flex items-center space-x-2">
-  <span className="text-sm md:text-lg text-gray-800">
-    
-  </span>
-  <button
-  onClick={() => setShowPartialMatches(!showPartialMatches)}
-  className={`
-    flex items-center
-    p-4
-    rounded-full
-    border-2 border-dashed
-    transition-colors
-    ${showPartialMatches 
-      ? 'text-gray-800 border-[#FFC533]' 
-      : 'bg-white text-gray-400   hover:border-[#FFC533]'
-    }
-  `}
->
-  <Zap size={20} />
-</button>
-</div>
-            </div>
-        </div>
-
-{/* Mobile Search Modal */}
-<div className={`
-  md:hidden fixed inset-0 z-30 bg-black bg-opacity-50 transition-opacity duration-300 safe-area-top
-  ${isSearchModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-`}>
-  {/* Modal Container */}
-  <div className={`
-    fixed inset-x-0 bottom-0 bg-white rounded-t-xl transform transition-transform duration-300
-    h-[85vh] flex flex-col
-    ${isSearchModalOpen ? 'translate-y-0' : 'translate-y-full'}
-  `}>
-    {/* Fixed Header Section */}
-    <div className="flex-none">
-      <div className="flex justify-between items-center p-4 border-b border-gray-200 pt-6">
-        <h2 className="text-base md:text-lg font-medium">Search Ingredients</h2>
-        <button onClick={() => setIsSearchModalOpen(false)} className="p-2">
-          <X size={18} />
-        </button>
-      </div>
-
-      {/* Search Bar - Fixed */}
-      <div className="px-4 pt-4">
-        <SearchBar 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          ingredients={allIngredients}
-          selectedIngredients={selectedIngredients}
-          onIngredientSelect={handleIngredientSelect}
-          isSearchFocused={isSearchFocused}
-          setIsSearchFocused={setIsSearchFocused}
-        />
-      </div>
-
-      {/* Filters - Fixed */}
-      <div className="overflow-hidden px-0">
-        <div className="overflow-hidden pl-0 pt-4 pb-4">
-          <div className="w-full">
-          <div className="pl-0"> {/* Left padding only */}
-        <div className="-ml-0"> {/* Negative margin to allow full scroll */}
-          <CategoryFilter
-            activeCategory={activeFilters.category}
-            selectedSubcategories={activeFilters.subcategories}
-            onFiltersChange={setActiveFilters}
-          />
-          <div className="overflow-x-auto">
-            <CompactTasteSliders
-              values={tasteValues}
-              onChange={setTasteValues}
-              activeSliders={activeSliders}
-              onToggleSlider={toggleSlider}
+            <SortingFilter
+              activeSorting={activeSorting}
+              onSortingChange={setActiveSorting}
             />
+            {/* Partial Matches Toggle */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm md:text-lg text-gray-800">
+                
+              </span>
+              <button
+                onClick={() => setShowPartialMatches(!showPartialMatches)}
+                className={`
+                  flex items-center
+                  p-4
+                  rounded-full
+                  border-2 border-dashed
+                  transition-colors
+                  ${showPartialMatches 
+                    ? 'text-gray-800 border-[#FFC533]' 
+                    : 'bg-white text-gray-400 hover:border-[#FFC533]'
+                  }
+                `}
+              >
+                <Zap size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+  
+        {/* Mobile Search Modal */}
+        <div className={`
+          md:hidden fixed inset-0 z-30 bg-white transition-opacity duration-300
+          ${isSearchModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+        `}>
+          {/* Full Screen Modal Container */}
+          <div className={`
+            fixed inset-0 flex flex-col transform transition-transform duration-300
+            ${isSearchModalOpen ? 'translate-y-0' : 'translate-y-full'}
+          `}>
+            {/* Fixed Header - Sticky */}
+            <div className="flex-none sticky top-0 bg-white z-10 border-b border-gray-200 shadow-sm py-2">
+              {/* Search Bar and Close Button Row */}
+              <div className="flex items-center px-4 pb-2">
+                <div className="flex-1">
+                  <SearchBar 
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    ingredients={allIngredients}
+                    selectedIngredients={selectedIngredients}
+                    onIngredientSelect={handleIngredientSelect}
+                    isSearchFocused={isSearchFocused}
+                    setIsSearchFocused={setIsSearchFocused}
+                    largerMobile={true}
+                  />
+                </div>
+                <button 
+                  onClick={() => setIsSearchModalOpen(false)} 
+                  className="ml-2 p-2 rounded-full hover:bg-gray-100"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+  
+              {/* Collapsible Filters Toggle - Below Search */}
+              <div className="px-4">
+                <button
+                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                  className="w-full flex items-center justify-between py-2 text-base rounded-lg text-gray-600 hover:text-gray-800"
+                >
+                  <span className="font-medium">Filters</span>
+                  <ChevronDown size={20} className={isFiltersOpen ? 'rotate-180 transform' : ''} />
+                </button>
+              </div>
+            </div>
+  
+            {/* Collapsible Filters - Below Search Bar */}
+            <div className="flex-none overflow-hidden bg-white border-b border-gray-200">
+              <div className={`overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="px-4 py-2">
+                  <CategoryFilter
+                    activeCategory={activeFilters.category}
+                    selectedSubcategories={activeFilters.subcategories}
+                    onFiltersChange={setActiveFilters}
+                    compact={true}
+                  />
+                  <div className="overflow-x-auto mt-2">
+                    <CompactTasteSliders
+                      values={tasteValues}
+                      onChange={setTasteValues}
+                      activeSliders={activeSliders}
+                      onToggleSlider={toggleSlider}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            {/* Scrollable Content Section - Takes Most Space */}
+            <div className="flex-1 overflow-auto">
+              <div className="h-full pb-16">
+                {/* Removed the grey substitution instructions section */}
+                <SuggestedIngredients
+                  ref={suggestedIngredientsRef}
+                  suggestions={filteredIngredients}
+                  onSelect={(ingredient) => {
+                    handleIngredientSelect(ingredient);
+                    // Only close the search modal if not in substitution mode
+                    if (!substitutionMode.active) {
+                      setIsSearchModalOpen(false);
+                    }
+                  }}
+                  selectedIngredients={selectedIngredients}
+                  flavorMap={flavorMap}
+                  ingredientProfiles={ingredientProfiles}
+                  showPartialMatches={showPartialMatches}
+                  className="h-full pb-16" /* Add more padding at bottom for the fixed footer */
+                  sortingOption={activeSorting}
+                  substitutionMode={{
+                    active: substitutionMode.active,
+                    sourceIngredient: substitutionMode.sourceIngredient,
+                    type: substitutionMode.type,
+                    slotIndex: substitutionMode.slotIndex
+                  }}
+                  onModeSelect={handleModeChange}
+                  onModeToggle={() => {
+                    if (substitutionMode.active) {
+                      handleSubstitute(substitutionMode.slotIndex);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+  
+            {/* Mobile footer with sorting and partial matches */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+              <div className="flex items-center justify-between p-3">
+                <SortingFilter
+                  activeSorting={activeSorting}
+                  onSortingChange={setActiveSorting}
+                  compact={true}
+                />
+                <button
+                  onClick={() => setShowPartialMatches(!showPartialMatches)}
+                  className={`
+                    p-2
+                    rounded-full
+                    border-2
+                    border-dashed
+                    transition-colors
+                    flex-shrink-0
+                    ${showPartialMatches 
+                      ? 'text-gray-800 border-[#FFC533]' 
+                      : 'text-gray-400 border-gray-300'
+                    }
+                  `}
+                  title={showPartialMatches ? "Showing partial matches" : "Showing only perfect matches"}
+                >
+                  <Zap size={20} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
-      </div>
-
-      {/* Sorting and Partial Matches - Fixed */}
-      <div className="flex items-center justify-between bg-white py-4 px-4 border-t border-gray-200">
-        <SortingFilter
-          activeSorting={activeSorting}
-          onSortingChange={setActiveSorting}
-        />
-        <div className="flex items-center space-x-2">
-      <span className="text-lg text-gray-800">
-    
-  </span>
-  <button
-    onClick={() => setShowPartialMatches(!showPartialMatches)}
-    className={`
-      py-2 px-2
-      rounded-full
-      border-2
-      border-dashed
-      transition-colors
-      flex-shrink-0
-      ${showPartialMatches 
-        ? 'text-gray-800 border-[#FFC533]' 
-        : 'text-gray-400'
-      }
-    `}
-  >
-    <Zap size={20} />
-  </button>
-</div>
-      </div>
-    </div>
-
-    {/* Scrollable Content Section */}
-    <div className="flex-1 overflow-y-auto min-h-0">
-      <div className="h-full border-t border-gray-200">
-        <SuggestedIngredients
-          ref={suggestedIngredientsRef}
-          suggestions={filteredIngredients}
-          onSelect={(ingredient) => {
-            handleIngredientSelect(ingredient);
-            setIsSearchModalOpen(false);
-          }}
-          selectedIngredients={selectedIngredients}
-          flavorMap={flavorMap}
-          ingredientProfiles={ingredientProfiles}
-          showPartialMatches={showPartialMatches}
-          className="h-full"
-          sortingOption={activeSorting}
-          substitutionMode={{
-            active: substitutionMode.active,
-            sourceIngredient: substitutionMode.sourceIngredient,
-            type: substitutionMode.type,
-            slotIndex: substitutionMode.slotIndex
-          }}
-          onModeSelect={handleModeChange}
-          onModeToggle={() => {
-            if (substitutionMode.active) {
-              handleSubstitute(substitutionMode.slotIndex);
-            }
-          }}
-        />
-      </div>
-    </div>
-  </div>
-</div>
-
+      
+      {/* TasteAnalysisModal */}
       <TasteAnalysisModal
         isOpen={isAnalysisModalOpen}
         onClose={() => setIsAnalysisModalOpen(false)}
         selectedIngredients={selectedIngredients}
-        ingredientProfiles={ingredientProfiles}
-        onIngredientsChange={setSelectedIngredients}
-        flavorMap={flavorMap}
       />
     </div>
-    </div>
-  );
-}
+  );}
