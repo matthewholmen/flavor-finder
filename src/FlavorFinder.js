@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack, Settings } from 'lucide-react';
+import { encodeIngredientsToUrl, decodeUrlToIngredients } from './utils/urlEncoding';
+import Notification from './components/Notification';
+import ShareButton from './components/ShareButton';
+import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack, Settings, Clipboard, Share } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -16,6 +19,7 @@ import { TASTE_COLORS } from './utils/colors.ts';
 import { getSortedCompatibleIngredients, applySortingOption } from './utils/sorting.ts';
 import { SearchBar } from './components/SearchBar.tsx';
 import { filterIngredients, matchesIngredient } from './utils/searchUtils.ts';
+import SearchIngredientsButton from './components/SearchIngredientsButton.tsx';
 
 const getIngredientColor = (profile) => {
   if (!profile) return 'rgb(249 250 251)'; // or 'bg-gray-50' for Tailwind
@@ -148,6 +152,8 @@ const createFlavorMap = (includeExperimental = false) => {
 
 // Main Component
 export default function FlavorFinder() {
+  // Add notification state for share functionality
+  const [notification, setNotification] = useState(null);
 
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [lockedIngredients, setLockedIngredients] = useState(new Set());
@@ -385,6 +391,7 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
 
 
+  // Initial loading of random ingredients if none are selected
   useEffect(() => {
     if (selectedIngredients.length === 0) {
       const initialPair = getRandomIngredients(5, true);
@@ -468,6 +475,36 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
       ),
     [flavorMap]
   );
+  
+  // Check for combination in URL hash after allIngredients is available
+  useEffect(() => {
+    // Skip if already populated ingredients from initial effect
+    if (selectedIngredients.length > 0) return;
+    
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#combo=')) {
+      const encodedCombo = hash.substring(7); // Remove '#combo='
+      try {
+        const decodedIngredients = decodeUrlToIngredients(encodedCombo);
+        
+        // Verify ingredients exist in our database
+        const validIngredients = decodedIngredients.filter(ingredient => 
+          allIngredients.includes(ingredient)
+        );
+        
+        if (validIngredients.length > 0) {
+          setSelectedIngredients(validIngredients.slice(0, 5)); // Keep 5-ingredient limit
+          setNotification({
+            message: 'Loaded combination from shared URL',
+            type: 'success'
+          });
+          setTimeout(() => setNotification(null), 3000);
+        }
+      } catch (err) {
+        console.error('Error decoding URL', err);
+      }
+    }
+  }, [allIngredients, selectedIngredients.length]);
 
   // Dynamically filter ingredients based on taste values and categories
 
@@ -831,6 +868,37 @@ const toggleSlider = (taste) => {
   const [isTasteDropdownOpen, setIsTasteDropdownOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  
+  // Function to generate shareable URL
+  const generateShareableUrl = () => {
+    if (selectedIngredients.length === 0) return window.location.href.split('#')[0];
+    
+    const encodedString = encodeIngredientsToUrl(selectedIngredients);
+    const baseUrl = window.location.href.split('#')[0]; // Remove any existing hash
+    return `${baseUrl}#combo=${encodedString}`;
+  };
+  
+  // Handle sharing
+  const handleShare = () => {
+    const url = generateShareableUrl();
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        // Show notification that URL is copied
+        setNotification({
+          message: 'Combination URL copied to clipboard!',
+          type: 'success'
+        });
+        setTimeout(() => setNotification(null), 3000);
+      })
+      .catch(err => {
+        console.error('Failed to copy URL', err);
+        setNotification({
+          message: 'Failed to copy URL',
+          type: 'error'
+        });
+        setTimeout(() => setNotification(null), 3000);
+      });
+  };
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
       {/* Selected Ingredients Column */}
@@ -877,9 +945,16 @@ const toggleSlider = (taste) => {
       className="h-12 w-auto object-contain mr-2"
     />
     <InfoTooltip 
-      handleRandomize={handleRandomize}
-      handleAnalyze={() => setIsAnalysisModalOpen(true)}
+    handleRandomize={handleRandomize}
+    handleAnalyze={() => setIsAnalysisModalOpen(true)}
     />
+    <button 
+  onClick={handleShare}
+  disabled={selectedIngredients.length === 0}
+  className="py-4 h-14 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors px-4 text-[#000000] hover:bg-[#72A8D5] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  <Share size={20} className="" />
+</button>
   </div>
   <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
     {/* Mobile toolbar with 3 buttons */}
@@ -903,17 +978,24 @@ const toggleSlider = (taste) => {
       </button>
       
       {/* Settings button - 25% width and icon only on mobile */}
-      <button 
-        onClick={() => setIsDietaryModalOpen(true)}
-        title="Dietary Restrictions"
-        className="py-4 h-14 w-1/4 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors"
-      >
-        <Settings size={20} />
-      </button>
+      
+        <button 
+          onClick={() => setIsDietaryModalOpen(true)}
+          title="Dietary Restrictions"
+          className="py-4 h-14 w-12 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors"
+        >
+          <Settings size={18} />
+        </button>
+        
+        
+      
     </div>
     
     {/* Desktop buttons */}
     <div className="hidden md:flex items-center">
+
+      <SearchIngredientsButton selectedIngredients={selectedIngredients} />
+      
       <button 
         onClick={() => setIsDietaryModalOpen(true)}
         title="Dietary Restrictions"
@@ -1202,6 +1284,15 @@ const toggleSlider = (taste) => {
         restrictions={dietaryRestrictions}
         onRestrictionsChange={setDietaryRestrictions}
       />
+      
+      {/* Notification component for share functionality */}
+      {notification && (
+        <Notification 
+          message={notification.message} 
+          type={notification.type} 
+          onClose={() => setNotification(null)} 
+        />
+      )}
     </div>
   );
 }
