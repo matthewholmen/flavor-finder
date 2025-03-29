@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { encodeIngredientsToUrl, decodeUrlToIngredients } from './utils/urlEncoding';
 import Notification from './components/Notification';
 import ShareButton from './components/ShareButton';
-import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack, Settings, Clipboard, Share } from 'lucide-react';
+import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack, Settings, Clipboard, Share, Globe } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -14,7 +14,7 @@ import { getCompatibilityScore } from './utils/compatibility.ts';
 import IngredientSlot from './components/IngredientSlot.tsx';
 import InfoTooltip from './components/InfoTooltip.js';
 import TasteAnalysisModal from './components/TasteAnalysisModal.tsx';
-import DietaryRestrictionsModal from './components/DietaryRestrictionsModal.tsx';
+import SettingsModal from './components/SettingsModal.tsx';
 import { TASTE_COLORS } from './utils/colors.ts';
 import { getSortedCompatibleIngredients, applySortingOption } from './utils/sorting.ts';
 import { SearchBar } from './components/SearchBar.tsx';
@@ -169,6 +169,7 @@ export default function FlavorFinder() {
     category: '',
     subcategories: []
   });
+  const [isCategorySearch, setIsCategorySearch] = useState(false);
   const [substitutionMode, setSubstitutionMode] = useState({
     active: false,
     sourceIngredient: null,
@@ -177,11 +178,12 @@ export default function FlavorFinder() {
     type: 'taste' // Add this new field
   });
   
-  // Add dietary restrictions state and modal
-  const [isDietaryModalOpen, setIsDietaryModalOpen] = useState(false);
+  // Add settings state and modal
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dietaryRestrictions, setDietaryRestrictions] = useState({});
+  const [useBooleanSearch, setUseBooleanSearch] = useState(false);
 
-  // Initialize dietary restrictions from ingredient profiles
+  // Initialize settings from localStorage
   useEffect(() => {
     const categories = new Set();
     const categorySubcategories = new Map();
@@ -224,14 +226,25 @@ export default function FlavorFinder() {
     } else {
       setDietaryRestrictions(initialRestrictions);
     }
+    
+    // Load boolean search setting
+    const savedBooleanSearch = localStorage.getItem('useBooleanSearch');
+    if (savedBooleanSearch !== null) {
+      setUseBooleanSearch(savedBooleanSearch === 'true');
+    }
   }, []);
 
-  // Save restrictions to localStorage whenever they change
+  // Save settings to localStorage whenever they change
   useEffect(() => {
     if (Object.keys(dietaryRestrictions).length > 0) {
       localStorage.setItem('dietaryRestrictions', JSON.stringify(dietaryRestrictions));
     }
   }, [dietaryRestrictions]);
+  
+  // Save boolean search setting to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('useBooleanSearch', useBooleanSearch.toString());
+  }, [useBooleanSearch]);
   
   const handleExitSubstitution = () => {
     exitSubstitutionMode();
@@ -517,7 +530,7 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
         return newIngredients;
       });
       exitSubstitutionMode();
-      setSearchTerm(''); // Add this
+      setSearchTerm(''); // Clear search term
       return;
     }
     
@@ -528,7 +541,10 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     }
     
     setSelectedIngredients((prev) => [...prev, ingredient]);
-    setSearchTerm(''); // Add this
+    setSearchTerm(''); // Clear search term
+    
+    // Close the search modal when an ingredient is selected
+    setIsSearchModalOpen(false);
   };
   
   const findCompatibleIngredients = () => {
@@ -738,8 +754,8 @@ const [showPartialMatches, setShowPartialMatches] = useState(true);
 
 // Filter and process ingredients
 const filteredIngredients = useMemo(() => {
-  // First apply search filter
-  let filtered = filterIngredients(allIngredients, searchTerm, selectedIngredients);
+// First apply search filter
+let filtered = filterIngredients(allIngredients, searchTerm, selectedIngredients, ingredientProfiles);
 
   // Apply taste filters
   if (activeSliders.size > 0) {
@@ -854,16 +870,28 @@ const toggleSlider = (taste) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isSearchFocused, editingSlot, lockedIngredients]); // Removed handleRandomize from dependencies
   
-  // Add a resize listener to update isMobile state
   useEffect(() => {
-    const handleResize = () => {
-      // You could add isMobile state if needed in other places
-      // For now we're just using inline checks when needed
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    // Auto-focus the search input when the search modal opens
+    if (isSearchModalOpen) {
+      // Clear any existing search term when opening the modal
+      setSearchTerm('');
+      
+      // Use a longer delay to ensure the modal is fully rendered
+      setTimeout(() => {
+        // Try multiple selector approaches for better compatibility
+        const searchInput = document.querySelector('.search-modal-input') || 
+                          document.querySelector('.modal-search-input') ||
+                          document.querySelector('input[type="text"]');
+        
+        if (searchInput) {
+          searchInput.focus();
+          console.log('Search input focused');
+        } else {
+          console.log('Could not find search input to focus');
+        }
+      }, 300); // Longer delay to ensure modal is rendered
+    }
+  }, [isSearchModalOpen]);
 
   const [isTasteDropdownOpen, setIsTasteDropdownOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
@@ -901,8 +929,35 @@ const toggleSlider = (taste) => {
   };
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
+      {/* Mobile Search Bar - Only shows on mobile */}
+      <div className="md:hidden p-3 pt-6 pb-3 fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm flex-none">
+        <div className="flex items-center">
+          <div 
+            onClick={() => setIsSearchModalOpen(true)}
+            className="relative cursor-pointer active:opacity-90 flex-1 mr-2"
+          >
+            <div className="relative">
+              <Search className="absolute left-3 top-3.5 h-6 w-6 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search ingredients or categories..."
+                className="pl-10 w-full p-3 text-lg border-2 border-gray-400 rounded-full bg-gray-50 text-gray-500 focus:outline-none"
+                readOnly
+              />
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsSearchModalOpen(true)}
+            className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 bg-gray-200"
+            aria-label="Open search"
+          >
+            <Search size={24} className="text-gray-700" />
+          </button>
+        </div>
+      </div>
+      
       {/* Selected Ingredients Column */}
-      <div className="flex-1 h-[calc(100vh-56px)] md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden pb-0 md:pb-0 divide-y divide-gray-200">
+      <div className="flex-1 h-auto md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-auto pb-14 md:pb-0 divide-y divide-gray-200 mt-16 md:mt-0">
         {[...Array(5)].map((_, index) => (
           <div 
             key={`slot-${index}`}
@@ -958,34 +1013,57 @@ const toggleSlider = (taste) => {
   </div>
   <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
     {/* Mobile toolbar with 3 buttons */}
-    <div className="flex w-full items-center justify-between md:hidden">
-      {/* Search button - 25% width and icon only on mobile */}
+    <div className="grid grid-cols-4 w-full md:hidden">
+      {/* Search Internet button - 25% width (1 column) and icon only on mobile */}
       <button 
-        onClick={() => setIsSearchModalOpen(true)}
-        className="py-4 h-14 w-1/4 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors"
+        onClick={() => {
+          if (selectedIngredients.length === 0) return;
+          
+          // Format the search query based on the boolean search setting
+          let ingredientsText;
+          if (useBooleanSearch) {
+            // Add quotes around each ingredient for boolean search
+            ingredientsText = selectedIngredients.map(ingredient => `"${ingredient}"`).join(' ');
+          } else {
+            // Simple space-separated list
+            ingredientsText = selectedIngredients.join(' ');
+          }
+          
+          // Copy to clipboard first
+          navigator.clipboard.writeText(ingredientsText)
+            .then(() => {
+              // Open new tab with search
+              const searchURL = `https://www.google.com/search?q=${encodeURIComponent(ingredientsText)}`;
+              window.open(searchURL, '_blank');
+            })
+            .catch(err => {
+              console.error('Failed to copy ingredients:', err);
+            });
+        }}
+        className={`py-4 h-14 col-span-1 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors`}
+        disabled={selectedIngredients.length === 0}
       >
-        <Search size={20} />
+        <Globe size={24} className="text-white" />
       </button>
       
-      {/* Generate button - 50% width in the middle on mobile */}
+      {/* Generate button - 50% width (2 columns) in the middle on mobile */}
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className="py-4 h-14 w-1/2 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2"
+        className="py-4 h-14 col-span-2 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2"
       >
-        <Sparkles size={20} className="mr-2" />
-        <span>Generate</span>
+        <Sparkles size={24} className="mr-2" />
+        <span className="text-lg font-medium">Generate</span>
       </button>
       
-      {/* Settings button - 25% width and icon only on mobile */}
-      
-        <button 
-          onClick={() => setIsDietaryModalOpen(true)}
-          title="Dietary Restrictions"
-          className="py-4 h-14 w-12 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors"
-        >
-          <Settings size={18} />
-        </button>
+      {/* Settings button - 25% width (1 column) and icon only on mobile */}
+      <button 
+        onClick={() => setIsSettingsModalOpen(true)}
+        title="Settings"
+        className="py-4 h-14 col-span-1 border-2 border-gray-300 bg-gray-300 rounded-full flex items-center justify-center transition-colors"
+      >
+        <Settings size={24} className="text-white" />
+      </button>
         
         
       
@@ -994,11 +1072,11 @@ const toggleSlider = (taste) => {
     {/* Desktop buttons */}
     <div className="hidden md:flex items-center">
 
-      <SearchIngredientsButton selectedIngredients={selectedIngredients} />
+      <SearchIngredientsButton selectedIngredients={selectedIngredients} useBooleanSearch={useBooleanSearch} />
       
       <button 
-        onClick={() => setIsDietaryModalOpen(true)}
-        title="Dietary Restrictions"
+        onClick={() => setIsSettingsModalOpen(true)}
+        title="Settings"
         className="p-4 h-14 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full transition-colors mr-2"
       >
         <Settings size={20} />
@@ -1026,6 +1104,9 @@ const toggleSlider = (taste) => {
               onIngredientSelect={handleIngredientSelect}
               isSearchFocused={isSearchFocused}
               setIsSearchFocused={setIsSearchFocused}
+              ingredientProfiles={ingredientProfiles}
+              isCategorySearch={isCategorySearch}
+              setIsCategorySearch={setIsCategorySearch}
             />
           </div>
           {/* Filters Section */}
@@ -1089,6 +1170,7 @@ const toggleSlider = (taste) => {
               showPartialMatches={showPartialMatches}
               className="h-full"
               sortingOption={activeSorting}
+              searchTerm={searchTerm}
               substitutionMode={{
                 active: substitutionMode.active,
                 sourceIngredient: substitutionMode.sourceIngredient,
@@ -1136,16 +1218,19 @@ const toggleSlider = (taste) => {
   
         {/* Mobile Search Modal */}
         <div className={`
-          md:hidden fixed inset-0 z-30 bg-white transition-opacity duration-300
+          md:hidden fixed inset-0 z-50 transition-opacity duration-300
           ${isSearchModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
         `}>
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black bg-opacity-20 backdrop-blur-sm">
+          </div>
           {/* Full Screen Modal Container */}
           <div className={`
-            fixed inset-0 flex flex-col transform transition-transform duration-300
+            fixed inset-0 flex flex-col transform transition-transform duration-300 overflow-hidden bg-white
             ${isSearchModalOpen ? 'translate-y-0' : 'translate-y-full'}
           `}>
             {/* Fixed Header - Sticky */}
-            <div className="flex-none sticky top-0 bg-white z-10 border-b border-gray-200 shadow-sm py-2">
+            <div className="flex-none sticky top-0 bg-white z-50 border-b border-gray-200 shadow-sm py-4 px-0">
               {/* Search Bar and Close Button Row */}
               <div className="flex items-center px-4 pb-2">
                 <div className="flex-1">
@@ -1158,13 +1243,18 @@ const toggleSlider = (taste) => {
                     isSearchFocused={isSearchFocused}
                     setIsSearchFocused={setIsSearchFocused}
                     largerMobile={true}
+                    ingredientProfiles={ingredientProfiles}
+                    isCategorySearch={isCategorySearch}
+                    setIsCategorySearch={setIsCategorySearch}
+                    modalSearch={true}
                   />
                 </div>
                 <button 
                   onClick={() => setIsSearchModalOpen(false)} 
-                  className="ml-2 p-2 rounded-full hover:bg-gray-100"
+                  className="ml-3 p-2 rounded-full hover:bg-gray-100 bg-gray-200"
+                  aria-label="Close search"
                 >
-                  <X size={20} />
+                  <X size={24} className="text-gray-700" />
                 </button>
               </div>
   
@@ -1211,10 +1301,7 @@ const toggleSlider = (taste) => {
                   suggestions={filteredIngredients}
                   onSelect={(ingredient) => {
                     handleIngredientSelect(ingredient);
-                    // Only close the search modal if not in substitution mode
-                    if (!substitutionMode.active) {
-                      setIsSearchModalOpen(false);
-                    }
+                    // The modal will be closed in handleIngredientSelect
                   }}
                   selectedIngredients={selectedIngredients}
                   flavorMap={flavorMap}
@@ -1222,6 +1309,7 @@ const toggleSlider = (taste) => {
                   showPartialMatches={showPartialMatches}
                   className="h-full pb-16" /* Add more padding at bottom for the fixed footer */
                   sortingOption={activeSorting}
+                  searchTerm={searchTerm}
                   substitutionMode={{
                     active: substitutionMode.active,
                     sourceIngredient: substitutionMode.sourceIngredient,
@@ -1277,13 +1365,79 @@ const toggleSlider = (taste) => {
         selectedIngredients={selectedIngredients}
       />
   
-      {/* DietaryRestrictionsModal */}
-      <DietaryRestrictionsModal
-        isOpen={isDietaryModalOpen}
-        onClose={() => setIsDietaryModalOpen(false)}
-        restrictions={dietaryRestrictions}
-        onRestrictionsChange={setDietaryRestrictions}
-      />
+      {/* SettingsModal */}
+      <div className={`
+        md:hidden fixed inset-0 z-30 bg-white transition-opacity duration-300
+        ${isSettingsModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+      `}>
+        {/* Full Screen Modal Container */}
+        <div className={`
+          fixed inset-0 flex flex-col transform transition-transform duration-300
+          ${isSettingsModalOpen ? 'translate-y-0' : 'translate-y-full'}
+        `}>
+          {/* Fixed Header - Sticky */}
+          <div className="flex-none sticky top-0 bg-white z-10 border-b border-gray-200 shadow-sm py-4 pt-6">
+            {/* Header Bar and Close Button Row */}
+            <div className="flex items-center justify-between px-4 pb-2">
+              <h2 className="text-xl font-medium">Settings</h2>
+              <button 
+                onClick={() => setIsSettingsModalOpen(false)} 
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+          
+          {/* Scrollable Content Section */}
+          <div className="flex-1 overflow-auto">
+            <div className="h-full p-4 pb-28">
+              <SettingsModal
+                isOpen={true} /* Always open in mobile view */
+                onClose={() => setIsSettingsModalOpen(false)}
+                restrictions={dietaryRestrictions}
+                onRestrictionsChange={setDietaryRestrictions}
+                useBooleanSearch={useBooleanSearch}
+                onBooleanSearchChange={setUseBooleanSearch}
+                inMobileContainer={true} /* Add this prop to let the component know it's in a mobile container */
+              />
+            </div>
+          </div>
+          
+          {/* Mobile footer with action buttons */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+            <div className="h-[4.5rem] flex items-center justify-between px-4">
+              <button
+                onClick={() => setIsSettingsModalOpen(false)}
+                className="py-3 px-6 rounded-full border-2 border-gray-300 text-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Call any save functions here if needed
+                  setIsSettingsModalOpen(false);
+                }}
+                className="py-3 px-6 rounded-full border-2 border-[#8DC25B] bg-[#8DC25B] text-white font-medium"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Desktop SettingsModal - keep the regular modal for desktop view */}
+      <div className="hidden md:block">
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          restrictions={dietaryRestrictions}
+          onRestrictionsChange={setDietaryRestrictions}
+          useBooleanSearch={useBooleanSearch}
+          onBooleanSearchChange={setUseBooleanSearch}
+        />
+      </div>
       
       {/* Notification component for share functionality */}
       {notification && (

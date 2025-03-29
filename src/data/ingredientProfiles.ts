@@ -893,7 +893,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beet",
     category: "Vegetables",
-    subcategory: "Root Vegetable",
+    subcategory: "Roots",
     flavorProfile: {
       sweet: 7,
       salty: 0,
@@ -1946,7 +1946,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "carrot",
       category: "Vegetables",
-      subcategory: "Root Vegetable",
+      subcategory: "Roots",
       flavorProfile: {
         sweet: 6,
         salty: 0,
@@ -2058,7 +2058,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "celeriac",
       category: "Vegetables",
-      subcategory: "Root Vegetable",
+      subcategory: "Roots",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -3354,7 +3354,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "daikon",
       category: "Vegetables",
-      subcategory: "Root Vegetable",
+      subcategory: "Roots",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -4779,7 +4779,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "horseradish",
       category: "Vegetables",
-      subcategory: "Root Vegetable",
+      subcategory: "Roots",
       flavorProfile: {
         sweet: 1,
         salty: 0,
@@ -4909,7 +4909,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "jicama",
       category: "Vegetables",
-      subcategory: "Root Vegetable",
+      subcategory: "Roots",
       flavorProfile: {
         sweet: 3,
         salty: 0,
@@ -5364,7 +5364,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "lotus root",
       category: "Vegetables",
-      subcategory: "Root Vegetable",
+      subcategory: "Roots",
       flavorProfile: {
         sweet: 2,
         salty: 0,
@@ -5734,25 +5734,6 @@ export const ingredientProfiles: IngredientProfile[] = [
         secondary: "Herbaceous"
       },
       description: "Bright, cooling herb with intense aromatic qualities"
-    },
-    {
-      name: "mirepoix",
-      category: "Vegetables",
-      subcategory: "Allium",
-      flavorProfile: {
-        sweet: 4,
-        salty: 0,
-        sour: 0,
-        bitter: 1,
-        umami: 5,
-        fat: 0,
-        spicy: 1
-      },
-      aromas: {
-        primary: "Vegetal",
-        secondary: "Green"
-      },
-      description: "Classic French flavor base of onions, carrots, and celery"
     },
     {
       name: "mirin",
@@ -6446,7 +6427,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     {
       name: "parsnip",
       category: "Vegetables",
-      subcategory: "Root Vegetable",
+      subcategory: "Roots",
       flavorProfile: {
         sweet: 6,
         salty: 0,
@@ -6996,7 +6977,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "potato",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 2,
           salty: 0,
@@ -7297,7 +7278,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "radish",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 0,
           salty: 0,
@@ -7520,7 +7501,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "rutabaga",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 3,
           salty: 0,
@@ -8323,7 +8304,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "sunchoke",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 4,
           salty: 0,
@@ -8342,7 +8323,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "sweet potato",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 7,
           salty: 0,
@@ -9693,7 +9674,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "salsify",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 3,
           salty: 0,
@@ -9954,7 +9935,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "turnip",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 2,
           salty: 0,
@@ -10048,7 +10029,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "water chestnut",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 2,
           salty: 0,
@@ -11010,7 +10991,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       {
         name: "new potato",
         category: "Vegetables",
-        subcategory: "Root Vegetable",
+        subcategory: "Roots",
         flavorProfile: {
           sweet: 3,
           salty: 0,

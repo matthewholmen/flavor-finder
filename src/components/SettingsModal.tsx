@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Check, ChevronDown } from 'lucide-react';
+import { X, Check, ChevronDown, Toggle } from 'lucide-react';
 import { IngredientSubcategory } from '../types';
 
 interface CategoryRestriction {
@@ -12,18 +12,24 @@ interface CategoryRestriction {
   }[];
 }
 
-interface DietaryRestrictionsModalProps {
+interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   restrictions: Record<string, boolean>;
   onRestrictionsChange: (restrictions: Record<string, boolean>) => void;
+  useBooleanSearch: boolean;
+  onBooleanSearchChange: (value: boolean) => void;
+  inMobileContainer?: boolean;
 }
 
-const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
+const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   restrictions,
-  onRestrictionsChange
+  onRestrictionsChange,
+  useBooleanSearch,
+  onBooleanSearchChange,
+  inMobileContainer = false
 }) => {
   const [categories, setCategories] = useState<CategoryRestriction[]>([]);
   
@@ -70,8 +76,6 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   // Toggle category expanded state
   const toggleCategoryExpanded = (categoryIndex: number) => {
@@ -162,39 +166,44 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
     onRestrictionsChange(newRestrictions);
     onClose();
   };
+  
+  if (!isOpen && !inMobileContainer) return null;
 
-  return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white border border-gray-200 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] h-auto md:h-auto md:max-h-[90vh] overflow-y-auto m-0 md:m-4"
-        style={{ height: window.innerWidth < 768 ? '100vh' : 'auto' }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Dietary Restrictions</h2>
-          <button 
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
-          >
-            <X size={24} />
-          </button>
+  // Render content for mobile container
+  const renderMobileContent = () => {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Search Settings Section */}
+        <div className="pb-6 border-b border-gray-200">
+          <h3 className="font-semibold text-lg mb-3">Search Settings</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Boolean Search</p>
+              <p className="text-sm text-gray-500">Add quotes around each ingredient in search queries</p>
+            </div>
+            <button
+              onClick={() => onBooleanSearchChange(!useBooleanSearch)}
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${useBooleanSearch ? 'bg-[#8DC25B]' : 'bg-gray-300'}`}
+            >
+              <span
+                className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform ${useBooleanSearch ? 'translate-x-6' : 'translate-x-1'}`}
+              />
+            </button>
+          </div>
         </div>
         
-        {/* Description */}
-        <div className="px-6 pt-4">
+        {/* Dietary Restrictions Section */}
+        <div className="pt-4">
+          <h3 className="font-semibold text-lg mb-3">Dietary Restrictions</h3>
           <p className="text-gray-600 mb-6">
             Select the ingredient categories you want to include in your generated flavor combinations. 
             Deselected categories will be excluded when generating new combinations.
           </p>
         </div>
         
-        {/* Categories List - scrollable area */}
-        <div className="px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-          <div className="space-y-6 pb-24">
+        {/* Categories List */}
+        <div className="flex-1 overflow-y-auto pb-6">
+          <div className="space-y-6">
             {categories.map((category, categoryIndex) => (
               <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
                 {/* Category Header */}
@@ -212,11 +221,11 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
                     `}>
                       {category.enabled && <Check size={14} className="text-white" />}
                     </div>
-                    <span className="font-medium">{category.name}</span>
+                    <span className="font-medium text-base">{category.name}</span>
                   </button>
                   
                   <div className="flex items-center px-4">
-                    <span className="text-sm text-gray-500 mr-3">
+                    <span className="text-base text-gray-500 mr-3">
                       {category.subcategories.filter(sub => sub.enabled).length} of {category.subcategories.length}
                     </span>
                     <button
@@ -237,7 +246,7 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
                     {category.subcategories.map((subcategory, subcategoryIndex) => (
                       <div 
                         key={subcategory.name}
-                        className="px-4 py-2 flex items-center hover:bg-gray-50"
+                        className="px-4 py-3 flex items-center hover:bg-gray-50"
                       >
                         <button 
                           className="flex items-center flex-1"
@@ -252,7 +261,135 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
                           `}>
                             {subcategory.enabled && <Check size={14} className="text-white" />}
                           </div>
-                          <span>{subcategory.name}</span>
+                          <span className="text-base">{subcategory.name}</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  // Return mobile content if in mobile container
+  if (inMobileContainer) {
+    return renderMobileContent();
+  }
+
+  return (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white border border-gray-200 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] h-auto md:h-auto md:max-h-[90vh] overflow-y-auto m-0 md:m-4"
+        style={{ height: window.innerWidth < 768 ? '100vh' : 'auto' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Settings</h2>
+          <button 
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        
+        {/* Search Settings Section */}
+        <div className="px-6 pt-4 pb-6 border-b border-gray-200">
+          <h3 className="font-semibold text-lg mb-3">Search Settings</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Boolean Search</p>
+              <p className="text-sm text-gray-500">Add quotes around each ingredient in search queries</p>
+            </div>
+            <button
+              onClick={() => onBooleanSearchChange(!useBooleanSearch)}
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${useBooleanSearch ? 'bg-[#8DC25B]' : 'bg-gray-300'}`}
+            >
+              <span
+                className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform ${useBooleanSearch ? 'translate-x-6' : 'translate-x-1'}`}
+              />
+            </button>
+          </div>
+        </div>
+        
+        {/* Dietary Restrictions Section */}
+        <div className="px-6 pt-4">
+          <h3 className="font-semibold text-lg mb-3">Dietary Restrictions</h3>
+          <p className="text-gray-600 mb-6">
+            Select the ingredient categories you want to include in your generated flavor combinations. 
+            Deselected categories will be excluded when generating new combinations.
+          </p>
+        </div>
+        
+        {/* Categories List - scrollable area */}
+        <div className="px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          <div className="space-y-6 pb-16">
+            {categories.map((category, categoryIndex) => (
+              <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
+                {/* Category Header */}
+                <div className="w-full flex items-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <button 
+                    className="flex-1 flex items-center px-4 py-3 text-left"
+                    onClick={() => toggleCategory(categoryIndex)}
+                  >
+                    <div className={`
+                      w-5 h-5 rounded border flex items-center justify-center mr-3
+                      ${category.enabled 
+                        ? 'bg-[#8DC25B] border-[#8DC25B]' 
+                        : 'border-gray-300 bg-white'
+                      }
+                    `}>
+                      {category.enabled && <Check size={14} className="text-white" />}
+                    </div>
+                    <span className="font-medium text-base">{category.name}</span>
+                  </button>
+                  
+                  <div className="flex items-center px-4">
+                    <span className="text-base text-gray-500 mr-3">
+                      {category.subcategories.filter(sub => sub.enabled).length} of {category.subcategories.length}
+                    </span>
+                    <button
+                      onClick={() => toggleCategoryExpanded(categoryIndex)}
+                      className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <ChevronDown 
+                        size={20} 
+                        className={`transform transition-transform ${category.expanded ? 'rotate-180' : ''}`} 
+                      />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Subcategories - only shown when expanded */}
+                {category.expanded && (
+                  <div className="divide-y divide-gray-100">
+                    {category.subcategories.map((subcategory, subcategoryIndex) => (
+                      <div 
+                        key={subcategory.name}
+                        className="px-4 py-3 flex items-center hover:bg-gray-50"
+                      >
+                        <button 
+                          className="flex items-center flex-1"
+                          onClick={() => toggleSubcategory(categoryIndex, subcategoryIndex)}
+                        >
+                          <div className={`
+                            w-5 h-5 rounded border flex items-center justify-center mr-3
+                            ${subcategory.enabled 
+                              ? 'bg-[#8DC25B] border-[#8DC25B]' 
+                              : 'border-gray-300 bg-white'
+                            }
+                          `}>
+                            {subcategory.enabled && <Check size={14} className="text-white" />}
+                          </div>
+                          <span className="text-base">{subcategory.name}</span>
                         </button>
                       </div>
                     ))}
@@ -283,4 +420,4 @@ const DietaryRestrictionsModal: React.FC<DietaryRestrictionsModalProps> = ({
   );
 };
 
-export default DietaryRestrictionsModal;
+export default SettingsModal;

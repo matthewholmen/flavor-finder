@@ -6,7 +6,8 @@ import { applySortingOption } from '../utils/sorting.ts';
 import CategoryFilter, { CATEGORIES } from './categoryFilter.tsx';
 import SortingFilter, { SortingOption } from './SortingFilter.tsx';
 import { TasteValues } from './CompactTasteSliders';
-import { filterIngredients } from '../utils/searchUtils.ts';
+import { Tag } from 'lucide-react';
+import { filterIngredients, matchesIngredient, matchesCategory } from '../utils/searchUtils.ts';
 import { color } from 'framer-motion';
 
 
@@ -36,6 +37,7 @@ interface SuggestedIngredientsProps {
   showPartialMatches?: boolean;
   className?: string;
   sortingOption: 'alphabetical' | 'category' | 'taste';
+  searchTerm?: string; // Add search term to identify category matches
   substitutionMode?: {
     active: boolean;
     sourceIngredient: string | null;
@@ -74,6 +76,7 @@ const SuggestedIngredients = React.forwardRef<HTMLDivElement, SuggestedIngredien
     showPartialMatches = false,
     className = '',
     sortingOption,
+    searchTerm = '',
     substitutionMode,
     onModeToggle,
     onModeSelect
@@ -282,7 +285,7 @@ useEffect(() => {
                                 onClick={() => onSelect(name)}
                                 className={`
                                   inline-flex items-center px-3 py-1.5 rounded-full text-lg
-                                  transition-all text-black bg-white
+                                  transition-all text-black bg-white relative
                                   ${isPartialMatch ? 'border-dashed' : 'border-solid'}
                                 `}
                                 style={{
@@ -300,6 +303,13 @@ useEffect(() => {
                                   `Matches with: ${compatibility.matchedWith.join(', ')}` : 
                                   undefined}
                               >
+                                {/* Category match indicator */}
+                                {searchTerm && !matchesIngredient(name, searchTerm) && 
+                                 matchesCategory(name, searchTerm, ingredientProfiles) && (
+                                  <span className="absolute -top-2 -right-2 bg-blue-100 p-1 rounded-full">
+                                    <Tag size={12} className="text-blue-600" />
+                                  </span>
+                                )}
                                 {name}
                                 {isPartialMatch && (
                                   <span className="ml-1 text-xs">
@@ -328,7 +338,7 @@ useEffect(() => {
                           onClick={() => onSelect(name)}
                           className={`
                             inline-flex items-center px-4 py-2 rounded-full text-lg
-                            transition-all text-black bg-white
+                            transition-all text-black bg-white relative
                             ${isPartialMatch ? 'border-dashed' : 'border-solid'}
                           `}
                           style={{
@@ -346,6 +356,13 @@ useEffect(() => {
                             `Matches with: ${compatibility.matchedWith.join(', ')}` : 
                             undefined}
                         >
+                          {/* Category match indicator */}
+                          {searchTerm && !matchesIngredient(name, searchTerm) && 
+                           matchesCategory(name, searchTerm, ingredientProfiles) && (
+                            <span className="absolute -top-2 -right-2 bg-blue-100 p-1 rounded-full">
+                              <Tag size={12} className="text-blue-600" />
+                            </span>
+                          )}
                           {name}
                           {isPartialMatch && (
                             <span className="ml-1 text-xs">

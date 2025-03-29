@@ -3,10 +3,12 @@ import { Globe } from 'lucide-react';
 
 interface CopyIngredientsButtonProps {
   selectedIngredients: string[];
+  useBooleanSearch?: boolean;
 }
 
 const SearchIngredientsButton: React.FC<CopyIngredientsButtonProps> = ({ 
-  selectedIngredients 
+  selectedIngredients,
+  useBooleanSearch = false
 }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   
@@ -16,8 +18,15 @@ const SearchIngredientsButton: React.FC<CopyIngredientsButtonProps> = ({
       return;
     }
 
-    // Join ingredients with spaces for the search
-    const ingredientsText = selectedIngredients.join(' ');
+    // Format the search query based on the boolean search setting
+    let ingredientsText;
+    if (useBooleanSearch) {
+      // Add quotes around each ingredient for boolean search
+      ingredientsText = selectedIngredients.map(ingredient => `"${ingredient}"`).join(' ');
+    } else {
+      // Simple space-separated list
+      ingredientsText = selectedIngredients.join(' ');
+    }
     
     // Copy to clipboard first
     navigator.clipboard.writeText(ingredientsText)
