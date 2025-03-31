@@ -956,12 +956,13 @@ const toggleSlider = (taste) => {
         </div>
       </div>
       
-      {/* Selected Ingredients Column */}
-      <div className="flex-1 h-auto md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-auto pb-14 md:pb-0 divide-y divide-gray-200 mt-16 md:mt-0">
+      {/* Selected Ingredients Column - Fixed height container without scrolling */}
+      <div className="fixed inset-0 top-[72px] bottom-16 w-full md:static md:flex-1 md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden md:pb-0 md:pt-0 max-h-[calc(100vh-158px)] md:max-h-screen z-0">
+        <div className="flex flex-col h-full min-h-0 divide-y divide-gray-200 flex-shrink-0">
         {[...Array(5)].map((_, index) => (
           <div 
             key={`slot-${index}`}
-            className="h-[20%] w-full px-2 sm:px-3 md:px-6"
+            className="h-1/5 min-h-0 w-full px-2 sm:px-3 md:px-6 border-b border-gray-100 last:border-b-0 flex-shrink-0 overflow-hidden"
           >
             <IngredientSlot
               ingredient={selectedIngredients[index]}
@@ -984,9 +985,10 @@ const toggleSlider = (taste) => {
               onSubstitute={() => handleSubstitute(index)}
               onExitSubstitute={handleExitSubstitution}
               isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
-            />      
+            />
           </div>
         ))}
+        </div>
       </div>
   
       {/* Search/Filters Column */}

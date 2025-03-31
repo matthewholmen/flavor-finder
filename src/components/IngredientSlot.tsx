@@ -121,18 +121,18 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   };
   
   return (
-    <div className="relative h-full flex flex-col items-center justify-center">
+    <div className="relative w-full h-full min-h-0 flex items-center justify-center">
       <div 
-        className="relative py-6 md:py-8 pl-4 pr-14 bg-white w-full h-full flex items-center overflow-visible"
+        className="relative py-3 md:py-6 pl-4 pr-14 bg-white w-full h-full flex items-center justify-between overflow-hidden"
         onClick={() => ingredient && setIsModalOpen(true)}
       >
         <div className="flex items-center gap-4 h-full w-full"> 
           {/* Left side UI controls - Always visible */}
-          <div className="flex flex-col gap-3 pr-4 py-1 h-full justify-center">
+          <div className="flex flex-col gap-2 pr-4 py-1 h-full justify-center">
             {/* Lock button */}
             <button 
               className={`
-                p-2.5 transition-colors rounded-full border-2
+                p-2 md:p-2.5 transition-colors rounded-full border-2
                 ${isLocked 
                   ? 'text-gray-800 border-gray-800' 
                   : ingredient 
@@ -148,16 +148,17 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               title={isLocked ? "Unlock Ingredient" : "Lock Ingredient"}
             >
               {isLocked ? (
-                <Lock size={18} strokeWidth={2.5} />
+                <Lock size={16} className="md:w-[18px] md:h-[18px]" strokeWidth={2.5} />
               ) : (
-                <LockOpen size={18} strokeWidth={2} />
+                <LockOpen size={16} className="md:w-[18px] md:h-[18px]" strokeWidth={2} />
               )}
             </button>
 
-            {/* Substitute button */}
+            {/* Substitute button - hidden on very small screens */}
             <button
               className={`
-                p-2.5 transition-colors rounded-full border-2
+                p-2 md:p-2.5 transition-colors rounded-full border-2
+                hidden sm:block
                 ${isInSubstitutionMode 
                   ? 'text-gray-800 border-gray-800' 
                   : ingredient
@@ -179,21 +180,21 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               aria-label={isInSubstitutionMode ? "Cancel Substitution" : "Find Substitutes"}
               title={isInSubstitutionMode ? "Cancel Substitution" : "Find Substitutes"}
             >
-              <SendToBack size={18} strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
+              <SendToBack size={16} className="md:w-[18px] md:h-[18px]" strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
             </button>
           </div>
 
           {/* Ingredient name and category */}
-          <div className="flex-1 pl-4 pr-4 text-clip overflow-visible flex flex-col justify-center">
+          <div className="flex-1 pl-2 md:pl-4 pr-2 md:pr-4 text-clip overflow-visible flex flex-col justify-center">
             <div className="-ml-2 -mr-2">
               {ingredient ? (
                 <>
                   <div 
                     className={`
-                      text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-normal transition-opacity hover:opacity-40
+                      text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight transition-opacity hover:opacity-40
                       ${isPartiallyMatched ? 'tracking-normal' : 'tracking-tight'}
                       whitespace-nowrap overflow-visible
-                      pb-2 max-w-full
+                      pb-1 md:pb-2 max-w-full
                     `}
                     style={{ 
                       color: isPartiallyMatched ? 'white' : getIngredientColor(profile),
@@ -212,7 +213,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                     {ingredient}
                   </div>
                   {profile && (
-                    <div className="text-xs tracking-[0.2em] text-gray-500 uppercase mt-2 pl-0.5">
+                    <div className="text-xs tracking-[0.15em] text-gray-500 uppercase mt-1 pl-0.5">
                       {profile.category} › {profile.subcategory}
                     </div>
                   )}
@@ -220,10 +221,10 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               ) : (
                 <>
                   {/* Empty placeholders to maintain height */}
-                  <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-normal text-transparent">
+                  <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight text-transparent">
                     &nbsp;
                   </div>
-                  <div className="text-xs tracking-[0.2em] text-transparent uppercase mt-2 pl-0.5">
+                  <div className="text-xs tracking-[0.15em] text-transparent uppercase mt-1 pl-0.5">
                     &nbsp;
                   </div>
                 </>
@@ -235,7 +236,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
         {/* Remove button - Always visible */}
         <button
           className={`
-            absolute right-4 top-1/2 -translate-y-1/2 p-2 md:p-2.5 transition-colors rounded-full border-2 
+            absolute right-3 md:right-4 top-1/2 -translate-y-1/2 p-1.5 md:p-2.5 transition-colors rounded-full border-2 
             ${ingredient 
               ? 'text-gray-600 border-gray-200 hover:text-gray-800 hover:border-gray-400' 
               : 'text-gray-300 border-gray-200'
