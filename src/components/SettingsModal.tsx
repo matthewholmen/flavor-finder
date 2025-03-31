@@ -60,7 +60,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     setCategories(initialCategories);
   }, [restrictions]);
 
-  // Handle ESC key press
+  // Handle ESC key press and add modal-open class to body
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -70,10 +70,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
+      // Add modal-open class to body when settings modal is open
+      document.body.classList.add('modal-open');
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      // Remove modal-open class when settings modal closes
+      document.body.classList.remove('modal-open');
     };
   }, [isOpen, onClose]);
 
@@ -175,7 +179,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div className="flex flex-col h-full">
         {/* Search Settings Section */}
         <div className="pb-6 border-b border-gray-200">
-          <h3 className="font-semibold text-lg mb-3">Search Settings</h3>
+          <h3 className="font-semibold text-xl mb-3">Search Settings</h3>
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Boolean Search</p>
@@ -194,7 +198,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         
         {/* Dietary Restrictions Section */}
         <div className="pt-4">
-          <h3 className="font-semibold text-lg mb-3">Dietary Restrictions</h3>
+          <h3 className="font-semibold text-xl mb-3">Dietary Restrictions</h3>
           <p className="text-gray-600 mb-6">
             Select the ingredient categories you want to include in your generated flavor combinations. 
             Deselected categories will be excluded when generating new combinations.
@@ -282,7 +286,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999]"
       onClick={onClose}
     >
       <div 
@@ -303,7 +307,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         
         {/* Search Settings Section */}
         <div className="px-6 pt-4 pb-6 border-b border-gray-200">
-          <h3 className="font-semibold text-lg mb-3">Search Settings</h3>
+          <h3 className="font-semibold text-xl mb-3">Search Settings</h3>
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Boolean Search</p>
@@ -322,7 +326,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         
         {/* Dietary Restrictions Section */}
         <div className="px-6 pt-4">
-          <h3 className="font-semibold text-lg mb-3">Dietary Restrictions</h3>
+          <h3 className="font-semibold text-xl mb-3">Dietary Restrictions</h3>
           <p className="text-gray-600 mb-6">
             Select the ingredient categories you want to include in your generated flavor combinations. 
             Deselected categories will be excluded when generating new combinations.

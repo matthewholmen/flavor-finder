@@ -957,7 +957,7 @@ const toggleSlider = (taste) => {
       </div>
       
       {/* Selected Ingredients Column - Fixed height container without scrolling */}
-      <div className="fixed inset-0 top-[76px] bottom-20 w-full md:static md:flex-1 md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden md:pb-0 md:pt-0 max-h-[calc(100vh-168px)] md:max-h-screen z-0">
+      <div className="fixed inset-0 top-[84px] bottom-20 w-full md:static md:flex-1 md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden md:pb-0 md:pt-0 max-h-[calc(100vh-168px)] md:max-h-screen z-0">
         <div className="flex flex-col h-full min-h-0 divide-y divide-gray-200 flex-shrink-0">
         {[...Array(5)].map((_, index) => (
           <div 
@@ -969,11 +969,21 @@ const toggleSlider = (taste) => {
               isLocked={lockedIngredients.has(index)}
               onLockToggle={() => handleLockToggle(index)}
               onRemove={() => {
+                // Remove the ingredient
                 setSelectedIngredients(prev => {
                   const next = [...prev];
                   next[index] = undefined;
                   return next.filter(Boolean);
                 });
+                
+                // Also remove the lock for this slot if it exists
+                if (lockedIngredients.has(index)) {
+                  setLockedIngredients(prev => {
+                    const next = new Set(prev);
+                    next.delete(index);
+                    return next;
+                  });
+                }
               }}
               onEdit={() => setEditingSlot(index)}
               profile={ingredientProfiles.find(
@@ -999,19 +1009,13 @@ const toggleSlider = (taste) => {
     <img 
       src="/flavor-finder-1.png" 
       alt="Flavor Finder Logo" 
-      className="h-12 w-auto object-contain mr-2"
+      className="h-12 w-auto object-contain mr-2 flavor-finder-logo"
     />
     <InfoTooltip 
     handleRandomize={handleRandomize}
     handleAnalyze={() => setIsAnalysisModalOpen(true)}
     />
-    <button 
-  onClick={handleShare}
-  disabled={selectedIngredients.length === 0}
-  className="py-4 h-14 border-2 border-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors px-4 text-[#000000] hover:bg-[#72A8D5] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
->
-  <Share size={20} className="" />
-</button>
+   
   </div>
   <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
     {/* Mobile toolbar with 3 buttons */}
@@ -1052,7 +1056,7 @@ const toggleSlider = (taste) => {
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className="py-4 h-14 col-span-2 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2"
+        className="py-4 h-14 col-span-2 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2 generate-button"
       >
         <Sparkles size={24} className="mr-2" />
         <span className="text-lg font-medium">Generate</span>
@@ -1086,7 +1090,7 @@ const toggleSlider = (taste) => {
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className="py-4 px-6 h-14 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2"
+        className="py-4 px-6 h-14 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2 generate-button"
       >
         <Sparkles size={20} className="mr-2" />
         <span>Generate</span>

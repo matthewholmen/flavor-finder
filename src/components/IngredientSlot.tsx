@@ -125,9 +125,9 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   };
   
   return (
-    <div className="relative w-full h-full min-h-0 flex items-center justify-center">
+    <div className="relative w-full h-full min-h-0 flex items-center justify-center ingredient-slot">
       <div 
-        className="relative py-3 md:py-6 pl-4 pr-14 bg-white w-full h-full flex items-center justify-between overflow-hidden"
+        className="relative py-3 md:py-6 pl-4 pr-14 bg-white w-full h-full flex items-center justify-between overflow-hidden cursor-pointer"
         onClick={() => ingredient && setIsModalOpen(true)}
       >
         <div className="flex items-center gap-4 h-full w-full"> 
@@ -198,7 +198,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
                       text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight transition-opacity hover:opacity-40
                       ${isPartiallyMatched ? 'tracking-normal' : 'tracking-tight'}
                       whitespace-nowrap overflow-visible
-                      pb-1 md:pb-2 max-w-full
+                      pb-1 md:pb-2 max-w-full cursor-pointer
                     `}
                     style={{ 
                       color: isPartiallyMatched ? 'white' : getIngredientColor(profile),

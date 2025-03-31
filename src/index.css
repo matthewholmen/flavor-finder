@@ -6,6 +6,22 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Custom cursor for the whole app */
+body {
+  cursor: default;
+}
+
+button, 
+[role="button"], 
+.cursor-pointer, 
+a,
+input[type="checkbox"],
+input[type="radio"],
+select,
+.ingredient-button {
+  cursor: pointer;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
