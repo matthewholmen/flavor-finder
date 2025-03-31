@@ -153,7 +153,7 @@ const TasteAnalysisModal: React.FC<TasteAnalysisModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-y-0 right-0 bg-black bg-opacity-0 flex items-stretch z-50 w-full md:w-1/2"
+      className="fixed inset-y-0 right-0 bg-black bg-opacity-0 flex items-stretch z-[1000] w-full md:w-1/2"
       onClick={onClose}
     >
       <div 
