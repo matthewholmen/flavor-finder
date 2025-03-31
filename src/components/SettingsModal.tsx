@@ -202,7 +202,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
         
         {/* Categories List */}
-        <div className="flex-1 overflow-y-auto pb-6">
+        <div className="flex-1 pb-6">
           <div className="space-y-6">
             {categories.map((category, categoryIndex) => (
               <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
@@ -287,7 +287,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     >
       <div 
         className="bg-white border border-gray-200 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] h-auto md:h-auto md:max-h-[90vh] overflow-y-auto m-0 md:m-4"
-        style={{ height: window.innerWidth < 768 ? '100vh' : 'auto' }}
+        style={{ height: window.innerWidth < 768 ? '100vh' : 'auto', overflow: 'auto' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Sticky Header */}
@@ -329,8 +329,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </p>
         </div>
         
-        {/* Categories List - scrollable area */}
-        <div className="px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        {/* Categories List - removed overflow and maxHeight for single scrollbar */}
+        <div className="px-6">
           <div className="space-y-6 pb-16">
             {categories.map((category, categoryIndex) => (
               <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">

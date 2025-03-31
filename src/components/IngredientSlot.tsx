@@ -62,10 +62,14 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   
     if (isModalOpen) {
       document.addEventListener('keydown', handleKeyDown);
+      // Add a class to the body when modal is open
+      document.body.classList.add('modal-open');
     }
   
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      // Remove the class when component unmounts or modal closes
+      document.body.classList.remove('modal-open');
     };
   }, [isModalOpen]);
 
@@ -257,7 +261,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
       {/* Modal */}
       {isModalOpen && ingredient && profile && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-[100]"
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-end sm:items-center justify-center z-[9999]"
           onClick={() => setIsModalOpen(false)}
         >
           <div 

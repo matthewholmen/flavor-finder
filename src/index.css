@@ -23,6 +23,17 @@
   color: white;
 }
 
+/* Modal overlay styling - using body.modal-open class to raise toolbar z-index */
+body.modal-open .header-toolbar,
+body.modal-open .footer-toolbar {
+  z-index: auto !important; /* Override any specific z-index */
+}
+
+/* Prevent scrolling when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
 @media (max-width: 768px) {
   .h-screen {
     height: 100%;

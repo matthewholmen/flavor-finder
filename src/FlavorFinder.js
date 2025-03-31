@@ -930,7 +930,7 @@ const toggleSlider = (taste) => {
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
       {/* Mobile Search Bar - Only shows on mobile */}
-      <div className="md:hidden p-3 pt-6 pb-4 fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm flex-none">
+      <div className="md:hidden p-3 pt-6 pb-4 fixed top-0 left-0 right-0 z-[1000] bg-white border-b border-gray-200 shadow-sm flex-none header-toolbar">
         <div className="flex items-center">
           <div 
             onClick={() => setIsSearchModalOpen(true)}
@@ -994,7 +994,7 @@ const toggleSlider = (taste) => {
       {/* Search/Filters Column */}
       <div className="w-full h-1/2 md:h-screen md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 order-last md:order-first overflow-hidden pb-14 md:pb-0">
         {/* Header/Toolbar - Desktop */}
-<div className="p-3 pt-4 pb-4 z-30 bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first fixed bottom-0 left-0 right-0 md:static">
+<div className="p-3 pt-4 pb-4 z-[1000] bg-white border-t md:border-t-0 md:border-b border-gray-200 flex items-center order-last md:order-first fixed bottom-0 left-0 right-0 md:static footer-toolbar">
   <div className="hidden md:flex items-center flex-1">
     <img 
       src="/flavor-finder-1.png" 
@@ -1220,7 +1220,7 @@ const toggleSlider = (taste) => {
   
         {/* Mobile Search Modal */}
         <div className={`
-          md:hidden fixed inset-0 z-[1000] transition-opacity duration-300
+          md:hidden fixed inset-0 z-[2000] transition-opacity duration-300
           ${isSearchModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
         `}>
           {/* Backdrop */}
@@ -1369,7 +1369,7 @@ const toggleSlider = (taste) => {
   
       {/* SettingsModal */}
       <div className={`
-        md:hidden fixed inset-0 z-[1000] bg-white transition-opacity duration-300
+        md:hidden fixed inset-0 z-[2000] bg-white transition-opacity duration-300
         ${isSettingsModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
       `}>
         {/* Full Screen Modal Container */}
@@ -1393,7 +1393,7 @@ const toggleSlider = (taste) => {
           
           {/* Scrollable Content Section */}
           <div className="flex-1 overflow-auto">
-            <div className="h-full p-4 pb-28">
+            <div className="h-full p-4 pb-28 overflow-hidden">
               <SettingsModal
                 isOpen={true} /* Always open in mobile view */
                 onClose={() => setIsSettingsModalOpen(false)}
