@@ -154,6 +154,7 @@ const createFlavorMap = (includeExperimental = false) => {
 export default function FlavorFinder() {
   // Add notification state for share functionality
   const [notification, setNotification] = useState(null);
+  const [activeView, setActiveView] = useState('ingredients');
 
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [lockedIngredients, setLockedIngredients] = useState(new Set());
@@ -929,37 +930,37 @@ const toggleSlider = (taste) => {
   };
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
-      {/* Mobile Search Bar - Only shows on mobile */}
-      <div className="md:hidden p-3 pt-6 pb-4 fixed top-0 left-0 right-0 z-[1000] bg-white border-b border-gray-200 shadow-sm flex-none header-toolbar">
-        <div className="flex items-center">
-          <div 
-            onClick={() => setIsSearchModalOpen(true)}
-            className="relative cursor-pointer active:opacity-90 flex-1 mr-2"
-          >
-            <div className="relative">
-              <Search className="absolute left-3 top-3.5 h-6 w-6 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search ingredients or categories..."
-                className="pl-10 w-full p-3 text-lg border-2 border-gray-400 rounded-full bg-gray-50 text-gray-500 focus:outline-none"
-                readOnly
-              />
+    {/* Mobile Search Bar - Only shows on mobile */}
+    <div className="md:hidden p-3 pt-6 pb-4 fixed top-0 left-0 right-0 z-[1000] bg-white border-b border-gray-200 shadow-sm flex-none header-toolbar">
+      <div className="flex items-center">
+        <div 
+          onClick={() => setIsSearchModalOpen(true)}
+          className="relative cursor-pointer active:opacity-90 flex-1 mr-2"
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-3.5 h-6 w-6 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search ingredients or categories..."
+              className="pl-10 w-full p-3 text-lg border-2 border-gray-400 rounded-full bg-gray-50 text-gray-500 focus:outline-none"
+              readOnly
+            />
             </div>
-          </div>
-          <button 
-            onClick={() => setIsSearchModalOpen(true)}
-            className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 bg-gray-200"
-            aria-label="Open search"
-          >
-            <Search size={24} className="text-gray-700" />
-          </button>
         </div>
+        <button 
+          onClick={() => setIsSearchModalOpen(true)}
+          className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 bg-gray-200"
+          aria-label="Open search"
+        >
+          <Search size={24} className="text-gray-700" />
+        </button>
       </div>
-      
-      {/* Selected Ingredients Column - Fixed height container without scrolling */}
-      <div className="fixed inset-0 top-[84px] bottom-20 w-full md:static md:flex-1 md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden md:pb-0 md:pt-0 max-h-[calc(100vh-168px)] md:max-h-screen z-0">
-        <div className="flex flex-col h-full min-h-0 divide-y divide-gray-200 flex-shrink-0">
-        {[...Array(5)].map((_, index) => (
+    </div>
+        
+        {/* Selected Ingredients Column - Fixed height container without scrolling */}
+        <div className="fixed inset-0 top-[84px] bottom-20 w-full md:static md:flex-1 md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden md:pb-0 md:pt-0 max-h-[calc(100vh-168px)] md:max-h-screen z-0">
+          <div className="flex flex-col h-full min-h-0 divide-y divide-gray-200 flex-shrink-0">
+          {[...Array(5)].map((_, index) => (
           <div 
             key={`slot-${index}`}
             className="h-1/5 min-h-0 w-full px-2 sm:px-3 md:px-6 border-b border-gray-100 last:border-b-0 flex-shrink-0 overflow-hidden"
@@ -1019,8 +1020,8 @@ const toggleSlider = (taste) => {
   </div>
   <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
     {/* Mobile toolbar with 3 buttons */}
-    <div className="grid grid-cols-4 w-full md:hidden">
-      {/* Search Internet button - 25% width (1 column) and icon only on mobile */}
+    <div className="grid grid-cols-3 w-full md:hidden gap-2">
+      {/* Recipe Search button - 33% width */}
       <button 
         onClick={() => {
           if (selectedIngredients.length === 0) return;
@@ -1046,46 +1047,74 @@ const toggleSlider = (taste) => {
               console.error('Failed to copy ingredients:', err);
             });
         }}
-        className={`py-4 h-14 col-span-1 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors`}
+        className={`py-3 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors`}
         disabled={selectedIngredients.length === 0}
       >
-        <Globe size={24} className="text-white" />
+        <span className="text-white font-medium text-sm leading-tight">Recipes</span>
       </button>
       
-      {/* Generate button - 50% width (2 columns) in the middle on mobile */}
+      {/* Generate button - 33% width */}
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className="py-4 h-14 col-span-2 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2 generate-button"
+        className="py-3 h-14 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors generate-button"
       >
-        <Sparkles size={24} className="mr-2" />
-        <span className="text-lg font-medium">Generate</span>
+        <span className="font-medium text-sm leading-tight">Generate</span>
       </button>
       
-      {/* Settings button - 25% width (1 column) and icon only on mobile */}
+      {/* Settings button - 33% width */}
       <button 
         onClick={() => setIsSettingsModalOpen(true)}
         title="Settings"
-        className="py-4 h-14 col-span-1 border-2 border-gray-300 bg-gray-300 rounded-full flex items-center justify-center transition-colors"
+        className="py-3 h-14 border-2 border-gray-300 bg-gray-300 rounded-full flex items-center justify-center transition-colors"
       >
-        <Settings size={24} className="text-white" />
+        <span className="text-white font-medium text-sm leading-tight">Settings</span>
       </button>
-        
-        
-      
     </div>
     
     {/* Desktop buttons */}
     <div className="hidden md:flex items-center">
-
-      <SearchIngredientsButton selectedIngredients={selectedIngredients} useBooleanSearch={useBooleanSearch} />
+      
+      <button 
+        onClick={() => {
+          if (selectedIngredients.length === 0) return;
+          
+          // Format the search query based on the boolean search setting
+          let ingredientsText;
+          if (useBooleanSearch) {
+            // Add quotes around each ingredient for boolean search
+            ingredientsText = selectedIngredients.map(ingredient => `"${ingredient}"`).join(' ');
+          } else {
+            // Simple space-separated list
+            ingredientsText = selectedIngredients.join(' ');
+          }
+          
+          // Copy to clipboard first
+          navigator.clipboard.writeText(ingredientsText)
+            .then(() => {
+              // Open new tab with search
+              const searchURL = `https://www.google.com/search?q=${encodeURIComponent(ingredientsText)}`;
+              window.open(searchURL, '_blank');
+            })
+            .catch(err => {
+              console.error('Failed to copy ingredients:', err);
+            });
+        }}
+        title="Recipe Search"
+        className={`p-3 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50 text-gray-400' : 'text-gray-500 hover:bg-[#72A8D5] hover:text-white'} rounded-full transition-colors mx-2 flex items-center`}
+        disabled={selectedIngredients.length === 0}
+      >
+        <Globe size={18} className="mr-2" />
+        <span>Recipes</span>
+      </button>
       
       <button 
         onClick={() => setIsSettingsModalOpen(true)}
         title="Settings"
-        className="p-4 h-14 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full transition-colors mr-2"
+        className="p-3 h-14 border-2 border-gray-300 text-gray-500 hover:bg-gray-300 hover:text-white rounded-full transition-colors mx-2 flex items-center"
       >
-        <Settings size={20} />
+        <Settings size={18} className="mr-2" />
+        <span>Settings</span>
       </button>
       <button 
         onClick={handleRandomize}
