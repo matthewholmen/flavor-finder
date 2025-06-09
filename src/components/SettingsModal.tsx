@@ -17,8 +17,6 @@ interface SettingsModalProps {
   onClose: () => void;
   restrictions: Record<string, boolean>;
   onRestrictionsChange: (restrictions: Record<string, boolean>) => void;
-  useBooleanSearch: boolean;
-  onBooleanSearchChange: (value: boolean) => void;
   inMobileContainer?: boolean;
 }
 
@@ -27,8 +25,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   restrictions,
   onRestrictionsChange,
-  useBooleanSearch,
-  onBooleanSearchChange,
   inMobileContainer = false
 }) => {
   const [categories, setCategories] = useState<CategoryRestriction[]>([]);
@@ -177,25 +173,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const renderMobileContent = () => {
     return (
       <div className="flex flex-col h-full">
-        {/* Search Settings Section */}
-        <div className="pb-6 border-b border-gray-200">
-          <h3 className="font-semibold text-xl mb-3">Search Settings</h3>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Boolean Search</p>
-              <p className="text-sm text-gray-500">Add quotes around each ingredient in search queries</p>
-            </div>
-            <button
-              onClick={() => onBooleanSearchChange(!useBooleanSearch)}
-              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${useBooleanSearch ? 'bg-[#8DC25B]' : 'bg-gray-300'}`}
-            >
-              <span
-                className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform ${useBooleanSearch ? 'translate-x-6' : 'translate-x-1'}`}
-              />
-            </button>
-          </div>
-        </div>
-        
         {/* Dietary Restrictions Section */}
         <div className="pt-4">
           <h3 className="font-semibold text-xl mb-3">Dietary Restrictions</h3>
@@ -303,25 +280,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           >
             <X size={24} />
           </button>
-        </div>
-        
-        {/* Search Settings Section */}
-        <div className="px-6 pt-4 pb-6 border-b border-gray-200">
-          <h3 className="font-semibold text-xl mb-3">Search Settings</h3>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Boolean Search</p>
-              <p className="text-sm text-gray-500">Add quotes around each ingredient in search queries</p>
-            </div>
-            <button
-              onClick={() => onBooleanSearchChange(!useBooleanSearch)}
-              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${useBooleanSearch ? 'bg-[#8DC25B]' : 'bg-gray-300'}`}
-            >
-              <span
-                className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform ${useBooleanSearch ? 'translate-x-6' : 'translate-x-1'}`}
-              />
-            </button>
-          </div>
         </div>
         
         {/* Dietary Restrictions Section */}

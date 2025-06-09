@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Info, X, Lock, SendToBack, Sparkles, ChartPie, Zap } from 'lucide-react';
+import { Info, X, Lock, SendToBack, Sparkles, Globe, Zap } from 'lucide-react';
 import PropTypes from 'prop-types';
 import { TASTE_COLORS } from '../utils/colors.ts';
 
-const InfoTooltip = ({ handleRandomize, handleAnalyze }) => {
+const InfoTooltip = ({ handleRandomize, handleRecipeSearch }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -146,22 +146,22 @@ const InfoTooltip = ({ handleRandomize, handleAnalyze }) => {
               </div>
             </div>
 
-            {/* Analyze Button */}
+            {/* Recipes Button */}
             <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
               <div className="shrink-0">
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleAnalyze(); // Now properly passed as a prop
+                    handleRecipeSearch(); // Now properly passed as a prop
                   }}
                   className="p-4 border-2 border-[#72A8D5] text-black rounded-full flex items-center justify-center transition-colors hover:bg-[#72A8D5] hover:text-white group"
                 >
-                  <ChartPie size={20} className="transform group-hover:scale-110 transition-transform" />
+                  <Globe size={20} className="transform group-hover:scale-110 transition-transform" />
                 </button>
               </div>
               <div>
-                <div className="font-medium mb-1">Analyze</div>
-                <p className="text-sm text-gray-600">Opens the taste analysis panel to see the combined flavor profile of your ingredients and get suggestions for balance.</p>
+                <div className="font-medium mb-1">Recipes</div>
+                <p className="text-sm text-gray-600">Search Google for recipes that use your selected ingredients. Copies your ingredients to clipboard and opens a new tab with recipe search results.</p>
               </div>
             </div>
 

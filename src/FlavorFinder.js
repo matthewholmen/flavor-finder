@@ -20,6 +20,8 @@ import { getSortedCompatibleIngredients, applySortingOption } from './utils/sort
 import { SearchBar } from './components/SearchBar.tsx';
 import { filterIngredients, matchesIngredient } from './utils/searchUtils.ts';
 import SearchIngredientsButton from './components/SearchIngredientsButton.tsx';
+import FilterPanelTrigger from './components/filters/UnifiedFilterPanel/FilterPanelTrigger.tsx';
+import FilterPanel from './components/filters/UnifiedFilterPanel/FilterPanel.tsx';
 
 const getIngredientColor = (profile) => {
   if (!profile) return 'rgb(249 250 251)'; // or 'bg-gray-50' for Tailwind
@@ -154,6 +156,7 @@ const createFlavorMap = (includeExperimental = false) => {
 export default function FlavorFinder() {
   // Add notification state for share functionality
   const [notification, setNotification] = useState(null);
+  const [activeView, setActiveView] = useState('ingredients');
 
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [lockedIngredients, setLockedIngredients] = useState(new Set());
@@ -181,7 +184,6 @@ export default function FlavorFinder() {
   // Add settings state and modal
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dietaryRestrictions, setDietaryRestrictions] = useState({});
-  const [useBooleanSearch, setUseBooleanSearch] = useState(false);
 
   // Initialize settings from localStorage
   useEffect(() => {
@@ -226,12 +228,6 @@ export default function FlavorFinder() {
     } else {
       setDietaryRestrictions(initialRestrictions);
     }
-    
-    // Load boolean search setting
-    const savedBooleanSearch = localStorage.getItem('useBooleanSearch');
-    if (savedBooleanSearch !== null) {
-      setUseBooleanSearch(savedBooleanSearch === 'true');
-    }
   }, []);
 
   // Save settings to localStorage whenever they change
@@ -240,11 +236,6 @@ export default function FlavorFinder() {
       localStorage.setItem('dietaryRestrictions', JSON.stringify(dietaryRestrictions));
     }
   }, [dietaryRestrictions]);
-  
-  // Save boolean search setting to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('useBooleanSearch', useBooleanSearch.toString());
-  }, [useBooleanSearch]);
   
   const handleExitSubstitution = () => {
     exitSubstitutionMode();
@@ -401,6 +392,9 @@ const exitSubstitutionMode = () => {
 };
 
 const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  
+  // Unified Filter Panel state
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
 
 
@@ -753,7 +747,21 @@ const [isSearchFocused, setIsSearchFocused] = useState(false);
 const [showPartialMatches, setShowPartialMatches] = useState(true);
 
 // Filter and process ingredients
-const filteredIngredients = useMemo(() => {
+// Calculate active filter count for unified filter panel
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (activeFilters.category) count++;
+    if (activeFilters.subcategories.length > 0) count += activeFilters.subcategories.length;
+    if (activeSliders.size > 0) count += activeSliders.size;
+    
+    // Count dietary restrictions that are disabled (non-default state)
+    const disabledRestrictions = Object.values(dietaryRestrictions).filter(enabled => enabled === false).length;
+    count += disabledRestrictions;
+    
+    return count;
+  }, [activeFilters, activeSliders, dietaryRestrictions]);
+
+  const filteredIngredients = useMemo(() => {
 // First apply search filter
 let filtered = filterIngredients(allIngredients, searchTerm, selectedIngredients, ingredientProfiles);
 
@@ -929,37 +937,37 @@ const toggleSlider = (taste) => {
   };
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
-      {/* Mobile Search Bar - Only shows on mobile */}
-      <div className="md:hidden p-3 pt-6 pb-4 fixed top-0 left-0 right-0 z-[1000] bg-white border-b border-gray-200 shadow-sm flex-none header-toolbar">
-        <div className="flex items-center">
-          <div 
-            onClick={() => setIsSearchModalOpen(true)}
-            className="relative cursor-pointer active:opacity-90 flex-1 mr-2"
-          >
-            <div className="relative">
-              <Search className="absolute left-3 top-3.5 h-6 w-6 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search ingredients or categories..."
-                className="pl-10 w-full p-3 text-lg border-2 border-gray-400 rounded-full bg-gray-50 text-gray-500 focus:outline-none"
-                readOnly
-              />
+    {/* Mobile Search Bar - Only shows on mobile */}
+    <div className="md:hidden p-3 pt-6 pb-4 fixed top-0 left-0 right-0 z-[1000] bg-white border-b border-gray-200 shadow-sm flex-none header-toolbar">
+      <div className="flex items-center">
+        <div 
+          onClick={() => setIsSearchModalOpen(true)}
+          className="relative cursor-pointer active:opacity-90 flex-1 mr-2"
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-3.5 h-6 w-6 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search ingredients or categories..."
+              className="pl-10 w-full p-3 text-lg border-2 border-gray-400 rounded-full bg-gray-50 text-gray-500 focus:outline-none"
+              readOnly
+            />
             </div>
-          </div>
-          <button 
-            onClick={() => setIsSearchModalOpen(true)}
-            className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 bg-gray-200"
-            aria-label="Open search"
-          >
-            <Search size={24} className="text-gray-700" />
-          </button>
         </div>
+        <button 
+          onClick={() => setIsSearchModalOpen(true)}
+          className="p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 bg-gray-200"
+          aria-label="Open search"
+        >
+          <Search size={24} className="text-gray-700" />
+        </button>
       </div>
-      
-      {/* Selected Ingredients Column - Fixed height container without scrolling */}
-      <div className="fixed inset-0 top-[84px] bottom-20 w-full md:static md:flex-1 md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden md:pb-0 md:pt-0 max-h-[calc(100vh-168px)] md:max-h-screen z-0">
-        <div className="flex flex-col h-full min-h-0 divide-y divide-gray-200 flex-shrink-0">
-        {[...Array(5)].map((_, index) => (
+    </div>
+        
+        {/* Selected Ingredients Column - Fixed height container without scrolling */}
+        <div className="fixed inset-0 top-[84px] bottom-20 w-full md:static md:flex-1 md:h-screen md:w-1/2 flex flex-col order-first md:order-last overflow-hidden md:pb-0 md:pt-0 max-h-[calc(100vh-168px)] md:max-h-screen z-0">
+          <div className="flex flex-col h-full min-h-0 divide-y divide-gray-200 flex-shrink-0">
+          {[...Array(5)].map((_, index) => (
           <div 
             key={`slot-${index}`}
             className="h-1/5 min-h-0 w-full px-2 sm:px-3 md:px-6 border-b border-gray-100 last:border-b-0 flex-shrink-0 overflow-hidden"
@@ -1013,27 +1021,36 @@ const toggleSlider = (taste) => {
     />
     <InfoTooltip 
     handleRandomize={handleRandomize}
-    handleAnalyze={() => setIsAnalysisModalOpen(true)}
+    handleRecipeSearch={() => {
+      if (selectedIngredients.length === 0) return;
+      
+      // Format the search query as simple space-separated list
+      const ingredientsText = selectedIngredients.join(' ');
+      
+      // Copy to clipboard first
+      navigator.clipboard.writeText(ingredientsText)
+        .then(() => {
+          // Open new tab with search
+          const searchURL = `https://www.google.com/search?q=${encodeURIComponent(ingredientsText)}`;
+          window.open(searchURL, '_blank');
+        })
+        .catch(err => {
+          console.error('Failed to copy ingredients:', err);
+        });
+    }}
     />
    
   </div>
   <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
-    {/* Mobile toolbar with 3 buttons */}
-    <div className="grid grid-cols-4 w-full md:hidden">
-      {/* Search Internet button - 25% width (1 column) and icon only on mobile */}
+    {/* Mobile toolbar with 2 buttons */}
+    <div className="grid grid-cols-2 w-full md:hidden gap-2">
+      {/* Recipe Search button - 50% width */}
       <button 
         onClick={() => {
           if (selectedIngredients.length === 0) return;
           
-          // Format the search query based on the boolean search setting
-          let ingredientsText;
-          if (useBooleanSearch) {
-            // Add quotes around each ingredient for boolean search
-            ingredientsText = selectedIngredients.map(ingredient => `"${ingredient}"`).join(' ');
-          } else {
-            // Simple space-separated list
-            ingredientsText = selectedIngredients.join(' ');
-          }
+          // Format the search query as simple space-separated list
+          const ingredientsText = selectedIngredients.join(' ');
           
           // Copy to clipboard first
           navigator.clipboard.writeText(ingredientsText)
@@ -1046,54 +1063,58 @@ const toggleSlider = (taste) => {
               console.error('Failed to copy ingredients:', err);
             });
         }}
-        className={`py-4 h-14 col-span-1 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors`}
+        className={`py-3 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors`}
         disabled={selectedIngredients.length === 0}
       >
-        <Globe size={24} className="text-white" />
+        <span className="text-white font-medium text-sm leading-tight">Find Recipes</span>
       </button>
       
-      {/* Generate button - 50% width (2 columns) in the middle on mobile */}
+      {/* Generate button - 50% width */}
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className="py-4 h-14 col-span-2 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2 generate-button"
+        className="py-3 h-14 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors generate-button"
       >
-        <Sparkles size={24} className="mr-2" />
-        <span className="text-lg font-medium">Generate</span>
+        <span className="font-medium text-sm leading-tight">Generate Pairing</span>
       </button>
-      
-      {/* Settings button - 25% width (1 column) and icon only on mobile */}
-      <button 
-        onClick={() => setIsSettingsModalOpen(true)}
-        title="Settings"
-        className="py-4 h-14 col-span-1 border-2 border-gray-300 bg-gray-300 rounded-full flex items-center justify-center transition-colors"
-      >
-        <Settings size={24} className="text-white" />
-      </button>
-        
-        
-      
     </div>
     
     {/* Desktop buttons */}
     <div className="hidden md:flex items-center">
-
-      <SearchIngredientsButton selectedIngredients={selectedIngredients} useBooleanSearch={useBooleanSearch} />
       
       <button 
-        onClick={() => setIsSettingsModalOpen(true)}
-        title="Settings"
-        className="p-4 h-14 border-2 border-gray-300 text-gray-500 hover:bg-gray-100 rounded-full transition-colors mr-2"
+        onClick={() => {
+          if (selectedIngredients.length === 0) return;
+          
+          // Format the search query as simple space-separated list
+          const ingredientsText = selectedIngredients.join(' ');
+          
+          // Copy to clipboard first
+          navigator.clipboard.writeText(ingredientsText)
+            .then(() => {
+              // Open new tab with search
+              const searchURL = `https://www.google.com/search?q=${encodeURIComponent(ingredientsText)}`;
+              window.open(searchURL, '_blank');
+            })
+            .catch(err => {
+              console.error('Failed to copy ingredients:', err);
+            });
+        }}
+        title="Recipe Search"
+        className={`py-4 px-6 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50 text-gray-400' : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'} rounded-full transition-colors mx-2 flex items-center`}
+        disabled={selectedIngredients.length === 0}
       >
-        <Settings size={20} />
+        <Globe size={20} className="mr-2" />
+        <span>Find Recipes</span>
       </button>
+      
       <button 
         onClick={handleRandomize}
         title="Generate"
         className="py-4 px-6 h-14 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2 generate-button"
       >
         <Sparkles size={20} className="mr-2" />
-        <span>Generate</span>
+        <span>Generate Pairing</span>
       </button>
     </div>
   </div>
@@ -1102,67 +1123,49 @@ const toggleSlider = (taste) => {
         {/* Desktop Search/Filters Content */}
         <div className="hidden md:flex flex-1 flex-col min-h-0">
           <div className="px-4 pt-4">
-            <SearchBar 
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              ingredients={allIngredients}
-              selectedIngredients={selectedIngredients}
-              onIngredientSelect={handleIngredientSelect}
-              isSearchFocused={isSearchFocused}
-              setIsSearchFocused={setIsSearchFocused}
-              ingredientProfiles={ingredientProfiles}
-              isCategorySearch={isCategorySearch}
-              setIsCategorySearch={setIsCategorySearch}
-            />
-          </div>
-          {/* Filters Section */}
-          <div className="space-y-2 mb-0">
-            <div className="px-0 mt-2">
-              {/* Top Filters button - only show when collapsed */}
-              {!isFiltersOpen && (
-                <button
-                  onClick={() => setIsFiltersOpen(true)}
-                  className="w-full flex items-center justify-between px-6 py-2 text-base md:text-lg rounded-lg mb-2 text-gray-400 hover:text-gray-800"
-                >
-                  <span className="font-medium">
-                    Filters
-                  </span>
-                  <ChevronDown size={24} />
-                </button>
-              )}
-  
-              {/* Filter Content Section in FlavorFinder.js */}
-              <div className={`overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'opacity-100' : 'opacity-0 h-0'}`}>
-                {isFiltersOpen && (
-                  <>
-                    {/* Category Filter - kept small bottom margin */}
-                    <div className="overflow-hidden -mb-2 -mt-2">
-                      <CategoryFilter
-                        activeCategory={activeFilters.category}
-                        selectedSubcategories={activeFilters.subcategories}
-                        onFiltersChange={setActiveFilters}
-                      />
-                      <div className="overflow-x-auto -mt-2">
-                        <CompactTasteSliders
-                          values={tasteValues}
-                          onChange={setTasteValues}
-                          activeSliders={activeSliders}
-                          onToggleSlider={toggleSlider}
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Bottom collapse button */}
-                    <button
-                      onClick={() => setIsFiltersOpen(false)}
-                      className="w-full py-2 px-6 flex items-end justify-end py-2 text-gray-400 hover:text-gray-800 transition-colors"
-                    >
-                      <ChevronDown size={24} className="rotate-180" />
-                    </button>
-                  </>
-                )}
+            <div className="flex gap-2 mb-4">
+              <div className="flex-1">
+                <SearchBar 
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  ingredients={allIngredients}
+                  selectedIngredients={selectedIngredients}
+                  onIngredientSelect={handleIngredientSelect}
+                  isSearchFocused={isSearchFocused}
+                  setIsSearchFocused={setIsSearchFocused}
+                  ingredientProfiles={ingredientProfiles}
+                  isCategorySearch={isCategorySearch}
+                  setIsCategorySearch={setIsCategorySearch}
+                />
               </div>
+              <FilterPanelTrigger
+                isOpen={isFilterPanelOpen}
+                onToggle={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+                activeFilterCount={activeFilterCount}
+              />
             </div>
+            
+            {/* Unified Filter Panel */}
+            {isFilterPanelOpen && (
+              <div className="mb-4">
+                <FilterPanel
+                  isOpen={isFilterPanelOpen}
+                  onClose={() => setIsFilterPanelOpen(false)}
+                  
+                  activeCategory={activeFilters.category}
+                  selectedSubcategories={activeFilters.subcategories}
+                  onCategoryChange={setActiveFilters}
+                  
+                  tasteValues={tasteValues}
+                  activeSliders={activeSliders}
+                  onTasteChange={setTasteValues}
+                  onSliderToggle={toggleSlider}
+                  
+                  dietaryRestrictions={dietaryRestrictions}
+                  onDietaryChange={setDietaryRestrictions}
+                />
+              </div>
+            )}
           </div>
               
           <div className="flex-1 min-h-0 border border-gray-200 mt-0">
@@ -1264,36 +1267,44 @@ const toggleSlider = (taste) => {
                 </button>
               </div>
   
-              {/* Collapsible Filters Toggle - Below Search */}
+              {/* Unified Filter Panel Toggle - Below Search */}
               <div className="px-4">
                 <button
-                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                  onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
                   className="w-full flex items-center justify-between py-2 text-base rounded-lg text-gray-600 hover:text-gray-800"
                 >
                   <span className="font-medium">Filters</span>
-                  <ChevronDown size={20} className={isFiltersOpen ? 'rotate-180 transform' : ''} />
+                  {activeFilterCount > 0 && (
+                    <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full mr-2">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                  <ChevronDown size={20} className={isFilterPanelOpen ? 'rotate-180 transform' : ''} />
                 </button>
               </div>
             </div>
   
             {/* Collapsible Filters - Below Search Bar */}
             <div className="flex-none overflow-hidden bg-white border-b border-gray-200">
-              <div className={`overflow-hidden transition-all duration-200 ${isFiltersOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+              {/* Unified Filter Panel for Mobile */}
+              <div className={`overflow-hidden transition-all duration-200 ${isFilterPanelOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="px-4 py-2">
-                  <CategoryFilter
+                  <FilterPanel
+                    isOpen={isFilterPanelOpen}
+                    onClose={() => setIsFilterPanelOpen(false)}
+                    
                     activeCategory={activeFilters.category}
                     selectedSubcategories={activeFilters.subcategories}
-                    onFiltersChange={setActiveFilters}
-                    compact={true}
+                    onCategoryChange={setActiveFilters}
+                    
+                    tasteValues={tasteValues}
+                    activeSliders={activeSliders}
+                    onTasteChange={setTasteValues}
+                    onSliderToggle={toggleSlider}
+                    
+                    dietaryRestrictions={dietaryRestrictions}
+                    onDietaryChange={setDietaryRestrictions}
                   />
-                  <div className="overflow-x-auto mt-2">
-                    <CompactTasteSliders
-                      values={tasteValues}
-                      onChange={setTasteValues}
-                      activeSliders={activeSliders}
-                      onToggleSlider={toggleSlider}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -1403,8 +1414,6 @@ const toggleSlider = (taste) => {
                 onClose={() => setIsSettingsModalOpen(false)}
                 restrictions={dietaryRestrictions}
                 onRestrictionsChange={setDietaryRestrictions}
-                useBooleanSearch={useBooleanSearch}
-                onBooleanSearchChange={setUseBooleanSearch}
                 inMobileContainer={true} /* Add this prop to let the component know it's in a mobile container */
               />
             </div>
@@ -1440,8 +1449,6 @@ const toggleSlider = (taste) => {
           onClose={() => setIsSettingsModalOpen(false)}
           restrictions={dietaryRestrictions}
           onRestrictionsChange={setDietaryRestrictions}
-          useBooleanSearch={useBooleanSearch}
-          onBooleanSearchChange={setUseBooleanSearch}
         />
       </div>
       
