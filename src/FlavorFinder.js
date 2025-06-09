@@ -1042,9 +1042,15 @@ const toggleSlider = (taste) => {
    
   </div>
   <div className="flex items-center justify-between w-full md:w-auto md:space-x-2">
+<<<<<<< HEAD
     {/* Mobile toolbar with 2 buttons */}
     <div className="grid grid-cols-2 w-full md:hidden gap-2">
       {/* Recipe Search button - 50% width */}
+=======
+    {/* Mobile toolbar with 3 buttons */}
+    <div className="grid grid-cols-3 w-full md:hidden gap-2">
+      {/* Recipe Search button - 33% width */}
+>>>>>>> 2e1357f1675d08866a5ee6dca0a9a9677f5fbf2c
       <button 
         onClick={() => {
           if (selectedIngredients.length === 0) return;
@@ -1066,21 +1072,43 @@ const toggleSlider = (taste) => {
         className={`py-3 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors`}
         disabled={selectedIngredients.length === 0}
       >
+<<<<<<< HEAD
         <span className="text-white font-medium text-sm leading-tight">Find Recipes</span>
       </button>
       
       {/* Generate button - 50% width */}
+=======
+        <span className="text-white font-medium text-sm leading-tight">Recipes</span>
+      </button>
+      
+      {/* Generate button - 33% width */}
+>>>>>>> 2e1357f1675d08866a5ee6dca0a9a9677f5fbf2c
       <button 
         onClick={handleRandomize}
         title="Generate"
         className="py-3 h-14 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors generate-button"
       >
+<<<<<<< HEAD
         <span className="font-medium text-sm leading-tight">Generate Pairing</span>
       </button>
+=======
+        <span className="font-medium text-sm leading-tight">Generate</span>
+      </button>
+      
+      {/* Settings button - 33% width */}
+      <button 
+        onClick={() => setIsSettingsModalOpen(true)}
+        title="Settings"
+        className="py-3 h-14 border-2 border-gray-300 bg-gray-300 rounded-full flex items-center justify-center transition-colors"
+      >
+        <span className="text-white font-medium text-sm leading-tight">Settings</span>
+      </button>
+>>>>>>> 2e1357f1675d08866a5ee6dca0a9a9677f5fbf2c
     </div>
     
     {/* Desktop buttons */}
     <div className="hidden md:flex items-center">
+<<<<<<< HEAD
       
       <button 
         onClick={() => {
@@ -1106,6 +1134,49 @@ const toggleSlider = (taste) => {
       >
         <Globe size={20} className="mr-2" />
         <span>Find Recipes</span>
+=======
+      
+      <button 
+        onClick={() => {
+          if (selectedIngredients.length === 0) return;
+          
+          // Format the search query based on the boolean search setting
+          let ingredientsText;
+          if (useBooleanSearch) {
+            // Add quotes around each ingredient for boolean search
+            ingredientsText = selectedIngredients.map(ingredient => `"${ingredient}"`).join(' ');
+          } else {
+            // Simple space-separated list
+            ingredientsText = selectedIngredients.join(' ');
+          }
+          
+          // Copy to clipboard first
+          navigator.clipboard.writeText(ingredientsText)
+            .then(() => {
+              // Open new tab with search
+              const searchURL = `https://www.google.com/search?q=${encodeURIComponent(ingredientsText)}`;
+              window.open(searchURL, '_blank');
+            })
+            .catch(err => {
+              console.error('Failed to copy ingredients:', err);
+            });
+        }}
+        title="Recipe Search"
+        className={`p-3 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50 text-gray-400' : 'text-gray-500 hover:bg-[#72A8D5] hover:text-white'} rounded-full transition-colors mx-2 flex items-center`}
+        disabled={selectedIngredients.length === 0}
+      >
+        <Globe size={18} className="mr-2" />
+        <span>Recipes</span>
+      </button>
+      
+      <button 
+        onClick={() => setIsSettingsModalOpen(true)}
+        title="Settings"
+        className="p-3 h-14 border-2 border-gray-300 text-gray-500 hover:bg-gray-300 hover:text-white rounded-full transition-colors mx-2 flex items-center"
+      >
+        <Settings size={18} className="mr-2" />
+        <span>Settings</span>
+>>>>>>> 2e1357f1675d08866a5ee6dca0a9a9677f5fbf2c
       </button>
       
       <button 
