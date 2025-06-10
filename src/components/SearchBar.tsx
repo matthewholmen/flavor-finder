@@ -93,15 +93,15 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     <div className="relative">
       <div className="relative">
         {isCurrentCategorySearch ? (
-          <Tag className={`absolute left-3 ${largerMobile ? 'top-3.5' : 'top-3.5'} ${largerMobile ? 'h-6 w-6' : 'h-5 w-5'} text-blue-500`} />
+          <Tag className={`absolute left-3 ${largerMobile ? 'top-4' : 'top-3.5'} ${largerMobile ? 'h-6 w-6' : 'h-5 w-5'} text-blue-500`} />
         ) : (
-          <Search className={`absolute left-3 ${largerMobile ? 'top-3.5' : 'top-3.5'} ${largerMobile ? 'h-6 w-6' : 'h-5 w-5'} text-gray-400`} />
+          <Search className={`absolute left-3 ${largerMobile ? 'top-4' : 'top-3.5'} ${largerMobile ? 'h-6 w-6' : 'h-5 w-5'} text-gray-400`} />
         )}
         <input
           ref={inputRef}
           type="text"
           placeholder="Search ingredients or categories..."
-          className={`pl-10 w-full ${largerMobile ? 'p-3 text-lg' : 'py-3 px-4'} border-2 ${isCurrentCategorySearch ? 'border-blue-400' : 'border-gray-400'} rounded-full search-modal-input ${modalSearch ? 'modal-search-input' : ''}`}
+          className={`pl-10 w-full ${largerMobile ? 'p-3 text-lg' : 'p-3'} border-2 ${isCurrentCategorySearch ? 'border-blue-400' : 'border-gray-400'} rounded-full search-modal-input ${modalSearch ? 'modal-search-input' : ''}`}
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
