@@ -21,7 +21,7 @@ const FilterPanelTrigger: React.FC<FilterPanelTriggerProps> = ({
         relative flex items-center justify-center
         px-4 rounded-full border-2 transition-all duration-200
         ${isOpen 
-          ? 'bg-blue-50 border-[#72A8D5] text-[#72A8D5]' 
+          ? 'bg-[#72A8D5] border-[#72A8D5] text-white' 
           : 'bg-white border-gray-300 text-gray-600 hover:border-gray-500 hover:text-gray-800'
         }
         ${className}
@@ -34,16 +34,7 @@ const FilterPanelTrigger: React.FC<FilterPanelTriggerProps> = ({
       
       {/* Active filter count badge */}
       {activeFilterCount > 0 && (
-        <span className={`
-          absolute -top-2 -right-2 
-          flex items-center justify-center
-          min-w-5 h-5 px-1.5 rounded-full text-xs font-bold
-          ${isOpen 
-            ? 'bg-[#72A8D5] text-white' 
-            : 'bg-red-500 text-white'
-          }
-          transition-colors duration-200
-        `}>
+        <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-bold bg-[#FF5C5C] text-white transition-colors duration-200">
           {activeFilterCount > 99 ? '99+' : activeFilterCount}
         </span>
       )}

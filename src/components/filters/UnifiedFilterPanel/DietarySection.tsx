@@ -186,12 +186,7 @@ const DietarySection: React.FC<DietarySectionProps> = ({
         })}
       </div>
 
-      {/* Status Summary */}
-      {activeCount > 0 && (
-        <div className="text-xs text-gray-600 bg-orange-50 p-2 rounded border border-orange-200">
-          <span className="font-medium">{activeCount}</span> dietary restriction{activeCount !== 1 ? 's' : ''} active
-        </div>
-      )}
+      {/* Status Summary - Removed as it's redundant with visual button states */}
 
       {/* Help Text */}
       {activeCount === 0 && (

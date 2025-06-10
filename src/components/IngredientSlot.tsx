@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Lock, LockOpen, X, GitCompare, SendToBack, TriangleAlert } from 'lucide-react';
+import { Lock, LockOpen, X, TriangleAlert } from 'lucide-react';
 import { PieChart, Pie, Cell } from 'recharts';
 import { IngredientProfile } from '../types';
 import { TASTE_COLORS } from '../utils/colors.ts';
@@ -27,9 +27,10 @@ interface IngredientSlotProps {
   isLocked: boolean;
   onLockToggle: () => void;
   onRemove: () => void;
-  onSubstitute: () => void;
-  onExitSubstitute?: () => void;  
-  isInSubstitutionMode?: boolean;
+  // Substitution props disabled
+  // onSubstitute: () => void;
+  // onExitSubstitute?: () => void;  
+  // isInSubstitutionMode?: boolean;
   profile?: IngredientProfile;
   index: number;
   flavorMap: Map<string, Set<string>>;
@@ -41,13 +42,14 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
   isLocked,
   onLockToggle,
   onRemove,
-  onSubstitute,
-  onExitSubstitute,
+  // Substitution props disabled
+  // onSubstitute,
+  // onExitSubstitute,
   profile,
   index,
   flavorMap,
   selectedIngredients,
-  isInSubstitutionMode
+  // isInSubstitutionMode
 }) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,34 +160,7 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               )}
             </button>
 
-            {/* Substitute button - hidden on very small screens */}
-            <button
-              className={`
-                p-2 md:p-2.5 transition-colors rounded-full border-2
-                hidden sm:block
-                ${isInSubstitutionMode 
-                  ? 'text-gray-800 border-gray-800' 
-                  : ingredient
-                    ? 'text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-600'
-                    : 'text-gray-200 border-transparent'
-                }
-                relative
-              `}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!ingredient) return;
-                if (isInSubstitutionMode && onExitSubstitute) {
-                  onExitSubstitute();
-                } else {
-                  onSubstitute();
-                }
-              }}
-              disabled={!ingredient}
-              aria-label={isInSubstitutionMode ? "Cancel Substitution" : "Find Substitutes"}
-              title={isInSubstitutionMode ? "Cancel Substitution" : "Find Substitutes"}
-            >
-              <SendToBack size={16} className="md:w-[18px] md:h-[18px]" strokeWidth={isInSubstitutionMode ? 2.5 : 2} />
-            </button>
+            {/* Substitute button - DISABLED - Completely removed */}
           </div>
 
           {/* Ingredient name and category */}
@@ -258,24 +233,17 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
         
       </div>
 
-      {/* Modal */}
+      {/* Modal - Right column overlay with dark background */}
       {isModalOpen && ingredient && profile && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-end sm:items-center justify-center z-[9999]"
-          onClick={() => setIsModalOpen(false)}
-        >
+        <div className="fixed inset-y-0 right-0 w-full md:w-1/2 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4">
           <div 
-            className="bg-white border border-gray-200 w-full sm:max-w-md rounded-t-lg sm:rounded-lg overflow-auto max-h-[90vh] transition-transform duration-300 ease-out"
+            className="bg-white border border-gray-200 w-full max-w-sm rounded-lg overflow-auto max-h-[85vh] transition-transform duration-300 ease-out shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="p-6 pb-10">
-              {/* Drag indicator for mobile */}
-              <div className="sm:hidden flex justify-center mb-2">
-                <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
-              </div>
-              <div className="flex justify-end items-center">
-                {/* Close button */}
+            <div className="p-5 pb-8">
+              {/* Close button */}
+              <div className="flex justify-end items-center mb-4">
                 <button 
                   onClick={() => setIsModalOpen(false)} 
                   className="p-2 transition-colors rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-800"
@@ -286,10 +254,10 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               </div>
 
               {/* Title and Category */}
-              <div className="mt-6">
+              <div>
                 <div className="leading-[0.9] mb-2">
                   <div 
-                    className="text-3xl sm:text-4xl font-bold tracking-tight overflow-hidden text-ellipsis leading-normal pb-1"
+                    className="text-3xl font-bold tracking-tight overflow-hidden text-ellipsis leading-normal pb-1"
                     style={{ color: getIngredientColor(profile) }}
                   >
                     {ingredient}
@@ -301,22 +269,22 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
               </div>
 
               {/* Description */}
-              <div className="mt-6 text-base leading-relaxed text-gray-600">
+              <div className="mt-5 text-sm leading-relaxed text-gray-600">
                 {profile.description}
               </div>
 
               {/* Taste Profile Section */}
-              <div className="mt-8">
+              <div className="mt-6">
                 <h4 className="text-lg font-medium mb-4">Taste Profile</h4>
-                <div className="flex flex-col items-center gap-6">
-                  <div className="w-[180px] h-[180px]">
-                    <PieChart width={180} height={180}>
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-[160px] h-[160px]">
+                    <PieChart width={160} height={160}>
                       <Pie
                         data={pieData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={45}
-                        outerRadius={80}
+                        innerRadius={40}
+                        outerRadius={70}
                         dataKey="value"
                         isAnimationActive={false}
                       >
@@ -337,9 +305,9 @@ const IngredientSlot: React.FC<IngredientSlotProps> = ({
 
               {/* Pairing Status */}
               {isPartiallyMatched && (
-                <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div className="mt-5 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                   <p className="text-sm text-yellow-800 flex items-start gap-2">
-                    <TriangleAlert size={18} className="shrink-0 mt-0.5" strokeWidth={2} />
+                    <TriangleAlert size={16} className="shrink-0 mt-0.5" strokeWidth={2} />
                     <span>We don't have this ingredient as a perfect match with all other selected ingredients — but that doesn't mean it can't be delicious.</span>
                   </p>
                 </div>

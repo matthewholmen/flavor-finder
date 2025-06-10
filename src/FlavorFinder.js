@@ -1052,9 +1052,10 @@ const toggleSlider = (taste) => {
               index={index}
               flavorMap={flavorMap}
               selectedIngredients={selectedIngredients}
-              onSubstitute={() => handleSubstitute(index)}
-              onExitSubstitute={handleExitSubstitution}
-              isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
+              // Substitution props disabled
+              // onSubstitute={() => handleSubstitute(index)}
+              // onExitSubstitute={handleExitSubstitution}
+              // isInSubstitutionMode={substitutionMode.active && substitutionMode.slotIndex === index}
             />
           </div>
         ))}

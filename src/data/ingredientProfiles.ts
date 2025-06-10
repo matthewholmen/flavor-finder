@@ -11234,4 +11234,118 @@ export const ingredientProfiles: IngredientProfile[] = [
         },
         description: "Versatile plant-based ingredients characterized by rich, buttery flavors and substantial fat content."
       },
-    ];
+  {
+    name: "meyer lemon",
+    category: "Fruits",
+    subcategory: "Citrus",
+    flavorProfile: {
+      sweet: 4,
+      salty: 0,
+      sour: 6,
+      bitter: 1,
+      umami: 0,
+      fat: 0,
+      spicy: 0
+    },
+    aromas: {
+      primary: "Fruity",
+      secondary: "Citrus"
+    },
+    description: "Sweet-tart citrus hybrid with floral notes and less acidity than regular lemons, prized for its fragrant peel"
+  },
+  {
+    name: "old bay",
+    category: "Seasonings",
+    subcategory: "Spices",
+    flavorProfile: {
+      sweet: 1,
+      salty: 6,
+      sour: 1,
+      bitter: 2,
+      umami: 3,
+      fat: 0,
+      spicy: 4
+    },
+    aromas: {
+      primary: "Terpene",
+      secondary: "Spice"
+    },
+    description: "Maryland spice blend featuring celery seed, bay leaf, mustard, paprika, and other spices, classic for seafood and regional dishes"
+  },
+  {
+    name: "pork tenderloin",
+    category: "Proteins",
+    subcategory: "Pork",
+    flavorProfile: {
+      sweet: 2,
+      salty: 1,
+      sour: 0,
+      bitter: 0,
+      umami: 6,
+      fat: 4,
+      spicy: 0
+    },
+    aromas: {
+      primary: "Maillard",
+      secondary: "Meaty"
+    },
+    description: "Lean, tender cut of pork with mild flavor and fine grain, versatile for quick-cooking methods and roasting"
+  },
+  {
+    name: "ribs",
+    category: "Proteins",
+    subcategory: "Pork",
+    flavorProfile: {
+      sweet: 1,
+      salty: 2,
+      sour: 0,
+      bitter: 0,
+      umami: 8,
+      fat: 7,
+      spicy: 0
+    },
+    aromas: {
+      primary: "Maillard",
+      secondary: "Meaty"
+    },
+    description: "Rich, fatty cut with connective tissue that becomes tender and flavorful when slow-cooked, ideal for barbecue and braising"
+  },
+  {
+    name: "rib eye steak",
+    category: "Proteins",
+    subcategory: "Meat",
+    flavorProfile: {
+      sweet: 1,
+      salty: 2,
+      sour: 0,
+      bitter: 0,
+      umami: 8,
+      fat: 8,
+      spicy: 0
+    },
+    aromas: {
+      primary: "Maillard",
+      secondary: "Meaty"
+    },
+    description: "Premium beef cut with excellent marbling and rich, buttery flavor, prized for grilling and high-heat cooking"
+  },
+  {
+    name: "serrano chili",
+    category: "Vegetables",
+    subcategory: "Fruit Vegetables",
+    flavorProfile: {
+      sweet: 1,
+      salty: 0,
+      sour: 1,
+      bitter: 1,
+      umami: 2,
+      fat: 0,
+      spicy: 7
+    },
+    aromas: {
+      primary: "Terpene",
+      secondary: "Spice"
+    },
+    description: "Small, thin chili pepper with bright, clean heat and grassy flavor, common in Mexican cuisine and salsas"
+  }
+];
