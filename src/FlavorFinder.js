@@ -395,6 +395,9 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   
   // Unified Filter Panel state
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  
+  // State for Generate button pulsing on first load
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
 
 
@@ -405,6 +408,20 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
       setSelectedIngredients(initialPair);
     }
   }, []); // Empty dependency array means this runs once on mount
+  
+  // Stop pulsing when user interacts with anything
+  const handleUserInteraction = () => {
+    if (isFirstLoad) {
+      setIsFirstLoad(false);
+    }
+  };
+  
+  // Add click listener to stop pulsing on any click
+  useEffect(() => {
+    const handleClick = () => handleUserInteraction();
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [isFirstLoad]);
 
 
   const addRandomIngredient = () => {
@@ -1126,7 +1143,9 @@ const toggleSlider = (taste) => {
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className="py-3 h-14 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-colors generate-button"
+        className={`py-3 h-14 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-all duration-300 generate-button ${
+          isFirstLoad ? 'animate-pulse scale-105 shadow-lg' : ''
+        }`}
       >
         <span className="font-medium text-sm leading-tight">Generate</span>
       </button>
@@ -1164,7 +1183,9 @@ const toggleSlider = (taste) => {
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className="py-4 px-6 h-14 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-colors mx-2 generate-button"
+        className={`py-4 px-6 h-14 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-all duration-300 mx-2 generate-button ${
+          isFirstLoad ? 'animate-pulse scale-105 shadow-lg' : ''
+        }`}
       >
         <Sparkles size={20} className="mr-2" />
         <span>Generate</span>
