@@ -22,6 +22,8 @@ import { filterIngredients, matchesIngredient } from './utils/searchUtils.ts';
 import SearchIngredientsButton from './components/SearchIngredientsButton.tsx';
 import FilterPanelTrigger from './components/filters/UnifiedFilterPanel/FilterPanelTrigger.tsx';
 import FilterPanel from './components/filters/UnifiedFilterPanel/FilterPanel.tsx';
+import MobileApp from './components/mobile/MobileApp.tsx';
+import { useMobileDetection } from './hooks/useScreenSize.ts';
 
 const getIngredientColor = (profile) => {
   if (!profile) return 'rgb(249 250 251)'; // or 'bg-gray-50' for Tailwind
@@ -154,6 +156,9 @@ const createFlavorMap = (includeExperimental = false) => {
 
 // Main Component
 export default function FlavorFinder() {
+  // Mobile detection
+  const { isMobileDevice } = useMobileDetection();
+  
   // Add notification state for share functionality
   const [notification, setNotification] = useState(null);
   const [activeView, setActiveView] = useState('ingredients');
@@ -1004,6 +1009,39 @@ const toggleSlider = (taste) => {
         setTimeout(() => setNotification(null), 3000);
       });
   };
+
+  // Mobile app integration - test detection first
+  console.log('Mobile device detected:', isMobileDevice);
+  
+  if (isMobileDevice) {
+    return (
+      <MobileApp
+        selectedIngredients={selectedIngredients}
+        onIngredientsChange={setSelectedIngredients}
+        onRandomize={handleRandomize}
+        allIngredients={allIngredients}
+        filteredIngredients={filteredIngredients}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onIngredientSelect={handleIngredientSelect}
+        ingredientProfiles={ingredientProfiles}
+        onOpenDietarySettings={() => setIsSettingsModalOpen(true)}
+        lockedIngredients={lockedIngredients}
+        onLockToggle={handleLockToggle}
+        flavorMap={flavorMap}
+        // Enhanced filter props
+        activeCategory={activeFilters.category}
+        selectedSubcategories={activeFilters.subcategories}
+        onCategoryChange={handleFiltersChange}
+        dietaryRestrictions={dietaryRestrictions}
+        onDietaryChange={setDietaryRestrictions}
+        tasteValues={tasteValues}
+        activeSliders={activeSliders}
+        onTasteChange={setTasteValues}
+        onSliderToggle={toggleSlider}
+      />
+    );
+  }
   return (
     <div className="h-screen flex flex-col md:flex-row overflow-hidden relative bg-white text-sm md:text-base">
     {/* Mobile Search Bar - Only shows on mobile */}

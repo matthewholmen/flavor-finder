@@ -1,0 +1,1 @@
+#!/bin/bash\necho \"Starting FlavorFinder development server...\"\ncd \"/Users/coolmatt/Claude Apps/flavor-finder\"\n\n# Start the development server and capture initial output\nnpm start 2>&1 &\nSERVER_PID=$!\n\n# Wait a bit and then show output\nsleep 10\n\n# Kill the server\nkill $SERVER_PID 2>/dev/null || true\n\necho \"Server startup attempt completed.\"

@@ -32,7 +32,12 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
   const [initializedSliders] = useState(new Set<keyof TasteValues>());
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // Detect mobile device
+  const isMobile = window.innerWidth < 768;
+
   useEffect(() => {
+    if (isMobile) return; // Skip wheel handling on mobile
+    
     const container = scrollContainerRef.current;
     if (!container) return;
 
@@ -45,7 +50,7 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
 
     container.addEventListener('wheel', handleWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleWheel);
-  }, []);
+  }, [isMobile]);
 
   const handleTasteToggle = (taste: keyof TasteValues) => {
     if (!isDragging) {
@@ -107,96 +112,176 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
   return (
     <div className="space-y-2">
       <div className="relative">
-        <div 
-          ref={scrollContainerRef}
-          className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-2 px-8"
-        >
-          {(Object.keys(values) as Array<keyof TasteValues>).map((taste) => (
-            <button
-              key={taste}
-              className={`
-                py-2 px-4
-                rounded-full
-                font-sans text-md
-                flex items-center gap-2
-                border-2 transition-all
-                ${activeSliders.has(taste) ? 'text-white' : 'text-black'}
-                ${currentSlider === taste && activeSliders.has(taste) ? 'ring-2 ring-gray-800' : ''}
-                hover:text-white
-                flex-shrink-0
-              `}
-              style={{
-                borderColor: TASTE_COLORS[taste],
-                backgroundColor: activeSliders.has(taste) ? TASTE_COLORS[taste] : 'white',
-              }}
-              onClick={() => !activeSliders.has(taste) && handleTasteToggle(taste)}
-              onMouseEnter={(e) => {
-                if (!activeSliders.has(taste)) {
-                  e.currentTarget.style.backgroundColor = TASTE_COLORS[taste];
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!activeSliders.has(taste)) {
-                  e.currentTarget.style.backgroundColor = 'white';
-                  e.currentTarget.style.color = 'black';
-                  e.currentTarget.style.borderColor = TASTE_COLORS[taste];
-                }
-              }}
-            >
-              <span 
-                className="capitalize cursor-pointer" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (activeSliders.has(taste)) {
-                    setCurrentSlider(taste);
-                  } else {
-                    handleTasteToggle(taste);
+        {isMobile ? (
+          // Mobile: Grid layout to prevent overflow
+          <div className="grid grid-cols-3 gap-1 px-2">
+            {(Object.keys(values) as Array<keyof TasteValues>).map((taste) => (
+              <button
+                key={taste}
+                className={`
+                  py-1.5 px-2
+                  rounded-full
+                  font-sans text-xs
+                  flex items-center justify-center gap-1
+                  border-2 transition-all
+                  ${activeSliders.has(taste) ? 'text-white' : 'text-black'}
+                  ${currentSlider === taste && activeSliders.has(taste) ? 'ring-1 ring-gray-800' : ''}
+                  hover:text-white
+                `}
+                style={{
+                  borderColor: TASTE_COLORS[taste],
+                  backgroundColor: activeSliders.has(taste) ? TASTE_COLORS[taste] : 'white',
+                }}
+                onClick={() => !activeSliders.has(taste) && handleTasteToggle(taste)}
+              >
+                <span 
+                  className="capitalize cursor-pointer" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (activeSliders.has(taste)) {
+                      setCurrentSlider(taste);
+                    } else {
+                      handleTasteToggle(taste);
+                    }
+                  }}
+                >
+                  {taste}
+                </span>
+                {activeSliders.has(taste) && (
+                  <button 
+                    className="p-1 -m-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTasteToggle(taste);
+                    }}
+                  >
+                    <X size={12} className="hover:scale-110 transition-transform" />
+                  </button>
+                )}
+              </button>
+            ))}
+            
+            {/* Clear all button for mobile - only show if there are active sliders */}
+            {activeSliders.size > 0 && (
+              <div className="col-span-3 mt-2">
+                <button
+                  onClick={() => {
+                    Array.from(activeSliders).forEach(taste => onToggleSlider(taste));
+                  }}
+                  className="
+                    w-full
+                    py-1.5 px-3
+                    rounded-full
+                    border-2
+                    bg-white
+                    text-gray-400
+                    border-gray-400
+                    hover:text-gray-800
+                    hover:bg-white
+                    hover:border-gray-800
+                    transition-colors
+                    text-xs
+                    flex items-center justify-center gap-1
+                  "
+                >
+                  <X size={12} />
+                  Clear All
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          // Desktop: Original horizontal scroll layout
+          <div 
+            ref={scrollContainerRef}
+            className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-2 px-8"
+          >
+            {(Object.keys(values) as Array<keyof TasteValues>).map((taste) => (
+              <button
+                key={taste}
+                className={`
+                  py-2 px-4
+                  rounded-full
+                  font-sans text-md
+                  flex items-center gap-2
+                  border-2 transition-all
+                  ${activeSliders.has(taste) ? 'text-white' : 'text-black'}
+                  ${currentSlider === taste && activeSliders.has(taste) ? 'ring-2 ring-gray-800' : ''}
+                  hover:text-white
+                  flex-shrink-0
+                `}
+                style={{
+                  borderColor: TASTE_COLORS[taste],
+                  backgroundColor: activeSliders.has(taste) ? TASTE_COLORS[taste] : 'white',
+                }}
+                onClick={() => !activeSliders.has(taste) && handleTasteToggle(taste)}
+                onMouseEnter={(e) => {
+                  if (!activeSliders.has(taste)) {
+                    e.currentTarget.style.backgroundColor = TASTE_COLORS[taste];
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!activeSliders.has(taste)) {
+                    e.currentTarget.style.backgroundColor = 'white';
+                    e.currentTarget.style.color = 'black';
+                    e.currentTarget.style.borderColor = TASTE_COLORS[taste];
                   }
                 }}
               >
-                {taste}
-              </span>
-              {activeSliders.has(taste) && (
-                <button 
-                  className="p-2 -m-2"
+                <span 
+                  className="capitalize cursor-pointer" 
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleTasteToggle(taste);
+                    if (activeSliders.has(taste)) {
+                      setCurrentSlider(taste);
+                    } else {
+                      handleTasteToggle(taste);
+                    }
                   }}
                 >
-                  <X size={18} className="hover:scale-110 transition-transform" />
-                </button>
-              )}
-            </button>
-          ))}
-          
-          {activeSliders.size > 0 && (
-            <button
-              onClick={() => {
-                Array.from(activeSliders).forEach(taste => onToggleSlider(taste));
-              }}
-              className="
-                py-3 px-3
-                rounded-full
-                border-2
-                bg-white
-                text-gray-400
-                border-gray-400
-                hover:text-gray-800
-                hover:bg-white
-                hover:border-gray-800
-                transition-colors
-                flex-shrink-0
-              "
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-  
+                  {taste}
+                </span>
+                {activeSliders.has(taste) && (
+                  <button 
+                    className="p-2 -m-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTasteToggle(taste);
+                    }}
+                  >
+                    <X size={18} className="hover:scale-110 transition-transform" />
+                  </button>
+                )}
+              </button>
+            ))}
+            
+            {activeSliders.size > 0 && (
+              <button
+                onClick={() => {
+                  Array.from(activeSliders).forEach(taste => onToggleSlider(taste));
+                }}
+                className="
+                  py-3 px-3
+                  rounded-full
+                  border-2
+                  bg-white
+                  text-gray-400
+                  border-gray-400
+                  hover:text-gray-800
+                  hover:bg-white
+                  hover:border-gray-800
+                  transition-colors
+                  flex-shrink-0
+                "
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
       
-      <div className="flex justify-center w-full px-8">
+      <div className="flex justify-center w-full px-2 md:px-8">
         <div className={`relative w-full transition-opacity duration-200 ${areAllSlidersDisabled ? 'opacity-30' : 'opacity-100'}`}>
           <style>{`
             input[type="range"]::-webkit-slider-thumb {

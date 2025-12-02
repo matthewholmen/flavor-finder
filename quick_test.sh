@@ -1,0 +1,1 @@
+#!/bin/bash\necho \"Testing FlavorFinder build...\"\ncd \"/Users/coolmatt/Claude Apps/flavor-finder\"\n\n# Check if we can start the build process\nnpm run build 2>&1 | head -50"

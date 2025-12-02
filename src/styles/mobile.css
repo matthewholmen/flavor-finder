@@ -1,0 +1,43 @@
+/* Mobile-First Responsive Design Utilities */
+
+/* Safe Area Support for iOS devices with notches */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Touch Target Optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Viewport Height Fixes for Mobile Browsers */
+.mobile-vh-fix {
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height */
+}
+
+/* Prevent zoom on inputs (iOS Safari) */
+.no-zoom {
+  font-size: 16px !important;
+}
+
+/* Smooth scrolling for better UX */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Improved Touch Interactions */
+.mobile-touch-button {
+  min-height: 44px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}

@@ -1,0 +1,1 @@
+#!/bin/bash\necho \"Testing FlavorFinder compilation...\"\ncd \"/Users/coolmatt/Claude Apps/flavor-finder\"\n\n# Try to compile TypeScript\necho \"Checking TypeScript compilation...\"\nnpx tsc --noEmit --skipLibCheck 2>&1 | head -20\n\necho \"\\nAttempting to start development server...\"\ntimeout 30s npm start 2>&1 | head -30"

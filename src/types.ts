@@ -97,4 +97,9 @@ export interface Menu {
   };
 }
 
+// Taste properties for filtering
+export type TasteProperty = 'sweet' | 'salty' | 'sour' | 'bitter' | 'umami' | 'fat' | 'spicy';
+
+export const TASTE_PROPERTIES: TasteProperty[] = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
+
 export type { AromaSubcategory, IngredientSubcategory };

@@ -1,6 +1,1 @@
-#!/bin/bash
-# Test script to check if build works
-cd "/Users/coolmatt/Claude Apps/flavor-finder"
-echo "Testing npm run build..."
-npm run build
-echo "Build exit code: $?"
+#!/bin/bash\ncd \"/Users/coolmatt/Claude Apps/flavor-finder\"\nnpm start 2>&1 | head -20"

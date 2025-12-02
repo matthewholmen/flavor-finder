@@ -1,0 +1,1 @@
+BACKUP OF MOBILAPP.TSX before removing inline definitions

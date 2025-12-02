@@ -399,7 +399,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Peppery salad green with nutty undertones and pleasant bitter finish"
   },
   {
-    name: "asiago cheese",
+    name: "asiago",
     category: "Dairy",
     subcategory: "Hard Cheese",
     flavorProfile: {
@@ -512,7 +512,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Slow-cooked beans in sweet-savory sauce, typically featuring molasses and pork, common in comfort food dishes"
   },
   {
-    name: "balsamic vinegar",
+    name: "balsamic",
     category: "Liquids",
     subcategory: "Vinegars",
     flavorProfile: {
@@ -720,7 +720,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Rich, robust meat with deep savory flavor that intensifies when cooked"
   },
   { 
-    name: "beef brisket",
+    name: "brisket",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: {
@@ -815,7 +815,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Tough cut rich in connective tissue, ideal for slow-cooking and making rich broths"
   },
   {
-    name: "beef sirloin",
+    name: "sirloin",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: {
@@ -834,7 +834,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Versatile cut from the rear of the cow, balance of flavor and tenderness"
   },
   {
-    name: "beef steak",
+    name: "steak",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: {
@@ -1060,7 +1060,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Cured olive with intense briny flavor and meaty texture, adds depth to Mediterranean dishes"
     },
     {
-      name: "black peppercorn",
+      name: "black pepper",
       category: "Seasonings",
       subcategory: "Spices",
       flavorProfile: {
@@ -1437,7 +1437,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Dried, crushed bread used for coating and binding, adds texture and toasted notes to dishes"
     },
     {
-      name: "brie cheese",
+      name: "brie",
       category: "Dairy",
       subcategory: "Soft Cheese",
       flavorProfile: {
@@ -1569,7 +1569,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Small cabbage-like vegetable with nutty flavor when roasted, characteristic brassica bitterness"
     },
     {
-      name: "bulgur wheat",
+      name: "bulgur",
       category: "Grains",
       subcategory: "Ancient Grains",
       flavorProfile: {
@@ -1680,7 +1680,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Confection made from brown sugar and butter, characterized by rich toffee-like flavor"
     },
     {
-      name: "béarnaise sauce",
+      name: "béarnaise",
       category: "Condiments",
       subcategory: "Sauces",
       flavorProfile: {
@@ -2264,7 +2264,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Versatile white wine with apple and citrus notes, can be oaked or unoaked"
     },
     {
-      name: "cheddar cheese",
+      name: "cheddar",
       category: "Dairy",
       subcategory: "Hard Cheese",
       flavorProfile: {
@@ -2905,7 +2905,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Aged French brandy with complex vanilla and fruit notes from oak aging"
     },
     {
-      name: "colby cheese",
+      name: "colby",
       category: "Dairy",
       subcategory: "Hard Cheese",
       flavorProfile: {
@@ -3427,7 +3427,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Sweet dried fruit with caramel notes and dense, chewy texture"
     },
     {
-      name: "dijon mustard",
+      name: "dijon",
       category: "Condiments",
       subcategory: "Sauces",
       flavorProfile: {
@@ -3578,7 +3578,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Delicate flower with subtle honey-like sweetness and floral aroma"
     },
     {
-      name: "emmental cheese",
+      name: "swiss cheese",
       category: "Dairy",
       subcategory: "Hard Cheese",
       flavorProfile: {
@@ -3671,7 +3671,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Rich, buttery white fish with high oil content, often used in sushi"
     },
     {
-      name: "espelette chili",
+      name: "espelette pepper",
       category: "Seasonings",
       subcategory: "Chilis",
       flavorProfile: {
@@ -3915,7 +3915,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Light seafood stock made from fish bones and aromatics"
     },
     {
-      name: "five-spice powder",
+      name: "five-spice",
       category: "Seasonings",
       subcategory: "Spices",
       flavorProfile: {
@@ -4009,7 +4009,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Fattened duck or goose liver with rich, buttery texture and complex flavor"
     },
     {
-      name: "fontina cheese",
+      name: "fontina",
       category: "Dairy",
       subcategory: "Hard Cheese",
       flavorProfile: {
@@ -4628,7 +4628,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Intensely flavored beef cut with robust, mineral notes"
     },
     {
-      name: "havarti cheese",
+      name: "havarti",
       category: "Dairy",
       subcategory: "Soft Cheese",
       flavorProfile: {
@@ -4702,7 +4702,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Oily fish often pickled or smoked, with rich, full flavor"
     },
     {
-      name: "hoisin sauce",
+      name: "hoisin",
       category: "Condiments",
       subcategory: "Sauces",
       flavorProfile: {
@@ -4721,7 +4721,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Sweet-savory Chinese sauce made from fermented soybeans"
     },
     {
-      name: "hollandaise sauce",
+      name: "hollandaise",
       category: "Condiments",
       subcategory: "Sauces",
       flavorProfile: {
@@ -4870,7 +4870,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Frozen dairy dessert with rich, creamy texture and varying flavors"
     },
     {
-      name: "jack cheese",
+      name: "monterey jack",
       category: "Dairy",
       subcategory: "Hard Cheese",
       flavorProfile: {
@@ -5475,7 +5475,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Rich, oily fish with pronounced savory flavor"
     },
     {
-      name: "madeira wine",
+      name: "madeira",
       category: "Alcohol",
       subcategory: "Wines",
       flavorProfile: {
@@ -5662,7 +5662,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Delicate herb similar to oregano but sweeter and less pungent"
     },
     {
-      name: "marsala wine",
+      name: "marsala",
       category: "Alcohol",
       subcategory: "Wines",
       flavorProfile: {
@@ -5829,7 +5829,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Firm white fish with sweet flavor and lobster-like texture"
     },
     {
-      name: "morel mushroom",
+      name: "morel",
       category: "Vegetables",
       subcategory: "Mushroom",
       flavorProfile: {
@@ -5884,7 +5884,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Fresh Italian cheese with mild flavor and excellent melting properties"
     },
     {
-      name: "muenster cheese",
+      name: "muenster",
       category: "Dairy",
       subcategory: "Soft Cheese",
       flavorProfile: {
@@ -6615,7 +6615,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Delicate, nutty oil ideal for finishing dishes and baking"
       },
       {
-        name: "pecorino cheese",
+        name: "pecorino",
         category: "Dairy",
         subcategory: "Hard Cheese",
         flavorProfile: {
@@ -6766,7 +6766,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Jewel-like seeds with sweet-tart flavor and subtle tannins"
       },
       {
-        name: "pomegranate molasseses",
+        name: "pomegranate molasses",
         category: "Condiments",
         subcategory: "Sweeteners",
         flavorProfile: {
@@ -6804,7 +6804,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Large citrus fruit with mild sweetness and less acidity than grapefruit"
       },
       {
-        name: "ponzu sauce",
+        name: "ponzu",
         category: "Condiments",
         subcategory: "Sauces",
         flavorProfile: {
@@ -6842,7 +6842,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Tiny seeds with mild nutty flavor and slight crunch"
       },
       {
-        name: "porcini mushroom",
+        name: "porcini",
         category: "Vegetables",
         subcategory: "Mushroom",
         flavorProfile: {
@@ -6956,7 +6956,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Fortified wine with rich, sweet flavor and notes of dried fruit"
       },
       {
-        name: "portobello mushroom",
+        name: "portobello",
         category: "Vegetables",
         subcategory: "Mushroom",
         flavorProfile: {
@@ -7051,7 +7051,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Dry-cured ham with sweet-salty flavor and delicate texture"
       },
       {
-        name: "provolone cheese",
+        name: "provolone",
         category: "Dairy",
         subcategory: "Hard Cheese",
         flavorProfile: {
@@ -7480,7 +7480,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Woody herb with intense piney aroma and resinous flavor"
       },
       {
-        name: "rosé wine",
+        name: "rosé",
         category: "Alcohol",
         subcategory: "Wines",
         flavorProfile: {
@@ -7777,7 +7777,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Sea vegetable with intense umami and mineral-rich flavor"
       },
       {
-        name: "serrano chili pepper",
+        name: "serrano pepper",
         category: "Seasonings",
         subcategory: "Chilis",
         flavorProfile: {
@@ -8376,7 +8376,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Firm, meaty fish with mild, sweet flavor"
       },
       {
-        name: "szechuan peppercorn",
+        name: "szechuan pepper",
         category: "Seasonings",
         subcategory: "Spices",
         flavorProfile: {
@@ -8884,7 +8884,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Neutral spirit with clean flavor and slight warmth"
       },
       {
-        name: "wagyu beef",
+        name: "wagyu",
         category: "Proteins",
         subcategory: "Meat",
         flavorProfile: {
@@ -9259,7 +9259,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Generic white fish with mild flavor and medium umami notes"
       },
       {
-        name: "green peppercorn",
+        name: "green pepper",
         category: "Seasonings",
         subcategory: "Spices",
         flavorProfile: {
@@ -9615,7 +9615,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Strong blue cheese with sharp, tangy flavor"
       },
       {
-        name: "romaine lettuce",
+        name: "romaine",
         category: "Vegetables",
         subcategory: "Leafy Greens",
         flavorProfile: {
@@ -9746,7 +9746,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Seasoned ground meat with rich, savory flavor"
       },
       {
-        name: "shiitake mushroom",
+        name: "shiitake",
         category: "Vegetables",
         subcategory: "Mushroom",
         flavorProfile: {
@@ -10102,7 +10102,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Lean, tender cut with mild veal flavor"
       },
       {
-        name: "pink peppercorn",
+        name: "pink pepper",
         category: "Seasonings",
         subcategory: "Spices",
         flavorProfile: {
@@ -10118,7 +10118,7 @@ export const ingredientProfiles: IngredientProfile[] = [
           primary: "Terpene",
           secondary: "Spice"
         },
-        description: "Mild peppercorn with sweet-spicy flavor and floral notes"
+        description: "Mild pepper with sweet-spicy flavor and floral notes"
       },
       {
         name: "sherry vinegar",
@@ -10933,7 +10933,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Versatile pasta in various forms, providing neutral base for sauces and dishes"
       },
       {
-        name: "sole fish",
+        name: "sole",
         category: "Proteins",
         subcategory: "Fish",
         flavorProfile: {
@@ -10970,7 +10970,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Neutral starch extracted from cassava root, used in puddings and as a thickener"
       },
       {
-        name: "white peppercorn",
+        name: "white pepper",
         category: "Seasonings",
         subcategory: "Spices",
         flavorProfile: {
@@ -10986,7 +10986,7 @@ export const ingredientProfiles: IngredientProfile[] = [
           primary: "Terpene",
           secondary: "Spice"
         },
-        description: "Fermented, hulled black peppercorn with sharp heat and earthy complexity"
+        description: "Fermented, hulled black pepper with sharp heat and earthy complexity"
       },
       {
         name: "new potato",
@@ -11083,7 +11083,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Sweet-tart citrus fruit with bright, floral notes and honey-like sweetness"
       },
       {
-        name: "poblano chili",
+        name: "poblano",
         category: "Vegetables",
         subcategory: "Fruit Vegetables",
         flavorProfile: {
@@ -11311,7 +11311,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Rich, fatty cut with connective tissue that becomes tender and flavorful when slow-cooked, ideal for barbecue and braising"
   },
   {
-    name: "rib eye steak",
+    name: "ribeye",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: {
