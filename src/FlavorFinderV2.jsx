@@ -510,6 +510,8 @@ export default function FlavorFinderV2() {
           ingredientProfiles={ingredientProfiles}
           maxSlots={targetIngredientCount}
           lockedIngredients={lockedIngredients}
+          onRemove={handleRemove}
+          onLockToggle={handleLockToggle}
         />
       )}
 
