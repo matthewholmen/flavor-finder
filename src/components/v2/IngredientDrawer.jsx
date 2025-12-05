@@ -187,50 +187,51 @@ export const IngredientDrawer = ({
       <>
         {/* Backdrop */}
         {isOpen && (
-          <div 
-            className="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm"
+          <div
+            className="fixed inset-0 z-40"
+            style={{ backgroundColor: '#f9fafb' }}
             onClick={onClose}
           />
         )}
         
         {/* Drawer */}
         <div className="fixed bottom-0 left-0 right-0 z-50">
-          {/* Pull Handle */}
-          <div className="flex justify-center">
-            <button
-              onClick={onToggle}
-              className="
-                relative -mb-1 px-10 pt-2.5 pb-3
-                bg-white rounded-t-2xl
-                shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
-                flex flex-col items-center
-                active:bg-gray-50 transition-colors
-              "
-            >
-              <div className="w-10 h-1 bg-gray-300 rounded-full mb-1" />
-              <ChevronUp 
-                size={20} 
-                className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
-          </div>
-          
+          {/* Pull Handle - only show when drawer is closed */}
+          {!isOpen && (
+            <div className="flex justify-center">
+              <button
+                onClick={onToggle}
+                className="
+                  relative -mb-1 px-10 pt-2.5 pb-3
+                  bg-white rounded-t-2xl
+                  shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
+                  flex flex-col items-center
+                  active:bg-gray-50 transition-colors
+                "
+              >
+                <div className="w-10 h-1 bg-gray-300 rounded-full mb-1" />
+                <ChevronUp size={20} className="text-gray-400" />
+              </button>
+            </div>
+          )}
+
           {/* Drawer Content */}
-          <div 
+          <div
             className={`
               bg-white overflow-hidden
               transition-all duration-300 ease-out
-              ${isOpen ? 'h-[75vh]' : 'h-0'}
+              rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
+              ${isOpen ? 'h-[50vh]' : 'h-0'}
             `}
-            style={{ maxHeight: '75vh' }}
+            style={{ maxHeight: '50vh' }}
           >
             <div className="flex flex-col h-full">
               {/* Search Bar */}
               <div className="flex-shrink-0 px-4 pt-3 pb-2">
                 <div className="relative">
-                  <Search 
-                    size={18} 
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" 
+                  <Search
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   />
                   <input
                     ref={inputRef}
@@ -256,29 +257,6 @@ export const IngredientDrawer = ({
                   )}
                 </div>
               </div>
-
-              {/* Selected Ingredients Summary */}
-              {selectedIngredients.length > 0 && (
-                <div className="flex-shrink-0 px-4 py-2 border-b border-gray-100">
-                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                    <span className="text-xs font-medium text-gray-500 flex-shrink-0">
-                      Selected:
-                    </span>
-                    {selectedIngredients.map((ingredient, index) => {
-                      const color = getIngredientColor(ingredient);
-                      return (
-                        <span
-                          key={ingredient}
-                          className="flex-shrink-0 text-sm font-semibold"
-                          style={{ color }}
-                        >
-                          {ingredient}{index < selectedIngredients.length - 1 ? ',' : ''}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
               {/* Suggested Ingredients Grid */}
               <div className="flex-1 overflow-y-auto px-4 py-3">
@@ -542,70 +520,43 @@ export const IngredientDrawer = ({
     <>
       {/* Backdrop */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm"
+        <div
+          className="fixed inset-0 z-40"
+          style={{ backgroundColor: '#f9fafb' }}
           onClick={onClose}
         />
       )}
       
       {/* Drawer - Fixed at bottom */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
-        {/* Pull Handle */}
-        <div className="flex justify-center">
-          <button
-            onClick={onToggle}
-            className="
-              relative -mb-1 px-12 pt-3 pb-4
-              bg-white rounded-t-3xl
-              shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
-              flex flex-col items-center
-              hover:bg-gray-50 transition-colors
-            "
-          >
-            <ChevronUp 
-              size={24} 
-              className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
-        </div>
-        
+        {/* Pull Handle - only show when drawer is closed */}
+        {!isOpen && (
+          <div className="flex justify-center">
+            <button
+              onClick={onToggle}
+              className="
+                relative -mb-1 px-12 pt-3 pb-4
+                bg-white rounded-t-3xl
+                shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
+                flex flex-col items-center
+                hover:bg-gray-50 transition-colors
+              "
+            >
+              <ChevronUp size={24} className="text-gray-400" />
+            </button>
+          </div>
+        )}
+
         {/* Drawer Content - Fixed height */}
-        <div 
+        <div
           className={`
             bg-white overflow-hidden
             transition-all duration-300 ease-out
-            border-t border-gray-100
-            ${isOpen ? 'h-[65vh]' : 'h-0'}
+            rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
+            ${isOpen ? 'h-[50vh]' : 'h-0'}
           `}
         >
           <div className="flex flex-col h-full">
-            {/* Selected Ingredients Bar */}
-            <div className="flex-shrink-0 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-500 flex-shrink-0">
-                  Selected:
-                </span>
-                {selectedIngredients.length > 0 ? (
-                  <div className="flex items-center gap-2 overflow-x-auto">
-                    {selectedIngredients.map((ingredient, index) => {
-                      const color = getIngredientColor(ingredient);
-                      return (
-                        <span
-                          key={ingredient}
-                          className="flex-shrink-0 text-sm font-medium"
-                          style={{ color }}
-                        >
-                          {ingredient}{index < selectedIngredients.length - 1 ? ',' : ''}
-                        </span>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <span className="text-sm text-gray-400 italic">No ingredients selected</span>
-                )}
-              </div>
-            </div>
-
             {/* Main Content Area */}
             <div className="flex flex-1 min-h-0">
             {/* Left Side: Filter Panel */}

@@ -12,6 +12,7 @@ export const HeroIngredientDisplay = ({
   onRemove,
   onLockToggle,
   onEmptySlotClick,
+  isDrawerOpen = false,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
@@ -168,12 +169,14 @@ export const HeroIngredientDisplay = ({
   };
 
   return (
-    <div 
+    <div
       className={`
         flex items-center justify-center
         px-4 sm:px-6 md:px-12 lg:px-20
         text-center
         ${isMobile ? 'min-h-[40vh] py-4' : 'min-h-[50vh]'}
+        transition-opacity duration-300
+        ${isDrawerOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}
       `}
     >
       <div

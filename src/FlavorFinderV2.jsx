@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { MinimalHeader } from './components/v2/MinimalHeader';
 import { HeroIngredientDisplay } from './components/v2/HeroIngredientDisplay';
+import { CompactIngredientDisplay } from './components/v2/CompactIngredientDisplay';
 import { IngredientDrawer } from './components/v2/IngredientDrawer';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills';
 import { flavorPairings } from './data/flavorPairings.ts';
@@ -395,7 +396,7 @@ export default function FlavorFinderV2() {
         // Set default value of 1 when activating a slider
         setTasteValues(prevValues => ({
           ...prevValues,
-          [taste]: 1
+          [taste]: 3
         }));
       }
       return next;
@@ -501,7 +502,17 @@ export default function FlavorFinderV2() {
         onRecipesClick={handleRecipeSearch}
         isGeneratePulsing={isFirstLoad}
       />
-      
+
+      {/* Compact Ingredient Display - Shows above drawer when open */}
+      {isDrawerOpen && (
+        <CompactIngredientDisplay
+          ingredients={selectedIngredients}
+          ingredientProfiles={ingredientProfiles}
+          maxSlots={targetIngredientCount}
+          lockedIngredients={lockedIngredients}
+        />
+      )}
+
       {/* Main Content - Hero Display */}
       <main className="flex-1 flex items-center justify-center pt-20 pb-32">
         <HeroIngredientDisplay
@@ -512,6 +523,7 @@ export default function FlavorFinderV2() {
           onRemove={handleRemove}
           onLockToggle={handleLockToggle}
           onEmptySlotClick={() => setIsDrawerOpen(true)}
+          isDrawerOpen={isDrawerOpen}
         />
       </main>
       
