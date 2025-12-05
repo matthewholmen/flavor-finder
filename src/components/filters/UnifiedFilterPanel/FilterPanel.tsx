@@ -37,14 +37,14 @@ const FilterPanel: React.FC<UnifiedFilterPanelProps> = ({
   ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+    <div className="bg-white border-2 border-gray-300 rounded-lg overflow-hidden">
       {/* Panel Header with Tabs */}
       <div className="border-b border-gray-200">
         <div className="flex items-center justify-between p-4 pb-0">
           <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full hover:bg-gray-50 transition-colors"
             aria-label="Close filters panel"
           >
             <X size={20} className="text-gray-600" />
@@ -58,10 +58,10 @@ const FilterPanel: React.FC<UnifiedFilterPanelProps> = ({
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                px-4 py-2 text-sm font-medium border-b-2 transition-colors
+                px-4 py-3 text-base font-medium border-b-2 transition-colors
                 ${activeTab === tab.id
                   ? 'border-[#72A8D5] text-[#72A8D5]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-600 hover:text-gray-700 hover:border-gray-500'
                 }
               `}
             >

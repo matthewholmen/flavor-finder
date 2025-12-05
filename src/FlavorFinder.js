@@ -455,13 +455,13 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   
 
   const [tasteValues, setTasteValues] = useState({
-    sweet: 5,
-    salty: 5,
-    sour: 5,
-    bitter: 5,
-    umami: 5,
-    fat: 5,
-    spicy: 5
+    sweet: 0,
+    salty: 0,
+    sour: 0,
+    bitter: 0,
+    umami: 0,
+    fat: 0,
+    spicy: 0
   });
 
   const [defaultTasteValues] = useState({
@@ -957,6 +957,11 @@ const toggleSlider = (taste) => {
       next.delete(taste);
     } else {
       next.add(taste);
+      // Set default value of 1 when activating a slider
+      setTasteValues(prevValues => ({
+        ...prevValues,
+        [taste]: 1
+      }));
     }
     return next;
   });

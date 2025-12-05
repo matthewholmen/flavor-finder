@@ -21,8 +21,8 @@ const FilterPanelTrigger: React.FC<FilterPanelTriggerProps> = ({
         relative flex items-center justify-center
         px-4 rounded-full border-2 transition-all duration-200
         ${isOpen 
-          ? 'bg-[#72A8D5] border-[#72A8D5] text-white' 
-          : 'bg-white border-gray-300 text-gray-600 hover:border-gray-500 hover:text-gray-800'
+          ? 'bg-[#72A8D5] border-[#72A8D5] text-white'
+          : 'bg-white border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50'
         }
         ${className}
       `}

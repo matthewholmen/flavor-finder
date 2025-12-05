@@ -62,7 +62,7 @@ export default function FlavorFinderV2() {
   const [activeCategory, setActiveCategory] = useState('');
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [tasteValues, setTasteValues] = useState({
-    sweet: 5, salty: 5, sour: 5, bitter: 5, umami: 5, fat: 5, spicy: 5
+    sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, fat: 0, spicy: 0
   });
   const [activeSliders, setActiveSliders] = useState(new Set());
   const [dietaryRestrictions, setDietaryRestrictions] = useState({});
@@ -392,6 +392,11 @@ export default function FlavorFinderV2() {
         next.delete(taste);
       } else {
         next.add(taste);
+        // Set default value of 1 when activating a slider
+        setTasteValues(prevValues => ({
+          ...prevValues,
+          [taste]: 1
+        }));
       }
       return next;
     });
@@ -449,7 +454,7 @@ export default function FlavorFinderV2() {
         
         // Check each active taste slider
         return Array.from(activeSliders).every(taste => {
-          const threshold = tasteValues[taste] || 5;
+          const threshold = tasteValues[taste] || 0;
           const ingredientValue = profile.flavorProfile[taste] || 0;
           return ingredientValue >= threshold;
         });

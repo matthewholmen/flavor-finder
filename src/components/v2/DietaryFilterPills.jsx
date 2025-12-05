@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 
 const DIETARY_LABELS = {
@@ -101,48 +101,23 @@ export const DietaryFilterPills = ({
 };
 
 const FilterPill = ({ label, onRemove }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  
   return (
     <button
       onClick={onRemove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`
-        group relative
-        px-4 py-2.5
+      className="
+        group flex items-center gap-1.5
+        pl-3 pr-2.5 py-2
         rounded-full
         font-medium text-sm
-        transition-all duration-200 ease-out
-        shadow-md hover:shadow-lg
-        ${isHovered 
-          ? 'bg-red-500 text-white pr-10' 
-          : 'bg-[#72A8D5] text-white'
-        }
-      `}
-      style={{
-        minWidth: isHovered ? '140px' : 'auto',
-      }}
+        bg-[#72A8D5] text-white
+        border-2 border-[#72A8D5]
+        transition-colors duration-200
+        hover:bg-[#5a96c9] hover:border-[#5a96c9]
+      "
     >
-      <span className={`
-        transition-opacity duration-150
-        ${isHovered ? 'opacity-90' : 'opacity-100'}
-      `}>
-        {label}
-      </span>
-      
-      {/* X icon that appears on hover */}
-      <span 
-        className={`
-          absolute right-3 top-1/2 -translate-y-1/2
-          transition-all duration-200
-          ${isHovered 
-            ? 'opacity-100 scale-100' 
-            : 'opacity-0 scale-75'
-          }
-        `}
-      >
-        <X size={16} strokeWidth={2.5} />
+      <span>{label}</span>
+      <span className="flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity duration-200">
+        <X size={14} strokeWidth={2.5} />
       </span>
     </button>
   );

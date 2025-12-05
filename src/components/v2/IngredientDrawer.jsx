@@ -283,7 +283,7 @@ export const IngredientDrawer = ({
               {/* Suggested Ingredients Grid */}
               <div className="flex-1 overflow-y-auto px-4 py-3">
                 <div className="flex flex-wrap gap-2">
-                  {suggestions.slice(0, 60).map((ingredient) => {
+                  {suggestions.map((ingredient) => {
                     const isSelected = selectedIngredients.includes(ingredient);
                     const color = getIngredientColor(ingredient);
                     
@@ -485,15 +485,15 @@ export const IngredientDrawer = ({
                                   <span className="text-xs font-medium capitalize w-10">{taste}</span>
                                   <input
                                     type="range"
-                                    min="0"
+                                    min="1"
                                     max="10"
-                                    step="0.5"
-                                    value={tasteValues[taste] || 5}
-                                    onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseFloat(e.target.value) })}
+                                    step="1"
+                                    value={tasteValues[taste] || 0}
+                                    onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
                                     className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
                                     style={{ accentColor: color }}
                                   />
-                                  <span className="text-xs text-gray-500 w-5">{(tasteValues[taste] || 5).toFixed(1)}</span>
+                                  <span className="text-xs text-gray-500 w-5">{tasteValues[taste] || 0}</span>
                                 </div>
                               );
                             })}
@@ -743,15 +743,15 @@ export const IngredientDrawer = ({
                             <span className="text-xs font-medium capitalize w-12">{taste}</span>
                             <input
                               type="range"
-                              min="0"
+                              min="1"
                               max="10"
-                              step="0.5"
-                              value={tasteValues[taste] || 5}
-                              onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseFloat(e.target.value) })}
+                              step="1"
+                              value={tasteValues[taste] || 0}
+                              onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
                               className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
                               style={{ accentColor: color }}
                             />
-                            <span className="text-xs text-gray-500 w-6">{(tasteValues[taste] || 5).toFixed(1)}</span>
+                            <span className="text-xs text-gray-500 w-6">{tasteValues[taste] || 0}</span>
                           </div>
                         );
                       })}
@@ -821,7 +821,7 @@ export const IngredientDrawer = ({
               {/* Ingredients Grid */}
               <div className="flex-1 overflow-y-auto">
                 <div className="flex flex-wrap gap-2.5 content-start">
-                  {suggestions.slice(0, 100).map((ingredient) => {
+                  {suggestions.map((ingredient) => {
                     const isSelected = selectedIngredients.includes(ingredient);
                     const color = getIngredientColor(ingredient);
                     

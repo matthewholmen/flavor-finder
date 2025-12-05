@@ -4,7 +4,7 @@ import { TasteSectionProps } from './types.ts';
 import { TASTE_COLORS } from '../../../utils/colors.ts';
 
 const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'] as const;
-const DEFAULT_VALUE = 5;
+const DEFAULT_VALUE = 1;
 
 const TasteSection: React.FC<TasteSectionProps> = ({
   values,
@@ -14,14 +14,14 @@ const TasteSection: React.FC<TasteSectionProps> = ({
   compact = false
 }) => {
   const handleTasteToggle = (taste: string) => {
-    onToggleSlider(taste);
-    
-    if (!activeSliders.has(taste) && values[taste as keyof typeof values] === 0) {
+    // If activating (not currently active), set to default value
+    if (!activeSliders.has(taste)) {
       onChange({
         ...values,
         [taste]: DEFAULT_VALUE
       });
     }
+    onToggleSlider(taste);
   };
 
   const handleSliderChange = (taste: string, value: number) => {
@@ -111,11 +111,11 @@ const TasteSection: React.FC<TasteSectionProps> = ({
                   <div className="flex-1 relative">
                     <input
                       type="range"
-                      min="0"
+                      min="1"
                       max="10"
-                      step="0.1"
+                      step="1"
                       value={values[taste as keyof typeof values]}
-                      onChange={(e) => handleSliderChange(taste, parseFloat(e.target.value))}
+                      onChange={(e) => handleSliderChange(taste, parseInt(e.target.value, 10))}
                       className="w-full h-2 rounded-full appearance-none cursor-pointer"
                       style={{
                         background: `linear-gradient(to right, ${tasteColor} 0%, ${tasteColor} ${values[taste as keyof typeof values] * 10}%, ${getDesaturatedColor(tasteColor)} ${values[taste as keyof typeof values] * 10}%, ${getDesaturatedColor(tasteColor)} 100%)`,
@@ -124,7 +124,7 @@ const TasteSection: React.FC<TasteSectionProps> = ({
                     />
                   </div>
                   <span className="text-xs text-gray-500 min-w-0 w-8 text-right">
-                    {values[taste as keyof typeof values].toFixed(1)}
+                    {values[taste as keyof typeof values]}
                   </span>
                   <button
                     onClick={() => onToggleSlider(taste)}
@@ -140,7 +140,7 @@ const TasteSection: React.FC<TasteSectionProps> = ({
       )}
 
       {activeSliders.size === 0 && (
-        <p className="text-xs text-gray-500 italic">
+        <p className="text-xs text-gray-500">
           Click taste properties above to add filters
         </p>
       )}

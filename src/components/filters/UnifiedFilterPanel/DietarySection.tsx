@@ -190,7 +190,7 @@ const DietarySection: React.FC<DietarySectionProps> = ({
 
       {/* Help Text */}
       {activeCount === 0 && (
-        <p className="text-xs text-gray-500 italic">
+        <p className="text-xs text-gray-500">
           No dietary restrictions active
         </p>
       )}

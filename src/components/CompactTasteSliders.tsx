@@ -19,7 +19,7 @@ interface CompactTasteSlidersProps {
   onToggleSlider: (taste: keyof TasteValues) => void;
 }
 
-const DEFAULT_VALUE = 5;
+const DEFAULT_VALUE = 1;
 
 const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
   values,
@@ -29,7 +29,6 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
 }) => {
   const [currentSlider, setCurrentSlider] = useState<keyof TasteValues>('sweet');
   const [isDragging, setIsDragging] = useState(false);
-  const [initializedSliders] = useState(new Set<keyof TasteValues>());
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Detect mobile device
@@ -54,25 +53,21 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
 
   const handleTasteToggle = (taste: keyof TasteValues) => {
     if (!isDragging) {
-      onToggleSlider(taste);
-      
+      // If activating (not currently active), set to default value
       if (!activeSliders.has(taste)) {
         setCurrentSlider(taste);
-      }
-      
-      if (!activeSliders.has(taste) && !initializedSliders.has(taste)) {
-        initializedSliders.add(taste);
         onChange({
           ...values,
           [taste]: DEFAULT_VALUE
         });
       }
+      onToggleSlider(taste);
     }
     setIsDragging(false);
   };
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
+    const value = parseInt(e.target.value, 10);
     onChange({
       ...values,
       [currentSlider]: value
@@ -95,14 +90,14 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
   const areAllSlidersDisabled = activeSliders.size === 0;
 
   useEffect(() => {
-    const uninitialized = Array.from(activeSliders).filter(
-      taste => !initializedSliders.has(taste) && values[taste] === 0
+    // Set default value for any newly activated sliders that have value 0
+    const needsDefault = Array.from(activeSliders).filter(
+      taste => values[taste] === 0
     );
-    
-    if (uninitialized.length > 0) {
+
+    if (needsDefault.length > 0) {
       const newValues = { ...values };
-      uninitialized.forEach(taste => {
-        initializedSliders.add(taste);
+      needsDefault.forEach(taste => {
         newValues[taste] = DEFAULT_VALUE;
       });
       onChange(newValues);
@@ -295,9 +290,9 @@ const CompactTasteSliders: React.FC<CompactTasteSlidersProps> = ({
           `}</style>
           <input
             type="range"
-            min="0"
+            min="1"
             max="10"
-            step=".1"
+            step="1"
             value={values[currentSlider]}
             onChange={handleSliderChange}
             className={`
