@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Lock, Unlock } from 'lucide-react';
 import { HeroIngredient } from './HeroIngredient';
 import { EmptySlotIndicator } from './EmptySlotIndicator';
+import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
 export const HeroIngredientDisplay = ({
   ingredients,
@@ -12,9 +14,80 @@ export const HeroIngredientDisplay = ({
   onEmptySlotClick,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  
+  const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
+  const { isMobile, width } = useScreenSize();
+  const containerRef = useRef(null);
+
   // Filter out undefined ingredients for display
   const validIngredients = ingredients.filter(Boolean);
+
+  // Click outside handler to dismiss mobile action buttons
+  useEffect(() => {
+    if (!isMobile || focusedIngredientIndex === null) return;
+
+    const handleClickOutside = (e) => {
+      // Don't dismiss if clicking on the action buttons themselves
+      if (e.target.closest('[data-action-buttons]')) return;
+      // Don't dismiss if clicking on an ingredient (it will set its own focus)
+      if (e.target.closest('[data-ingredient]')) return;
+      setFocusedIngredientIndex(null);
+      setHoveredIndex(null);
+    };
+
+    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMobile, focusedIngredientIndex]);
+
+  // Get the focused ingredient info for mobile action buttons
+  const getFocusedIngredientInfo = () => {
+    if (focusedIngredientIndex === null) return null;
+    const ingredient = validIngredients[focusedIngredientIndex];
+    if (!ingredient) return null;
+
+    // Find actual index in original array
+    let actualIndex = focusedIngredientIndex;
+    let count = 0;
+    for (let i = 0; i < ingredients.length; i++) {
+      if (ingredients[i]) {
+        if (count === focusedIngredientIndex) {
+          actualIndex = i;
+          break;
+        }
+        count++;
+      }
+    }
+
+    return {
+      ingredient,
+      actualIndex,
+      isLocked: lockedIngredients.has(actualIndex),
+    };
+  };
+
+  const focusedInfo = getFocusedIngredientInfo();
+
+  // Handle remove with dismiss
+  const handleMobileRemove = () => {
+    if (focusedInfo) {
+      onRemove(focusedInfo.actualIndex);
+      setFocusedIngredientIndex(null);
+      setHoveredIndex(null);
+    }
+  };
+
+  // Handle lock toggle with dismiss
+  const handleMobileLockToggle = () => {
+    if (focusedInfo) {
+      onLockToggle(focusedInfo.actualIndex);
+      setFocusedIngredientIndex(null);
+      setHoveredIndex(null);
+    }
+  };
   const emptySlotCount = maxSlots - validIngredients.length;
   const totalSlots = maxSlots; // Total positions including empty
   
@@ -26,6 +99,17 @@ export const HeroIngredientDisplay = ({
   
   // For 2-ingredient sets, use tighter spacing
   const useTightSpacing = isTwoIngredientSet;
+
+  // Fixed typography classes - consistent size regardless of ingredient count
+  const getTypographyClasses = () => {
+    if (isMobile) {
+      // Mobile: larger size for bold, impactful appearance matching desktop
+      return 'text-5xl';
+    }
+
+    // Desktop: fixed size to match original design
+    return 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl';
+  };
 
   // Determine punctuation for each ingredient based on position
   // For 2-ingredient sets: no commas, just "a & b" or "a & ____"
@@ -85,22 +169,22 @@ export const HeroIngredientDisplay = ({
 
   return (
     <div 
-      className="
+      className={`
         flex items-center justify-center
-        min-h-[50vh]
-        px-6 md:px-12 lg:px-20
+        px-4 sm:px-6 md:px-12 lg:px-20
         text-center
-      "
+        ${isMobile ? 'min-h-[40vh] py-4' : 'min-h-[50vh]'}
+      `}
     >
-      <div 
-        className="
+      <div
+        className={`
           font-black
-          text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl
-          leading-[1.15]
+          ${getTypographyClasses()}
+          ${isMobile ? 'leading-[1.2]' : 'leading-[1.15]'}
           tracking-tight
-          max-w-[90vw]
-        "
-        style={{ 
+          ${isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]'}
+        `}
+        style={{
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
           wordWrap: 'break-word',
         }}
@@ -133,9 +217,11 @@ export const HeroIngredientDisplay = ({
               profile={profile}
               isLocked={lockedIngredients.has(actualIndex)}
               isHovered={hoveredIndex === displayIndex}
+              isFocused={isMobile && focusedIngredientIndex === displayIndex}
               isFaded={hasHoveredIngredient && hoveredIndex !== displayIndex}
               onHover={() => setHoveredIndex(displayIndex)}
               onHoverEnd={() => setHoveredIndex(null)}
+              onFocus={() => setFocusedIngredientIndex(displayIndex)}
               onRemove={() => onRemove(actualIndex)}
               onLockToggle={() => onLockToggle(actualIndex)}
               showComma={showComma}
@@ -143,6 +229,7 @@ export const HeroIngredientDisplay = ({
               isLast={isLastIngredient && emptySlotCount === 0}
               isTwoIngredientSet={isTwoIngredientSet}
               useTightSpacing={useTightSpacing}
+              isMobile={isMobile}
             />
           );
         })}
@@ -150,7 +237,7 @@ export const HeroIngredientDisplay = ({
         {/* Render ALL empty slots */}
         {Array.from({ length: emptySlotCount }).map((_, emptyIndex) => {
           const { showAmpersand, showComma } = getEmptySlotDisplayInfo(emptyIndex);
-          
+
           return (
             <EmptySlotIndicator
               key={`empty-${emptyIndex}`}
@@ -159,10 +246,56 @@ export const HeroIngredientDisplay = ({
               isFaded={hasHoveredIngredient}
               onClick={onEmptySlotClick}
               useTightSpacing={useTightSpacing}
+              isMobile={isMobile}
             />
           );
         })}
       </div>
+
+      {/* Mobile action buttons - fixed near bottom of screen, above tray handle */}
+      {isMobile && focusedInfo && (
+        <div
+          data-action-buttons
+          className="fixed left-1/2 -translate-x-1/2 flex items-center gap-6 z-50"
+          style={{
+            bottom: '120px',
+            opacity: 1,
+            transition: 'opacity 150ms ease',
+          }}
+        >
+          {/* Remove button */}
+          <button
+            onClick={handleMobileRemove}
+            className="flex items-center justify-center bg-white rounded-full shadow-lg active:bg-gray-100"
+            style={{
+              width: '64px',
+              height: '64px',
+              boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
+            }}
+            title="Remove ingredient"
+          >
+            <X size={28} className="text-gray-500" strokeWidth={2} />
+          </button>
+
+          {/* Lock/Unlock button */}
+          <button
+            onClick={handleMobileLockToggle}
+            className="flex items-center justify-center bg-white rounded-full shadow-lg active:bg-gray-100"
+            style={{
+              width: '64px',
+              height: '64px',
+              boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
+            }}
+            title={focusedInfo.isLocked ? "Unlock ingredient" : "Lock ingredient"}
+          >
+            {focusedInfo.isLocked ? (
+              <Lock size={28} className="text-gray-700" strokeWidth={2} />
+            ) : (
+              <Unlock size={28} className="text-gray-400" strokeWidth={2} />
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { ChevronUp, Search, X } from 'lucide-react';
+import { ChevronUp, ChevronDown, Search, X, Filter } from 'lucide-react';
 import { TASTE_COLORS } from '../../utils/colors.ts';
+import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
 // Filter constants
 const CATEGORIES = [
@@ -51,13 +52,21 @@ export const IngredientDrawer = ({
   onDietaryChange = () => {},
 }) => {
   const inputRef = useRef(null);
+  const { isMobile, width } = useScreenSize();
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('categories');
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
   
   // Auto-focus search input when drawer opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen]);
+
+  // Close filters when drawer closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsFiltersExpanded(false);
     }
   }, [isOpen]);
 
@@ -163,8 +172,372 @@ export const IngredientDrawer = ({
     onDietaryChange(newRestrictions);
   };
 
+  // Count active filters
+  const activeFilterCount = 
+    (activeCategory ? 1 : 0) + 
+    selectedSubcategories.length + 
+    activeSliders.size + 
+    Object.values(dietaryRestrictions).filter(v => v === false).length;
+
   const subcategories = SUBCATEGORIES[activeCategory] || [];
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <>
+        {/* Backdrop */}
+        {isOpen && (
+          <div 
+            className="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm"
+            onClick={onClose}
+          />
+        )}
+        
+        {/* Drawer */}
+        <div className="fixed bottom-0 left-0 right-0 z-50">
+          {/* Pull Handle */}
+          <div className="flex justify-center">
+            <button
+              onClick={onToggle}
+              className="
+                relative -mb-1 px-10 pt-2.5 pb-3
+                bg-white rounded-t-2xl
+                shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
+                flex flex-col items-center
+                active:bg-gray-50 transition-colors
+              "
+            >
+              <div className="w-10 h-1 bg-gray-300 rounded-full mb-1" />
+              <ChevronUp 
+                size={20} 
+                className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+          </div>
+          
+          {/* Drawer Content */}
+          <div 
+            className={`
+              bg-white overflow-hidden
+              transition-all duration-300 ease-out
+              ${isOpen ? 'h-[75vh]' : 'h-0'}
+            `}
+            style={{ maxHeight: '75vh' }}
+          >
+            <div className="flex flex-col h-full">
+              {/* Search Bar */}
+              <div className="flex-shrink-0 px-4 pt-3 pb-2">
+                <div className="relative">
+                  <Search 
+                    size={18} 
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" 
+                  />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    placeholder="Search ingredients..."
+                    className="
+                      w-full pl-10 pr-10 py-3
+                      rounded-xl border border-gray-200
+                      focus:border-gray-400 focus:outline-none
+                      text-base bg-gray-50
+                    "
+                    style={{ fontSize: '16px' }} // Prevents iOS zoom
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => onSearchChange('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                    >
+                      <X size={18} className="text-gray-400" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Selected Ingredients Summary */}
+              {selectedIngredients.length > 0 && (
+                <div className="flex-shrink-0 px-4 py-2 border-b border-gray-100">
+                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                    <span className="text-xs font-medium text-gray-500 flex-shrink-0">
+                      Selected:
+                    </span>
+                    {selectedIngredients.map((ingredient, index) => {
+                      const color = getIngredientColor(ingredient);
+                      return (
+                        <span
+                          key={ingredient}
+                          className="flex-shrink-0 text-sm font-semibold"
+                          style={{ color }}
+                        >
+                          {ingredient}{index < selectedIngredients.length - 1 ? ',' : ''}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Suggested Ingredients Grid */}
+              <div className="flex-1 overflow-y-auto px-4 py-3">
+                <div className="flex flex-wrap gap-2">
+                  {suggestions.slice(0, 60).map((ingredient) => {
+                    const isSelected = selectedIngredients.includes(ingredient);
+                    const color = getIngredientColor(ingredient);
+                    
+                    return (
+                      <button
+                        key={ingredient}
+                        onClick={() => {
+                          if (!isSelected) {
+                            onIngredientSelect(ingredient);
+                          }
+                        }}
+                        disabled={isSelected}
+                        className={`
+                          px-4 py-2.5
+                          rounded-full font-semibold text-sm
+                          transition-all duration-150 border-2
+                          min-h-[44px]
+                          ${isSelected 
+                            ? 'opacity-30 cursor-not-allowed' 
+                            : 'active:scale-95'
+                          }
+                        `}
+                        style={{ 
+                          color: isSelected ? '#d1d5db' : '#1f2937',
+                          borderColor: isSelected ? '#e5e7eb' : color,
+                          backgroundColor: 'white',
+                        }}
+                      >
+                        {ingredient}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                {/* Empty States */}
+                {suggestions.length === 0 && searchTerm && (
+                  <div className="text-center py-8 text-gray-400">
+                    No compatible ingredients found for "{searchTerm}"
+                  </div>
+                )}
+                
+                {suggestions.length === 0 && !searchTerm && (
+                  <div className="text-center py-8 text-gray-400">
+                    No more compatible ingredients available
+                  </div>
+                )}
+              </div>
+
+              {/* Filters Accordion */}
+              <div className="flex-shrink-0 border-t border-gray-200">
+                {/* Filter Header */}
+                <button
+                  onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+                  className="
+                    w-full flex items-center justify-between
+                    px-4 py-3
+                    active:bg-gray-50
+                  "
+                >
+                  <div className="flex items-center gap-2">
+                    <Filter size={18} className="text-gray-500" />
+                    <span className="font-medium text-gray-700">Filters</span>
+                    {activeFilterCount > 0 && (
+                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </div>
+                  <ChevronDown 
+                    size={20} 
+                    className={`text-gray-400 transition-transform duration-200 ${isFiltersExpanded ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {/* Filter Content */}
+                <div 
+                  className={`
+                    overflow-hidden transition-all duration-300
+                    ${isFiltersExpanded ? 'max-h-[300px]' : 'max-h-0'}
+                  `}
+                >
+                  <div className="px-4 pb-4 overflow-y-auto" style={{ maxHeight: '280px' }}>
+                    {/* Tab Navigation */}
+                    <div className="flex gap-1 mb-3 border-b border-gray-200">
+                      {['categories', 'taste', 'dietary'].map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setActiveTab(tab)}
+                          className={`
+                            px-3 py-2 text-xs font-medium capitalize
+                            border-b-2 transition-colors
+                            ${activeTab === tab
+                              ? 'border-[#72A8D5] text-[#72A8D5]'
+                              : 'border-transparent text-gray-500'
+                            }
+                          `}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Categories Tab */}
+                    {activeTab === 'categories' && (
+                      <div className="space-y-2">
+                        {!activeCategory ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {CATEGORIES.map((cat) => (
+                              <button
+                                key={cat}
+                                onClick={() => handleCategoryClick(cat)}
+                                className="
+                                  py-2 px-3 text-xs
+                                  rounded-full border-2 border-gray-300
+                                  bg-white text-gray-700 font-medium
+                                  active:bg-gray-100
+                                  min-h-[36px]
+                                "
+                              >
+                                {cat}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={handleClearCategory}
+                                className="p-1.5 rounded-full bg-gray-100"
+                              >
+                                <X size={14} className="text-gray-600" />
+                              </button>
+                              <span className="py-1.5 px-3 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-xs">
+                                {activeCategory}
+                              </span>
+                            </div>
+                            {subcategories.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5">
+                                {subcategories.map((subcat) => {
+                                  const isSelected = selectedSubcategories.includes(subcat);
+                                  return (
+                                    <button
+                                      key={subcat}
+                                      onClick={() => handleSubcategoryToggle(subcat)}
+                                      className={`
+                                        py-1.5 px-2.5 text-xs
+                                        rounded-full border-2 font-medium
+                                        ${isSelected
+                                          ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
+                                          : 'border-gray-300 bg-white text-gray-700'
+                                        }
+                                      `}
+                                    >
+                                      {subcat}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Taste Tab */}
+                    {activeTab === 'taste' && (
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1.5">
+                          {TASTE_PROPERTIES.map((taste) => {
+                            const isActive = activeSliders.has(taste);
+                            const color = TASTE_COLORS[taste];
+                            return (
+                              <button
+                                key={taste}
+                                onClick={() => handleTasteToggle(taste)}
+                                className={`
+                                  py-2 px-3 text-xs
+                                  rounded-full border-2 font-medium capitalize
+                                  min-h-[36px]
+                                  ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
+                                `}
+                                style={isActive ? { backgroundColor: color, borderColor: color } : {}}
+                              >
+                                {taste}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {activeSliders.size > 0 && (
+                          <div className="space-y-2 pt-2">
+                            {Array.from(activeSliders).map((taste) => {
+                              const color = TASTE_COLORS[taste];
+                              return (
+                                <div key={taste} className="flex items-center gap-2">
+                                  <div 
+                                    className="w-2 h-2 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  <span className="text-xs font-medium capitalize w-10">{taste}</span>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="10"
+                                    step="0.5"
+                                    value={tasteValues[taste] || 5}
+                                    onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseFloat(e.target.value) })}
+                                    className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
+                                    style={{ accentColor: color }}
+                                  />
+                                  <span className="text-xs text-gray-500 w-5">{(tasteValues[taste] || 5).toFixed(1)}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Dietary Tab */}
+                    {activeTab === 'dietary' && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {DIETARY_TOGGLES.map((toggle) => {
+                          const isActive = getDietaryState(toggle.key);
+                          return (
+                            <button
+                              key={toggle.key}
+                              onClick={() => handleDietaryToggle(toggle.key)}
+                              className={`
+                                py-2 px-3 text-xs
+                                rounded-full border-2 font-medium
+                                min-h-[36px]
+                                ${isActive
+                                  ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
+                                  : 'border-gray-300 bg-white text-gray-700'
+                                }
+                              `}
+                            >
+                              {toggle.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Desktop layout (original)
   return (
     <>
       {/* Backdrop */}
@@ -240,12 +613,11 @@ export const IngredientDrawer = ({
               {/* Filter Header */}
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-                <button
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <X size={18} className="text-gray-500" />
-                </button>
+                {activeFilterCount > 0 && (
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                    {activeFilterCount} active
+                  </span>
+                )}
               </div>
 
               {/* Tab Navigation */}
@@ -271,8 +643,6 @@ export const IngredientDrawer = ({
               {/* Categories Tab */}
               {activeTab === 'categories' && (
                 <div className="space-y-3">
-                  <h3 className="font-semibold text-gray-900">Categories</h3>
-                  
                   {!activeCategory ? (
                     <div className="grid grid-cols-2 gap-2">
                       {CATEGORIES.map((cat) => (
@@ -293,7 +663,6 @@ export const IngredientDrawer = ({
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {/* Active Category */}
                       <div className="flex items-center gap-2">
                         <button
                           onClick={handleClearCategory}
@@ -305,8 +674,6 @@ export const IngredientDrawer = ({
                           {activeCategory}
                         </span>
                       </div>
-
-                      {/* Subcategories */}
                       {subcategories.length > 0 && (
                         <div>
                           <h4 className="text-xs font-medium text-gray-600 mb-2">Subcategories</h4>
@@ -342,7 +709,6 @@ export const IngredientDrawer = ({
               {/* Taste Tab */}
               {activeTab === 'taste' && (
                 <div className="space-y-3">
-                  <h3 className="font-semibold text-gray-900">Taste Profile</h3>
                   <div className="grid grid-cols-2 gap-2">
                     {TASTE_PROPERTIES.map((taste) => {
                       const isActive = activeSliders.has(taste);
@@ -364,8 +730,6 @@ export const IngredientDrawer = ({
                       );
                     })}
                   </div>
-
-                  {/* Active Sliders */}
                   {activeSliders.size > 0 && (
                     <div className="space-y-2 pt-2">
                       {Array.from(activeSliders).map((taste) => {
@@ -398,30 +762,27 @@ export const IngredientDrawer = ({
 
               {/* Dietary Tab */}
               {activeTab === 'dietary' && (
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-gray-900">Dietary</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {DIETARY_TOGGLES.map((toggle) => {
-                      const isActive = getDietaryState(toggle.key);
-                      return (
-                        <button
-                          key={toggle.key}
-                          onClick={() => handleDietaryToggle(toggle.key)}
-                          className={`
-                            py-2.5 px-3 text-sm
-                            rounded-full border-2 font-medium
-                            transition-all
-                            ${isActive
-                              ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
-                              : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                            }
-                          `}
-                        >
-                          {toggle.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {DIETARY_TOGGLES.map((toggle) => {
+                    const isActive = getDietaryState(toggle.key);
+                    return (
+                      <button
+                        key={toggle.key}
+                        onClick={() => handleDietaryToggle(toggle.key)}
+                        className={`
+                          py-2.5 px-3 text-sm
+                          rounded-full border-2 font-medium
+                          transition-all
+                          ${isActive
+                            ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
+                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                          }
+                        `}
+                      >
+                        {toggle.label}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>

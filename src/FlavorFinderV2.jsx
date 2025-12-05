@@ -98,58 +98,78 @@ export default function FlavorFinderV2() {
     });
   };
 
-  // Random ingredient generation
+  // Random ingredient generation with backtracking
   const getRandomIngredients = (count = 5, lockedList = []) => {
-    const selections = [];
-    let maxAttempts = 100;
-    const excludeSet = new Set([...lockedList, ...selections]);
-    
-    while (selections.length < count && maxAttempts > 0) {
-      if (selections.length === 0) {
-        let fullPool = Array.from(flavorMap.keys())
-          .filter(ingredient => !excludeSet.has(ingredient))
-          .filter(ingredient => !isIngredientRestricted(ingredient));
-        
-        if (lockedList.length > 0) {
-          fullPool = fullPool.filter(ingredient => 
-            lockedList.every(locked => 
-              flavorMap.get(locked)?.has(ingredient)
-            )
-          );
+    const maxGlobalAttempts = 200;
+
+    for (let attempt = 0; attempt < maxGlobalAttempts; attempt++) {
+      const selections = [];
+      const excludeSet = new Set([...lockedList]);
+
+      // Track choices at each level for backtracking
+      const choicesAtLevel = [];
+
+      while (selections.length < count) {
+        // Get compatible pool for current position
+        let pool;
+        if (selections.length === 0 && lockedList.length === 0) {
+          // First ingredient with no locks - pick from all
+          pool = Array.from(flavorMap.keys())
+            .filter(ingredient => !excludeSet.has(ingredient))
+            .filter(ingredient => !isIngredientRestricted(ingredient));
+        } else {
+          // Must be compatible with all existing selections and locked ingredients
+          const allToCheck = [...selections, ...lockedList];
+          pool = Array.from(flavorMap.keys()).filter(candidate => {
+            if (excludeSet.has(candidate)) return false;
+            if (isIngredientRestricted(candidate)) return false;
+            return allToCheck.every(existing =>
+              flavorMap.get(existing)?.has(candidate)
+            );
+          });
         }
-        
-        if (fullPool.length > 0) {
-          const randomIndex = Math.floor(Math.random() * fullPool.length);
-          selections.push(fullPool[randomIndex]);
-          excludeSet.add(fullPool[randomIndex]);
-          continue;
+
+        // Filter out choices we've already tried at this level (in this attempt)
+        const triedAtThisLevel = choicesAtLevel[selections.length] || new Set();
+        pool = pool.filter(ing => !triedAtThisLevel.has(ing));
+
+        if (pool.length > 0) {
+          // Pick a random ingredient from the pool
+          const randomIndex = Math.floor(Math.random() * pool.length);
+          const picked = pool[randomIndex];
+
+          // Track that we tried this choice at this level
+          if (!choicesAtLevel[selections.length]) {
+            choicesAtLevel[selections.length] = new Set();
+          }
+          choicesAtLevel[selections.length].add(picked);
+
+          selections.push(picked);
+          excludeSet.add(picked);
+        } else {
+          // No valid choices at this level - backtrack
+          if (selections.length === 0) {
+            // Can't backtrack further, this attempt failed
+            break;
+          }
+
+          // Remove last selection and try a different path
+          const removed = selections.pop();
+          excludeSet.delete(removed);
+
+          // Clear tried choices for levels after the one we're backtracking to
+          choicesAtLevel.length = selections.length + 1;
         }
       }
-      
-      const compatiblePool = Array.from(flavorMap.keys()).filter(candidate => {
-        if (excludeSet.has(candidate)) return false;
-        if (isIngredientRestricted(candidate)) return false;
-        
-        const allIngredientsToCheck = [...selections, ...lockedList];
-        return allIngredientsToCheck.every(existing => {
-          const pairings = flavorMap.get(existing);
-          return pairings?.has(candidate);
-        });
-      });
-      
-      if (compatiblePool.length > 0) {
-        const randomIndex = Math.floor(Math.random() * compatiblePool.length);
-        const selectedIngredient = compatiblePool[randomIndex];
-        selections.push(selectedIngredient);
-        excludeSet.add(selectedIngredient);
-      } else {
-        break;
+
+      // If we got exactly the count we wanted, return immediately
+      if (selections.length === count) {
+        return selections;
       }
-      
-      maxAttempts--;
     }
-    
-    return selections;
+
+    // Could not find a valid combination
+    return [];
   };
 
   // Initialize with random ingredients
@@ -172,7 +192,7 @@ export default function FlavorFinderV2() {
   // Handle randomize/generate - creates exactly targetIngredientCount ingredients
   const handleRandomize = () => {
     // Get locked ingredients (preserving their actual values)
-    const lockedIngredientsList = selectedIngredients.filter((_, index) => 
+    const lockedIngredientsList = selectedIngredients.filter((_, index) =>
       lockedIngredients.has(index)
     );
 
@@ -181,6 +201,14 @@ export default function FlavorFinderV2() {
 
     // Generate compatible ingredients
     const newRandomIngredients = getRandomIngredients(slotsToFill, lockedIngredientsList);
+
+    // Only update if we got the exact number of ingredients requested
+    // This prevents showing incomplete pairings (e.g., 3 ingredients when user wanted 4)
+    if (newRandomIngredients.length < slotsToFill) {
+      // Could not find enough compatible ingredients - don't update
+      // The UI could show a message, but for now we just don't change anything
+      return;
+    }
 
     // Combine locked + new ingredients
     const combinedIngredients = [...lockedIngredientsList, ...newRandomIngredients];
@@ -257,10 +285,52 @@ export default function FlavorFinderV2() {
   }, [lockedIngredients.size, targetIngredientCount]);
 
   // Increment target count (for + button)
+  // Tries to add a compatible ingredient; if none available, adds an empty slot
   const handleIncrementTarget = () => {
-    if (targetIngredientCount < 5) {
-      setTargetIngredientCount(prev => prev + 1);
+    if (targetIngredientCount >= 5) return;
+
+    // Try to find a compatible ingredient to add
+    if (selectedIngredients.length > 0) {
+      // Get all ingredients compatible with current selection
+      const compatibleIngredients = Array.from(flavorMap.keys()).filter(candidate => {
+        // Skip if already selected
+        if (selectedIngredients.includes(candidate)) return false;
+        // Skip if restricted by dietary settings
+        if (isIngredientRestricted(candidate)) return false;
+        // Must be compatible with ALL currently selected ingredients
+        return selectedIngredients.every(existing =>
+          flavorMap.get(existing)?.has(candidate)
+        );
+      });
+
+      if (compatibleIngredients.length > 0) {
+        // Pick a random compatible ingredient
+        const randomIndex = Math.floor(Math.random() * compatibleIngredients.length);
+        const newIngredient = compatibleIngredients[randomIndex];
+
+        // Add the ingredient and increment target count
+        setSelectedIngredients(prev => [...prev, newIngredient]);
+        setTargetIngredientCount(prev => prev + 1);
+        return;
+      }
+    } else {
+      // No ingredients selected yet - pick any random ingredient
+      const allAvailable = Array.from(flavorMap.keys()).filter(
+        candidate => !isIngredientRestricted(candidate)
+      );
+
+      if (allAvailable.length > 0) {
+        const randomIndex = Math.floor(Math.random() * allAvailable.length);
+        const newIngredient = allAvailable[randomIndex];
+
+        setSelectedIngredients(prev => [...prev, newIngredient]);
+        setTargetIngredientCount(prev => prev + 1);
+        return;
+      }
     }
+
+    // No compatible ingredients found - just add an empty slot
+    setTargetIngredientCount(prev => prev + 1);
   };
 
   // Decrement: Remove empty slot first, then remove last unlocked ingredient (for - button)
