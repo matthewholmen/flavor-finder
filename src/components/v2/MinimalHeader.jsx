@@ -35,19 +35,28 @@ export const MinimalHeader = ({
     >
       {/* Logo */}
       <div className={`flex-shrink-0 ${isMobile ? 'w-12' : 'w-24'}`}>
-        <img 
-          src="/flavor-finder-1.png" 
-          alt="ff" 
-          className={`w-auto ${isMobile ? 'h-6' : 'h-8'}`}
-          onError={(e) => {
-            // Fallback to text logo if image fails
-            e.currentTarget.style.display = 'none';
-            const sibling = e.currentTarget.nextElementSibling;
-            if (sibling) sibling.classList.remove('hidden');
-          }}
-        />
-        <span 
-          className={`hidden font-bold ${isMobile ? 'text-xl' : 'text-2xl'}`} 
+        <div className="relative group cursor-pointer">
+          <img
+            src="/flavor-finder-1.png"
+            alt="ff"
+            className={`w-auto ${isMobile ? 'h-6' : 'h-8'} transition-opacity duration-200 group-hover:opacity-0`}
+            onError={(e) => {
+              // Fallback to text logo if image fails
+              e.currentTarget.style.display = 'none';
+              const sibling = e.currentTarget.parentElement?.querySelector('.logo-hover');
+              if (sibling) sibling.classList.add('hidden');
+              const textFallback = e.currentTarget.parentElement?.nextElementSibling;
+              if (textFallback) textFallback.classList.remove('hidden');
+            }}
+          />
+          <img
+            src="/flavor-finder-1-hover.png"
+            alt="ff"
+            className={`logo-hover absolute top-0 left-0 w-auto ${isMobile ? 'h-6' : 'h-8'} opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
+          />
+        </div>
+        <span
+          className={`hidden font-bold ${isMobile ? 'text-xl' : 'text-2xl'}`}
           style={{ color: '#FF91C3' }}
         >
           ff

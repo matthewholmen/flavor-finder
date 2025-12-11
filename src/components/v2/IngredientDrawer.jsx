@@ -56,6 +56,7 @@ export const IngredientDrawer = ({
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('categories');
   const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
+  const [showMaxMessage, setShowMaxMessage] = useState(false);
   
   // Auto-focus search input when drawer opens
   useEffect(() => {
@@ -109,6 +110,15 @@ export const IngredientDrawer = ({
     return Object.entries(profile.flavorProfile)
       .filter(([_, value]) => value >= 5)
       .map(([taste, _]) => taste);
+  };
+
+  const handleIngredientAdd = (ingredient) => {
+    if (selectedIngredients.length >= 5) {
+      setShowMaxMessage(true);
+      setTimeout(() => setShowMaxMessage(false), 2000);
+      return;
+    }
+    onIngredientSelect(ingredient);
   };
 
   // Category handlers
@@ -582,16 +592,6 @@ export const IngredientDrawer = ({
             <div className="flex flex-1 min-h-0">
             {/* Left Side: Filter Panel */}
             <div className="w-[340px] flex-shrink-0 border-r border-gray-100 p-5 overflow-y-auto">
-              {/* Filter Header */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-                {activeFilterCount > 0 && (
-                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                    {activeFilterCount} active
-                  </span>
-                )}
-              </div>
-
               {/* Tab Navigation */}
               <div className="flex gap-1 mb-4 border-b border-gray-200">
                 {['categories', 'taste', 'dietary'].map((tab) => (
@@ -772,6 +772,19 @@ export const IngredientDrawer = ({
                   type="text"
                   value={searchTerm}
                   onChange={(e) => onSearchChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const availableSuggestions = suggestions.filter(
+                        ing => !selectedIngredients.includes(ing)
+                      );
+                      if (availableSuggestions.length > 0) {
+                        handleIngredientAdd(availableSuggestions[0]);
+                        if (selectedIngredients.length < 5) {
+                          onSearchChange('');
+                        }
+                      }
+                    }
+                  }}
                   placeholder="Search ingredients..."
                   className="
                     w-full pl-12 pr-10 py-3
@@ -802,7 +815,7 @@ export const IngredientDrawer = ({
                         key={ingredient}
                         onClick={() => {
                           if (!isSelected) {
-                            onIngredientSelect(ingredient);
+                            handleIngredientAdd(ingredient);
                           }
                         }}
                         disabled={isSelected}
@@ -945,6 +958,22 @@ export const IngredientDrawer = ({
                 </div>
               )}
             </div>
+            </div>
+
+            {/* Max ingredients toast */}
+            <div
+              className={`
+                fixed left-1/2 -translate-x-1/2 z-[60]
+                px-6 py-3 bg-gray-900 text-white text-sm font-medium
+                rounded-2xl shadow-lg
+                transition-all duration-300 ease-out
+                ${showMaxMessage
+                  ? 'bottom-8 opacity-100'
+                  : '-bottom-16 opacity-0'
+                }
+              `}
+            >
+              whoa pal. five ingredients max.
             </div>
           </div>
         </div>

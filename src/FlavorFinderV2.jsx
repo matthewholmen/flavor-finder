@@ -314,7 +314,7 @@ export default function FlavorFinderV2() {
 
   // Computed values for target count controls
   const lockedCount = lockedIngredients.size;
-  const minTarget = Math.max(1, lockedCount); // Can't go below locked count or 1
+  const minTarget = lockedCount; // Can't go below locked count (can be 0)
   
   // Can decrement if:
   // 1. There are empty slots that can be removed (target > ingredients count)
@@ -383,25 +383,22 @@ export default function FlavorFinderV2() {
   // Decrement: Remove empty slot first, then remove last unlocked ingredient (for - button)
   const handleDecrementTarget = () => {
     // If there are empty slots (target > actual ingredients), just reduce the target count
-    // But don't go below the number of current ingredients
+    // But don't go below the number of current ingredients (minimum 1 for UI)
     if (targetIngredientCount > selectedIngredients.length) {
       const newTarget = targetIngredientCount - 1;
       // Only reduce if we stay at or above the current ingredient count
-      if (newTarget >= selectedIngredients.length) {
+      if (newTarget >= selectedIngredients.length && newTarget >= 1) {
         setTargetIngredientCount(newTarget);
         return;
       }
     }
-    
+
     // Otherwise, find and remove the last unlocked ingredient
     for (let i = selectedIngredients.length - 1; i >= 0; i--) {
       if (!lockedIngredients.has(i)) {
         handleRemove(i);
-        // Also decrease target count to match
-        const newIngredientCount = selectedIngredients.length - 1;
-        if (targetIngredientCount > newIngredientCount) {
-          setTargetIngredientCount(Math.max(minTarget, newIngredientCount));
-        }
+        // Keep target at 1 minimum so there's always an empty slot for Generate
+        setTargetIngredientCount(Math.max(1, minTarget));
         return;
       }
     }

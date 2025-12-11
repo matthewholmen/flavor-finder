@@ -225,7 +225,7 @@ const Ingredient = ({
 };
 
 // Empty slot component
-const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCompact }) => {
+const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCompact, isSingleSlot }) => {
   const fadedColor = '#e8e8e8';
   const normalColor = '#c0c0c0';
   const underscoreWidth = isMobile ? '2em' : (isCompact ? '2.5em' : '3.5em');
@@ -511,21 +511,40 @@ export const IngredientDisplay = ({
             );
           })}
 
-          {Array.from({ length: emptySlotCount }).map((_, emptyIndex) => {
-            const { showAmpersand, showComma } = getEmptySlotDisplayInfo(emptyIndex);
+          {/* Single empty slot: show clickable tip text instead of underscore */}
+          {validIngredients.length === 0 && emptySlotCount === 1 ? (
+            <div
+              className="w-full text-center cursor-pointer hover:text-gray-400 transition-colors"
+              onClick={onEmptySlotClick}
+              style={{
+                fontSize: isMobile ? '1rem' : '1.125rem',
+                color: '#d1d5db',
+                fontWeight: 500,
+                fontStyle: 'normal',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                letterSpacing: 'normal',
+              }}
+            >
+              search for ingredients or click Generate
+            </div>
+          ) : (
+            Array.from({ length: emptySlotCount }).map((_, emptyIndex) => {
+              const { showAmpersand, showComma } = getEmptySlotDisplayInfo(emptyIndex);
 
-            return (
-              <EmptySlot
-                key={`empty-${emptyIndex}`}
-                showAmpersand={showAmpersand}
-                showComma={showComma}
-                isFaded={hasHoveredIngredient}
-                onClick={onEmptySlotClick}
-                isMobile={isMobile}
-                isCompact={isDrawerOpen}
-              />
-            );
-          })}
+              return (
+                <EmptySlot
+                  key={`empty-${emptyIndex}`}
+                  showAmpersand={showAmpersand}
+                  showComma={showComma}
+                  isFaded={hasHoveredIngredient}
+                  onClick={onEmptySlotClick}
+                  isMobile={isMobile}
+                  isCompact={isDrawerOpen}
+                  isSingleSlot={false}
+                />
+              );
+            })
+          )}
         </div>
       </div>
 
