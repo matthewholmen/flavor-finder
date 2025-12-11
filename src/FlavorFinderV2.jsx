@@ -3,6 +3,7 @@ import { MinimalHeader } from './components/v2/MinimalHeader';
 import { IngredientDisplay } from './components/v2/IngredientDisplay';
 import { IngredientDrawer } from './components/v2/IngredientDrawer';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills';
+import { Sidebar } from './components/v2/Sidebar';
 import { Undo2 } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
@@ -53,6 +54,7 @@ export default function FlavorFinderV2() {
   const [lockedIngredients, setLockedIngredients] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   
   // Target ingredient count - controls how many ingredients Generate creates
@@ -770,6 +772,7 @@ export default function FlavorFinderV2() {
         onIncrementTarget={handleIncrementTarget}
         onDecrementTarget={handleDecrementTarget}
         onRecipesClick={handleRecipeSearch}
+        onLogoClick={() => setIsSidebarOpen(true)}
         isGeneratePulsing={isFirstLoad}
       />
 
@@ -834,6 +837,12 @@ export default function FlavorFinderV2() {
         onSliderToggle={handleSliderToggle}
         dietaryRestrictions={dietaryRestrictions}
         onDietaryChange={setDietaryRestrictions}
+      />
+
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
     </div>
   );

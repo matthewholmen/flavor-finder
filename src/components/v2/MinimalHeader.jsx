@@ -13,6 +13,7 @@ export const MinimalHeader = ({
   onIncrementTarget,
   onDecrementTarget,
   onRecipesClick,
+  onLogoClick,
   isGeneratePulsing = false,
 }) => {
   const { isMobile, width } = useScreenSize();
@@ -35,7 +36,11 @@ export const MinimalHeader = ({
     >
       {/* Logo */}
       <div className={`flex-shrink-0 ${isMobile ? 'w-12' : 'w-24'}`}>
-        <div className="relative group cursor-pointer">
+        <button
+          onClick={onLogoClick}
+          className="relative group cursor-pointer bg-transparent border-none p-0"
+          aria-label="Open menu"
+        >
           <img
             src="/flavor-finder-1.png"
             alt="ff"
@@ -54,7 +59,7 @@ export const MinimalHeader = ({
             alt="ff"
             className={`logo-hover absolute top-0 left-0 w-auto ${isMobile ? 'h-6' : 'h-8'} opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
           />
-        </div>
+        </button>
         <span
           className={`hidden font-bold ${isMobile ? 'text-xl' : 'text-2xl'}`}
           style={{ color: '#FF91C3' }}
