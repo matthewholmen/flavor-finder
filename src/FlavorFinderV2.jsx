@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { MinimalHeader } from './components/v2/MinimalHeader';
 import { IngredientDisplay } from './components/v2/IngredientDisplay';
 import { IngredientDrawer } from './components/v2/IngredientDrawer';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills';
+import { Undo2 } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -58,6 +59,38 @@ export default function FlavorFinderV2() {
   // Range: 1-5, cannot go below the number of locked ingredients
   const [targetIngredientCount, setTargetIngredientCount] = useState(2);
 
+  // History state for undo functionality
+  const [history, setHistory] = useState([]);
+  const isUndoing = useRef(false);
+
+  // Save current state to history (call before making changes)
+  const saveToHistory = () => {
+    if (isUndoing.current) return; // Don't save while undoing
+    setHistory(prev => [...prev, {
+      ingredients: [...selectedIngredients],
+      locked: new Set(lockedIngredients),
+      targetCount: targetIngredientCount
+    }]);
+  };
+
+  // Undo to previous state
+  const handleUndo = () => {
+    if (history.length === 0) return;
+
+    isUndoing.current = true;
+    const prevState = history[history.length - 1];
+
+    setSelectedIngredients(prevState.ingredients);
+    setLockedIngredients(prevState.locked);
+    setTargetIngredientCount(prevState.targetCount);
+    setHistory(prev => prev.slice(0, -1));
+
+    // Reset flag after state updates
+    setTimeout(() => {
+      isUndoing.current = false;
+    }, 0);
+  };
+
   // Intro animation state - runs generate 15 times on load
   const [introAnimationComplete, setIntroAnimationComplete] = useState(false);
 
@@ -81,20 +114,95 @@ export default function FlavorFinderV2() {
     [flavorMap]
   );
 
+  // List of nut ingredients for nut-free filter
+  const NUT_INGREDIENTS = [
+    'almond', 'almond liqueur', 'almond oil', 'amaretto',
+    'cashew', 'chestnut', 'hazelnut', 'macadamia nut',
+    'peanut', 'peanut oil', 'pecan', 'pecan oil',
+    'pine nut', 'pistachio', 'walnut', 'walnut oil', 'nuts'
+  ];
+
+  // List of nightshade ingredients for nightshade-free filter
+  const NIGHTSHADE_INGREDIENTS = [
+    'tomato', 'tomatoes', 'cherry tomato', 'sun-dried tomato', 'tomato paste',
+    'bell pepper', 'red bell pepper', 'green bell pepper', 'yellow bell pepper',
+    'pepper', 'peppers', 'sweet pepper',
+    'eggplant', 'aubergine',
+    'potato', 'potatoes',
+    'cayenne', 'cayenne pepper',
+    'paprika', 'smoked paprika',
+    'chili', 'chili pepper', 'chili powder', 'chipotle', 'chipotle pepper',
+    'jalapeño', 'jalapeno', 'serrano', 'serrano pepper',
+    'habanero', 'ancho chili', 'poblano', 'guajillo',
+    'red pepper flakes', 'crushed red pepper',
+    'pimento', 'pimientos', 'goji berry', 'goji berries',
+    'tomatillo', 'hot sauce', 'tabasco', 'sriracha'
+  ];
+
+  // List of high-FODMAP ingredients for low-FODMAP filter
+  const HIGH_FODMAP_INGREDIENTS = [
+    // Alliums (high in fructans)
+    'garlic', 'onion', 'onions', 'red onion', 'white onion', 'yellow onion',
+    'shallot', 'shallots', 'leek', 'leeks', 'scallion', 'scallions',
+    'green onion', 'green onions', 'spring onion', 'chives',
+    // Legumes (high in GOS)
+    'beans', 'black beans', 'kidney bean', 'kidney beans', 'chickpea', 'chickpeas',
+    'lentils', 'baked beans', 'cannellini beans', 'fava beans', 'lima beans',
+    'navy beans', 'pinto beans', 'red beans', 'white beans', 'flageolet beans',
+    'black-eyed peas', 'legume', 'legumes',
+    // High-fructose fruits
+    'apple', 'apples', 'pear', 'pears', 'mango', 'watermelon',
+    'cherry', 'cherries', 'apricot', 'apricots', 'peach', 'peaches',
+    'plum', 'plums', 'nectarine', 'nectarines', 'blackberry', 'blackberries',
+    // Dairy with lactose
+    'milk', 'cream', 'ice cream', 'soft cheese', 'ricotta', 'cottage cheese',
+    'cream cheese', 'mascarpone', 'sour cream', 'buttermilk',
+    // Wheat products
+    'bread', 'pasta', 'couscous', 'wheat', 'barley', 'rye',
+    // Sweeteners
+    'honey', 'agave', 'high fructose corn syrup', 'molasses',
+    // Vegetables
+    'artichoke', 'artichokes', 'asparagus', 'cauliflower', 'mushroom', 'mushrooms',
+    'snow peas', 'sugar snap peas'
+  ];
+
   // Helper to check if ingredient is restricted by dietary settings
   const isIngredientRestricted = (ingredient) => {
     const restrictedKeys = Object.entries(dietaryRestrictions)
       .filter(([_, value]) => value === false)
       .map(([key]) => key);
-    
+
     if (restrictedKeys.length === 0) return false;
-    
+
+    // Special handling for nut-free
+    if (restrictedKeys.includes('_nuts')) {
+      if (NUT_INGREDIENTS.includes(ingredient.toLowerCase())) {
+        return true;
+      }
+    }
+
+    // Special handling for nightshade-free
+    if (restrictedKeys.includes('_nightshades')) {
+      if (NIGHTSHADE_INGREDIENTS.includes(ingredient.toLowerCase())) {
+        return true;
+      }
+    }
+
+    // Special handling for low-FODMAP
+    if (restrictedKeys.includes('_fodmap')) {
+      if (HIGH_FODMAP_INGREDIENTS.includes(ingredient.toLowerCase())) {
+        return true;
+      }
+    }
+
     const profile = ingredientProfiles.find(
       p => p.name.toLowerCase() === ingredient.toLowerCase()
     );
     if (!profile) return false;
-    
+
     return restrictedKeys.some(key => {
+      // Skip special keys that don't follow category:subcategory format
+      if (key.startsWith('_')) return false;
       const [cat, subcat] = key.split(':');
       return profile.category?.toLowerCase() === cat.toLowerCase() &&
              profile.subcategory?.toLowerCase() === subcat.toLowerCase();
@@ -223,6 +331,10 @@ export default function FlavorFinderV2() {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isDrawerOpen) {
         setIsDrawerOpen(false);
+        // Blur the active element (search input) so shortcuts work
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -231,6 +343,8 @@ export default function FlavorFinderV2() {
 
   // Handle randomize/generate - creates exactly targetIngredientCount ingredients
   const handleRandomize = () => {
+    saveToHistory();
+
     // Get locked ingredients (preserving their actual values)
     const lockedIngredientsList = selectedIngredients.filter((_, index) =>
       lockedIngredients.has(index)
@@ -275,6 +389,8 @@ export default function FlavorFinderV2() {
 
   // Handle ingredient removal
   const handleRemove = (index) => {
+    saveToHistory();
+
     setSelectedIngredients(prev => {
       const next = [...prev];
       next.splice(index, 1);
@@ -299,6 +415,8 @@ export default function FlavorFinderV2() {
   const handleIngredientSelect = (ingredient) => {
     if (selectedIngredients.length >= 5) return;
     if (selectedIngredients.includes(ingredient)) return;
+
+    saveToHistory();
 
     setSelectedIngredients(prev => {
       const newIngredients = [...prev, ingredient];
@@ -335,6 +453,8 @@ export default function FlavorFinderV2() {
   // Tries to add a compatible ingredient; if none available, adds an empty slot
   const handleIncrementTarget = () => {
     if (targetIngredientCount >= 5) return;
+
+    saveToHistory();
 
     // Try to find a compatible ingredient to add
     if (selectedIngredients.length > 0) {
@@ -382,6 +502,8 @@ export default function FlavorFinderV2() {
 
   // Decrement: Remove empty slot first, then remove last unlocked ingredient (for - button)
   const handleDecrementTarget = () => {
+    saveToHistory();
+
     // If there are empty slots (target > actual ingredients), just reduce the target count
     // But don't go below the number of current ingredients (minimum 1 for UI)
     if (targetIngredientCount > selectedIngredients.length) {
@@ -396,13 +518,95 @@ export default function FlavorFinderV2() {
     // Otherwise, find and remove the last unlocked ingredient
     for (let i = selectedIngredients.length - 1; i >= 0; i--) {
       if (!lockedIngredients.has(i)) {
-        handleRemove(i);
+        // Inline removal logic to avoid double history save from handleRemove
+        setSelectedIngredients(prev => {
+          const next = [...prev];
+          next.splice(i, 1);
+          return next;
+        });
+
+        // Also remove lock if exists and adjust indices
+        setLockedIngredients(prev => {
+          const next = new Set(prev);
+          next.delete(i);
+          // Adjust indices for items after removed one
+          const adjusted = new Set();
+          next.forEach(idx => {
+            if (idx > i) adjusted.add(idx - 1);
+            else adjusted.add(idx);
+          });
+          return adjusted;
+        });
+
         // Keep target at 1 minimum so there's always an empty slot for Generate
         setTargetIngredientCount(Math.max(1, minTarget));
         return;
       }
     }
   };
+
+  // Keyboard shortcuts (must be after handler functions and computed values are defined)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't trigger shortcuts when typing in an input
+      const isTyping = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+      if (isTyping) return;
+
+      // z - Undo
+      if (e.key === 'z' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        handleUndo();
+        return;
+      }
+
+      // Delete/Backspace - Remove last ingredient
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        // Find and remove the last unlocked ingredient
+        for (let i = selectedIngredients.length - 1; i >= 0; i--) {
+          if (!lockedIngredients.has(i)) {
+            handleRemove(i);
+            return;
+          }
+        }
+        return;
+      }
+
+      // Enter - Open ingredient drawer
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        setIsDrawerOpen(true);
+        return;
+      }
+
+      // + or = - Add ingredient
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        if (canIncrementTarget) {
+          handleIncrementTarget();
+        }
+        return;
+      }
+
+      // - - Remove ingredient
+      if (e.key === '-') {
+        e.preventDefault();
+        if (canDecrementTarget) {
+          handleDecrementTarget();
+        }
+        return;
+      }
+
+      // Space - Generate
+      if (e.key === ' ') {
+        e.preventDefault();
+        handleRandomize();
+        return;
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedIngredients, lockedIngredients, canIncrementTarget, canDecrementTarget]);
 
   // Handle recipe search
   const handleRecipeSearch = () => {
@@ -509,23 +713,46 @@ export default function FlavorFinderV2() {
     const restrictedKeys = Object.entries(dietaryRestrictions)
       .filter(([_, value]) => value === false)
       .map(([key]) => key);
-    
+
     if (restrictedKeys.length > 0) {
       filtered = filtered.filter(ingredient => {
+        // Special handling for nut-free
+        if (restrictedKeys.includes('_nuts')) {
+          if (NUT_INGREDIENTS.includes(ingredient.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Special handling for nightshade-free
+        if (restrictedKeys.includes('_nightshades')) {
+          if (NIGHTSHADE_INGREDIENTS.includes(ingredient.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Special handling for low-FODMAP
+        if (restrictedKeys.includes('_fodmap')) {
+          if (HIGH_FODMAP_INGREDIENTS.includes(ingredient.toLowerCase())) {
+            return false;
+          }
+        }
+
         const profile = ingredientProfiles.find(
           p => p.name.toLowerCase() === ingredient.toLowerCase()
         );
         if (!profile) return true;
-        
+
         // Check if ingredient falls into any restricted category:subcategory
         return !restrictedKeys.some(key => {
+          // Skip special keys that don't follow category:subcategory format
+          if (key.startsWith('_')) return false;
           const [cat, subcat] = key.split(':');
           return profile.category?.toLowerCase() === cat.toLowerCase() &&
                  profile.subcategory?.toLowerCase() === subcat.toLowerCase();
         });
       });
     }
-    
+
     return filtered;
   }, [searchTerm, allIngredients, selectedIngredients, flavorMap, activeCategory, selectedSubcategories, activeSliders, tasteValues, dietaryRestrictions]);
 
@@ -565,6 +792,26 @@ export default function FlavorFinderV2() {
         dietaryRestrictions={dietaryRestrictions}
         onDietaryChange={setDietaryRestrictions}
       />
+
+      {/* Undo Button - Fixed position lower left */}
+      <button
+        onClick={handleUndo}
+        disabled={history.length === 0}
+        className={`
+          fixed bottom-6 left-6 z-[51]
+          w-12 h-12 rounded-full
+          flex items-center justify-center
+          border-2
+          transition-all duration-200
+          ${history.length > 0
+            ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100 cursor-pointer'
+            : 'border-gray-200 text-gray-200 cursor-not-allowed'
+          }
+        `}
+        aria-label="Undo"
+      >
+        <Undo2 size={20} strokeWidth={1.5} className="pointer-events-none" />
+      </button>
       
       {/* Ingredient Drawer */}
       <IngredientDrawer

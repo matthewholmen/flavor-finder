@@ -5,7 +5,12 @@ const DIETARY_LABELS = {
   vegetarian: 'vegetarian',
   pescatarian: 'pescatarian',
   'gluten-free': 'gluten-free',
-  'dairy-free': 'dairy-free'
+  'dairy-free': 'dairy-free',
+  'alcohol-free': 'alcohol-free',
+  'nut-free': 'nut-free',
+  'nightshade-free': 'nightshade-free',
+  'low-fodmap': 'low-FODMAP',
+  'keto': 'keto'
 };
 
 // Determine which dietary filters are active based on restrictions
@@ -40,7 +45,37 @@ const getActiveDietaryFilters = (dietaryRestrictions) => {
   if (dairyRestricted) {
     active.push('dairy-free');
   }
-  
+
+  // Check alcohol-free
+  const alcoholKeys = ['Liqueurs', 'Spirits', 'Wines'];
+  const alcoholRestricted = alcoholKeys.some(k => dietaryRestrictions[`Alcohol:${k}`] === false);
+  if (alcoholRestricted) {
+    active.push('alcohol-free');
+  }
+
+  // Check nut-free (specific nut ingredients marked with special key)
+  if (dietaryRestrictions['_nuts'] === false) {
+    active.push('nut-free');
+  }
+
+  // Check nightshade-free
+  if (dietaryRestrictions['_nightshades'] === false) {
+    active.push('nightshade-free');
+  }
+
+  // Check low-FODMAP
+  if (dietaryRestrictions['_fodmap'] === false) {
+    active.push('low-fodmap');
+  }
+
+  // Check keto (grains and sweeteners restricted)
+  const grainKeys = ['Rice', 'Ancient Grains', 'Bread', 'Pasta', 'Starches'];
+  const grainsRestricted = grainKeys.some(k => dietaryRestrictions[`Grains:${k}`] === false);
+  const sweetenersRestricted = dietaryRestrictions['Condiments:Sweeteners'] === false;
+  if (grainsRestricted && sweetenersRestricted) {
+    active.push('keto');
+  }
+
   return active;
 };
 
@@ -74,8 +109,33 @@ const removeDietaryFilter = (key, dietaryRestrictions, onDietaryChange) => {
         delete newRestrictions[`Dairy:${k}`];
       });
       break;
+    case 'alcohol-free':
+      // Re-enable alcohol items
+      ['Liqueurs', 'Spirits', 'Wines'].forEach(k => {
+        delete newRestrictions[`Alcohol:${k}`];
+      });
+      break;
+    case 'nut-free':
+      // Re-enable nuts
+      delete newRestrictions['_nuts'];
+      break;
+    case 'nightshade-free':
+      // Re-enable nightshades
+      delete newRestrictions['_nightshades'];
+      break;
+    case 'low-fodmap':
+      // Re-enable high-FODMAP foods
+      delete newRestrictions['_fodmap'];
+      break;
+    case 'keto':
+      // Re-enable grains and sweeteners
+      ['Rice', 'Ancient Grains', 'Bread', 'Pasta', 'Starches'].forEach(k => {
+        delete newRestrictions[`Grains:${k}`];
+      });
+      delete newRestrictions['Condiments:Sweeteners'];
+      break;
   }
-  
+
   onDietaryChange(newRestrictions);
 };
 

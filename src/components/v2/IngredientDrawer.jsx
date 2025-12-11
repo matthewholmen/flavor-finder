@@ -27,7 +27,12 @@ const DIETARY_TOGGLES = [
   { key: 'vegetarian', label: 'Vegetarian' },
   { key: 'pescatarian', label: 'Pescatarian' },
   { key: 'gluten-free', label: 'Gluten-free' },
-  { key: 'dairy-free', label: 'Dairy-free' }
+  { key: 'dairy-free', label: 'Dairy-free' },
+  { key: 'alcohol-free', label: 'Alcohol-free' },
+  { key: 'nut-free', label: 'Nut-free' },
+  { key: 'nightshade-free', label: 'Nightshade-free' },
+  { key: 'low-fodmap', label: 'Low-FODMAP' }
+  // { key: 'keto', label: 'Keto' }
 ];
 
 export const IngredientDrawer = ({
@@ -163,6 +168,23 @@ export const IngredientDrawer = ({
       case 'dairy-free':
         return dietaryRestrictions['Dairy:Hard Cheese'] === false ||
                dietaryRestrictions['Dairy:Soft Cheese'] === false;
+      case 'alcohol-free':
+        return dietaryRestrictions['Alcohol:Liqueurs'] === false ||
+               dietaryRestrictions['Alcohol:Spirits'] === false ||
+               dietaryRestrictions['Alcohol:Wines'] === false;
+      case 'nut-free':
+        return dietaryRestrictions['_nuts'] === false;
+      case 'nightshade-free':
+        return dietaryRestrictions['_nightshades'] === false;
+      case 'low-fodmap':
+        return dietaryRestrictions['_fodmap'] === false;
+      case 'keto':
+        return (dietaryRestrictions['Grains:Rice'] === false ||
+                dietaryRestrictions['Grains:Ancient Grains'] === false ||
+                dietaryRestrictions['Grains:Bread'] === false ||
+                dietaryRestrictions['Grains:Pasta'] === false ||
+                dietaryRestrictions['Grains:Starches'] === false) &&
+               dietaryRestrictions['Condiments:Sweeteners'] === false;
       default:
         return false;
     }
@@ -171,7 +193,7 @@ export const IngredientDrawer = ({
   const handleDietaryToggle = (key) => {
     let newRestrictions = { ...dietaryRestrictions };
     const isActive = getDietaryState(key);
-    
+
     switch(key) {
       case 'vegetarian':
         const proteinKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal', 'Fish', 'Crustacean', 'Mollusk'];
@@ -198,8 +220,28 @@ export const IngredientDrawer = ({
           newRestrictions[`Dairy:${k}`] = isActive;
         });
         break;
+      case 'alcohol-free':
+        ['Liqueurs', 'Spirits', 'Wines'].forEach(k => {
+          newRestrictions[`Alcohol:${k}`] = isActive;
+        });
+        break;
+      case 'nut-free':
+        newRestrictions['_nuts'] = isActive;
+        break;
+      case 'nightshade-free':
+        newRestrictions['_nightshades'] = isActive;
+        break;
+      case 'low-fodmap':
+        newRestrictions['_fodmap'] = isActive;
+        break;
+      case 'keto':
+        ['Rice', 'Ancient Grains', 'Bread', 'Pasta', 'Starches'].forEach(k => {
+          newRestrictions[`Grains:${k}`] = isActive;
+        });
+        newRestrictions['Condiments:Sweeteners'] = isActive;
+        break;
     }
-    
+
     onDietaryChange(newRestrictions);
   };
 
