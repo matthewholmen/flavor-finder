@@ -973,7 +973,7 @@ export const IngredientDrawer = ({
                 }
               `}
             >
-              whoa pal. five ingredients max.
+              whoa pal — five ingredients max.
             </div>
           </div>
         </div>

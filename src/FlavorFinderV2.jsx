@@ -188,8 +188,8 @@ export default function FlavorFinderV2() {
     if (introAnimationComplete || selectedIngredients.length === 0) return;
 
     let generationCount = 0;
-    const maxGenerations = 5;
-    const intervalMs = 100;
+    const maxGenerations = 10;
+    const intervalMs = 200;
 
     const intervalId = setInterval(() => {
       generationCount++;
