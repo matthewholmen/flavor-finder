@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { ChevronUp, ChevronDown, Search, X, Filter } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter } from 'lucide-react';
 import { TASTE_COLORS } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
@@ -55,6 +55,7 @@ export const IngredientDrawer = ({
   const { isMobile, width } = useScreenSize();
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('categories');
+  const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
   
   // Auto-focus search input when drawer opens
   useEffect(() => {
@@ -70,24 +71,44 @@ export const IngredientDrawer = ({
     }
   }, [isOpen]);
 
+  // Keep selectedInfoIndex in bounds when ingredients change
+  useEffect(() => {
+    if (selectedIngredients.length > 0 && selectedInfoIndex >= selectedIngredients.length) {
+      setSelectedInfoIndex(selectedIngredients.length - 1);
+    }
+  }, [selectedIngredients, selectedInfoIndex]);
+
   const getIngredientColor = (ingredient) => {
     const profile = ingredientProfiles.find(
       p => p.name.toLowerCase() === ingredient.toLowerCase()
     );
-    
+
     if (!profile) return '#374151';
-    
+
     let dominantTaste = 'sweet';
     let maxValue = -1;
-    
+
     Object.entries(profile.flavorProfile).forEach(([taste, value]) => {
       if (value > maxValue) {
         maxValue = value;
         dominantTaste = taste;
       }
     });
-    
+
     return TASTE_COLORS[dominantTaste] || '#374151';
+  };
+
+  const getIngredientProfile = (ingredient) => {
+    return ingredientProfiles.find(
+      p => p.name.toLowerCase() === ingredient.toLowerCase()
+    );
+  };
+
+  const getTasteTags = (profile) => {
+    if (!profile || !profile.flavorProfile) return [];
+    return Object.entries(profile.flavorProfile)
+      .filter(([_, value]) => value >= 5)
+      .map(([taste, _]) => taste);
   };
 
   // Category handlers
@@ -204,13 +225,13 @@ export const IngredientDrawer = ({
                 className="
                   relative -mb-1 px-10 pt-2.5 pb-3
                   bg-white rounded-t-2xl
-                  shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
+                  border-2 border-gray-300 border-b-0
                   flex flex-col items-center
-                  active:bg-gray-50 transition-colors
+                  active:bg-gray-100 transition-colors
                 "
               >
                 <div className="w-10 h-1 bg-gray-300 rounded-full mb-1" />
-                <ChevronUp size={20} className="text-gray-400" />
+                <ChevronUp size={20} className="text-gray-500" strokeWidth={1.5} />
               </button>
             </div>
           )}
@@ -522,7 +543,7 @@ export const IngredientDrawer = ({
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
-          style={{ backgroundColor: '#f9fafb' }}
+          style={{ backgroundColor: 'white' }}
           onClick={onClose}
         />
       )}
@@ -537,12 +558,12 @@ export const IngredientDrawer = ({
               className="
                 relative -mb-1 px-12 pt-3 pb-4
                 bg-white rounded-t-3xl
-                shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
+                border-2 border-gray-300 border-b-0
                 flex flex-col items-center
-                hover:bg-gray-50 transition-colors
+                hover:border-gray-400 transition-colors
               "
             >
-              <ChevronUp size={24} className="text-gray-400" />
+              <ChevronUp size={24} className="text-gray-500" strokeWidth={1.5} />
             </button>
           </div>
         )}
@@ -738,13 +759,13 @@ export const IngredientDrawer = ({
               )}
             </div>
 
-            {/* Right Side: Search + Ingredients */}
-            <div className="flex-1 p-5 overflow-hidden flex flex-col">
+            {/* Middle: Search + Ingredients */}
+            <div className="flex-1 p-5 overflow-hidden flex flex-col border-r border-gray-100">
               {/* Search Bar */}
               <div className="relative mb-4 flex-shrink-0">
-                <Search 
-                  size={20} 
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" 
+                <Search
+                  size={20}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 />
                 <input
                   ref={inputRef}
@@ -768,14 +789,14 @@ export const IngredientDrawer = ({
                   </button>
                 )}
               </div>
-              
+
               {/* Ingredients Grid */}
               <div className="flex-1 overflow-y-auto">
                 <div className="flex flex-wrap gap-2.5 content-start">
                   {suggestions.map((ingredient) => {
                     const isSelected = selectedIngredients.includes(ingredient);
                     const color = getIngredientColor(ingredient);
-                    
+
                     return (
                       <button
                         key={ingredient}
@@ -794,7 +815,7 @@ export const IngredientDrawer = ({
                             : ''
                           }
                         `}
-                        style={{ 
+                        style={{
                           color: isSelected ? '#d1d5db' : '#1f2937',
                           borderColor: isSelected ? '#e5e7eb' : color,
                           backgroundColor: 'white',
@@ -817,20 +838,112 @@ export const IngredientDrawer = ({
                     );
                   })}
                 </div>
-                
+
                 {/* Empty States */}
                 {suggestions.length === 0 && searchTerm && (
                   <div className="text-center py-12 text-gray-400">
                     No compatible ingredients found for "{searchTerm}"
                   </div>
                 )}
-                
+
                 {suggestions.length === 0 && !searchTerm && (
                   <div className="text-center py-12 text-gray-400">
                     No more compatible ingredients available
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Right Side: Ingredient Info Panel */}
+            <div className="w-[340px] flex-shrink-0 p-5 overflow-y-auto">
+              {selectedIngredients.length > 0 ? (
+                (() => {
+                  const currentIngredient = selectedIngredients[selectedInfoIndex] || selectedIngredients[0];
+                  const profile = getIngredientProfile(currentIngredient);
+                  const tasteTags = getTasteTags(profile);
+                  const ingredientColor = getIngredientColor(currentIngredient);
+
+                  return (
+                    <div className="flex flex-col h-full">
+                      {/* Navigation Buttons */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <button
+                          onClick={() => setSelectedInfoIndex(Math.max(0, selectedInfoIndex - 1))}
+                          disabled={selectedInfoIndex === 0}
+                          className={`
+                            w-8 h-8 rounded-full border-2 border-gray-300
+                            flex items-center justify-center
+                            transition-all
+                            ${selectedInfoIndex === 0
+                              ? 'opacity-30 cursor-not-allowed'
+                              : 'hover:border-gray-400 hover:bg-gray-50'
+                            }
+                          `}
+                        >
+                          <ChevronLeft size={18} className="text-gray-600" />
+                        </button>
+                        <button
+                          onClick={() => setSelectedInfoIndex(Math.min(selectedIngredients.length - 1, selectedInfoIndex + 1))}
+                          disabled={selectedInfoIndex >= selectedIngredients.length - 1}
+                          className={`
+                            w-8 h-8 rounded-full border-2 border-gray-300
+                            flex items-center justify-center
+                            transition-all
+                            ${selectedInfoIndex >= selectedIngredients.length - 1
+                              ? 'opacity-30 cursor-not-allowed'
+                              : 'hover:border-gray-400 hover:bg-gray-50'
+                            }
+                          `}
+                        >
+                          <ChevronRight size={18} className="text-gray-600" />
+                        </button>
+                      </div>
+
+                      {/* Ingredient Name */}
+                      <h2
+                        className="text-2xl font-bold italic mb-1"
+                        style={{ color: ingredientColor }}
+                      >
+                        {currentIngredient}
+                      </h2>
+
+                      {/* Category & Subcategory */}
+                      {profile && (
+                        <p className="text-sm text-gray-500 mb-4">
+                          {profile.category.toLowerCase()}
+                          {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
+                        </p>
+                      )}
+
+                      {/* Description */}
+                      {profile?.description && (
+                        <p className="text-sm text-gray-700 leading-relaxed mb-6">
+                          {profile.description}
+                        </p>
+                      )}
+
+                      {/* Taste Tags */}
+                      {tasteTags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-auto">
+                          {tasteTags.map((taste) => (
+                            <span
+                              key={taste}
+                              className="px-4 py-1.5 rounded-full text-sm font-medium text-white capitalize"
+                              style={{ backgroundColor: TASTE_COLORS[taste] }}
+                            >
+                              {taste}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                  Select an ingredient to see details
+                </div>
+              )}
             </div>
             </div>
           </div>

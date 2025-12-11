@@ -218,6 +218,17 @@ export default function FlavorFinderV2() {
     return () => document.removeEventListener('click', handleClick);
   }, [isFirstLoad]);
 
+  // Close drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isDrawerOpen) {
+        setIsDrawerOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isDrawerOpen]);
+
   // Handle randomize/generate - creates exactly targetIngredientCount ingredients
   const handleRandomize = () => {
     // Get locked ingredients (preserving their actual values)

@@ -413,8 +413,8 @@ export const IngredientDisplay = ({
   // We render at hero size and scale down, avoiding layout recalculations
   const getScale = () => {
     if (!isDrawerOpen) return 1;
-    // Compact is roughly 40% of hero size
-    return isMobile ? 0.625 : 0.4;
+    // Compact mode - larger text that's closer to hero size
+    return 0.8;
   };
 
   // Base font size (hero mode size - always rendered at this size)
@@ -423,19 +423,35 @@ export const IngredientDisplay = ({
     return 'clamp(2.25rem, 6vw, 6rem)';
   };
 
+  // Calculate vertical position
+  // When drawer is open: center between header and drawer
+  // When drawer is closed: center in full viewport (below header)
+  const getTopPosition = () => {
+    if (isDrawerOpen) {
+      // Center in the space between header and drawer (drawer is 50vh from bottom)
+      return isMobile
+        ? 'calc(60px + (50vh - 60px) / 2)'  // mobile: 60px header
+        : 'calc(80px + (50vh - 80px) / 2)'; // desktop: 80px header
+    }
+    // When closed: center in viewport (accounting for header)
+    return '50%';
+  };
+
   return (
     <>
       <div
         className={`
+          fixed left-0 right-0 z-50
           flex items-center justify-center text-center
-          ${isDrawerOpen ? 'fixed left-0 right-0 z-50' : ''}
-          ${!isDrawerOpen ? (isMobile ? 'min-h-[40vh]' : 'min-h-[50vh]') : ''}
+          ${isDrawerOpen ? 'pointer-events-none' : ''}
         `}
         style={{
           padding: isDrawerOpen
             ? (isMobile ? '0.625rem 1rem' : '0.75rem 1rem')
             : (isMobile ? '1rem' : '0 3rem'),
-          top: isDrawerOpen ? (isMobile ? '25%' : '30%') : undefined,
+          top: getTopPosition(),
+          transform: 'translateY(-50%)',
+          transition: 'top 400ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         <div
@@ -443,6 +459,7 @@ export const IngredientDisplay = ({
             font-black
             tracking-tight
             ${isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]'}
+            ${isDrawerOpen ? 'pointer-events-auto' : ''}
           `}
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
