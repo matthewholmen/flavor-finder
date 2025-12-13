@@ -39,12 +39,12 @@ const TasteSection: React.FC<TasteSectionProps> = ({
     const r = parseInt(hexColor.slice(1, 3), 16);
     const g = parseInt(hexColor.slice(3, 5), 16);
     const b = parseInt(hexColor.slice(5, 7), 16);
-    
-    const mix = 0.85;
+
+    const mix = 0.7;
     const desatR = Math.round(r * (1 - mix) + 255 * mix);
     const desatG = Math.round(g * (1 - mix) + 255 * mix);
     const desatB = Math.round(b * (1 - mix) + 255 * mix);
-    
+
     return `rgb(${desatR}, ${desatG}, ${desatB})`;
   };
 

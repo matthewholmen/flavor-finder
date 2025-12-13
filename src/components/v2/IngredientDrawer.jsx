@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap } from 'lucide-react';
 import { TASTE_COLORS } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
@@ -35,6 +35,25 @@ const DIETARY_TOGGLES = [
   // { key: 'keto', label: 'Keto' }
 ];
 
+const COMPATIBILITY_MODES = [
+  { key: 'perfect', label: 'Perfect', description: 'Generated pairings include only perfect matches — each ingredient is a recommended pairing for one another.' },
+  { key: 'mixed', label: 'Mixed', description: 'Each ingredient pairs with at least one other ingredient in the set, allowing for more creative combinations.' },
+  { key: 'random', label: 'Random', description: 'Completely random ingredients with no pairing requirements — for adventurous cooks!' }
+];
+
+const getDesaturatedColor = (hexColor) => {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+
+  const mix = 0.7;
+  const desatR = Math.round(r * (1 - mix) + 255 * mix);
+  const desatG = Math.round(g * (1 - mix) + 255 * mix);
+  const desatB = Math.round(b * (1 - mix) + 255 * mix);
+
+  return `rgb(${desatR}, ${desatG}, ${desatB})`;
+};
+
 export const IngredientDrawer = ({
   isOpen,
   onToggle,
@@ -55,11 +74,21 @@ export const IngredientDrawer = ({
   onSliderToggle = () => {},
   dietaryRestrictions = {},
   onDietaryChange = () => {},
+  // Compatibility props
+  compatibilityMode = 'perfect',
+  onCompatibilityChange = () => {},
+  // Partial matches props
+  showPartialMatches = false,
+  onTogglePartialMatches = () => {},
+  // Flavor map for pairing info
+  flavorMap = null,
 }) => {
   const inputRef = useRef(null);
   const { isMobile, width } = useScreenSize();
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState('categories');
+  const [activeSection, setActiveSection] = useState('search'); // 'search' or 'generation'
+  const [activeSearchTab, setActiveSearchTab] = useState('category'); // 'category' or 'taste'
+  const [activeGenerationTab, setActiveGenerationTab] = useState('compatibility'); // 'compatibility' or 'dietary'
   const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
   const [showMaxMessage, setShowMaxMessage] = useState(false);
   
@@ -115,6 +144,25 @@ export const IngredientDrawer = ({
     return Object.entries(profile.flavorProfile)
       .filter(([_, value]) => value >= 5)
       .map(([taste, _]) => taste);
+  };
+
+  // Get ingredients that don't pair with the given ingredient
+  const getNonPairingIngredients = (ingredient) => {
+    if (!flavorMap || selectedIngredients.length <= 1) return [];
+
+    const otherIngredients = selectedIngredients.filter(ing => ing !== ingredient);
+    return otherIngredients.filter(other =>
+      !flavorMap.get(ingredient)?.has(other)
+    );
+  };
+
+  // Check if an ingredient is a partial match (pairs with some but not all selected ingredients)
+  const isPartialMatch = (ingredient) => {
+    if (!showPartialMatches || selectedIngredients.length === 0) return false;
+    const matchCount = selectedIngredients.filter(selected =>
+      flavorMap?.get(selected)?.has(ingredient)
+    ).length;
+    return matchCount > 0 && matchCount < selectedIngredients.length;
   };
 
   const handleIngredientAdd = (ingredient) => {
@@ -254,10 +302,32 @@ export const IngredientDrawer = ({
 
   const subcategories = SUBCATEGORIES[activeCategory] || [];
 
+  // Generate slider thumb styles
+  const sliderStyles = TASTE_PROPERTIES.map(taste => `
+    .taste-slider-${taste}::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: ${TASTE_COLORS[taste]};
+      border: 1px solid black;
+      cursor: pointer;
+    }
+    .taste-slider-${taste}::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: ${TASTE_COLORS[taste]};
+      border: 1px solid black;
+      cursor: pointer;
+    }
+  `).join('\n');
+
   // Mobile layout
   if (isMobile) {
     return (
       <>
+        <style>{sliderStyles}</style>
         {/* Backdrop */}
         {isOpen && (
           <div
@@ -299,35 +369,55 @@ export const IngredientDrawer = ({
             style={{ maxHeight: '50vh' }}
           >
             <div className="flex flex-col h-full">
-              {/* Search Bar */}
+              {/* Search Bar with Partial Matches Toggle */}
               <div className="flex-shrink-0 px-4 pt-3 pb-2">
-                <div className="relative">
-                  <Search
-                    size={18}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    placeholder="Search ingredients..."
-                    className="
-                      w-full pl-10 pr-10 py-3
-                      rounded-xl border border-gray-200
-                      focus:border-gray-400 focus:outline-none
-                      text-base bg-gray-50
-                    "
-                    style={{ fontSize: '16px' }} // Prevents iOS zoom
-                  />
-                  {searchTerm && (
-                    <button
-                      onClick={() => onSearchChange('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                    >
-                      <X size={18} className="text-gray-400" />
-                    </button>
-                  )}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search
+                      size={18}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => onSearchChange(e.target.value)}
+                      placeholder="Search ingredients..."
+                      className="
+                        w-full pl-10 pr-10 py-3
+                        rounded-xl border border-gray-200
+                        focus:border-gray-400 focus:outline-none
+                        text-base bg-gray-50
+                      "
+                      style={{ fontSize: '16px' }} // Prevents iOS zoom
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => onSearchChange('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                      >
+                        <X size={18} className="text-gray-400" />
+                      </button>
+                    )}
+                  </div>
+                  {/* Show Partial Matches Button */}
+                  <button
+                    onClick={onTogglePartialMatches}
+                    title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
+                    className={`
+                      p-3
+                      rounded-xl
+                      border-2 border-dashed
+                      transition-all
+                      min-h-[44px]
+                      ${showPartialMatches
+                        ? 'text-gray-800 border-[#FFC533] bg-amber-50'
+                        : 'text-gray-400 border-gray-300'
+                      }
+                    `}
+                  >
+                    <Zap size={18} />
+                  </button>
                 </div>
               </div>
 
@@ -337,7 +427,8 @@ export const IngredientDrawer = ({
                   {suggestions.map((ingredient) => {
                     const isSelected = selectedIngredients.includes(ingredient);
                     const color = getIngredientColor(ingredient);
-                    
+                    const partial = isPartialMatch(ingredient);
+
                     return (
                       <button
                         key={ingredient}
@@ -350,16 +441,16 @@ export const IngredientDrawer = ({
                         className={`
                           px-4 py-2.5
                           rounded-full font-semibold text-sm
-                          transition-all duration-150 border-2
+                          transition-all duration-150
                           min-h-[44px]
-                          ${isSelected 
-                            ? 'opacity-30 cursor-not-allowed' 
+                          ${isSelected
+                            ? 'opacity-30 cursor-not-allowed'
                             : 'active:scale-95'
                           }
                         `}
-                        style={{ 
+                        style={{
                           color: isSelected ? '#d1d5db' : '#1f2937',
-                          borderColor: isSelected ? '#e5e7eb' : color,
+                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
                           backgroundColor: 'white',
                         }}
                       >
@@ -417,166 +508,278 @@ export const IngredientDrawer = ({
                   `}
                 >
                   <div className="px-4 pb-4 overflow-y-auto" style={{ maxHeight: '280px' }}>
-                    {/* Tab Navigation */}
-                    <div className="flex gap-1 mb-3 border-b border-gray-200">
-                      {['categories', 'taste', 'dietary'].map((tab) => (
-                        <button
-                          key={tab}
-                          onClick={() => setActiveTab(tab)}
-                          className={`
-                            px-3 py-2 text-xs font-medium capitalize
-                            border-b-2 transition-colors
-                            ${activeTab === tab
-                              ? 'border-[#72A8D5] text-[#72A8D5]'
-                              : 'border-transparent text-gray-500'
-                            }
-                          `}
-                        >
-                          {tab}
-                        </button>
-                      ))}
+                    {/* Top-level Section Navigation */}
+                    <div className="flex gap-4 mb-3">
+                      <button
+                        onClick={() => setActiveSection('search')}
+                        className={`
+                          text-xs font-semibold transition-colors
+                          ${activeSection === 'search'
+                            ? 'text-gray-900'
+                            : 'text-gray-400'
+                          }
+                        `}
+                      >
+                        Search Filters
+                      </button>
+                      <button
+                        onClick={() => setActiveSection('generation')}
+                        className={`
+                          text-xs font-semibold transition-colors
+                          ${activeSection === 'generation'
+                            ? 'text-gray-900'
+                            : 'text-gray-400'
+                          }
+                        `}
+                      >
+                        Generation Options
+                      </button>
                     </div>
 
-                    {/* Categories Tab */}
-                    {activeTab === 'categories' && (
-                      <div className="space-y-2">
-                        {!activeCategory ? (
-                          <div className="flex flex-wrap gap-1.5">
-                            {CATEGORIES.map((cat) => (
-                              <button
-                                key={cat}
-                                onClick={() => handleCategoryClick(cat)}
-                                className="
-                                  py-2 px-3 text-xs
-                                  rounded-full border-2 border-gray-300
-                                  bg-white text-gray-700 font-medium
-                                  active:bg-gray-100
-                                  min-h-[36px]
-                                "
-                              >
-                                {cat}
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
+                    {/* Search Filters Section */}
+                    {activeSection === 'search' && (
+                      <>
+                        {/* Sub-tabs for Category and Taste */}
+                        <div className="flex gap-4 mb-3">
+                          <button
+                            onClick={() => setActiveSearchTab('category')}
+                            className={`
+                              text-xs font-medium transition-colors
+                              ${activeSearchTab === 'category'
+                                ? 'text-gray-700'
+                                : 'text-gray-400'
+                              }
+                            `}
+                          >
+                            Category
+                          </button>
+                          <button
+                            onClick={() => setActiveSearchTab('taste')}
+                            className={`
+                              text-xs font-medium transition-colors
+                              ${activeSearchTab === 'taste'
+                                ? 'text-gray-700'
+                                : 'text-gray-400'
+                              }
+                            `}
+                          >
+                            Taste
+                          </button>
+                        </div>
+
+                        {/* Category Content */}
+                        {activeSearchTab === 'category' && (
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={handleClearCategory}
-                                className="p-1.5 rounded-full bg-gray-100"
-                              >
-                                <X size={14} className="text-gray-600" />
-                              </button>
-                              <span className="py-1.5 px-3 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-xs">
-                                {activeCategory}
-                              </span>
-                            </div>
-                            {subcategories.length > 0 && (
+                            {!activeCategory ? (
                               <div className="flex flex-wrap gap-1.5">
-                                {subcategories.map((subcat) => {
-                                  const isSelected = selectedSubcategories.includes(subcat);
+                                {CATEGORIES.map((cat) => (
+                                  <button
+                                    key={cat}
+                                    onClick={() => handleCategoryClick(cat)}
+                                    className="
+                                      py-2 px-3 text-xs
+                                      rounded-full border-2 border-gray-300
+                                      bg-white text-gray-700 font-medium
+                                      active:bg-gray-100
+                                      min-h-[36px]
+                                    "
+                                  >
+                                    {cat}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={handleClearCategory}
+                                    className="p-1.5 rounded-full bg-gray-100"
+                                  >
+                                    <X size={14} className="text-gray-600" />
+                                  </button>
+                                  <span className="py-1.5 px-3 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-xs">
+                                    {activeCategory}
+                                  </span>
+                                </div>
+                                {subcategories.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {subcategories.map((subcat) => {
+                                      const isSelected = selectedSubcategories.includes(subcat);
+                                      return (
+                                        <button
+                                          key={subcat}
+                                          onClick={() => handleSubcategoryToggle(subcat)}
+                                          className={`
+                                            py-1.5 px-2.5 text-xs
+                                            rounded-full border-2 font-medium
+                                            ${isSelected
+                                              ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
+                                              : 'border-gray-300 bg-white text-gray-700'
+                                            }
+                                          `}
+                                        >
+                                          {subcat}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Taste Content */}
+                        {activeSearchTab === 'taste' && (
+                          <div className="space-y-2">
+                            <div className="flex flex-wrap gap-1.5">
+                              {TASTE_PROPERTIES.map((taste) => {
+                                const isActive = activeSliders.has(taste);
+                                const color = TASTE_COLORS[taste];
+                                return (
+                                  <button
+                                    key={taste}
+                                    onClick={() => handleTasteToggle(taste)}
+                                    className={`
+                                      py-2 px-3 text-xs
+                                      rounded-full border-2 font-medium capitalize
+                                      min-h-[36px]
+                                      ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
+                                    `}
+                                    style={isActive ? { backgroundColor: color, borderColor: color } : {}}
+                                  >
+                                    {taste}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {activeSliders.size > 0 && (
+                              <div className="space-y-2 pt-2">
+                                {Array.from(activeSliders).map((taste) => {
+                                  const color = TASTE_COLORS[taste];
                                   return (
-                                    <button
-                                      key={subcat}
-                                      onClick={() => handleSubcategoryToggle(subcat)}
-                                      className={`
-                                        py-1.5 px-2.5 text-xs
-                                        rounded-full border-2 font-medium
-                                        ${isSelected
-                                          ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
-                                          : 'border-gray-300 bg-white text-gray-700'
-                                        }
-                                      `}
-                                    >
-                                      {subcat}
-                                    </button>
+                                    <div key={taste} className="flex items-center gap-2">
+                                      <div
+                                        className="w-2 h-2 rounded-full flex-shrink-0"
+                                        style={{ backgroundColor: color }}
+                                      />
+                                      <span className="text-xs font-medium capitalize w-10">{taste}</span>
+                                      <input
+                                        type="range"
+                                        min="1"
+                                        max="10"
+                                        step="1"
+                                        value={tasteValues[taste] || 1}
+                                        onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
+                                        className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
+                                        style={{
+                                          background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
+                                        }}
+                                      />
+                                      <span className="text-xs text-gray-500 w-5">{tasteValues[taste] || 1}</span>
+                                    </div>
                                   );
                                 })}
                               </div>
                             )}
                           </div>
                         )}
-                      </div>
+                      </>
                     )}
 
-                    {/* Taste Tab */}
-                    {activeTab === 'taste' && (
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap gap-1.5">
-                          {TASTE_PROPERTIES.map((taste) => {
-                            const isActive = activeSliders.has(taste);
-                            const color = TASTE_COLORS[taste];
-                            return (
-                              <button
-                                key={taste}
-                                onClick={() => handleTasteToggle(taste)}
-                                className={`
-                                  py-2 px-3 text-xs
-                                  rounded-full border-2 font-medium capitalize
-                                  min-h-[36px]
-                                  ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
-                                `}
-                                style={isActive ? { backgroundColor: color, borderColor: color } : {}}
-                              >
-                                {taste}
-                              </button>
-                            );
-                          })}
+                    {/* Generation Options Section */}
+                    {activeSection === 'generation' && (
+                      <>
+                        {/* Sub-tabs for Compatibility and Dietary */}
+                        <div className="flex gap-4 mb-3">
+                          <button
+                            onClick={() => setActiveGenerationTab('compatibility')}
+                            className={`
+                              text-xs font-medium transition-colors
+                              ${activeGenerationTab === 'compatibility'
+                                ? 'text-gray-700'
+                                : 'text-gray-400'
+                              }
+                            `}
+                          >
+                            Compatibility
+                          </button>
+                          <button
+                            onClick={() => setActiveGenerationTab('dietary')}
+                            className={`
+                              text-xs font-medium transition-colors
+                              ${activeGenerationTab === 'dietary'
+                                ? 'text-gray-700'
+                                : 'text-gray-400'
+                              }
+                            `}
+                          >
+                            Dietary
+                          </button>
                         </div>
-                        {activeSliders.size > 0 && (
-                          <div className="space-y-2 pt-2">
-                            {Array.from(activeSliders).map((taste) => {
-                              const color = TASTE_COLORS[taste];
+
+                        {/* Compatibility Content */}
+                        {activeGenerationTab === 'compatibility' && (
+                          <div className="space-y-3">
+                            <div className="relative inline-grid grid-cols-3 bg-gray-100 rounded-full p-1">
+                              {/* Sliding background indicator */}
+                              <div
+                                className="absolute top-1 bottom-1 bg-gray-900 rounded-full transition-all duration-200 ease-out"
+                                style={{
+                                  width: 'calc(33.333% - 2px)',
+                                  left: `calc(${COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode) * 33.333}% + 1px)`,
+                                }}
+                              />
+                              {COMPATIBILITY_MODES.map((mode) => (
+                                <button
+                                  key={mode.key}
+                                  onClick={() => onCompatibilityChange(mode.key)}
+                                  className={`
+                                    relative z-10 py-2 px-3 text-xs font-medium text-center
+                                    rounded-full transition-colors duration-200
+                                    min-h-[32px]
+                                    ${compatibilityMode === mode.key
+                                      ? 'text-white'
+                                      : 'text-gray-600'
+                                    }
+                                  `}
+                                >
+                                  {mode.label}
+                                </button>
+                              ))}
+                            </div>
+                            <p className="text-xs text-gray-500 leading-relaxed">
+                              {COMPATIBILITY_MODES.find(m => m.key === compatibilityMode)?.description}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Dietary Content */}
+                        {activeGenerationTab === 'dietary' && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {DIETARY_TOGGLES.map((toggle) => {
+                              const isActive = getDietaryState(toggle.key);
                               return (
-                                <div key={taste} className="flex items-center gap-2">
-                                  <div 
-                                    className="w-2 h-2 rounded-full flex-shrink-0"
-                                    style={{ backgroundColor: color }}
-                                  />
-                                  <span className="text-xs font-medium capitalize w-10">{taste}</span>
-                                  <input
-                                    type="range"
-                                    min="1"
-                                    max="10"
-                                    step="1"
-                                    value={tasteValues[taste] || 0}
-                                    onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
-                                    className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
-                                    style={{ accentColor: color }}
-                                  />
-                                  <span className="text-xs text-gray-500 w-5">{tasteValues[taste] || 0}</span>
-                                </div>
+                                <button
+                                  key={toggle.key}
+                                  onClick={() => handleDietaryToggle(toggle.key)}
+                                  className={`
+                                    py-2 px-3 text-xs
+                                    rounded-full border-2 font-medium
+                                    min-h-[36px]
+                                    ${isActive
+                                      ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
+                                      : 'border-gray-300 bg-white text-gray-700'
+                                    }
+                                  `}
+                                >
+                                  {toggle.label}
+                                </button>
                               );
                             })}
                           </div>
                         )}
-                      </div>
-                    )}
-
-                    {/* Dietary Tab */}
-                    {activeTab === 'dietary' && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {DIETARY_TOGGLES.map((toggle) => {
-                          const isActive = getDietaryState(toggle.key);
-                          return (
-                            <button
-                              key={toggle.key}
-                              onClick={() => handleDietaryToggle(toggle.key)}
-                              className={`
-                                py-2 px-3 text-xs
-                                rounded-full border-2 font-medium
-                                min-h-[36px]
-                                ${isActive
-                                  ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
-                                  : 'border-gray-300 bg-white text-gray-700'
-                                }
-                              `}
-                            >
-                              {toggle.label}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      </>
                     )}
                   </div>
                 </div>
@@ -591,6 +794,7 @@ export const IngredientDrawer = ({
   // Desktop layout (original)
   return (
     <>
+      <style>{sliderStyles}</style>
       {/* Backdrop */}
       {isOpen && (
         <div
@@ -634,215 +838,348 @@ export const IngredientDrawer = ({
             <div className="flex flex-1 min-h-0">
             {/* Left Side: Filter Panel */}
             <div className="w-[340px] flex-shrink-0 border-r border-gray-100 p-5 overflow-y-auto">
-              {/* Tab Navigation */}
-              <div className="flex gap-1 mb-4 border-b border-gray-200">
-                {['categories', 'taste', 'dietary'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`
-                      px-3 py-2 text-sm font-medium capitalize
-                      border-b-2 transition-colors
-                      ${activeTab === tab
-                        ? 'border-[#72A8D5] text-[#72A8D5]'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                      }
-                    `}
-                  >
-                    {tab === 'categories' ? 'Categories' : tab === 'taste' ? 'Taste' : 'Dietary'}
-                  </button>
-                ))}
+              {/* Top-level Section Navigation */}
+              <div className="flex gap-4 mb-4">
+                <button
+                  onClick={() => setActiveSection('search')}
+                  className={`
+                    text-sm font-semibold transition-colors
+                    ${activeSection === 'search'
+                      ? 'text-gray-900'
+                      : 'text-gray-400 hover:text-gray-600'
+                    }
+                  `}
+                >
+                  Search Filters
+                </button>
+                <button
+                  onClick={() => setActiveSection('generation')}
+                  className={`
+                    text-sm font-semibold transition-colors
+                    ${activeSection === 'generation'
+                      ? 'text-gray-900'
+                      : 'text-gray-400 hover:text-gray-600'
+                    }
+                  `}
+                >
+                  Generation Options
+                </button>
               </div>
 
-              {/* Categories Tab */}
-              {activeTab === 'categories' && (
-                <div className="space-y-3">
-                  {!activeCategory ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {CATEGORIES.map((cat) => (
-                        <button
-                          key={cat}
-                          onClick={() => handleCategoryClick(cat)}
-                          className="
-                            py-2.5 px-3 text-sm
-                            rounded-full border-2 border-gray-300
-                            bg-white text-gray-700 font-medium
-                            hover:border-gray-400 hover:bg-gray-50
-                            transition-all
-                          "
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
+              {/* Search Filters Section */}
+              {activeSection === 'search' && (
+                <>
+                  {/* Sub-tabs for Category and Taste */}
+                  <div className="flex gap-4 mb-4">
+                    <button
+                      onClick={() => setActiveSearchTab('category')}
+                      className={`
+                        text-sm font-medium transition-colors
+                        ${activeSearchTab === 'category'
+                          ? 'text-gray-700'
+                          : 'text-gray-400 hover:text-gray-500'
+                        }
+                      `}
+                    >
+                      Category
+                    </button>
+                    <button
+                      onClick={() => setActiveSearchTab('taste')}
+                      className={`
+                        text-sm font-medium transition-colors
+                        ${activeSearchTab === 'taste'
+                          ? 'text-gray-700'
+                          : 'text-gray-400 hover:text-gray-500'
+                        }
+                      `}
+                    >
+                      Taste
+                    </button>
+                  </div>
+
+                  {/* Category Content */}
+                  {activeSearchTab === 'category' && (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={handleClearCategory}
-                          className="p-1 rounded-full hover:bg-gray-100"
-                        >
-                          <X size={16} className="text-gray-600" />
-                        </button>
-                        <span className="py-2 px-4 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-sm">
-                          {activeCategory}
-                        </span>
-                      </div>
-                      {subcategories.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-medium text-gray-600 mb-2">Subcategories</h4>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            {subcategories.map((subcat) => {
-                              const isSelected = selectedSubcategories.includes(subcat);
-                              return (
-                                <button
-                                  key={subcat}
-                                  onClick={() => handleSubcategoryToggle(subcat)}
-                                  className={`
-                                    py-2 px-3 text-xs
-                                    rounded-full border-2 font-medium
-                                    transition-all truncate
-                                    ${isSelected
-                                      ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
-                                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                                    }
-                                  `}
-                                >
-                                  {subcat}
-                                </button>
-                              );
-                            })}
+                      {!activeCategory ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {CATEGORIES.map((cat) => (
+                            <button
+                              key={cat}
+                              onClick={() => handleCategoryClick(cat)}
+                              className="
+                                py-2.5 px-3 text-sm
+                                rounded-full border-2 border-gray-300
+                                bg-white text-gray-700 font-medium
+                                hover:border-gray-400 hover:bg-gray-50
+                                transition-all
+                              "
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={handleClearCategory}
+                              className="p-1 rounded-full hover:bg-gray-100"
+                            >
+                              <X size={16} className="text-gray-600" />
+                            </button>
+                            <span className="py-2 px-4 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-sm">
+                              {activeCategory}
+                            </span>
                           </div>
+                          {subcategories.length > 0 && (
+                            <div>
+                              <h4 className="text-xs font-medium text-gray-600 mb-2">Subcategories</h4>
+                              <div className="grid grid-cols-2 gap-1.5">
+                                {subcategories.map((subcat) => {
+                                  const isSelected = selectedSubcategories.includes(subcat);
+                                  return (
+                                    <button
+                                      key={subcat}
+                                      onClick={() => handleSubcategoryToggle(subcat)}
+                                      className={`
+                                        py-2 px-3 text-xs
+                                        rounded-full border-2 font-medium
+                                        transition-all truncate
+                                        ${isSelected
+                                          ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
+                                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                                        }
+                                      `}
+                                    >
+                                      {subcat}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   )}
-                </div>
+
+                  {/* Taste Content */}
+                  {activeSearchTab === 'taste' && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        {TASTE_PROPERTIES.map((taste) => {
+                          const isActive = activeSliders.has(taste);
+                          const color = TASTE_COLORS[taste];
+                          return (
+                            <button
+                              key={taste}
+                              onClick={() => handleTasteToggle(taste)}
+                              className={`
+                                py-2.5 px-3 text-sm
+                                rounded-full border-2 font-medium capitalize
+                                transition-all
+                                ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}
+                              `}
+                              style={isActive ? { backgroundColor: color, borderColor: color } : {}}
+                            >
+                              {taste}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {activeSliders.size > 0 && (
+                        <div className="space-y-2 pt-2">
+                          {Array.from(activeSliders).map((taste) => {
+                            const color = TASTE_COLORS[taste];
+                            return (
+                              <div key={taste} className="flex items-center gap-2">
+                                <div
+                                  className="w-2.5 h-2.5 rounded-full"
+                                  style={{ backgroundColor: color }}
+                                />
+                                <span className="text-xs font-medium capitalize w-12">{taste}</span>
+                                <input
+                                  type="range"
+                                  min="1"
+                                  max="10"
+                                  step="1"
+                                  value={tasteValues[taste] || 1}
+                                  onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
+                                  className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
+                                  style={{
+                                    background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
+                                  }}
+                                />
+                                <span className="text-xs text-gray-500 w-6">{tasteValues[taste] || 1}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
 
-              {/* Taste Tab */}
-              {activeTab === 'taste' && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    {TASTE_PROPERTIES.map((taste) => {
-                      const isActive = activeSliders.has(taste);
-                      const color = TASTE_COLORS[taste];
-                      return (
-                        <button
-                          key={taste}
-                          onClick={() => handleTasteToggle(taste)}
-                          className={`
-                            py-2.5 px-3 text-sm
-                            rounded-full border-2 font-medium capitalize
-                            transition-all
-                            ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}
-                          `}
-                          style={isActive ? { backgroundColor: color, borderColor: color } : {}}
-                        >
-                          {taste}
-                        </button>
-                      );
-                    })}
+              {/* Generation Options Section */}
+              {activeSection === 'generation' && (
+                <>
+                  {/* Sub-tabs for Compatibility and Dietary */}
+                  <div className="flex gap-4 mb-4">
+                    <button
+                      onClick={() => setActiveGenerationTab('compatibility')}
+                      className={`
+                        text-sm font-medium transition-colors
+                        ${activeGenerationTab === 'compatibility'
+                          ? 'text-gray-700'
+                          : 'text-gray-400 hover:text-gray-500'
+                        }
+                      `}
+                    >
+                      Compatibility
+                    </button>
+                    <button
+                      onClick={() => setActiveGenerationTab('dietary')}
+                      className={`
+                        text-sm font-medium transition-colors
+                        ${activeGenerationTab === 'dietary'
+                          ? 'text-gray-700'
+                          : 'text-gray-400 hover:text-gray-500'
+                        }
+                      `}
+                    >
+                      Dietary
+                    </button>
                   </div>
-                  {activeSliders.size > 0 && (
-                    <div className="space-y-2 pt-2">
-                      {Array.from(activeSliders).map((taste) => {
-                        const color = TASTE_COLORS[taste];
+
+                  {/* Compatibility Content */}
+                  {activeGenerationTab === 'compatibility' && (
+                    <div className="space-y-4">
+                      <div className="relative inline-grid grid-cols-3 bg-gray-100 rounded-full p-1">
+                        {/* Sliding background indicator */}
+                        <div
+                          className="absolute top-1 bottom-1 bg-gray-900 rounded-full transition-all duration-200 ease-out"
+                          style={{
+                            width: 'calc(33.333% - 2px)',
+                            left: `calc(${COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode) * 33.333}% + 1px)`,
+                          }}
+                        />
+                        {COMPATIBILITY_MODES.map((mode) => (
+                          <button
+                            key={mode.key}
+                            onClick={() => onCompatibilityChange(mode.key)}
+                            className={`
+                              relative z-10 py-2.5 px-5 text-sm font-medium text-center
+                              rounded-full transition-colors duration-200
+                              ${compatibilityMode === mode.key
+                                ? 'text-white'
+                                : 'text-gray-600 hover:text-gray-800'
+                              }
+                            `}
+                          >
+                            {mode.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-500 leading-relaxed">
+                        {COMPATIBILITY_MODES.find(m => m.key === compatibilityMode)?.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Dietary Content */}
+                  {activeGenerationTab === 'dietary' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {DIETARY_TOGGLES.map((toggle) => {
+                        const isActive = getDietaryState(toggle.key);
                         return (
-                          <div key={taste} className="flex items-center gap-2">
-                            <div 
-                              className="w-2.5 h-2.5 rounded-full"
-                              style={{ backgroundColor: color }}
-                            />
-                            <span className="text-xs font-medium capitalize w-12">{taste}</span>
-                            <input
-                              type="range"
-                              min="1"
-                              max="10"
-                              step="1"
-                              value={tasteValues[taste] || 0}
-                              onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
-                              className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
-                              style={{ accentColor: color }}
-                            />
-                            <span className="text-xs text-gray-500 w-6">{tasteValues[taste] || 0}</span>
-                          </div>
+                          <button
+                            key={toggle.key}
+                            onClick={() => handleDietaryToggle(toggle.key)}
+                            className={`
+                              py-2.5 px-3 text-sm
+                              rounded-full border-2 font-medium
+                              transition-all
+                              ${isActive
+                                ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
+                                : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                              }
+                            `}
+                          >
+                            {toggle.label}
+                          </button>
                         );
                       })}
                     </div>
                   )}
-                </div>
-              )}
-
-              {/* Dietary Tab */}
-              {activeTab === 'dietary' && (
-                <div className="grid grid-cols-2 gap-2">
-                  {DIETARY_TOGGLES.map((toggle) => {
-                    const isActive = getDietaryState(toggle.key);
-                    return (
-                      <button
-                        key={toggle.key}
-                        onClick={() => handleDietaryToggle(toggle.key)}
-                        className={`
-                          py-2.5 px-3 text-sm
-                          rounded-full border-2 font-medium
-                          transition-all
-                          ${isActive
-                            ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
-                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                          }
-                        `}
-                      >
-                        {toggle.label}
-                      </button>
-                    );
-                  })}
-                </div>
+                </>
               )}
             </div>
 
             {/* Middle: Search + Ingredients */}
             <div className="flex-1 p-5 overflow-hidden flex flex-col border-r border-gray-100">
-              {/* Search Bar */}
-              <div className="relative mb-4 flex-shrink-0">
-                <Search
-                  size={20}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      const availableSuggestions = suggestions.filter(
-                        ing => !selectedIngredients.includes(ing)
-                      );
-                      if (availableSuggestions.length > 0) {
-                        handleIngredientAdd(availableSuggestions[0]);
-                        if (selectedIngredients.length < 5) {
-                          onSearchChange('');
+              {/* Search Bar with Partial Matches Toggle */}
+              <div className="flex gap-3 mb-4 flex-shrink-0">
+                <div className="relative flex-1">
+                  <Search
+                    size={20}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const availableSuggestions = suggestions.filter(
+                          ing => !selectedIngredients.includes(ing)
+                        );
+                        if (availableSuggestions.length > 0) {
+                          handleIngredientAdd(availableSuggestions[0]);
+                          if (selectedIngredients.length < 5) {
+                            onSearchChange('');
+                          }
                         }
                       }
+                    }}
+                    placeholder="Search ingredients..."
+                    className="
+                      w-full pl-12 pr-10 py-3
+                      rounded-full border-2 border-gray-200
+                      focus:border-gray-400 focus:outline-none
+                      text-base bg-gray-50
+                    "
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => onSearchChange('')}
+                      className="absolute right-4 top-1/2 -translate-y-1/2"
+                    >
+                      <X size={20} className="text-gray-400 hover:text-gray-600" />
+                    </button>
+                  )}
+                </div>
+                {/* Show Partial Matches Button */}
+                <button
+                  onClick={onTogglePartialMatches}
+                  title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
+                  className={`
+                    px-4 py-3
+                    rounded-full
+                    border-2 border-dashed
+                    transition-all
+                    flex items-center gap-2
+                    whitespace-nowrap
+                    ${showPartialMatches
+                      ? 'text-gray-800 border-[#FFC533] bg-amber-50'
+                      : 'text-gray-400 border-gray-300 hover:border-[#FFC533] hover:text-gray-600'
                     }
-                  }}
-                  placeholder="Search ingredients..."
-                  className="
-                    w-full pl-12 pr-10 py-3
-                    rounded-full border-2 border-gray-200
-                    focus:border-gray-400 focus:outline-none
-                    text-base bg-gray-50
-                  "
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => onSearchChange('')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2"
-                  >
-                    <X size={20} className="text-gray-400 hover:text-gray-600" />
-                  </button>
-                )}
+                  `}
+                >
+                  <Zap size={18} />
+                  <span className="text-sm font-medium">Partial</span>
+                </button>
               </div>
 
               {/* Ingredients Grid */}
@@ -851,6 +1188,7 @@ export const IngredientDrawer = ({
                   {suggestions.map((ingredient) => {
                     const isSelected = selectedIngredients.includes(ingredient);
                     const color = getIngredientColor(ingredient);
+                    const partial = isPartialMatch(ingredient);
 
                     return (
                       <button
@@ -864,7 +1202,7 @@ export const IngredientDrawer = ({
                         className={`
                           px-5 py-2.5
                           rounded-full font-semibold text-base
-                          transition-all duration-150 border-2
+                          transition-all duration-150
                           ${isSelected
                             ? 'opacity-30 cursor-not-allowed'
                             : ''
@@ -872,7 +1210,7 @@ export const IngredientDrawer = ({
                         `}
                         style={{
                           color: isSelected ? '#d1d5db' : '#1f2937',
-                          borderColor: isSelected ? '#e5e7eb' : color,
+                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
                           backgroundColor: 'white',
                         }}
                         onMouseEnter={(e) => {
@@ -887,6 +1225,7 @@ export const IngredientDrawer = ({
                             e.currentTarget.style.color = '#1f2937';
                           }
                         }}
+                        title={partial ? 'Partial match - pairs with some selected ingredients' : undefined}
                       >
                         {ingredient}
                       </button>
@@ -917,6 +1256,7 @@ export const IngredientDrawer = ({
                   const profile = getIngredientProfile(currentIngredient);
                   const tasteTags = getTasteTags(profile);
                   const ingredientColor = getIngredientColor(currentIngredient);
+                  const nonPairingIngredients = getNonPairingIngredients(currentIngredient);
 
                   return (
                     <div className="flex flex-col h-full">
@@ -956,8 +1296,11 @@ export const IngredientDrawer = ({
 
                       {/* Ingredient Name */}
                       <h2
-                        className="text-2xl font-bold italic mb-1"
-                        style={{ color: ingredientColor }}
+                        className="text-2xl italic mb-1"
+                        style={{
+                          color: ingredientColor,
+                          fontWeight: nonPairingIngredients.length > 0 ? 400 : 700
+                        }}
                       >
                         {currentIngredient}
                       </h2>
@@ -972,9 +1315,19 @@ export const IngredientDrawer = ({
 
                       {/* Description */}
                       {profile?.description && (
-                        <p className="text-sm text-gray-700 leading-relaxed mb-6">
+                        <p className="text-sm text-gray-700 leading-relaxed mb-4">
                           {profile.description}
                         </p>
+                      )}
+
+                      {/* Non-pairing warning */}
+                      {nonPairingIngredients.length > 0 && (
+                        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-sm text-amber-800">
+                            <span className="font-medium">Not a suggested pairing with: </span>
+                            {nonPairingIngredients.join(', ')}
+                          </p>
+                        </div>
                       )}
 
                       {/* Taste Tags */}

@@ -104,6 +104,8 @@ export default function FlavorFinderV2() {
   });
   const [activeSliders, setActiveSliders] = useState(new Set());
   const [dietaryRestrictions, setDietaryRestrictions] = useState({});
+  const [compatibilityMode, setCompatibilityMode] = useState('perfect'); // 'perfect' | 'mixed' | 'random'
+  const [showPartialMatches, setShowPartialMatches] = useState(false);
 
   // Create flavor map
   const { flavorMap } = useMemo(() => createFlavorMap(false), []);
@@ -212,9 +214,91 @@ export default function FlavorFinderV2() {
   };
 
   // Random ingredient generation with backtracking
-  const getRandomIngredients = (count = 5, lockedList = []) => {
+  // mode: 'perfect' = all ingredients must pair with each other
+  //       'mixed' = each ingredient must pair with at least one other
+  //       'random' = no pairing requirements
+  const getRandomIngredients = (count = 5, lockedList = [], mode = 'perfect') => {
     const maxGlobalAttempts = 200;
 
+    // Random mode: just pick any ingredients (respecting dietary restrictions)
+    if (mode === 'random') {
+      const availablePool = Array.from(flavorMap.keys())
+        .filter(ingredient => !lockedList.includes(ingredient))
+        .filter(ingredient => !isIngredientRestricted(ingredient));
+
+      const selections = [];
+      const usedSet = new Set(lockedList);
+
+      for (let i = 0; i < count && availablePool.length > 0; i++) {
+        const remaining = availablePool.filter(ing => !usedSet.has(ing));
+        if (remaining.length === 0) break;
+
+        const randomIndex = Math.floor(Math.random() * remaining.length);
+        const picked = remaining[randomIndex];
+        selections.push(picked);
+        usedSet.add(picked);
+      }
+
+      return selections;
+    }
+
+    // Mixed mode: each ingredient must pair with at least one other in the set
+    if (mode === 'mixed') {
+      for (let attempt = 0; attempt < maxGlobalAttempts; attempt++) {
+        const selections = [];
+        const excludeSet = new Set([...lockedList]);
+
+        // Get all available ingredients
+        const availablePool = Array.from(flavorMap.keys())
+          .filter(ingredient => !excludeSet.has(ingredient))
+          .filter(ingredient => !isIngredientRestricted(ingredient));
+
+        // Shuffle the pool for randomness
+        const shuffled = [...availablePool].sort(() => Math.random() - 0.5);
+
+        for (const candidate of shuffled) {
+          if (selections.length >= count) break;
+          if (excludeSet.has(candidate)) continue;
+
+          // Check if this candidate pairs with at least one existing ingredient
+          // (or if it's the first ingredient, just add it)
+          const allExisting = [...selections, ...lockedList];
+
+          if (allExisting.length === 0) {
+            // First ingredient - just add it
+            selections.push(candidate);
+            excludeSet.add(candidate);
+          } else {
+            // Must pair with at least one existing ingredient
+            const pairsWithAtLeastOne = allExisting.some(existing =>
+              flavorMap.get(existing)?.has(candidate)
+            );
+
+            if (pairsWithAtLeastOne) {
+              selections.push(candidate);
+              excludeSet.add(candidate);
+            }
+          }
+        }
+
+        // Validate: each ingredient (including locked) must pair with at least one other
+        const allIngredients = [...lockedList, ...selections];
+        const isValid = allIngredients.every(ing => {
+          const others = allIngredients.filter(other => other !== ing);
+          return others.length === 0 || others.some(other =>
+            flavorMap.get(ing)?.has(other)
+          );
+        });
+
+        if (selections.length === count && isValid) {
+          return selections;
+        }
+      }
+
+      return [];
+    }
+
+    // Perfect mode (default): all ingredients must pair with all others
     for (let attempt = 0; attempt < maxGlobalAttempts; attempt++) {
       const selections = [];
       const excludeSet = new Set([...lockedList]);
@@ -355,8 +439,8 @@ export default function FlavorFinderV2() {
     // Calculate how many new ingredients to generate
     const slotsToFill = targetIngredientCount - lockedIngredientsList.length;
 
-    // Generate compatible ingredients
-    const newRandomIngredients = getRandomIngredients(slotsToFill, lockedIngredientsList);
+    // Generate compatible ingredients using current compatibility mode
+    const newRandomIngredients = getRandomIngredients(slotsToFill, lockedIngredientsList, compatibilityMode);
 
     // Only update if we got the exact number of ingredients requested
     // This prevents showing incomplete pairings (e.g., 3 ingredients when user wanted 4)
@@ -663,11 +747,19 @@ export default function FlavorFinderV2() {
     
     // Filter by compatibility with selected ingredients
     if (selectedIngredients.length > 0) {
-      filtered = filtered.filter(ingredient => 
-        selectedIngredients.every(selected => 
-          flavorMap.get(selected)?.has(ingredient)
-        )
-      );
+      filtered = filtered.filter(ingredient => {
+        if (!showPartialMatches) {
+          // Strict matching - all ingredients must match
+          return selectedIngredients.every(selected =>
+            flavorMap.get(selected)?.has(ingredient)
+          );
+        } else {
+          // Partial matching - at least one ingredient must match
+          return selectedIngredients.some(selected =>
+            flavorMap.get(selected)?.has(ingredient)
+          );
+        }
+      });
     }
 
     // Apply category filter
@@ -755,8 +847,27 @@ export default function FlavorFinderV2() {
       });
     }
 
+    // Sort: perfect matches first (alphabetically), then partial matches (alphabetically)
+    if (showPartialMatches && selectedIngredients.length > 0) {
+      filtered.sort((a, b) => {
+        const aIsPerfect = selectedIngredients.every(selected =>
+          flavorMap.get(selected)?.has(a)
+        );
+        const bIsPerfect = selectedIngredients.every(selected =>
+          flavorMap.get(selected)?.has(b)
+        );
+
+        // Perfect matches come first
+        if (aIsPerfect && !bIsPerfect) return -1;
+        if (!aIsPerfect && bIsPerfect) return 1;
+
+        // Within same category, sort alphabetically
+        return a.toLowerCase().localeCompare(b.toLowerCase());
+      });
+    }
+
     return filtered;
-  }, [searchTerm, allIngredients, selectedIngredients, flavorMap, activeCategory, selectedSubcategories, activeSliders, tasteValues, dietaryRestrictions]);
+  }, [searchTerm, allIngredients, selectedIngredients, flavorMap, activeCategory, selectedSubcategories, activeSliders, tasteValues, dietaryRestrictions, showPartialMatches]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -787,6 +898,7 @@ export default function FlavorFinderV2() {
           onLockToggle={handleLockToggle}
           onEmptySlotClick={() => setIsDrawerOpen(true)}
           isDrawerOpen={isDrawerOpen}
+          flavorMap={flavorMap}
         />
       </main>
       
@@ -837,6 +949,22 @@ export default function FlavorFinderV2() {
         onSliderToggle={handleSliderToggle}
         dietaryRestrictions={dietaryRestrictions}
         onDietaryChange={setDietaryRestrictions}
+        // Compatibility props
+        compatibilityMode={compatibilityMode}
+        onCompatibilityChange={(mode) => {
+          setCompatibilityMode(mode);
+          // Auto-enable partial matches for mixed/random modes, disable for perfect
+          if (mode === 'mixed' || mode === 'random') {
+            setShowPartialMatches(true);
+          } else if (mode === 'perfect') {
+            setShowPartialMatches(false);
+          }
+        }}
+        // Partial matches props
+        showPartialMatches={showPartialMatches}
+        onTogglePartialMatches={() => setShowPartialMatches(!showPartialMatches)}
+        // Flavor map for pairing info
+        flavorMap={flavorMap}
       />
 
       {/* Sidebar */}

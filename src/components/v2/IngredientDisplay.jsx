@@ -70,6 +70,7 @@ const Ingredient = ({
   isHovered,
   isFocused,
   isFaded,
+  isPerfectMatch = true, // Whether this ingredient pairs with all others
   onHover,
   onHoverEnd,
   onFocus,
@@ -156,7 +157,7 @@ const Ingredient = ({
       <span
         className={`relative inline-block transition-all duration-200 cursor-pointer ${isMobile ? '' : 'whitespace-nowrap'}`}
         style={{
-          fontWeight: 900,
+          fontWeight: isPerfectMatch ? 900 : 400,
           color: isFaded ? fadedColor : color,
           backgroundImage: isLocked ? `linear-gradient(${isFaded ? fadedColor : color}, ${isFaded ? fadedColor : color})` : 'none',
           backgroundSize: isLocked ? '100% 2px' : '0% 2px',
@@ -286,6 +287,7 @@ export const IngredientDisplay = ({
   onLockToggle,
   onEmptySlotClick,
   isDrawerOpen = false,
+  flavorMap = null, // Optional: for showing which ingredients don't pair perfectly
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
@@ -295,6 +297,16 @@ export const IngredientDisplay = ({
   const emptySlotCount = maxSlots - validIngredients.length;
   const hasHoveredIngredient = hoveredIndex !== null;
   const isTwoIngredientSet = maxSlots === 2;
+
+  // Check if an ingredient pairs with all other ingredients in the set
+  const isPerfectMatch = (ingredient) => {
+    if (!flavorMap || validIngredients.length <= 1) return true;
+
+    const otherIngredients = validIngredients.filter(ing => ing !== ingredient);
+    return otherIngredients.every(other =>
+      flavorMap.get(ingredient)?.has(other)
+    );
+  };
 
   // Clear focus when drawer closes
   useEffect(() => {
@@ -496,6 +508,7 @@ export const IngredientDisplay = ({
                 isHovered={hoveredIndex === displayIndex}
                 isFocused={isMobile && focusedIngredientIndex === displayIndex}
                 isFaded={hasHoveredIngredient && hoveredIndex !== displayIndex}
+                isPerfectMatch={isPerfectMatch(ingredient)}
                 onHover={() => setHoveredIndex(displayIndex)}
                 onHoverEnd={() => setHoveredIndex(null)}
                 onFocus={() => setFocusedIngredientIndex(displayIndex)}
