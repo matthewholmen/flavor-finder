@@ -91,6 +91,7 @@ export const IngredientDrawer = ({
   const [activeGenerationTab, setActiveGenerationTab] = useState('compatibility'); // 'compatibility' or 'dietary'
   const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
   const [showMaxMessage, setShowMaxMessage] = useState(false);
+  const [hoveredIngredient, setHoveredIngredient] = useState(null);
   
   // Auto-focus search input when drawer opens
   useEffect(() => {
@@ -163,6 +164,12 @@ export const IngredientDrawer = ({
       flavorMap?.get(selected)?.has(ingredient)
     ).length;
     return matchCount > 0 && matchCount < selectedIngredients.length;
+  };
+
+  // Check if an ingredient pairs with the currently hovered ingredient
+  const pairsWithHovered = (ingredient) => {
+    if (!hoveredIngredient || !flavorMap || ingredient === hoveredIngredient) return false;
+    return flavorMap.get(hoveredIngredient)?.has(ingredient) || false;
   };
 
   const handleIngredientAdd = (ingredient) => {
@@ -1189,6 +1196,30 @@ export const IngredientDrawer = ({
                     const isSelected = selectedIngredients.includes(ingredient);
                     const color = getIngredientColor(ingredient);
                     const partial = isPartialMatch(ingredient);
+                    const isPairingHighlight = pairsWithHovered(ingredient);
+                    const isHovered = hoveredIngredient === ingredient;
+
+                    // Convert hex to rgba for 30% fill
+                    const hexToRgba = (hex, alpha) => {
+                      const r = parseInt(hex.slice(1, 3), 16);
+                      const g = parseInt(hex.slice(3, 5), 16);
+                      const b = parseInt(hex.slice(5, 7), 16);
+                      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    };
+
+                    // Determine background color based on state
+                    let bgColor = 'white';
+                    let textColor = '#1f2937';
+                    if (isSelected) {
+                      bgColor = 'white';
+                      textColor = '#d1d5db';
+                    } else if (isHovered) {
+                      bgColor = color;
+                      textColor = 'white';
+                    } else if (isPairingHighlight) {
+                      bgColor = hexToRgba(color, 0.3);
+                      textColor = '#1f2937';
+                    }
 
                     return (
                       <button
@@ -1209,21 +1240,17 @@ export const IngredientDrawer = ({
                           }
                         `}
                         style={{
-                          color: isSelected ? '#d1d5db' : '#1f2937',
+                          color: textColor,
                           border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
-                          backgroundColor: 'white',
+                          backgroundColor: bgColor,
                         }}
-                        onMouseEnter={(e) => {
+                        onMouseEnter={() => {
                           if (!isSelected) {
-                            e.currentTarget.style.backgroundColor = color;
-                            e.currentTarget.style.color = 'white';
+                            setHoveredIngredient(ingredient);
                           }
                         }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.backgroundColor = 'white';
-                            e.currentTarget.style.color = '#1f2937';
-                          }
+                        onMouseLeave={() => {
+                          setHoveredIngredient(null);
                         }}
                         title={partial ? 'Partial match - pairs with some selected ingredients' : undefined}
                       >
