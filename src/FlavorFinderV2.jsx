@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { MinimalHeader } from './components/v2/MinimalHeader';
+import { MobileBottomBar } from './components/v2/MobileBottomBar';
 import { IngredientDisplay } from './components/v2/IngredientDisplay';
 import { IngredientDrawer } from './components/v2/IngredientDrawer';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills';
 import { Sidebar } from './components/v2/Sidebar';
 import { Undo2 } from 'lucide-react';
+import { useScreenSize } from './hooks/useScreenSize.ts';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -49,6 +51,8 @@ const createFlavorMap = (includeExperimental = false) => {
 };
 
 export default function FlavorFinderV2() {
+  const { isMobile } = useScreenSize();
+
   // Core state
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [lockedIngredients, setLockedIngredients] = useState(new Set());
@@ -885,10 +889,27 @@ export default function FlavorFinderV2() {
         onRecipesClick={handleRecipeSearch}
         onLogoClick={() => setIsSidebarOpen(true)}
         isGeneratePulsing={isFirstLoad}
+        isMobile={isMobile}
       />
 
+      {/* Mobile Bottom Bar */}
+      {isMobile && (
+        <MobileBottomBar
+          canIncrement={canIncrementTarget}
+          canDecrement={canDecrementTarget}
+          canUndo={history.length > 0}
+          onGenerate={handleRandomize}
+          onIncrementTarget={handleIncrementTarget}
+          onDecrementTarget={handleDecrementTarget}
+          onDrawerToggle={() => setIsDrawerOpen(!isDrawerOpen)}
+          onUndo={handleUndo}
+          isDrawerOpen={isDrawerOpen}
+          isGeneratePulsing={isFirstLoad}
+        />
+      )}
+
       {/* Unified Ingredient Display - adapts between hero and compact modes */}
-      <main className="flex-1 flex items-center justify-center pt-20 pb-32">
+      <main className={`flex-1 flex items-center justify-center pt-20 ${isMobile ? 'pb-24' : 'pb-32'}`}>
         <IngredientDisplay
           ingredients={selectedIngredients}
           lockedIngredients={lockedIngredients}
@@ -908,25 +929,30 @@ export default function FlavorFinderV2() {
         onDietaryChange={setDietaryRestrictions}
       />
 
-      {/* Undo Button - Fixed position lower left */}
-      <button
-        onClick={handleUndo}
-        disabled={history.length === 0}
-        className={`
-          fixed bottom-6 left-6 z-[51]
-          w-12 h-12 rounded-full
-          flex items-center justify-center
-          border-2
-          transition-all duration-200
-          ${history.length > 0
-            ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100 cursor-pointer'
-            : 'border-gray-200 text-gray-200 cursor-not-allowed'
-          }
-        `}
-        aria-label="Undo"
-      >
-        <Undo2 size={20} strokeWidth={1.5} className="pointer-events-none" />
-      </button>
+      {/* Undo Button - Desktop only (mobile has it in bottom bar) */}
+      {!isMobile && (
+        <button
+          onClick={handleUndo}
+          disabled={history.length === 0}
+          className={`
+            fixed left-6 z-[51]
+            w-12 h-12 rounded-full
+            flex items-center justify-center
+            border-2 bg-white
+            transition-all duration-300
+            ${history.length > 0
+              ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100 cursor-pointer'
+              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+            }
+          `}
+          style={{
+            bottom: isDrawerOpen ? 'calc(50vh + 16px)' : '24px'
+          }}
+          aria-label="Undo"
+        >
+          <Undo2 size={20} strokeWidth={1.5} className="pointer-events-none" />
+        </button>
+      )}
       
       {/* Ingredient Drawer */}
       <IngredientDrawer

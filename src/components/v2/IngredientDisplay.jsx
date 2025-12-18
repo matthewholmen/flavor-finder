@@ -147,10 +147,9 @@ const Ingredient = ({
           style={{
             color: isFaded ? fadedColor : '#1a1a1a',
             fontWeight: 400,
-            marginRight: '0.15em',
           }}
         >
-          &amp;{' '}
+          {' '}&amp;{' '}
         </span>
       )}
 
@@ -250,7 +249,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
           className="font-serif italic transition-all duration-200"
           style={{ color: isFaded ? fadedColor : '#1a1a1a', fontWeight: 400 }}
         >
-          &amp;{' '}
+          {' '}&amp;{' '}
         </span>
       )}
 
@@ -421,28 +420,28 @@ export const IngredientDisplay = ({
     };
   };
 
-  // Scale factor for compact mode (transform-based for smooth GPU animation)
-  // We render at hero size and scale down, avoiding layout recalculations
-  const getScale = () => {
-    if (!isDrawerOpen) return 1;
-    // Compact mode - larger text that's closer to hero size
-    return 0.8;
-  };
-
-  // Base font size (hero mode size - always rendered at this size)
-  const getBaseFontSize = () => {
-    if (isMobile) return '3rem'; // text-5xl
-    return 'clamp(2.25rem, 6vw, 6rem)';
+  // Get font size - changes based on drawer state for proper text reflow
+  const getFontSize = () => {
+    if (isMobile) {
+      // Mobile: smaller font when drawer is open so text fits on fewer lines
+      return isDrawerOpen ? '1.5rem' : '3rem'; // 24px when open, 48px when closed
+    }
+    // Desktop: use clamp for responsive sizing
+    return isDrawerOpen
+      ? 'clamp(1.5rem, 4vw, 3rem)'
+      : 'clamp(2.25rem, 6vw, 6rem)';
   };
 
   // Calculate vertical position
-  // When drawer is open: center between header and drawer
+  // When drawer is open: center between header and drawer top
   // When drawer is closed: center in full viewport (below header)
   const getTopPosition = () => {
     if (isDrawerOpen) {
-      // Center in the space between header and drawer (drawer is 50vh from bottom)
+      // Mobile: drawer top is at 20vh (100vh - 80vh drawer height)
+      // Center between header (56px) and drawer top (20vh)
+      // Formula: header + (drawer_top - header) / 2
       return isMobile
-        ? 'calc(60px + (50vh - 60px) / 2)'  // mobile: 60px header
+        ? 'calc(56px + (20vh - 56px) / 2)'  // mobile: centered between header and drawer
         : 'calc(80px + (50vh - 80px) / 2)'; // desktop: 80px header
     }
     // When closed: center in viewport (accounting for header)
@@ -476,11 +475,9 @@ export const IngredientDisplay = ({
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
             wordWrap: 'break-word',
-            fontSize: getBaseFontSize(),
+            fontSize: getFontSize(),
             lineHeight: isMobile ? 1.2 : 1.15,
-            transform: `scale(${getScale()})`,
-            transformOrigin: 'center center',
-            transition: 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'font-size 300ms cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
           {validIngredients.map((ingredient, displayIndex) => {

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap } from 'lucide-react';
 import { TASTE_COLORS } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
@@ -92,6 +92,8 @@ export const IngredientDrawer = ({
   const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
   const [showMaxMessage, setShowMaxMessage] = useState(false);
   const [hoveredIngredient, setHoveredIngredient] = useState(null);
+  const [isFiltersPanelCollapsed, setIsFiltersPanelCollapsed] = useState(false);
+  const [sortMode, setSortMode] = useState('alphabetical'); // 'alphabetical' | 'category' | 'taste' | 'popularity'
   
   // Auto-focus search input when drawer opens
   useEffect(() => {
@@ -171,6 +173,164 @@ export const IngredientDrawer = ({
     if (!hoveredIngredient || !flavorMap || ingredient === hoveredIngredient) return false;
     return flavorMap.get(hoveredIngredient)?.has(ingredient) || false;
   };
+
+  // Get primary (dominant) taste for an ingredient
+  const getPrimaryTaste = (ingredient) => {
+    const profile = ingredientProfiles.find(
+      p => p.name.toLowerCase() === ingredient.toLowerCase()
+    );
+    if (!profile?.flavorProfile) return 'sweet'; // default
+
+    let dominantTaste = 'sweet';
+    let maxValue = -1;
+    Object.entries(profile.flavorProfile).forEach(([taste, value]) => {
+      if (value > maxValue) {
+        maxValue = value;
+        dominantTaste = taste;
+      }
+    });
+    return dominantTaste;
+  };
+
+  // Get popularity score (number of pairings with other suggestions)
+  const getPopularityScore = (ingredient) => {
+    if (!flavorMap) return 0;
+    // Count how many OTHER suggestions this ingredient pairs with
+    const ingredientPairings = flavorMap.get(ingredient);
+    if (!ingredientPairings) return 0;
+
+    return suggestions.filter(other =>
+      other !== ingredient && ingredientPairings.has(other)
+    ).length;
+  };
+
+  // Get category for an ingredient
+  const getCategory = (ingredient) => {
+    const profile = ingredientProfiles.find(
+      p => p.name.toLowerCase() === ingredient.toLowerCase()
+    );
+    return profile?.category || 'Other';
+  };
+
+  // Helper to check if ingredient is a partial match (for sorting purposes)
+  const isPartialMatchForSort = (ingredient) => {
+    if (!showPartialMatches || selectedIngredients.length === 0) return false;
+    const matchCount = selectedIngredients.filter(selected =>
+      flavorMap?.get(selected)?.has(ingredient)
+    ).length;
+    return matchCount > 0 && matchCount < selectedIngredients.length;
+  };
+
+  // Sort suggestions based on current sort mode
+  // Returns array of { type: 'ingredient' | 'divider', value: string, label?: string }
+  // Always shows full matches before partial matches
+  const sortedSuggestionsWithDividers = useMemo(() => {
+    const sorted = [...suggestions];
+
+    // When partial matches are enabled, separate full matches from partial matches
+    // Full matches should always come first
+    const fullMatches = showPartialMatches
+      ? sorted.filter(ing => !isPartialMatchForSort(ing))
+      : sorted;
+    const partialMatches = showPartialMatches
+      ? sorted.filter(ing => isPartialMatchForSort(ing))
+      : [];
+
+    switch (sortMode) {
+      case 'alphabetical': {
+        const sortAlpha = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
+        const sortedFull = fullMatches.sort(sortAlpha).map(ing => ({ type: 'ingredient', value: ing }));
+        const sortedPartial = partialMatches.sort(sortAlpha).map(ing => ({ type: 'ingredient', value: ing }));
+        return [...sortedFull, ...sortedPartial];
+      }
+
+      case 'category': {
+        // Group by category, then alphabetically within each category
+        const categoryOrder = ['Proteins', 'Vegetables', 'Fruits', 'Seasonings', 'Dairy', 'Grains', 'Liquids', 'Condiments', 'Alcohol'];
+        const sortByCategory = (a, b) => {
+          const catA = getCategory(a);
+          const catB = getCategory(b);
+          const indexA = categoryOrder.indexOf(catA);
+          const indexB = categoryOrder.indexOf(catB);
+          const orderA = indexA === -1 ? 999 : indexA;
+          const orderB = indexB === -1 ? 999 : indexB;
+
+          if (orderA !== orderB) return orderA - orderB;
+          return a.toLowerCase().localeCompare(b.toLowerCase());
+        };
+
+        const sortedFullList = [...fullMatches].sort(sortByCategory);
+        const sortedPartialList = [...partialMatches].sort(sortByCategory);
+
+        // Insert dividers between categories
+        const addDividers = (list, isPartial = false) => {
+          const result = [];
+          let lastCategory = null;
+          for (const ing of list) {
+            const category = getCategory(ing);
+            if (category !== lastCategory) {
+              result.push({ type: 'divider', value: `category-${isPartial ? 'partial-' : ''}${category}`, label: category });
+              lastCategory = category;
+            }
+            result.push({ type: 'ingredient', value: ing });
+          }
+          return result;
+        };
+
+        return [...addDividers(sortedFullList, false), ...addDividers(sortedPartialList, true)];
+      }
+
+      case 'taste': {
+        // Group by primary taste, then alphabetically within each taste
+        const tasteOrder = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
+        const sortByTaste = (a, b) => {
+          const tasteA = getPrimaryTaste(a);
+          const tasteB = getPrimaryTaste(b);
+          const indexA = tasteOrder.indexOf(tasteA);
+          const indexB = tasteOrder.indexOf(tasteB);
+
+          if (indexA !== indexB) return indexA - indexB;
+          return a.toLowerCase().localeCompare(b.toLowerCase());
+        };
+
+        const sortedFullList = [...fullMatches].sort(sortByTaste);
+        const sortedPartialList = [...partialMatches].sort(sortByTaste);
+
+        // Insert dividers between tastes
+        const addDividers = (list, isPartial = false) => {
+          const result = [];
+          let lastTaste = null;
+          for (const ing of list) {
+            const taste = getPrimaryTaste(ing);
+            if (taste !== lastTaste) {
+              result.push({ type: 'divider', value: `taste-${isPartial ? 'partial-' : ''}${taste}`, label: taste, color: TASTE_COLORS[taste] });
+              lastTaste = taste;
+            }
+            result.push({ type: 'ingredient', value: ing });
+          }
+          return result;
+        };
+
+        return [...addDividers(sortedFullList, false), ...addDividers(sortedPartialList, true)];
+      }
+
+      case 'popularity': {
+        // Sort by number of pairings with other suggestions (descending)
+        const sortByPopularity = (a, b) => {
+          const popA = getPopularityScore(a);
+          const popB = getPopularityScore(b);
+          if (popB !== popA) return popB - popA; // descending
+          return a.toLowerCase().localeCompare(b.toLowerCase());
+        };
+        const sortedFull = [...fullMatches].sort(sortByPopularity).map(ing => ({ type: 'ingredient', value: ing }));
+        const sortedPartial = [...partialMatches].sort(sortByPopularity).map(ing => ({ type: 'ingredient', value: ing }));
+        return [...sortedFull, ...sortedPartial];
+      }
+
+      default:
+        return [...fullMatches, ...partialMatches].map(ing => ({ type: 'ingredient', value: ing }));
+    }
+  }, [suggestions, sortMode, ingredientProfiles, flavorMap, showPartialMatches, selectedIngredients]);
 
   const handleIngredientAdd = (ingredient) => {
     if (selectedIngredients.length >= 5) {
@@ -335,46 +495,19 @@ export const IngredientDrawer = ({
     return (
       <>
         <style>{sliderStyles}</style>
-        {/* Backdrop */}
-        {isOpen && (
-          <div
-            className="fixed inset-0 z-40"
-            style={{ backgroundColor: 'white' }}
-            onClick={onClose}
-          />
-        )}
-        
-        {/* Drawer */}
-        <div className="fixed bottom-0 left-0 right-0 z-50">
-          {/* Pull Handle - only show when drawer is closed */}
-          {!isOpen && (
-            <div className="flex justify-center">
-              <button
-                onClick={onToggle}
-                className="
-                  relative -mb-1 px-10 pt-2.5 pb-3
-                  bg-white rounded-t-2xl
-                  border-2 border-gray-300 border-b-0
-                  flex flex-col items-center
-                  active:bg-gray-100 transition-colors
-                "
-              >
-                <div className="w-10 h-1 bg-gray-300 rounded-full mb-1" />
-                <ChevronUp size={20} className="text-gray-500" strokeWidth={1.5} />
-              </button>
-            </div>
-          )}
-
-          {/* Drawer Content */}
-          <div
-            className={`
-              bg-white overflow-hidden
-              transition-all duration-300 ease-out
-              rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
-              ${isOpen ? 'h-[50vh]' : 'h-0'}
-            `}
-            style={{ maxHeight: '50vh' }}
-          >
+        {/* Drawer - positioned above the bottom bar */}
+        <div
+          className={`
+            fixed left-0 right-0 z-[55]
+            bg-white overflow-hidden
+            transition-all duration-300 ease-out
+            rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
+          `}
+          style={{
+            bottom: '68px', // Height of bottom bar (py-3 = 24px + h-12 button = 48px + border)
+            height: isOpen ? 'calc(80vh - 68px)' : '0', // 80% of screen minus bottom bar
+          }}
+        >
             <div className="flex flex-col h-full">
               {/* Search Bar with Partial Matches Toggle */}
               <div className="flex-shrink-0 px-4 pt-3 pb-2">
@@ -428,61 +561,8 @@ export const IngredientDrawer = ({
                 </div>
               </div>
 
-              {/* Suggested Ingredients Grid */}
-              <div className="flex-1 overflow-y-auto px-4 py-3">
-                <div className="flex flex-wrap gap-2">
-                  {suggestions.map((ingredient) => {
-                    const isSelected = selectedIngredients.includes(ingredient);
-                    const color = getIngredientColor(ingredient);
-                    const partial = isPartialMatch(ingredient);
-
-                    return (
-                      <button
-                        key={ingredient}
-                        onClick={() => {
-                          if (!isSelected) {
-                            onIngredientSelect(ingredient);
-                          }
-                        }}
-                        disabled={isSelected}
-                        className={`
-                          px-4 py-2.5
-                          rounded-full font-semibold text-sm
-                          transition-all duration-150
-                          min-h-[44px]
-                          ${isSelected
-                            ? 'opacity-30 cursor-not-allowed'
-                            : 'active:scale-95'
-                          }
-                        `}
-                        style={{
-                          color: isSelected ? '#d1d5db' : '#1f2937',
-                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
-                          backgroundColor: 'white',
-                        }}
-                      >
-                        {ingredient}
-                      </button>
-                    );
-                  })}
-                </div>
-                
-                {/* Empty States */}
-                {suggestions.length === 0 && searchTerm && (
-                  <div className="text-center py-8 text-gray-400">
-                    No compatible ingredients found for "{searchTerm}"
-                  </div>
-                )}
-                
-                {suggestions.length === 0 && !searchTerm && (
-                  <div className="text-center py-8 text-gray-400">
-                    No more compatible ingredients available
-                  </div>
-                )}
-              </div>
-
-              {/* Filters Accordion */}
-              <div className="flex-shrink-0 border-t border-gray-200">
+              {/* Filters Accordion - positioned below search, above ingredient list */}
+              <div className="flex-shrink-0 border-b border-gray-200">
                 {/* Filter Header */}
                 <button
                   onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
@@ -490,37 +570,38 @@ export const IngredientDrawer = ({
                     w-full flex items-center justify-between
                     px-4 py-3
                     active:bg-gray-50
+                    min-h-[48px]
                   "
                 >
                   <div className="flex items-center gap-2">
                     <Filter size={18} className="text-gray-500" />
-                    <span className="font-medium text-gray-700">Filters</span>
+                    <span className="font-medium text-gray-700 text-base">Filters</span>
                     {activeFilterCount > 0 && (
-                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
                         {activeFilterCount}
                       </span>
                     )}
                   </div>
-                  <ChevronDown 
-                    size={20} 
+                  <ChevronDown
+                    size={20}
                     className={`text-gray-400 transition-transform duration-200 ${isFiltersExpanded ? 'rotate-180' : ''}`}
                   />
                 </button>
 
                 {/* Filter Content */}
-                <div 
+                <div
                   className={`
                     overflow-hidden transition-all duration-300
-                    ${isFiltersExpanded ? 'max-h-[300px]' : 'max-h-0'}
+                    ${isFiltersExpanded ? 'max-h-[280px]' : 'max-h-0'}
                   `}
                 >
-                  <div className="px-4 pb-4 overflow-y-auto" style={{ maxHeight: '280px' }}>
+                  <div className="px-4 pb-4 overflow-y-auto" style={{ maxHeight: '260px' }}>
                     {/* Top-level Section Navigation */}
-                    <div className="flex gap-4 mb-3">
+                    <div className="flex gap-5 mb-4">
                       <button
                         onClick={() => setActiveSection('search')}
                         className={`
-                          text-xs font-semibold transition-colors
+                          text-sm font-semibold transition-colors min-h-[36px]
                           ${activeSection === 'search'
                             ? 'text-gray-900'
                             : 'text-gray-400'
@@ -532,7 +613,7 @@ export const IngredientDrawer = ({
                       <button
                         onClick={() => setActiveSection('generation')}
                         className={`
-                          text-xs font-semibold transition-colors
+                          text-sm font-semibold transition-colors min-h-[36px]
                           ${activeSection === 'generation'
                             ? 'text-gray-900'
                             : 'text-gray-400'
@@ -547,11 +628,11 @@ export const IngredientDrawer = ({
                     {activeSection === 'search' && (
                       <>
                         {/* Sub-tabs for Category and Taste */}
-                        <div className="flex gap-4 mb-3">
+                        <div className="flex gap-5 mb-4">
                           <button
                             onClick={() => setActiveSearchTab('category')}
                             className={`
-                              text-xs font-medium transition-colors
+                              text-sm font-medium transition-colors min-h-[32px]
                               ${activeSearchTab === 'category'
                                 ? 'text-gray-700'
                                 : 'text-gray-400'
@@ -563,7 +644,7 @@ export const IngredientDrawer = ({
                           <button
                             onClick={() => setActiveSearchTab('taste')}
                             className={`
-                              text-xs font-medium transition-colors
+                              text-sm font-medium transition-colors min-h-[32px]
                               ${activeSearchTab === 'taste'
                                 ? 'text-gray-700'
                                 : 'text-gray-400'
@@ -576,19 +657,19 @@ export const IngredientDrawer = ({
 
                         {/* Category Content */}
                         {activeSearchTab === 'category' && (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             {!activeCategory ? (
-                              <div className="flex flex-wrap gap-1.5">
+                              <div className="flex flex-wrap gap-2">
                                 {CATEGORIES.map((cat) => (
                                   <button
                                     key={cat}
                                     onClick={() => handleCategoryClick(cat)}
                                     className="
-                                      py-2 px-3 text-xs
+                                      py-2.5 px-4 text-sm
                                       rounded-full border-2 border-gray-300
                                       bg-white text-gray-700 font-medium
                                       active:bg-gray-100
-                                      min-h-[36px]
+                                      min-h-[44px]
                                     "
                                   >
                                     {cat}
@@ -596,20 +677,20 @@ export const IngredientDrawer = ({
                                 ))}
                               </div>
                             ) : (
-                              <div className="space-y-2">
+                              <div className="space-y-3">
                                 <div className="flex items-center gap-2">
                                   <button
                                     onClick={handleClearCategory}
-                                    className="p-1.5 rounded-full bg-gray-100"
+                                    className="p-2 rounded-full bg-gray-100 min-w-[36px] min-h-[36px] flex items-center justify-center"
                                   >
-                                    <X size={14} className="text-gray-600" />
+                                    <X size={18} className="text-gray-600" />
                                   </button>
-                                  <span className="py-1.5 px-3 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-xs">
+                                  <span className="py-2.5 px-4 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-sm">
                                     {activeCategory}
                                   </span>
                                 </div>
                                 {subcategories.length > 0 && (
-                                  <div className="flex flex-wrap gap-1.5">
+                                  <div className="flex flex-wrap gap-2">
                                     {subcategories.map((subcat) => {
                                       const isSelected = selectedSubcategories.includes(subcat);
                                       return (
@@ -617,8 +698,9 @@ export const IngredientDrawer = ({
                                           key={subcat}
                                           onClick={() => handleSubcategoryToggle(subcat)}
                                           className={`
-                                            py-1.5 px-2.5 text-xs
+                                            py-2 px-3.5 text-sm
                                             rounded-full border-2 font-medium
+                                            min-h-[40px]
                                             ${isSelected
                                               ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
                                               : 'border-gray-300 bg-white text-gray-700'
@@ -638,8 +720,8 @@ export const IngredientDrawer = ({
 
                         {/* Taste Content */}
                         {activeSearchTab === 'taste' && (
-                          <div className="space-y-2">
-                            <div className="flex flex-wrap gap-1.5">
+                          <div className="space-y-3">
+                            <div className="flex flex-wrap gap-2">
                               {TASTE_PROPERTIES.map((taste) => {
                                 const isActive = activeSliders.has(taste);
                                 const color = TASTE_COLORS[taste];
@@ -648,9 +730,9 @@ export const IngredientDrawer = ({
                                     key={taste}
                                     onClick={() => handleTasteToggle(taste)}
                                     className={`
-                                      py-2 px-3 text-xs
+                                      py-2.5 px-4 text-sm
                                       rounded-full border-2 font-medium capitalize
-                                      min-h-[36px]
+                                      min-h-[44px]
                                       ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
                                     `}
                                     style={isActive ? { backgroundColor: color, borderColor: color } : {}}
@@ -661,16 +743,16 @@ export const IngredientDrawer = ({
                               })}
                             </div>
                             {activeSliders.size > 0 && (
-                              <div className="space-y-2 pt-2">
+                              <div className="space-y-3 pt-2">
                                 {Array.from(activeSliders).map((taste) => {
                                   const color = TASTE_COLORS[taste];
                                   return (
-                                    <div key={taste} className="flex items-center gap-2">
+                                    <div key={taste} className="flex items-center gap-3 min-h-[36px]">
                                       <div
-                                        className="w-2 h-2 rounded-full flex-shrink-0"
+                                        className="w-3 h-3 rounded-full flex-shrink-0"
                                         style={{ backgroundColor: color }}
                                       />
-                                      <span className="text-xs font-medium capitalize w-10">{taste}</span>
+                                      <span className="text-sm font-medium capitalize w-12">{taste}</span>
                                       <input
                                         type="range"
                                         min="1"
@@ -678,12 +760,12 @@ export const IngredientDrawer = ({
                                         step="1"
                                         value={tasteValues[taste] || 1}
                                         onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
-                                        className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
+                                        className={`flex-1 h-2 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
                                         style={{
                                           background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
                                         }}
                                       />
-                                      <span className="text-xs text-gray-500 w-5">{tasteValues[taste] || 1}</span>
+                                      <span className="text-sm text-gray-500 w-6">{tasteValues[taste] || 1}</span>
                                     </div>
                                   );
                                 })}
@@ -698,11 +780,11 @@ export const IngredientDrawer = ({
                     {activeSection === 'generation' && (
                       <>
                         {/* Sub-tabs for Compatibility and Dietary */}
-                        <div className="flex gap-4 mb-3">
+                        <div className="flex gap-5 mb-4">
                           <button
                             onClick={() => setActiveGenerationTab('compatibility')}
                             className={`
-                              text-xs font-medium transition-colors
+                              text-sm font-medium transition-colors min-h-[32px]
                               ${activeGenerationTab === 'compatibility'
                                 ? 'text-gray-700'
                                 : 'text-gray-400'
@@ -714,7 +796,7 @@ export const IngredientDrawer = ({
                           <button
                             onClick={() => setActiveGenerationTab('dietary')}
                             className={`
-                              text-xs font-medium transition-colors
+                              text-sm font-medium transition-colors min-h-[32px]
                               ${activeGenerationTab === 'dietary'
                                 ? 'text-gray-700'
                                 : 'text-gray-400'
@@ -728,13 +810,13 @@ export const IngredientDrawer = ({
                         {/* Compatibility Content */}
                         {activeGenerationTab === 'compatibility' && (
                           <div className="space-y-3">
-                            <div className="relative inline-grid grid-cols-3 bg-gray-100 rounded-full p-1">
+                            <div className="relative inline-grid grid-cols-3 bg-gray-100 rounded-full p-1.5">
                               {/* Sliding background indicator */}
                               <div
-                                className="absolute top-1 bottom-1 bg-gray-900 rounded-full transition-all duration-200 ease-out"
+                                className="absolute top-1.5 bottom-1.5 bg-gray-900 rounded-full transition-all duration-200 ease-out"
                                 style={{
-                                  width: 'calc(33.333% - 2px)',
-                                  left: `calc(${COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode) * 33.333}% + 1px)`,
+                                  width: 'calc(33.333% - 3px)',
+                                  left: `calc(${COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode) * 33.333}% + 1.5px)`,
                                 }}
                               />
                               {COMPATIBILITY_MODES.map((mode) => (
@@ -742,9 +824,9 @@ export const IngredientDrawer = ({
                                   key={mode.key}
                                   onClick={() => onCompatibilityChange(mode.key)}
                                   className={`
-                                    relative z-10 py-2 px-3 text-xs font-medium text-center
+                                    relative z-10 py-2.5 px-4 text-sm font-medium text-center
                                     rounded-full transition-colors duration-200
-                                    min-h-[32px]
+                                    min-h-[40px]
                                     ${compatibilityMode === mode.key
                                       ? 'text-white'
                                       : 'text-gray-600'
@@ -755,7 +837,7 @@ export const IngredientDrawer = ({
                                 </button>
                               ))}
                             </div>
-                            <p className="text-xs text-gray-500 leading-relaxed">
+                            <p className="text-sm text-gray-500 leading-relaxed">
                               {COMPATIBILITY_MODES.find(m => m.key === compatibilityMode)?.description}
                             </p>
                           </div>
@@ -763,7 +845,7 @@ export const IngredientDrawer = ({
 
                         {/* Dietary Content */}
                         {activeGenerationTab === 'dietary' && (
-                          <div className="flex flex-wrap gap-1.5">
+                          <div className="flex flex-wrap gap-2">
                             {DIETARY_TOGGLES.map((toggle) => {
                               const isActive = getDietaryState(toggle.key);
                               return (
@@ -771,9 +853,9 @@ export const IngredientDrawer = ({
                                   key={toggle.key}
                                   onClick={() => handleDietaryToggle(toggle.key)}
                                   className={`
-                                    py-2 px-3 text-xs
+                                    py-2.5 px-4 text-sm
                                     rounded-full border-2 font-medium
-                                    min-h-[36px]
+                                    min-h-[44px]
                                     ${isActive
                                       ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
                                       : 'border-gray-300 bg-white text-gray-700'
@@ -791,14 +873,109 @@ export const IngredientDrawer = ({
                   </div>
                 </div>
               </div>
+
+              {/* Sort Tabs (Mobile) */}
+              <div className="flex gap-5 px-4 py-3 flex-shrink-0 overflow-x-auto">
+                {[
+                  { key: 'alphabetical', label: 'Alphabetical' },
+                  { key: 'category', label: 'Category' },
+                  { key: 'taste', label: 'Taste' },
+                  { key: 'popularity', label: 'Popularity' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setSortMode(key)}
+                    className={`
+                      text-sm font-medium transition-colors whitespace-nowrap
+                      min-h-[32px]
+                      ${sortMode === key
+                        ? 'text-gray-900'
+                        : 'text-gray-400'
+                      }
+                    `}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Suggested Ingredients Grid - fills remaining space */}
+              <div className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
+                <div className="flex flex-wrap gap-2.5">
+                  {sortedSuggestionsWithDividers.map((item) => {
+                    if (item.type === 'divider') {
+                      return (
+                        <div
+                          key={item.value}
+                          className="w-full flex items-center gap-2 py-2 first:pt-0"
+                        >
+                          <span
+                            className="text-sm font-semibold capitalize"
+                            style={{ color: item.color || '#6b7280' }}
+                          >
+                            {item.label}
+                          </span>
+                          <div className="flex-1 h-px bg-gray-200" />
+                        </div>
+                      );
+                    }
+
+                    const ingredient = item.value;
+                    const isSelected = selectedIngredients.includes(ingredient);
+                    const color = getIngredientColor(ingredient);
+                    const partial = isPartialMatch(ingredient);
+
+                    return (
+                      <button
+                        key={ingredient}
+                        onClick={() => {
+                          if (!isSelected) {
+                            onIngredientSelect(ingredient);
+                          }
+                        }}
+                        disabled={isSelected}
+                        className={`
+                          px-5 py-3
+                          rounded-full font-semibold text-base
+                          transition-all duration-150
+                          min-h-[48px]
+                          ${isSelected
+                            ? 'opacity-30 cursor-not-allowed'
+                            : 'active:scale-95'
+                          }
+                        `}
+                        style={{
+                          color: isSelected ? '#d1d5db' : '#1f2937',
+                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
+                          backgroundColor: 'white',
+                        }}
+                      >
+                        {ingredient}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Empty States */}
+                {suggestions.length === 0 && searchTerm && (
+                  <div className="text-center py-8 text-gray-400">
+                    No compatible ingredients found for "{searchTerm}"
+                  </div>
+                )}
+
+                {suggestions.length === 0 && !searchTerm && (
+                  <div className="text-center py-8 text-gray-400">
+                    No more compatible ingredients available
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
       </>
     );
   }
 
-  // Desktop layout (original)
+  // Desktop layout
   return (
     <>
       <style>{sliderStyles}</style>
@@ -844,7 +1021,13 @@ export const IngredientDrawer = ({
             {/* Main Content Area */}
             <div className="flex flex-1 min-h-0">
             {/* Left Side: Filter Panel */}
-            <div className="w-[340px] flex-shrink-0 border-r border-gray-100 p-5 overflow-y-auto">
+            <div
+              className={`
+                flex-shrink-0 border-r border-gray-100 overflow-y-auto overflow-x-hidden
+                transition-all duration-300 ease-out
+                ${isFiltersPanelCollapsed ? 'w-0 p-0' : 'w-[340px] p-5'}
+              `}
+            >
               {/* Top-level Section Navigation */}
               <div className="flex gap-4 mb-4">
                 <button
@@ -1123,6 +1306,24 @@ export const IngredientDrawer = ({
               )}
             </div>
 
+            {/* Filter Panel Toggle Button */}
+            <button
+              onClick={() => setIsFiltersPanelCollapsed(!isFiltersPanelCollapsed)}
+              className="
+                flex-shrink-0 w-6
+                flex items-center justify-center
+                border-r border-gray-100
+                hover:bg-gray-50 transition-colors
+                text-gray-400 hover:text-gray-600
+              "
+              aria-label={isFiltersPanelCollapsed ? "Show filters" : "Hide filters"}
+            >
+              <ChevronLeft
+                size={18}
+                className={`transition-transform duration-300 ${isFiltersPanelCollapsed ? 'rotate-180' : ''}`}
+              />
+            </button>
+
             {/* Middle: Search + Ingredients */}
             <div className="flex-1 p-5 overflow-hidden flex flex-col border-r border-gray-100">
               {/* Search Bar with Partial Matches Toggle */}
@@ -1189,17 +1390,59 @@ export const IngredientDrawer = ({
                 </button>
               </div>
 
+              {/* Sort Tabs */}
+              <div className="flex gap-6 mb-4 flex-shrink-0">
+                {[
+                  { key: 'alphabetical', label: 'Alphabetical' },
+                  { key: 'category', label: 'Category' },
+                  { key: 'taste', label: 'Taste' },
+                  { key: 'popularity', label: 'Popularity' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setSortMode(key)}
+                    className={`
+                      text-sm font-medium transition-colors
+                      ${sortMode === key
+                        ? 'text-gray-900'
+                        : 'text-gray-400 hover:text-gray-600'
+                      }
+                    `}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
               {/* Ingredients Grid */}
               <div className="flex-1 overflow-y-auto">
                 <div className="flex flex-wrap gap-2.5 content-start">
-                  {suggestions.map((ingredient) => {
+                  {sortedSuggestionsWithDividers.map((item) => {
+                    if (item.type === 'divider') {
+                      return (
+                        <div
+                          key={item.value}
+                          className="w-full flex items-center gap-2 py-1.5 first:pt-0"
+                        >
+                          <span
+                            className="text-sm font-semibold capitalize"
+                            style={{ color: item.color || '#6b7280' }}
+                          >
+                            {item.label}
+                          </span>
+                          <div className="flex-1 h-px bg-gray-200" />
+                        </div>
+                      );
+                    }
+
+                    const ingredient = item.value;
                     const isSelected = selectedIngredients.includes(ingredient);
                     const color = getIngredientColor(ingredient);
                     const partial = isPartialMatch(ingredient);
                     const isPairingHighlight = pairsWithHovered(ingredient);
                     const isHovered = hoveredIngredient === ingredient;
 
-                    // Convert hex to rgba for 30% fill
+                    // Convert hex to rgba for fill
                     const hexToRgba = (hex, alpha) => {
                       const r = parseInt(hex.slice(1, 3), 16);
                       const g = parseInt(hex.slice(3, 5), 16);
@@ -1217,7 +1460,7 @@ export const IngredientDrawer = ({
                       bgColor = color;
                       textColor = 'white';
                     } else if (isPairingHighlight) {
-                      bgColor = hexToRgba(color, 0.3);
+                      bgColor = hexToRgba(color, 0.15);
                       textColor = '#1f2937';
                     }
 

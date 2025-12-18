@@ -15,27 +15,76 @@ export const MinimalHeader = ({
   onRecipesClick,
   onLogoClick,
   isGeneratePulsing = false,
+  isMobile: isMobileProp,
 }) => {
-  const { isMobile, width } = useScreenSize();
-  
+  const { isMobile: isMobileHook, width } = useScreenSize();
+  const isMobile = isMobileProp !== undefined ? isMobileProp : isMobileHook;
+
   // Compact mode for very small screens (< 375px)
   const isCompact = width < 375;
   // Extra small mode (hide +/- on extremely small screens)
   const isExtraSmall = width < 320;
 
+  // Mobile: simplified header with just logo and recipes
+  if (isMobile) {
+    return (
+      <header
+        className={`
+          fixed top-0 left-0 right-0
+          flex items-center justify-between
+          bg-white
+          z-50
+          px-4 py-3
+        `}
+      >
+        {/* Logo */}
+        <button
+          onClick={onLogoClick}
+          className="relative group cursor-pointer bg-transparent border-none p-0"
+          aria-label="Open menu"
+        >
+          <img
+            src="/mobile-logo.png"
+            alt="Flavor Finder"
+            className="w-auto h-6 transition-opacity duration-200 group-active:opacity-70"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </button>
+
+        {/* Recipes Link */}
+        <button
+          onClick={onRecipesClick}
+          className="
+            text-gray-300
+            p-2 min-w-[44px] min-h-[44px]
+            flex items-center justify-center
+            active:text-gray-500
+            transition-colors duration-200
+          "
+          title="Find Recipes"
+          aria-label="Find Recipes"
+        >
+          <Globe size={22} strokeWidth={1.5} />
+        </button>
+      </header>
+    );
+  }
+
+  // Desktop: full header with controls
   return (
-    <header 
-      className={`
+    <header
+      className="
         fixed top-0 left-0 right-0
         flex items-center justify-between
         bg-white
         z-50
-        ${isMobile ? 'px-3 py-3' : 'px-8 py-5'}
-        ${isCompact ? 'px-2 py-2' : ''}
-      `}
+        px-8 py-5
+      "
     >
       {/* Logo */}
-      <div className={`flex-shrink-0 ${isMobile ? 'w-12' : 'w-24'}`}>
+      <div className="flex-shrink-0 w-24">
         <button
           onClick={onLogoClick}
           className="relative group cursor-pointer bg-transparent border-none p-0"
@@ -44,9 +93,8 @@ export const MinimalHeader = ({
           <img
             src="/flavor-finder-1.png"
             alt="ff"
-            className={`w-auto ${isMobile ? 'h-6' : 'h-8'} transition-opacity duration-200 group-hover:opacity-0`}
+            className="w-auto h-8 transition-opacity duration-200 group-hover:opacity-0"
             onError={(e) => {
-              // Fallback to text logo if image fails
               e.currentTarget.style.display = 'none';
               const sibling = e.currentTarget.parentElement?.querySelector('.logo-hover');
               if (sibling) sibling.classList.add('hidden');
@@ -57,43 +105,40 @@ export const MinimalHeader = ({
           <img
             src="/flavor-finder-1-hover.png"
             alt="ff"
-            className={`logo-hover absolute top-0 left-0 w-auto ${isMobile ? 'h-6' : 'h-8'} opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
+            className="logo-hover absolute top-0 left-0 w-auto h-8 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
           />
         </button>
         <span
-          className={`hidden font-bold ${isMobile ? 'text-xl' : 'text-2xl'}`}
+          className="hidden font-bold text-2xl"
           style={{ color: '#FF91C3' }}
         >
           ff
         </span>
       </div>
-      
+
       {/* Center Controls: -, Generate, + */}
-      <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-3'}`}>
-        {/* Decrement Target Button - Hide on extra small screens */}
-        {!isExtraSmall && (
-          <button
-            onClick={onDecrementTarget}
-            disabled={!canDecrement}
-            className={`
-              flex items-center justify-center
-              rounded-full
-              border-2
-              transition-all duration-200
-              ${isMobile ? 'w-10 h-10 min-w-[44px] min-h-[44px]' : 'w-14 h-14'}
-              ${isCompact ? 'w-9 h-9' : ''}
-              ${canDecrement 
-                ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100' 
-                : 'border-gray-200 text-gray-200 cursor-not-allowed'
-              }
-            `}
-            title="Remove last ingredient"
-            aria-label="Remove last ingredient"
-          >
-            <Minus size={isMobile ? 18 : 20} strokeWidth={1.5} />
-          </button>
-        )}
-        
+      <div className="flex items-center gap-3">
+        {/* Decrement Target Button */}
+        <button
+          onClick={onDecrementTarget}
+          disabled={!canDecrement}
+          className={`
+            flex items-center justify-center
+            rounded-full
+            border-2
+            transition-all duration-200
+            w-14 h-14
+            ${canDecrement
+              ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100'
+              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+            }
+          `}
+          title="Remove last ingredient"
+          aria-label="Remove last ingredient"
+        >
+          <Minus size={20} strokeWidth={1.5} />
+        </button>
+
         {/* Generate Button */}
         <button
           onClick={onGenerate}
@@ -105,61 +150,50 @@ export const MinimalHeader = ({
             transition-all duration-200
             hover:bg-gray-900 hover:text-white
             active:bg-gray-800 active:text-white
-            ${isMobile 
-              ? 'px-5 py-2.5 text-base min-h-[44px]' 
-              : 'px-10 py-3.5 text-lg'
-            }
-            ${isCompact ? 'px-4 py-2 text-sm' : ''}
+            px-10 py-3.5 text-lg
             ${isGeneratePulsing ? 'animate-pulse shadow-lg scale-105' : ''}
           `}
         >
           Generate
         </button>
-        
-        {/* Increment Target Button - Hide on extra small screens */}
-        {!isExtraSmall && (
-          <button
-            onClick={onIncrementTarget}
-            disabled={!canIncrement}
-            className={`
-              flex items-center justify-center
-              rounded-full
-              border-2
-              transition-all duration-200
-              ${isMobile ? 'w-10 h-10 min-w-[44px] min-h-[44px]' : 'w-14 h-14'}
-              ${isCompact ? 'w-9 h-9' : ''}
-              ${canIncrement 
-                ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100' 
-                : 'border-gray-200 text-gray-200 cursor-not-allowed'
-              }
-            `}
-            title="Add ingredient slot"
-            aria-label="Add ingredient slot"
-          >
-            <Plus size={isMobile ? 18 : 20} strokeWidth={1.5} />
-          </button>
-        )}
+
+        {/* Increment Target Button */}
+        <button
+          onClick={onIncrementTarget}
+          disabled={!canIncrement}
+          className={`
+            flex items-center justify-center
+            rounded-full
+            border-2
+            transition-all duration-200
+            w-14 h-14
+            ${canIncrement
+              ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100'
+              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+            }
+          `}
+          title="Add ingredient slot"
+          aria-label="Add ingredient slot"
+        >
+          <Plus size={20} strokeWidth={1.5} />
+        </button>
       </div>
-      
-      {/* Recipes Link - Icon only on mobile */}
-      <div className={`text-right ${isMobile ? 'w-12' : 'w-24'}`}>
+
+      {/* Recipes Link */}
+      <div className="text-right w-24">
         <button
           onClick={onRecipesClick}
-          className={`
+          className="
             text-gray-300
             font-medium
             hover:text-gray-500
             transition-colors duration-200
-            ${isMobile ? 'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center' : 'text-lg'}
-          `}
+            text-lg
+          "
           title="Find Recipes"
           aria-label="Find Recipes"
         >
-          {isMobile ? (
-            <Globe size={22} strokeWidth={1.5} />
-          ) : (
-            'Recipes'
-          )}
+          Recipes
         </button>
       </div>
     </header>
