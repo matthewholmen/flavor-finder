@@ -154,15 +154,14 @@ const Ingredient = ({
       )}
 
       <span
-        className={`relative inline-block transition-all duration-200 cursor-pointer ${isMobile ? '' : 'whitespace-nowrap'}`}
+        className="relative inline transition-all duration-200 cursor-pointer whitespace-nowrap"
         style={{
           fontWeight: isPerfectMatch ? 900 : 400,
           color: isFaded ? fadedColor : color,
-          backgroundImage: isLocked ? `linear-gradient(${isFaded ? fadedColor : color}, ${isFaded ? fadedColor : color})` : 'none',
-          backgroundSize: isLocked ? '100% 2px' : '0% 2px',
-          backgroundPosition: 'left bottom',
-          backgroundRepeat: 'no-repeat',
-          animation: isLocked ? 'underlineIn 0.3s ease-out forwards' : 'none',
+          textDecoration: isLocked ? 'underline' : 'none',
+          textDecorationColor: isFaded ? fadedColor : color,
+          textDecorationThickness: '0.06em',
+          textUnderlineOffset: '0.08em',
         }}
         onClick={(e) => {
           e.stopPropagation();
