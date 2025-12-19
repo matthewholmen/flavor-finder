@@ -502,7 +502,7 @@ export const IngredientDrawer = ({
     return (
       <>
         <style>{sliderStyles}{scrollbarHideStyles}</style>
-        {/* Drawer - positioned above the bottom bar */}
+        {/* Drawer - positioned below ingredient strip and above bottom bar */}
         <div
           className={`
             fixed left-0 right-0 z-[55]
@@ -512,7 +512,8 @@ export const IngredientDrawer = ({
           `}
           style={{
             bottom: '68px', // Height of bottom bar (py-3 = 24px + h-12 button = 48px + border)
-            height: isOpen ? 'calc(80vh - 68px)' : '0', // 80% of screen minus bottom bar
+            top: isOpen ? '120px' : 'auto', // Below header (56px) + ingredient strip (~64px)
+            height: isOpen ? 'auto' : '0',
           }}
         >
             <div className="flex flex-col h-full">

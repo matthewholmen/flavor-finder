@@ -61,7 +61,7 @@ export const MinimalHeader = ({
             font-medium
             active:text-gray-500
             transition-colors duration-200
-            text-base
+            text-lg
           "
           title="Find Recipes"
           aria-label="Find Recipes"

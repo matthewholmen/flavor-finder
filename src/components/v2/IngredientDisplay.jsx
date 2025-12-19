@@ -418,8 +418,8 @@ export const IngredientDisplay = ({
   // Get font size - changes based on drawer state for proper text reflow
   const getFontSize = () => {
     if (isMobile) {
-      // Mobile: smaller font when drawer is open so text fits on fewer lines
-      return isDrawerOpen ? '1.5rem' : '3rem'; // 24px when open, 48px when closed
+      // Mobile: smaller font when drawer is open so text fits in the strip
+      return isDrawerOpen ? '1.25rem' : '3rem'; // 20px when open, 48px when closed
     }
     // Desktop: use clamp for responsive sizing
     return isDrawerOpen
@@ -428,19 +428,28 @@ export const IngredientDisplay = ({
   };
 
   // Calculate vertical position
-  // When drawer is open: center between header and drawer top
-  // When drawer is closed: center in full viewport (below header)
+  // Mobile with drawer open: fixed strip below header
+  // Mobile with drawer closed: centered in viewport
+  // Desktop: centered between header and drawer (or viewport center when closed)
   const getTopPosition = () => {
-    if (isDrawerOpen) {
-      // Mobile: drawer top is at 20vh (100vh - 80vh drawer height)
-      // Center between header (56px) and drawer top (20vh)
-      // Formula: header + (drawer_top - header) / 2
-      return isMobile
-        ? 'calc(56px + (20vh - 56px) / 2)'  // mobile: centered between header and drawer
-        : 'calc(80px + (50vh - 80px) / 2)'; // desktop: 80px header
+    if (isMobile) {
+      // Mobile: fixed position below header when drawer is open
+      // This creates a dedicated strip for ingredients
+      return isDrawerOpen ? '56px' : '50%';
     }
-    // When closed: center in viewport (accounting for header)
+    // Desktop behavior unchanged
+    if (isDrawerOpen) {
+      return 'calc(80px + (50vh - 80px) / 2)';
+    }
     return '50%';
+  };
+
+  // Get transform based on state
+  const getTransform = () => {
+    if (isMobile && isDrawerOpen) {
+      return 'translateY(0)'; // No transform needed when fixed at top
+    }
+    return 'translateY(-50%)'; // Center vertically
   };
 
   return (
@@ -453,11 +462,11 @@ export const IngredientDisplay = ({
         `}
         style={{
           padding: isDrawerOpen
-            ? (isMobile ? '0.625rem 1rem' : '0.75rem 1rem')
+            ? (isMobile ? '0.75rem 1rem' : '0.75rem 1rem')
             : (isMobile ? '1rem' : '0 3rem'),
           top: getTopPosition(),
-          transform: 'translateY(-50%)',
-          transition: 'top 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: getTransform(),
+          transition: 'top 400ms cubic-bezier(0.4, 0, 0.2, 1), transform 400ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         <div
