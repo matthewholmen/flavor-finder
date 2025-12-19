@@ -280,6 +280,7 @@ export const IngredientDisplay = ({
   onRemove,
   onLockToggle,
   onEmptySlotClick,
+  onCloseDrawer,
   isDrawerOpen = false,
   flavorMap = null, // Optional: for showing which ingredients don't pair perfectly
 }) => {
@@ -452,13 +453,21 @@ export const IngredientDisplay = ({
     return 'translateY(-50%)'; // Center vertically
   };
 
+  // Handle tap on the ingredient strip background to close drawer
+  const handleStripClick = (e) => {
+    // Only close if clicking the background, not the ingredients themselves
+    if (isMobile && isDrawerOpen && e.target === e.currentTarget && onCloseDrawer) {
+      onCloseDrawer();
+    }
+  };
+
   return (
     <>
       <div
         className={`
           fixed left-0 right-0 z-50
           flex items-center justify-center text-center
-          ${isDrawerOpen ? 'pointer-events-none' : ''}
+          ${isDrawerOpen && isMobile ? 'cursor-pointer' : ''}
         `}
         style={{
           padding: isDrawerOpen
@@ -466,8 +475,9 @@ export const IngredientDisplay = ({
             : (isMobile ? '1rem' : '0 3rem'),
           top: getTopPosition(),
           transform: getTransform(),
-          transition: 'top 400ms cubic-bezier(0.4, 0, 0.2, 1), transform 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'all 300ms ease-out',
         }}
+        onClick={handleStripClick}
       >
         <div
           className={`
@@ -480,7 +490,7 @@ export const IngredientDisplay = ({
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
             fontSize: getFontSize(),
             lineHeight: isMobile ? 1.3 : 1.15,
-            transition: 'font-size 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 300ms ease-out',
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',

@@ -84,6 +84,7 @@ export const IngredientDrawer = ({
   flavorMap = null,
 }) => {
   const inputRef = useRef(null);
+  const drawerRef = useRef(null);
   const { isMobile, width } = useScreenSize();
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState('search'); // 'search' or 'generation'
@@ -92,6 +93,37 @@ export const IngredientDrawer = ({
   const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
   const [showMaxMessage, setShowMaxMessage] = useState(false);
   const [hoveredIngredient, setHoveredIngredient] = useState(null);
+
+  // Swipe to close state
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const minSwipeDistance = 50; // minimum swipe distance to trigger close
+
+  // Handle swipe gestures for closing drawer
+  const onTouchStart = (e) => {
+    // Don't track swipe if touching the scrollable ingredients list
+    if (e.target.closest('[data-ingredients-list]')) return;
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientY);
+  };
+
+  const onTouchMove = (e) => {
+    if (!touchStart) return;
+    // Don't track swipe if touching the scrollable ingredients list
+    if (e.target.closest('[data-ingredients-list]')) return;
+    setTouchEnd(e.targetTouches[0].clientY);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchEnd - touchStart;
+    const isDownSwipe = distance > minSwipeDistance;
+    if (isDownSwipe && onClose) {
+      onClose();
+    }
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
   const [isFiltersPanelCollapsed, setIsFiltersPanelCollapsed] = useState(false);
   const [sortMode, setSortMode] = useState('alphabetical'); // 'alphabetical' | 'category' | 'taste' | 'popularity'
   
@@ -504,17 +536,20 @@ export const IngredientDrawer = ({
         <style>{sliderStyles}{scrollbarHideStyles}</style>
         {/* Drawer - positioned below ingredient strip and above bottom bar */}
         <div
+          ref={drawerRef}
           className={`
             fixed left-0 right-0 z-[55]
             bg-white overflow-hidden
-            transition-all duration-300 ease-out
             rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
           `}
           style={{
             bottom: '68px', // Height of bottom bar (py-3 = 24px + h-12 button = 48px + border)
-            top: isOpen ? '120px' : 'auto', // Below header (56px) + ingredient strip (~64px)
-            height: isOpen ? 'auto' : '0',
+            top: isOpen ? '120px' : '100%', // Below header (56px) + ingredient strip (~64px)
+            transition: 'top 300ms ease-out',
           }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
             <div className="flex flex-col h-full">
               {/* Search Bar with Partial Matches Toggle */}
@@ -729,7 +764,7 @@ export const IngredientDrawer = ({
               </div>
 
               {/* Suggested Ingredients Grid - fills remaining space */}
-              <div className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
+              <div data-ingredients-list className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
                 <div className="flex flex-wrap gap-2.5">
                   {sortedSuggestionsWithDividers.map((item) => {
                     if (item.type === 'divider') {

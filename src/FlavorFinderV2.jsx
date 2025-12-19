@@ -918,6 +918,7 @@ export default function FlavorFinderV2() {
           onRemove={handleRemove}
           onLockToggle={handleLockToggle}
           onEmptySlotClick={() => setIsDrawerOpen(true)}
+          onCloseDrawer={() => setIsDrawerOpen(false)}
           isDrawerOpen={isDrawerOpen}
           flavorMap={flavorMap}
         />
