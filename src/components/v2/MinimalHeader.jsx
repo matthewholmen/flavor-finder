@@ -1,5 +1,5 @@
 import React from 'react';
-import { Minus, Plus, Globe } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
 export const MinimalHeader = ({
@@ -58,15 +58,15 @@ export const MinimalHeader = ({
           onClick={onRecipesClick}
           className="
             text-gray-300
-            p-2 min-w-[44px] min-h-[44px]
-            flex items-center justify-center
+            font-medium
             active:text-gray-500
             transition-colors duration-200
+            text-base
           "
           title="Find Recipes"
           aria-label="Find Recipes"
         >
-          <Globe size={22} strokeWidth={1.5} />
+          Recipes
         </button>
       </header>
     );

@@ -78,8 +78,6 @@ const Ingredient = ({
   onLockToggle,
   showComma,
   showAmpersand,
-  isLast,
-  isTwoIngredientSet,
   isMobile,
   isCompact,
 }) => {
@@ -137,7 +135,7 @@ const Ingredient = ({
   return (
     <span
       data-ingredient
-      className={`relative inline items-baseline ${showAmpersand ? 'whitespace-nowrap' : ''}`}
+      className="relative inline-flex items-baseline whitespace-nowrap"
       onMouseEnter={!isMobile ? onHover : undefined}
       onMouseLeave={!isMobile ? onHoverEnd : undefined}
     >
@@ -147,9 +145,10 @@ const Ingredient = ({
           style={{
             color: isFaded ? fadedColor : '#1a1a1a',
             fontWeight: 400,
+            marginRight: '0.2em',
           }}
         >
-          {' '}&amp;{' '}
+          &amp;
         </span>
       )}
 
@@ -216,9 +215,6 @@ const Ingredient = ({
         )}
       </span>
 
-      {!isLast && (
-        <span style={{ marginRight: isTwoIngredientSet ? '0.00em' : '0.15em' }}></span>
-      )}
     </span>
   );
 };
@@ -231,7 +227,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 
   return (
     <span
-      className="inline items-baseline cursor-pointer group whitespace-nowrap"
+      className="inline-flex items-baseline cursor-pointer group whitespace-nowrap"
       onClick={onClick}
       role="button"
       aria-label="Add ingredient"
@@ -473,10 +469,14 @@ export const IngredientDisplay = ({
           `}
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-            wordWrap: 'break-word',
             fontSize: getFontSize(),
-            lineHeight: isMobile ? 1.2 : 1.15,
+            lineHeight: isMobile ? 1.3 : 1.15,
             transition: 'font-size 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            alignItems: 'baseline',
+            gap: isMobile ? '0 0.2em' : '0 0.15em',
           }}
         >
           {validIngredients.map((ingredient, displayIndex) => {
@@ -512,8 +512,6 @@ export const IngredientDisplay = ({
                 onLockToggle={() => onLockToggle(actualIndex)}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
-                isLast={isLastIngredient && emptySlotCount === 0}
-                isTwoIngredientSet={isTwoIngredientSet}
                 isMobile={isMobile}
                 isCompact={isDrawerOpen}
               />

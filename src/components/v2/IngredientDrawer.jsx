@@ -490,11 +490,18 @@ export const IngredientDrawer = ({
     }
   `).join('\n');
 
+  // Hide scrollbar CSS for webkit browsers
+  const scrollbarHideStyles = `
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+  `;
+
   // Mobile layout
   if (isMobile) {
     return (
       <>
-        <style>{sliderStyles}</style>
+        <style>{sliderStyles}{scrollbarHideStyles}</style>
         {/* Drawer - positioned above the bottom bar */}
         <div
           className={`
@@ -561,321 +568,143 @@ export const IngredientDrawer = ({
                 </div>
               </div>
 
-              {/* Filters Accordion - positioned below search, above ingredient list */}
+              {/* Filter Section with Tabs */}
               <div className="flex-shrink-0 border-b border-gray-200">
-                {/* Filter Header */}
-                <button
-                  onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-                  className="
-                    w-full flex items-center justify-between
-                    px-4 py-3
-                    active:bg-gray-50
-                    min-h-[48px]
-                  "
-                >
-                  <div className="flex items-center gap-2">
-                    <Filter size={18} className="text-gray-500" />
-                    <span className="font-medium text-gray-700 text-base">Filters</span>
-                    {activeFilterCount > 0 && (
-                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </div>
-                  <ChevronDown
-                    size={20}
-                    className={`text-gray-400 transition-transform duration-200 ${isFiltersExpanded ? 'rotate-180' : ''}`}
-                  />
-                </button>
+                {/* Filter Type Tabs */}
+                <div className="flex gap-4 px-4 pt-2 pb-1">
+                  <button
+                    onClick={() => setActiveSearchTab('category')}
+                    className={`
+                      text-sm font-medium transition-colors
+                      ${activeSearchTab === 'category' ? 'text-gray-900' : 'text-gray-400'}
+                    `}
+                  >
+                    Category
+                  </button>
+                  <button
+                    onClick={() => setActiveSearchTab('taste')}
+                    className={`
+                      text-sm font-medium transition-colors
+                      ${activeSearchTab === 'taste' ? 'text-gray-900' : 'text-gray-400'}
+                    `}
+                  >
+                    Taste
+                  </button>
+                </div>
 
-                {/* Filter Content */}
-                <div
-                  className={`
-                    overflow-hidden transition-all duration-300
-                    ${isFiltersExpanded ? 'max-h-[280px]' : 'max-h-0'}
-                  `}
-                >
-                  <div className="px-4 pb-4 overflow-y-auto" style={{ maxHeight: '260px' }}>
-                    {/* Top-level Section Navigation */}
-                    <div className="flex gap-5 mb-4">
-                      <button
-                        onClick={() => setActiveSection('search')}
-                        className={`
-                          text-sm font-semibold transition-colors min-h-[36px]
-                          ${activeSection === 'search'
-                            ? 'text-gray-900'
-                            : 'text-gray-400'
-                          }
-                        `}
-                      >
-                        Search Filters
-                      </button>
-                      <button
-                        onClick={() => setActiveSection('generation')}
-                        className={`
-                          text-sm font-semibold transition-colors min-h-[36px]
-                          ${activeSection === 'generation'
-                            ? 'text-gray-900'
-                            : 'text-gray-400'
-                          }
-                        `}
-                      >
-                        Generation Options
-                      </button>
-                    </div>
-
-                    {/* Search Filters Section */}
-                    {activeSection === 'search' && (
-                      <>
-                        {/* Sub-tabs for Category and Taste */}
-                        <div className="flex gap-5 mb-4">
+                {/* Filter Pills */}
+                <div className="px-4 py-2">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {activeSearchTab === 'category' ? (
+                      CATEGORIES.map((cat) => {
+                        const isActive = activeCategory === cat;
+                        return (
                           <button
-                            onClick={() => setActiveSearchTab('category')}
+                            key={cat}
+                            onClick={() => handleCategoryClick(cat)}
                             className={`
-                              text-sm font-medium transition-colors min-h-[32px]
-                              ${activeSearchTab === 'category'
-                                ? 'text-gray-700'
-                                : 'text-gray-400'
+                              py-1.5 px-3 text-sm
+                              rounded-full border-2 font-medium
+                              whitespace-nowrap flex-shrink-0
+                              transition-all
+                              ${isActive
+                                ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
+                                : 'border-gray-300 bg-white text-gray-700'
                               }
                             `}
                           >
-                            Category
+                            {cat}
                           </button>
+                        );
+                      })
+                    ) : (
+                      TASTE_PROPERTIES.map((taste) => {
+                        const isActive = activeSliders.has(taste);
+                        const color = TASTE_COLORS[taste];
+                        return (
                           <button
-                            onClick={() => setActiveSearchTab('taste')}
+                            key={taste}
+                            onClick={() => handleTasteToggle(taste)}
                             className={`
-                              text-sm font-medium transition-colors min-h-[32px]
-                              ${activeSearchTab === 'taste'
-                                ? 'text-gray-700'
-                                : 'text-gray-400'
-                              }
+                              py-1.5 px-3 text-sm
+                              rounded-full border-2 font-medium capitalize
+                              whitespace-nowrap flex-shrink-0
+                              transition-all
+                              ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
                             `}
+                            style={isActive ? { backgroundColor: color, borderColor: color } : {}}
                           >
-                            Taste
+                            {taste}
                           </button>
-                        </div>
-
-                        {/* Category Content */}
-                        {activeSearchTab === 'category' && (
-                          <div className="space-y-3">
-                            {!activeCategory ? (
-                              <div className="flex flex-wrap gap-2">
-                                {CATEGORIES.map((cat) => (
-                                  <button
-                                    key={cat}
-                                    onClick={() => handleCategoryClick(cat)}
-                                    className="
-                                      py-2.5 px-4 text-sm
-                                      rounded-full border-2 border-gray-300
-                                      bg-white text-gray-700 font-medium
-                                      active:bg-gray-100
-                                      min-h-[44px]
-                                    "
-                                  >
-                                    {cat}
-                                  </button>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={handleClearCategory}
-                                    className="p-2 rounded-full bg-gray-100 min-w-[36px] min-h-[36px] flex items-center justify-center"
-                                  >
-                                    <X size={18} className="text-gray-600" />
-                                  </button>
-                                  <span className="py-2.5 px-4 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-sm">
-                                    {activeCategory}
-                                  </span>
-                                </div>
-                                {subcategories.length > 0 && (
-                                  <div className="flex flex-wrap gap-2">
-                                    {subcategories.map((subcat) => {
-                                      const isSelected = selectedSubcategories.includes(subcat);
-                                      return (
-                                        <button
-                                          key={subcat}
-                                          onClick={() => handleSubcategoryToggle(subcat)}
-                                          className={`
-                                            py-2 px-3.5 text-sm
-                                            rounded-full border-2 font-medium
-                                            min-h-[40px]
-                                            ${isSelected
-                                              ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
-                                              : 'border-gray-300 bg-white text-gray-700'
-                                            }
-                                          `}
-                                        >
-                                          {subcat}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Taste Content */}
-                        {activeSearchTab === 'taste' && (
-                          <div className="space-y-3">
-                            <div className="flex flex-wrap gap-2">
-                              {TASTE_PROPERTIES.map((taste) => {
-                                const isActive = activeSliders.has(taste);
-                                const color = TASTE_COLORS[taste];
-                                return (
-                                  <button
-                                    key={taste}
-                                    onClick={() => handleTasteToggle(taste)}
-                                    className={`
-                                      py-2.5 px-4 text-sm
-                                      rounded-full border-2 font-medium capitalize
-                                      min-h-[44px]
-                                      ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
-                                    `}
-                                    style={isActive ? { backgroundColor: color, borderColor: color } : {}}
-                                  >
-                                    {taste}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                            {activeSliders.size > 0 && (
-                              <div className="space-y-3 pt-2">
-                                {Array.from(activeSliders).map((taste) => {
-                                  const color = TASTE_COLORS[taste];
-                                  return (
-                                    <div key={taste} className="flex items-center gap-3 min-h-[36px]">
-                                      <div
-                                        className="w-3 h-3 rounded-full flex-shrink-0"
-                                        style={{ backgroundColor: color }}
-                                      />
-                                      <span className="text-sm font-medium capitalize w-12">{taste}</span>
-                                      <input
-                                        type="range"
-                                        min="1"
-                                        max="10"
-                                        step="1"
-                                        value={tasteValues[taste] || 1}
-                                        onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
-                                        className={`flex-1 h-2 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
-                                        style={{
-                                          background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
-                                        }}
-                                      />
-                                      <span className="text-sm text-gray-500 w-6">{tasteValues[taste] || 1}</span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Generation Options Section */}
-                    {activeSection === 'generation' && (
-                      <>
-                        {/* Sub-tabs for Compatibility and Dietary */}
-                        <div className="flex gap-5 mb-4">
-                          <button
-                            onClick={() => setActiveGenerationTab('compatibility')}
-                            className={`
-                              text-sm font-medium transition-colors min-h-[32px]
-                              ${activeGenerationTab === 'compatibility'
-                                ? 'text-gray-700'
-                                : 'text-gray-400'
-                              }
-                            `}
-                          >
-                            Compatibility
-                          </button>
-                          <button
-                            onClick={() => setActiveGenerationTab('dietary')}
-                            className={`
-                              text-sm font-medium transition-colors min-h-[32px]
-                              ${activeGenerationTab === 'dietary'
-                                ? 'text-gray-700'
-                                : 'text-gray-400'
-                              }
-                            `}
-                          >
-                            Dietary
-                          </button>
-                        </div>
-
-                        {/* Compatibility Content */}
-                        {activeGenerationTab === 'compatibility' && (
-                          <div className="space-y-3">
-                            <div className="relative inline-grid grid-cols-3 bg-gray-100 rounded-full p-1.5">
-                              {/* Sliding background indicator */}
-                              <div
-                                className="absolute top-1.5 bottom-1.5 bg-gray-900 rounded-full transition-all duration-200 ease-out"
-                                style={{
-                                  width: 'calc(33.333% - 3px)',
-                                  left: `calc(${COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode) * 33.333}% + 1.5px)`,
-                                }}
-                              />
-                              {COMPATIBILITY_MODES.map((mode) => (
-                                <button
-                                  key={mode.key}
-                                  onClick={() => onCompatibilityChange(mode.key)}
-                                  className={`
-                                    relative z-10 py-2.5 px-4 text-sm font-medium text-center
-                                    rounded-full transition-colors duration-200
-                                    min-h-[40px]
-                                    ${compatibilityMode === mode.key
-                                      ? 'text-white'
-                                      : 'text-gray-600'
-                                    }
-                                  `}
-                                >
-                                  {mode.label}
-                                </button>
-                              ))}
-                            </div>
-                            <p className="text-sm text-gray-500 leading-relaxed">
-                              {COMPATIBILITY_MODES.find(m => m.key === compatibilityMode)?.description}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Dietary Content */}
-                        {activeGenerationTab === 'dietary' && (
-                          <div className="flex flex-wrap gap-2">
-                            {DIETARY_TOGGLES.map((toggle) => {
-                              const isActive = getDietaryState(toggle.key);
-                              return (
-                                <button
-                                  key={toggle.key}
-                                  onClick={() => handleDietaryToggle(toggle.key)}
-                                  className={`
-                                    py-2.5 px-4 text-sm
-                                    rounded-full border-2 font-medium
-                                    min-h-[44px]
-                                    ${isActive
-                                      ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
-                                      : 'border-gray-300 bg-white text-gray-700'
-                                    }
-                                  `}
-                                >
-                                  {toggle.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </>
+                        );
+                      })
                     )}
                   </div>
                 </div>
+
+                {/* Subcategory Pills (when category selected) */}
+                {activeSearchTab === 'category' && activeCategory && subcategories.length > 0 && (
+                  <div className="px-4 pb-2">
+                    <div className="flex gap-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {subcategories.map((subcat) => {
+                        const isSelected = selectedSubcategories.includes(subcat);
+                        return (
+                          <button
+                            key={subcat}
+                            onClick={() => handleSubcategoryToggle(subcat)}
+                            className={`
+                              py-1 px-2.5 text-xs
+                              rounded-full border-2 font-medium
+                              whitespace-nowrap flex-shrink-0
+                              transition-all
+                              ${isSelected
+                                ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
+                                : 'border-gray-300 bg-white text-gray-600'
+                              }
+                            `}
+                          >
+                            {subcat}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Taste Sliders (when tastes selected) */}
+                {activeSearchTab === 'taste' && activeSliders.size > 0 && (
+                  <div className="px-4 pb-2 space-y-2">
+                    {Array.from(activeSliders).map((taste) => {
+                      const color = TASTE_COLORS[taste];
+                      return (
+                        <div key={taste} className="flex items-center gap-3">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: color }}
+                          />
+                          <span className="text-xs font-medium capitalize w-10">{taste}</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            step="1"
+                            value={tasteValues[taste] || 1}
+                            onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
+                            className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
+                            style={{
+                              background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
+                            }}
+                          />
+                          <span className="text-xs text-gray-500 w-4">{tasteValues[taste] || 1}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Sort Tabs (Mobile) */}
-              <div className="flex gap-5 px-4 py-3 flex-shrink-0 overflow-x-auto">
+              <div className="flex gap-4 px-4 py-2 flex-shrink-0 overflow-x-auto border-b border-gray-100" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {[
                   { key: 'alphabetical', label: 'Alphabetical' },
                   { key: 'category', label: 'Category' },
@@ -886,8 +715,7 @@ export const IngredientDrawer = ({
                     key={key}
                     onClick={() => setSortMode(key)}
                     className={`
-                      text-sm font-medium transition-colors whitespace-nowrap
-                      min-h-[32px]
+                      text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0
                       ${sortMode === key
                         ? 'text-gray-900'
                         : 'text-gray-400'
