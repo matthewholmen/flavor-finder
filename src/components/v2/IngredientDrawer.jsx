@@ -126,6 +126,7 @@ export const IngredientDrawer = ({
   };
   const [isFiltersPanelCollapsed, setIsFiltersPanelCollapsed] = useState(false);
   const [sortMode, setSortMode] = useState('alphabetical'); // 'alphabetical' | 'category' | 'taste' | 'popularity'
+  const [isMobileFiltersVisible, setIsMobileFiltersVisible] = useState(false);
   
   // Auto-focus search input when drawer opens
   useEffect(() => {
@@ -138,6 +139,7 @@ export const IngredientDrawer = ({
   useEffect(() => {
     if (!isOpen) {
       setIsFiltersExpanded(false);
+      setIsMobileFiltersVisible(false);
     }
   }, [isOpen]);
 
@@ -268,12 +270,25 @@ export const IngredientDrawer = ({
       ? sorted.filter(ing => isPartialMatchForSort(ing))
       : [];
 
+    // Helper to add partial-button marker between full and partial matches
+    const addPartialButtonMarker = (fullList, partialList) => {
+      const result = [...fullList];
+      // Only add the marker if we have selected ingredients (partial matches are possible)
+      if (selectedIngredients.length > 0) {
+        result.push({ type: 'partial-button', value: 'partial-button' });
+      }
+      if (showPartialMatches) {
+        result.push(...partialList);
+      }
+      return result;
+    };
+
     switch (sortMode) {
       case 'alphabetical': {
         const sortAlpha = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
         const sortedFull = fullMatches.sort(sortAlpha).map(ing => ({ type: 'ingredient', value: ing }));
         const sortedPartial = partialMatches.sort(sortAlpha).map(ing => ({ type: 'ingredient', value: ing }));
-        return [...sortedFull, ...sortedPartial];
+        return addPartialButtonMarker(sortedFull, sortedPartial);
       }
 
       case 'category': {
@@ -309,7 +324,7 @@ export const IngredientDrawer = ({
           return result;
         };
 
-        return [...addDividers(sortedFullList, false), ...addDividers(sortedPartialList, true)];
+        return addPartialButtonMarker(addDividers(sortedFullList, false), addDividers(sortedPartialList, true));
       }
 
       case 'taste': {
@@ -343,7 +358,7 @@ export const IngredientDrawer = ({
           return result;
         };
 
-        return [...addDividers(sortedFullList, false), ...addDividers(sortedPartialList, true)];
+        return addPartialButtonMarker(addDividers(sortedFullList, false), addDividers(sortedPartialList, true));
       }
 
       case 'popularity': {
@@ -356,11 +371,14 @@ export const IngredientDrawer = ({
         };
         const sortedFull = [...fullMatches].sort(sortByPopularity).map(ing => ({ type: 'ingredient', value: ing }));
         const sortedPartial = [...partialMatches].sort(sortByPopularity).map(ing => ({ type: 'ingredient', value: ing }));
-        return [...sortedFull, ...sortedPartial];
+        return addPartialButtonMarker(sortedFull, sortedPartial);
       }
 
       default:
-        return [...fullMatches, ...partialMatches].map(ing => ({ type: 'ingredient', value: ing }));
+        return addPartialButtonMarker(
+          fullMatches.map(ing => ({ type: 'ingredient', value: ing })),
+          partialMatches.map(ing => ({ type: 'ingredient', value: ing }))
+        );
     }
   }, [suggestions, sortMode, ingredientProfiles, flavorMap, showPartialMatches, selectedIngredients]);
 
@@ -552,7 +570,7 @@ export const IngredientDrawer = ({
           onTouchEnd={onTouchEnd}
         >
             <div className="flex flex-col h-full">
-              {/* Search Bar with Partial Matches Toggle */}
+              {/* Search Bar with Filters Toggle */}
               <div className="flex-shrink-0 px-4 pt-3 pb-2">
                 <div className="flex gap-2">
                   <div className="relative flex-1">
@@ -583,29 +601,38 @@ export const IngredientDrawer = ({
                       </button>
                     )}
                   </div>
-                  {/* Show Partial Matches Button */}
+                  {/* Filters Toggle Button */}
                   <button
-                    onClick={onTogglePartialMatches}
-                    title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
+                    onClick={() => setIsMobileFiltersVisible(!isMobileFiltersVisible)}
+                    title={isMobileFiltersVisible ? "Hide filters" : "Show filters"}
                     className={`
                       p-3
                       rounded-xl
-                      border-2 border-dashed
+                      border-2
                       transition-all
                       min-h-[44px]
-                      ${showPartialMatches
-                        ? 'text-gray-800 border-[#FFC533] bg-amber-50'
+                      ${isMobileFiltersVisible || activeFilterCount > 0
+                        ? 'text-gray-800 border-gray-800 bg-gray-100'
                         : 'text-gray-400 border-gray-300'
                       }
                     `}
                   >
-                    <Zap size={18} />
+                    <Filter size={18} />
                   </button>
                 </div>
               </div>
 
-              {/* Filter Section with Tabs */}
-              <div className="flex-shrink-0 border-b border-gray-200">
+              {/* Collapsible Filter Section */}
+              <div
+                className={`
+                  flex-shrink-0 border-b border-gray-200
+                  overflow-hidden transition-all duration-300 ease-out
+                `}
+                style={{
+                  maxHeight: isMobileFiltersVisible ? '300px' : '0px',
+                  opacity: isMobileFiltersVisible ? 1 : 0,
+                }}
+              >
                 {/* Filter Type Tabs */}
                 <div className="flex gap-4 px-4 pt-2 pb-1">
                   <button
@@ -781,6 +808,32 @@ export const IngredientDrawer = ({
                           </span>
                           <div className="flex-1 h-px bg-gray-200" />
                         </div>
+                      );
+                    }
+
+                    if (item.type === 'partial-button') {
+                      return (
+                        <button
+                          key="partial-button"
+                          onClick={onTogglePartialMatches}
+                          title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
+                          className={`
+                            w-full
+                            px-5 py-3
+                            rounded-full font-semibold text-base
+                            transition-all duration-150
+                            min-h-[48px]
+                            flex items-center justify-center gap-2
+                            border-2 border-dashed
+                            ${showPartialMatches
+                              ? 'text-gray-800 border-[#FFC533] bg-amber-50'
+                              : 'text-gray-400 border-gray-300'
+                            }
+                          `}
+                        >
+                          <Zap size={18} />
+                          <span>Show Partial Matches</span>
+                        </button>
                       );
                     }
 
@@ -1297,6 +1350,11 @@ export const IngredientDrawer = ({
                           <div className="flex-1 h-px bg-gray-200" />
                         </div>
                       );
+                    }
+
+                    // Skip partial-button on desktop (handled separately in the search bar area)
+                    if (item.type === 'partial-button') {
+                      return null;
                     }
 
                     const ingredient = item.value;

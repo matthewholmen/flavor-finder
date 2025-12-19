@@ -135,7 +135,7 @@ const Ingredient = ({
   return (
     <span
       data-ingredient
-      className="relative inline-flex items-baseline whitespace-nowrap"
+      className="relative inline items-baseline"
       onMouseEnter={!isMobile ? onHover : undefined}
       onMouseLeave={!isMobile ? onHoverEnd : undefined}
     >
@@ -153,7 +153,7 @@ const Ingredient = ({
       )}
 
       <span
-        className="relative inline transition-all duration-200 cursor-pointer whitespace-nowrap"
+        className="relative inline transition-all duration-200 cursor-pointer"
         style={{
           fontWeight: isPerfectMatch ? 900 : 400,
           color: isFaded ? fadedColor : color,
@@ -173,46 +173,101 @@ const Ingredient = ({
         }}
         title={isLocked ? "Click to unlock" : "Click to lock"}
       >
-        {ingredient}
-
-        {isMobile && isLocked && (
-          <span className="inline-flex items-center" style={{ marginLeft: '0.1em', verticalAlign: 'middle' }}>
-            <FilledLock color={isFaded ? fadedColor : '#1a1a1a'} size="0.5em" />
-          </span>
-        )}
-
-        {isMobile && showComma && (
-          <span
-            style={{
-              color: isFaded ? fadedColor : '#1a1a1a',
-              fontFamily: 'Georgia, "Times New Roman", Times, serif',
-              fontStyle: 'italic',
-              fontWeight: 400,
-            }}
-          >
-            ,
-          </span>
-        )}
-
-        {!isMobile && (
-          <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
-            {!isLocked && !showControls && (
-              <span
-                style={{
-                  color: isFaded ? fadedColor : '#1a1a1a',
-                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
-                  fontStyle: 'italic',
-                  fontWeight: 400,
-                  position: 'absolute',
-                  left: 0,
-                }}
-              >
-                {showComma ? ',' : '\u00A0'}
+        {/* Split ingredient: allow wrapping but keep last word + comma together */}
+        {(() => {
+          const words = ingredient.split(' ');
+          if (words.length === 1) {
+            // Single word - render with trailing elements in nowrap span
+            return (
+              <span className="whitespace-nowrap">
+                {ingredient}
+                {isMobile && isLocked && (
+                  <span className="inline-flex items-center" style={{ marginLeft: '0.1em', verticalAlign: 'middle' }}>
+                    <FilledLock color={isFaded ? fadedColor : '#1a1a1a'} size="0.5em" />
+                  </span>
+                )}
+                {isMobile && showComma && (
+                  <span
+                    style={{
+                      color: isFaded ? fadedColor : '#1a1a1a',
+                      fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                      fontStyle: 'italic',
+                      fontWeight: 400,
+                    }}
+                  >
+                    ,
+                  </span>
+                )}
+                {!isMobile && (
+                  <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
+                    {!isLocked && !showControls && (
+                      <span
+                        style={{
+                          color: isFaded ? fadedColor : '#1a1a1a',
+                          fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                          fontStyle: 'italic',
+                          fontWeight: 400,
+                          position: 'absolute',
+                          left: 0,
+                        }}
+                      >
+                        {showComma ? ',' : '\u00A0'}
+                      </span>
+                    )}
+                    {renderDesktopIconStack()}
+                  </span>
+                )}
               </span>
-            )}
-            {renderDesktopIconStack()}
-          </span>
-        )}
+            );
+          }
+          // Multi-word: first words can wrap, last word + punctuation stays together
+          const firstWords = words.slice(0, -1).join(' ');
+          const lastWord = words[words.length - 1];
+          return (
+            <>
+              {firstWords}{' '}
+              <span className="whitespace-nowrap">
+                {lastWord}
+                {isMobile && isLocked && (
+                  <span className="inline-flex items-center" style={{ marginLeft: '0.1em', verticalAlign: 'middle' }}>
+                    <FilledLock color={isFaded ? fadedColor : '#1a1a1a'} size="0.5em" />
+                  </span>
+                )}
+                {isMobile && showComma && (
+                  <span
+                    style={{
+                      color: isFaded ? fadedColor : '#1a1a1a',
+                      fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                      fontStyle: 'italic',
+                      fontWeight: 400,
+                    }}
+                  >
+                    ,
+                  </span>
+                )}
+                {!isMobile && (
+                  <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
+                    {!isLocked && !showControls && (
+                      <span
+                        style={{
+                          color: isFaded ? fadedColor : '#1a1a1a',
+                          fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                          fontStyle: 'italic',
+                          fontWeight: 400,
+                          position: 'absolute',
+                          left: 0,
+                        }}
+                      >
+                        {showComma ? ',' : '\u00A0'}
+                      </span>
+                    )}
+                    {renderDesktopIconStack()}
+                  </span>
+                )}
+              </span>
+            </>
+          );
+        })()}
       </span>
 
     </span>
@@ -475,7 +530,13 @@ export const IngredientDisplay = ({
             : (isMobile ? '1rem' : '0 3rem'),
           top: getTopPosition(),
           transform: getTransform(),
-          transition: 'all 300ms ease-out',
+          // On mobile: delay animation when opening so drawer slides up first, then ingredients animate
+          // No delay when closing for snappy feel
+          transition: isMobile
+            ? (isDrawerOpen
+              ? 'all 300ms ease-out 150ms' // 150ms delay when opening
+              : 'all 300ms ease-out')       // no delay when closing
+            : 'all 300ms ease-out',
         }}
         onClick={handleStripClick}
       >
@@ -490,7 +551,12 @@ export const IngredientDisplay = ({
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
             fontSize: getFontSize(),
             lineHeight: isMobile ? 1.3 : 1.15,
-            transition: 'all 300ms ease-out',
+            // Match the delay from the container for synchronized animation
+            transition: isMobile
+              ? (isDrawerOpen
+                ? 'all 300ms ease-out 150ms'
+                : 'all 300ms ease-out')
+              : 'all 300ms ease-out',
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',
