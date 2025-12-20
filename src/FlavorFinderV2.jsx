@@ -761,6 +761,16 @@ export default function FlavorFinderV2() {
     });
   };
 
+  const handleCompatibilityChange = (mode) => {
+    setCompatibilityMode(mode);
+    // Auto-enable partial matches for mixed/random modes, disable for perfect
+    if (mode === 'mixed' || mode === 'random') {
+      setShowPartialMatches(true);
+    } else if (mode === 'perfect') {
+      setShowPartialMatches(false);
+    }
+  };
+
   // Filter suggestions for drawer
   const filteredSuggestions = useMemo(() => {
     let filtered = filterIngredients(
@@ -999,15 +1009,7 @@ export default function FlavorFinderV2() {
         onDietaryChange={setDietaryRestrictions}
         // Compatibility props
         compatibilityMode={compatibilityMode}
-        onCompatibilityChange={(mode) => {
-          setCompatibilityMode(mode);
-          // Auto-enable partial matches for mixed/random modes, disable for perfect
-          if (mode === 'mixed' || mode === 'random') {
-            setShowPartialMatches(true);
-          } else if (mode === 'perfect') {
-            setShowPartialMatches(false);
-          }
-        }}
+        onCompatibilityChange={handleCompatibilityChange}
         // Partial matches props
         showPartialMatches={showPartialMatches}
         onTogglePartialMatches={() => setShowPartialMatches(!showPartialMatches)}
@@ -1019,6 +1021,10 @@ export default function FlavorFinderV2() {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        dietaryRestrictions={dietaryRestrictions}
+        onDietaryChange={setDietaryRestrictions}
+        compatibilityMode={compatibilityMode}
+        onCompatibilityChange={handleCompatibilityChange}
       />
     </div>
   );
