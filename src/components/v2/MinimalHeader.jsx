@@ -110,7 +110,7 @@ export const MinimalHeader = ({
         </button>
         <span
           className="hidden font-bold text-2xl"
-          style={{ color: '#FF91C3' }}
+          style={{ color: '#F86A8A' }}
         >
           ff
         </span>

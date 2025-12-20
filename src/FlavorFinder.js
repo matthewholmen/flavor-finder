@@ -1201,7 +1201,7 @@ const toggleSlider = (taste) => {
               console.error('Failed to copy ingredients:', err);
             });
         }}
-        className={`py-3 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#72A8D5] rounded-full font-sans flex items-center justify-center transition-colors`}
+        className={`py-3 h-14 border-2 border-[#6AAFE8] ${selectedIngredients.length === 0 ? 'opacity-50' : ''} bg-[#6AAFE8] rounded-full font-sans flex items-center justify-center transition-colors`}
         disabled={selectedIngredients.length === 0}
       >
         <span className="text-white font-medium text-sm leading-tight">Recipes</span>
@@ -1211,7 +1211,7 @@ const toggleSlider = (taste) => {
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className={`py-3 h-14 border-2 border-[#8DC25B] bg-[#8DC25B] text-white rounded-full font-sans flex items-center justify-center transition-all duration-300 generate-button ${
+        className={`py-3 h-14 border-2 border-[#7CB342] bg-[#7CB342] text-white rounded-full font-sans flex items-center justify-center transition-all duration-300 generate-button ${
           isFirstLoad ? 'animate-pulse scale-105 shadow-lg' : ''
         }`}
       >
@@ -1241,7 +1241,7 @@ const toggleSlider = (taste) => {
             });
         }}
         title="Recipe Search"
-        className={`py-4 px-6 h-14 border-2 border-[#72A8D5] ${selectedIngredients.length === 0 ? 'opacity-50 text-gray-400' : 'text-[#000000] hover:bg-[#72A8D5] hover:text-white'} rounded-full transition-colors mx-2 flex items-center`}
+        className={`py-4 px-6 h-14 border-2 border-[#6AAFE8] ${selectedIngredients.length === 0 ? 'opacity-50 text-gray-400' : 'text-[#000000] hover:bg-[#6AAFE8] hover:text-white'} rounded-full transition-colors mx-2 flex items-center`}
         disabled={selectedIngredients.length === 0}
       >
         <Globe size={20} className="mr-2" />
@@ -1251,7 +1251,7 @@ const toggleSlider = (taste) => {
       <button 
         onClick={handleRandomize}
         title="Generate"
-        className={`py-4 px-6 h-14 border-2 border-[#8DC25B] text-[#000000] hover:bg-[#8DC25B] hover:text-white rounded-full font-sans flex items-center justify-center transition-all duration-300 mx-2 generate-button ${
+        className={`py-4 px-6 h-14 border-2 border-[#7CB342] text-[#000000] hover:bg-[#7CB342] hover:text-white rounded-full font-sans flex items-center justify-center transition-all duration-300 mx-2 generate-button ${
           isFirstLoad ? 'animate-pulse scale-105 shadow-lg' : ''
         }`}
       >
@@ -1396,9 +1396,9 @@ const toggleSlider = (taste) => {
                   rounded-full
                   border-2 border-dashed
                   transition-colors
-                  ${showPartialMatches 
-                    ? 'text-gray-800 border-[#FFC533]' 
-                    : 'bg-white text-gray-400 hover:border-[#FFC533]'
+                  ${showPartialMatches
+                    ? 'text-gray-800 border-[#FFC233]'
+                    : 'bg-white text-gray-400 hover:border-[#FFC233]'
                   }
                 `}
               >
@@ -1566,8 +1566,8 @@ const toggleSlider = (taste) => {
                     border-dashed
                     transition-colors
                     flex-shrink-0
-                    ${showPartialMatches 
-                      ? 'text-gray-800 border-[#FFC533]' 
+                    ${showPartialMatches
+                      ? 'text-gray-800 border-[#FFC233]'
                       : 'text-gray-400 border-gray-300'
                     }
                   `}
@@ -1639,7 +1639,7 @@ const toggleSlider = (taste) => {
                   // Call any save functions here if needed
                   setIsSettingsModalOpen(false);
                 }}
-                className="py-3 px-6 rounded-full border-2 border-[#8DC25B] bg-[#8DC25B] text-white font-medium"
+                className="py-3 px-6 rounded-full border-2 border-[#7CB342] bg-[#7CB342] text-white font-medium"
               >
                 Save Changes
               </button>

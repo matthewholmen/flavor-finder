@@ -133,7 +133,7 @@ const InfoTooltip = ({ handleRandomize, handleRecipeSearch }) => {
                     e.stopPropagation();
                     handleRandomize(); // Now properly passed as a prop
                   }}
-                  className="p-4 border-2 border-[#8DC25B] text-black rounded-full flex items-center justify-center transition-colors hover:bg-[#8DC25B] hover:text-white group"
+                  className="p-4 border-2 border-[#7CB342] text-black rounded-full flex items-center justify-center transition-colors hover:bg-[#7CB342] hover:text-white group"
                 >
                   <Sparkles size={20} className="transform group-hover:scale-110 transition-transform" />
                 </button>
@@ -154,7 +154,7 @@ const InfoTooltip = ({ handleRandomize, handleRecipeSearch }) => {
                     e.stopPropagation();
                     handleRecipeSearch(); // Now properly passed as a prop
                   }}
-                  className="p-4 border-2 border-[#72A8D5] text-black rounded-full flex items-center justify-center transition-colors hover:bg-[#72A8D5] hover:text-white group"
+                  className="p-4 border-2 border-[#6AAFE8] text-black rounded-full flex items-center justify-center transition-colors hover:bg-[#6AAFE8] hover:text-white group"
                 >
                   <Globe size={20} className="transform group-hover:scale-110 transition-transform" />
                 </button>
@@ -169,7 +169,7 @@ const InfoTooltip = ({ handleRandomize, handleRecipeSearch }) => {
                     {/* Partial Matches Toggle */}
                     <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100">
                       <div className="shrink-0">
-                        <button className="p-4 border-2 border-dashed border- text-gray-400 rounded-full flex items-center justify-center transition-colors hover:border-[#FFC533] hover:text-gray-800">
+                        <button className="p-4 border-2 border-dashed border- text-gray-400 rounded-full flex items-center justify-center transition-colors hover:border-[#FFC233] hover:text-gray-800">
                           <Zap size={20} className="transform transition-transform" />
                         </button>
                       </div>

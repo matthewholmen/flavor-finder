@@ -120,7 +120,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
             >
               <X size={16} className="text-gray-600" />
             </button>
-            <div className="py-2 px-4 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-base">
+            <div className="py-2 px-4 rounded-full border-2 border-[#6AAFE8] bg-[#6AAFE8] text-white font-medium text-base">
               {activeCategory}
             </div>
           </div>
@@ -140,8 +140,8 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                         ${compact ? 'py-2 px-3 text-sm' : 'py-2 px-3 text-sm'}
                         rounded-full border-2 transition-all duration-200
                         text-center font-medium hover:shadow-sm
-                        ${isSelected 
-                          ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]' 
+                        ${isSelected
+                          ? 'border-[#6AAFE8] bg-blue-50 text-[#6AAFE8]'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500 hover:bg-gray-50'
                         }
                       `}

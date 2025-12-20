@@ -570,204 +570,8 @@ export const IngredientDrawer = ({
           onTouchEnd={onTouchEnd}
         >
             <div className="flex flex-col h-full">
-              {/* Search Bar with Filters Toggle */}
-              <div className="flex-shrink-0 px-4 pt-3 pb-2">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Search
-                      size={18}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => onSearchChange(e.target.value)}
-                      placeholder="Search ingredients..."
-                      className="
-                        w-full pl-10 pr-10 py-3
-                        rounded-xl border border-gray-200
-                        focus:border-gray-400 focus:outline-none
-                        text-base bg-gray-50
-                      "
-                      style={{ fontSize: '16px' }} // Prevents iOS zoom
-                    />
-                    {searchTerm && (
-                      <button
-                        onClick={() => onSearchChange('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                      >
-                        <X size={18} className="text-gray-400" />
-                      </button>
-                    )}
-                  </div>
-                  {/* Filters Toggle Button */}
-                  <button
-                    onClick={() => setIsMobileFiltersVisible(!isMobileFiltersVisible)}
-                    title={isMobileFiltersVisible ? "Hide filters" : "Show filters"}
-                    className={`
-                      p-3
-                      rounded-xl
-                      border-2
-                      transition-all
-                      min-h-[44px]
-                      ${isMobileFiltersVisible || activeFilterCount > 0
-                        ? 'text-gray-800 border-gray-800 bg-gray-100'
-                        : 'text-gray-400 border-gray-300'
-                      }
-                    `}
-                  >
-                    <Filter size={18} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Collapsible Filter Section */}
-              <div
-                className={`
-                  flex-shrink-0 border-b border-gray-200
-                  overflow-hidden transition-all duration-300 ease-out
-                `}
-                style={{
-                  maxHeight: isMobileFiltersVisible ? '300px' : '0px',
-                  opacity: isMobileFiltersVisible ? 1 : 0,
-                }}
-              >
-                {/* Filter Type Tabs */}
-                <div className="flex gap-4 px-4 pt-2 pb-1">
-                  <button
-                    onClick={() => setActiveSearchTab('category')}
-                    className={`
-                      text-sm font-medium transition-colors
-                      ${activeSearchTab === 'category' ? 'text-gray-900' : 'text-gray-400'}
-                    `}
-                  >
-                    Category
-                  </button>
-                  <button
-                    onClick={() => setActiveSearchTab('taste')}
-                    className={`
-                      text-sm font-medium transition-colors
-                      ${activeSearchTab === 'taste' ? 'text-gray-900' : 'text-gray-400'}
-                    `}
-                  >
-                    Taste
-                  </button>
-                </div>
-
-                {/* Filter Pills */}
-                <div className="px-4 py-2">
-                  <div className="flex gap-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    {activeSearchTab === 'category' ? (
-                      CATEGORIES.map((cat) => {
-                        const isActive = activeCategory === cat;
-                        return (
-                          <button
-                            key={cat}
-                            onClick={() => handleCategoryClick(cat)}
-                            className={`
-                              py-1.5 px-3 text-sm
-                              rounded-full border-2 font-medium
-                              whitespace-nowrap flex-shrink-0
-                              transition-all
-                              ${isActive
-                                ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
-                                : 'border-gray-300 bg-white text-gray-700'
-                              }
-                            `}
-                          >
-                            {cat}
-                          </button>
-                        );
-                      })
-                    ) : (
-                      TASTE_PROPERTIES.map((taste) => {
-                        const isActive = activeSliders.has(taste);
-                        const color = TASTE_COLORS[taste];
-                        return (
-                          <button
-                            key={taste}
-                            onClick={() => handleTasteToggle(taste)}
-                            className={`
-                              py-1.5 px-3 text-sm
-                              rounded-full border-2 font-medium capitalize
-                              whitespace-nowrap flex-shrink-0
-                              transition-all
-                              ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
-                            `}
-                            style={isActive ? { backgroundColor: color, borderColor: color } : {}}
-                          >
-                            {taste}
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-
-                {/* Subcategory Pills (when category selected) */}
-                {activeSearchTab === 'category' && activeCategory && subcategories.length > 0 && (
-                  <div className="px-4 pb-2">
-                    <div className="flex gap-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                      {subcategories.map((subcat) => {
-                        const isSelected = selectedSubcategories.includes(subcat);
-                        return (
-                          <button
-                            key={subcat}
-                            onClick={() => handleSubcategoryToggle(subcat)}
-                            className={`
-                              py-1 px-2.5 text-xs
-                              rounded-full border-2 font-medium
-                              whitespace-nowrap flex-shrink-0
-                              transition-all
-                              ${isSelected
-                                ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
-                                : 'border-gray-300 bg-white text-gray-600'
-                              }
-                            `}
-                          >
-                            {subcat}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Taste Sliders (when tastes selected) */}
-                {activeSearchTab === 'taste' && activeSliders.size > 0 && (
-                  <div className="px-4 pb-2 space-y-2">
-                    {Array.from(activeSliders).map((taste) => {
-                      const color = TASTE_COLORS[taste];
-                      return (
-                        <div key={taste} className="flex items-center gap-3">
-                          <div
-                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: color }}
-                          />
-                          <span className="text-xs font-medium capitalize w-10">{taste}</span>
-                          <input
-                            type="range"
-                            min="1"
-                            max="10"
-                            step="1"
-                            value={tasteValues[taste] || 1}
-                            onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
-                            className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
-                            style={{
-                              background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
-                            }}
-                          />
-                          <span className="text-xs text-gray-500 w-4">{tasteValues[taste] || 1}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
               {/* Sort Tabs (Mobile) */}
-              <div className="flex gap-4 px-4 py-2 flex-shrink-0 overflow-x-auto border-b border-gray-100" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex gap-4 px-4 pt-3 pb-2 flex-shrink-0 overflow-x-auto border-b border-gray-100" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {[
                   { key: 'alphabetical', label: 'Alphabetical' },
                   { key: 'category', label: 'Category' },
@@ -826,7 +630,7 @@ export const IngredientDrawer = ({
                             flex items-center justify-center gap-2
                             border-2 border-dashed
                             ${showPartialMatches
-                              ? 'text-gray-800 border-[#FFC533] bg-amber-50'
+                              ? 'text-gray-800 border-[#FFC233] bg-amber-50'
                               : 'text-gray-400 border-gray-300'
                             }
                           `}
@@ -885,6 +689,202 @@ export const IngredientDrawer = ({
                     No more compatible ingredients available
                   </div>
                 )}
+              </div>
+
+              {/* Collapsible Filter Section */}
+              <div
+                className={`
+                  flex-shrink-0 border-t border-b border-gray-200
+                  overflow-hidden transition-all duration-300 ease-out
+                `}
+                style={{
+                  maxHeight: isMobileFiltersVisible ? '300px' : '0px',
+                  opacity: isMobileFiltersVisible ? 1 : 0,
+                }}
+              >
+                {/* Filter Type Tabs */}
+                <div className="flex gap-4 px-4 pt-2 pb-1">
+                  <button
+                    onClick={() => setActiveSearchTab('category')}
+                    className={`
+                      text-sm font-medium transition-colors
+                      ${activeSearchTab === 'category' ? 'text-gray-900' : 'text-gray-400'}
+                    `}
+                  >
+                    Category
+                  </button>
+                  <button
+                    onClick={() => setActiveSearchTab('taste')}
+                    className={`
+                      text-sm font-medium transition-colors
+                      ${activeSearchTab === 'taste' ? 'text-gray-900' : 'text-gray-400'}
+                    `}
+                  >
+                    Taste
+                  </button>
+                </div>
+
+                {/* Filter Pills */}
+                <div className="px-4 py-2">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {activeSearchTab === 'category' ? (
+                      CATEGORIES.map((cat) => {
+                        const isActive = activeCategory === cat;
+                        return (
+                          <button
+                            key={cat}
+                            onClick={() => handleCategoryClick(cat)}
+                            className={`
+                              py-1.5 px-3 text-sm
+                              rounded-full border-2 font-medium
+                              whitespace-nowrap flex-shrink-0
+                              transition-all
+                              ${isActive
+                                ? 'border-[#6AAFE8] bg-[#6AAFE8] text-white'
+                                : 'border-gray-300 bg-white text-gray-700'
+                              }
+                            `}
+                          >
+                            {cat}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      TASTE_PROPERTIES.map((taste) => {
+                        const isActive = activeSliders.has(taste);
+                        const color = TASTE_COLORS[taste];
+                        return (
+                          <button
+                            key={taste}
+                            onClick={() => handleTasteToggle(taste)}
+                            className={`
+                              py-1.5 px-3 text-sm
+                              rounded-full border-2 font-medium capitalize
+                              whitespace-nowrap flex-shrink-0
+                              transition-all
+                              ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
+                            `}
+                            style={isActive ? { backgroundColor: color, borderColor: color } : {}}
+                          >
+                            {taste}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Subcategory Pills (when category selected) */}
+                {activeSearchTab === 'category' && activeCategory && subcategories.length > 0 && (
+                  <div className="px-4 pb-2">
+                    <div className="flex gap-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {subcategories.map((subcat) => {
+                        const isSelected = selectedSubcategories.includes(subcat);
+                        return (
+                          <button
+                            key={subcat}
+                            onClick={() => handleSubcategoryToggle(subcat)}
+                            className={`
+                              py-1 px-2.5 text-xs
+                              rounded-full border-2 font-medium
+                              whitespace-nowrap flex-shrink-0
+                              transition-all
+                              ${isSelected
+                                ? 'border-[#6AAFE8] bg-blue-50 text-[#6AAFE8]'
+                                : 'border-gray-300 bg-white text-gray-600'
+                              }
+                            `}
+                          >
+                            {subcat}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Taste Sliders (when tastes selected) */}
+                {activeSearchTab === 'taste' && activeSliders.size > 0 && (
+                  <div className="px-4 pb-2 space-y-2">
+                    {Array.from(activeSliders).map((taste) => {
+                      const color = TASTE_COLORS[taste];
+                      return (
+                        <div key={taste} className="flex items-center gap-3">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: color }}
+                          />
+                          <span className="text-xs font-medium capitalize w-10">{taste}</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            step="1"
+                            value={tasteValues[taste] || 1}
+                            onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
+                            className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
+                            style={{
+                              background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
+                            }}
+                          />
+                          <span className="text-xs text-gray-500 w-4">{tasteValues[taste] || 1}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Search Bar with Filters Toggle */}
+              <div className="flex-shrink-0 px-4 pt-2 pb-3">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search
+                      size={18}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => onSearchChange(e.target.value)}
+                      placeholder="Search ingredients..."
+                      className="
+                        w-full pl-10 pr-10 py-3
+                        rounded-xl border border-gray-200
+                        focus:border-gray-400 focus:outline-none
+                        text-base bg-gray-50
+                      "
+                      style={{ fontSize: '16px' }} // Prevents iOS zoom
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => onSearchChange('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                      >
+                        <X size={18} className="text-gray-400" />
+                      </button>
+                    )}
+                  </div>
+                  {/* Filters Toggle Button */}
+                  <button
+                    onClick={() => setIsMobileFiltersVisible(!isMobileFiltersVisible)}
+                    title={isMobileFiltersVisible ? "Hide filters" : "Show filters"}
+                    className={`
+                      p-3
+                      rounded-xl
+                      border-2
+                      transition-all
+                      min-h-[44px]
+                      ${isMobileFiltersVisible || activeFilterCount > 0
+                        ? 'text-gray-800 border-gray-800 bg-gray-100'
+                        : 'text-gray-400 border-gray-300'
+                      }
+                    `}
+                  >
+                    <Filter size={18} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1034,7 +1034,7 @@ export const IngredientDrawer = ({
                             >
                               <X size={16} className="text-gray-600" />
                             </button>
-                            <span className="py-2 px-4 rounded-full border-2 border-[#72A8D5] bg-[#72A8D5] text-white font-medium text-sm">
+                            <span className="py-2 px-4 rounded-full border-2 border-[#6AAFE8] bg-[#6AAFE8] text-white font-medium text-sm">
                               {activeCategory}
                             </span>
                           </div>
@@ -1053,7 +1053,7 @@ export const IngredientDrawer = ({
                                         rounded-full border-2 font-medium
                                         transition-all truncate
                                         ${isSelected
-                                          ? 'border-[#72A8D5] bg-blue-50 text-[#72A8D5]'
+                                          ? 'border-[#6AAFE8] bg-blue-50 text-[#6AAFE8]'
                                           : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                                         }
                                       `}
@@ -1208,7 +1208,7 @@ export const IngredientDrawer = ({
                               rounded-full border-2 font-medium
                               transition-all
                               ${isActive
-                                ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
+                                ? 'border-[#6AAFE8] bg-[#6AAFE8] text-white'
                                 : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                               }
                             `}
@@ -1297,8 +1297,8 @@ export const IngredientDrawer = ({
                     flex items-center gap-2
                     whitespace-nowrap
                     ${showPartialMatches
-                      ? 'text-gray-800 border-[#FFC533] bg-amber-50'
-                      : 'text-gray-400 border-gray-300 hover:border-[#FFC533] hover:text-gray-600'
+                      ? 'text-gray-800 border-[#FFC233] bg-amber-50'
+                      : 'text-gray-400 border-gray-300 hover:border-[#FFC233] hover:text-gray-600'
                     }
                   `}
                 >

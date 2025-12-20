@@ -195,8 +195,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   >
                     <div className={`
                       w-5 h-5 rounded border flex items-center justify-center mr-3
-                      ${category.enabled 
-                        ? 'bg-[#8DC25B] border-[#8DC25B]' 
+                      ${category.enabled
+                        ? 'bg-[#7CB342] border-[#7CB342]'
                         : 'border-gray-300 bg-white'
                       }
                     `}>
@@ -235,8 +235,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         >
                           <div className={`
                             w-5 h-5 rounded border flex items-center justify-center mr-3
-                            ${subcategory.enabled 
-                              ? 'bg-[#8DC25B] border-[#8DC25B]' 
+                            ${subcategory.enabled
+                              ? 'bg-[#7CB342] border-[#7CB342]'
                               : 'border-gray-300 bg-white'
                             }
                           `}>
@@ -304,8 +304,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   >
                     <div className={`
                       w-5 h-5 rounded border flex items-center justify-center mr-3
-                      ${category.enabled 
-                        ? 'bg-[#8DC25B] border-[#8DC25B]' 
+                      ${category.enabled
+                        ? 'bg-[#7CB342] border-[#7CB342]'
                         : 'border-gray-300 bg-white'
                       }
                     `}>
@@ -344,8 +344,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         >
                           <div className={`
                             w-5 h-5 rounded border flex items-center justify-center mr-3
-                            ${subcategory.enabled 
-                              ? 'bg-[#8DC25B] border-[#8DC25B]' 
+                            ${subcategory.enabled
+                              ? 'bg-[#7CB342] border-[#7CB342]'
                               : 'border-gray-300 bg-white'
                             }
                           `}>
@@ -372,7 +372,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
           <button
             onClick={saveChanges}
-            className="px-6 py-3 bg-[#8DC25B] border border-[#8DC25B] rounded-lg text-white hover:bg-[#7db14a] transition-colors font-medium"
+            className="px-6 py-3 bg-[#7CB342] border border-[#7CB342] rounded-lg text-white hover:bg-[#6ba337] transition-colors font-medium"
           >
             Save Changes
           </button>

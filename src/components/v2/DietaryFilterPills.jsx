@@ -169,10 +169,10 @@ const FilterPill = ({ label, onRemove }) => {
         pl-3 pr-2.5 py-2
         rounded-full
         font-medium text-sm
-        bg-[#72A8D5] text-white
-        border-2 border-[#72A8D5]
+        bg-[#6AAFE8] text-white
+        border-2 border-[#6AAFE8]
         transition-colors duration-200
-        hover:bg-[#5a96c9] hover:border-[#5a96c9]
+        hover:bg-[#5a9ed6] hover:border-[#5a9ed6]
       "
     >
       <span>{label}</span>

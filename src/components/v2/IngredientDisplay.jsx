@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, Unlock } from 'lucide-react';
+import { X, Lock, Unlock, Sparkles } from 'lucide-react';
 import { TASTE_COLORS } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
@@ -164,12 +164,8 @@ const Ingredient = ({
         }}
         onClick={(e) => {
           e.stopPropagation();
-          if (isMobile) {
-            if (onFocus) onFocus();
-            onHover();
-          } else {
-            onLockToggle();
-          }
+          // Both mobile and desktop: tap/click toggles lock
+          onLockToggle();
         }}
         title={isLocked ? "Click to unlock" : "Click to lock"}
       >
@@ -617,7 +613,7 @@ export const IngredientDisplay = ({
                 letterSpacing: 'normal',
               }}
             >
-              search for ingredients or click Generate
+              search for ingredients or click {isMobile && <Sparkles size={16} strokeWidth={1.5} className="inline-block align-middle mr-0.5" style={{ marginTop: '-2px' }} />}Generate
             </div>
           ) : (
             Array.from({ length: emptySlotCount }).map((_, emptyIndex) => {
@@ -640,7 +636,7 @@ export const IngredientDisplay = ({
         </div>
       </div>
 
-      {/* Mobile action buttons - only in hero mode */}
+      {/* Mobile action buttons - commented out, tap now toggles lock directly
       {isMobile && !isDrawerOpen && focusedInfo && (
         <div
           data-action-buttons
@@ -669,6 +665,7 @@ export const IngredientDisplay = ({
           </button>
         </div>
       )}
+      */}
     </>
   );
 };

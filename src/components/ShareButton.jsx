@@ -26,7 +26,7 @@ const ShareButton = ({ onClick, disabled }) => {
                  transition-colors
                  ${isClicked 
                   ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                  : 'bg-[#72A8D5] text-white hover:bg-[#5B93C0]'} 
+                  : 'bg-[#6AAFE8] text-white hover:bg-[#5A9ED6]'} 
                  disabled:opacity-50 disabled:cursor-not-allowed`}
       aria-label="Share combination"
     >

@@ -565,9 +565,12 @@ export default function FlavorFinderV2() {
         const randomIndex = Math.floor(Math.random() * compatibleIngredients.length);
         const newIngredient = compatibleIngredients[randomIndex];
 
-        // Add the ingredient and increment target count
+        // Add the ingredient
         setSelectedIngredients(prev => [...prev, newIngredient]);
-        setTargetIngredientCount(prev => prev + 1);
+        // Only increment target if we're already at capacity (no empty slots)
+        if (selectedIngredients.length >= targetIngredientCount) {
+          setTargetIngredientCount(prev => prev + 1);
+        }
         return;
       }
     } else {
@@ -581,7 +584,11 @@ export default function FlavorFinderV2() {
         const newIngredient = allAvailable[randomIndex];
 
         setSelectedIngredients(prev => [...prev, newIngredient]);
-        setTargetIngredientCount(prev => prev + 1);
+        // Only increment target if we're already at capacity
+        // (e.g., if target is 1 and we have 0 ingredients, just fill the slot)
+        if (selectedIngredients.length >= targetIngredientCount) {
+          setTargetIngredientCount(prev => prev + 1);
+        }
         return;
       }
     }

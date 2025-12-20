@@ -175,7 +175,7 @@ const DietarySection: React.FC<DietarySectionProps> = ({
               className={
                 'py-3 px-4 text-base rounded-full border-2 transition-all duration-200 text-center font-medium capitalize hover:shadow-sm ' +
                 (isActive
-                  ? 'border-[#72A8D5] bg-[#72A8D5] text-white'
+                  ? 'border-[#6AAFE8] bg-[#6AAFE8] text-white'
                   : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500 hover:bg-gray-50')
               }
               title={toggle.description}

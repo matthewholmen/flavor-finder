@@ -60,7 +60,7 @@ const FilterPanel: React.FC<UnifiedFilterPanelProps> = ({
               className={`
                 px-4 py-3 text-base font-medium border-b-2 transition-colors
                 ${activeTab === tab.id
-                  ? 'border-[#72A8D5] text-[#72A8D5]'
+                  ? 'border-[#6AAFE8] text-[#6AAFE8]'
                   : 'border-transparent text-gray-600 hover:text-gray-700 hover:border-gray-500'
                 }
               `}
