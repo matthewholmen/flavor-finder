@@ -132,6 +132,82 @@ const Ingredient = ({
     </span>
   );
 
+  // Mobile with drawer open and locked: show colored background
+  if (isMobile && isCompact && isLocked) {
+    return (
+      <span
+        data-ingredient
+        className="relative inline items-baseline"
+        style={{ display: 'inline-flex', alignItems: 'center' }}
+      >
+        {showAmpersand && (
+          <span
+            className="font-serif italic transition-all duration-200"
+            style={{
+              color: '#1a1a1a',
+              fontWeight: 400,
+              marginRight: '0.2em',
+            }}
+          >
+            &amp;
+          </span>
+        )}
+        <span
+          style={{
+            backgroundColor: color,
+            padding: '0.05em 0.3em',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.2em',
+          }}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onLockToggle();
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Lock size="0.35em" style={{ color: 'white' }} strokeWidth={2} />
+          </button>
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              onLockToggle();
+            }}
+            style={{
+              fontWeight: 900,
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            {ingredient}
+            {showComma && (
+              <span
+                style={{
+                  color: 'white',
+                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                  fontStyle: 'italic',
+                  fontWeight: 400,
+                }}
+              >
+                ,
+              </span>
+            )}
+          </span>
+        </span>
+      </span>
+    );
+  }
+
   return (
     <span
       data-ingredient
@@ -337,6 +413,8 @@ export const IngredientDisplay = ({
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
+  const [layoutMode, setLayoutMode] = useState(isDrawerOpen ? 'compact' : 'full');
+  const [isVisible, setIsVisible] = useState(true); // For fade in/out animation
   const { isMobile } = useScreenSize();
 
   const validIngredients = ingredients.filter(Boolean);
@@ -353,6 +431,27 @@ export const IngredientDisplay = ({
       flavorMap.get(ingredient)?.has(other)
     );
   };
+
+  // Fade out → change layout → fade in animation
+  useEffect(() => {
+    const targetMode = isDrawerOpen ? 'compact' : 'full';
+    if (layoutMode === targetMode) return;
+
+    // Step 1: Fade out
+    setIsVisible(false);
+
+    // Step 2: After fade out completes, change layout mode
+    const layoutTimer = setTimeout(() => {
+      setLayoutMode(targetMode);
+
+      // Step 3: After a brief moment for layout to settle, fade back in
+      setTimeout(() => {
+        setIsVisible(true);
+      }, 50);
+    }, 150); // Wait for fade out (150ms)
+
+    return () => clearTimeout(layoutTimer);
+  }, [isDrawerOpen, layoutMode]);
 
   // Clear focus when drawer closes
   useEffect(() => {
@@ -430,6 +529,19 @@ export const IngredientDisplay = ({
     const isLastIngredient = displayIndex === validIngredients.length - 1;
     const hasEmptySlots = emptySlotCount > 0;
 
+    // On mobile with drawer closed, show commas but ampersand will be on separate line
+    if (isMobile && layoutMode === 'full') {
+      const isSecondToLast = displayIndex === validIngredients.length - 2;
+      // Show comma on all except last ingredient and second-to-last (which gets ampersand instead)
+      const showComma = !isLastIngredient && !isSecondToLast;
+
+      return {
+        showComma,
+        showAmpersand: false, // Ampersand will be rendered separately
+        isLastIngredient,
+      };
+    }
+
     if (isTwoIngredientSet) {
       return {
         showComma: false,
@@ -454,6 +566,14 @@ export const IngredientDisplay = ({
   const getEmptySlotDisplayInfo = (emptyIndex) => {
     const isLastEmptySlot = emptyIndex === emptySlotCount - 1;
 
+    // On mobile with drawer closed, hide all punctuation (each slot on its own line)
+    if (isMobile && layoutMode === 'full') {
+      return {
+        showComma: false,
+        showAmpersand: false,
+      };
+    }
+
     if (isTwoIngredientSet) {
       return {
         showComma: false,
@@ -467,30 +587,29 @@ export const IngredientDisplay = ({
     };
   };
 
-  // Get font size - changes based on drawer state for proper text reflow
+  // Get font size - changes based on layout mode for proper text reflow
   const getFontSize = () => {
     if (isMobile) {
-      // Mobile: smaller font when drawer is open so text fits in the strip
-      return isDrawerOpen ? '1.25rem' : '3rem'; // 20px when open, 48px when closed
+      // Mobile: smaller font when in compact mode so text fits in the strip
+      return layoutMode === 'compact' ? '1.25rem' : '3rem'; // 20px when open, 48px when closed
     }
     // Desktop: use clamp for responsive sizing
-    return isDrawerOpen
+    return layoutMode === 'compact'
       ? 'clamp(1.5rem, 4vw, 3rem)'
       : 'clamp(2.25rem, 6vw, 6rem)';
   };
 
   // Calculate vertical position
   // Mobile with drawer open: fixed strip below header
-  // Mobile with drawer closed: centered in viewport
+  // Mobile with drawer closed: aligned to top below header
   // Desktop: centered between header and drawer (or viewport center when closed)
   const getTopPosition = () => {
     if (isMobile) {
-      // Mobile: fixed position below header when drawer is open
-      // This creates a dedicated strip for ingredients
-      return isDrawerOpen ? '56px' : '50%';
+      // Mobile: fixed position below header in both compact and full modes
+      return '80px'; // Aligned to top in both states
     }
     // Desktop behavior unchanged
-    if (isDrawerOpen) {
+    if (layoutMode === 'compact') {
       return 'calc(80px + (50vh - 80px) / 2)';
     }
     return '50%';
@@ -498,10 +617,10 @@ export const IngredientDisplay = ({
 
   // Get transform based on state
   const getTransform = () => {
-    if (isMobile && isDrawerOpen) {
-      return 'translateY(0)'; // No transform needed when fixed at top
+    if (isMobile) {
+      return 'translateY(0)'; // No transform on mobile - align to top
     }
-    return 'translateY(-50%)'; // Center vertically
+    return 'translateY(-50%)'; // Center vertically on desktop
   };
 
   // Handle tap on the ingredient strip background to close drawer
@@ -517,22 +636,19 @@ export const IngredientDisplay = ({
       <div
         className={`
           fixed left-0 right-0 z-50
-          flex items-center justify-center text-center
-          ${isDrawerOpen && isMobile ? 'cursor-pointer' : ''}
+          flex text-center
+          ${layoutMode === 'compact' && isMobile ? 'cursor-pointer' : ''}
         `}
         style={{
-          padding: isDrawerOpen
+          padding: layoutMode === 'compact'
             ? (isMobile ? '0.75rem 1rem' : '0.75rem 1rem')
             : (isMobile ? '1rem' : '0 3rem'),
           top: getTopPosition(),
           transform: getTransform(),
-          // On mobile: delay animation when opening so drawer slides up first, then ingredients animate
-          // No delay when closing for snappy feel
-          transition: isMobile
-            ? (isDrawerOpen
-              ? 'all 300ms ease-out 150ms' // 150ms delay when opening
-              : 'all 300ms ease-out')       // no delay when closing
-            : 'all 300ms ease-out',
+          alignItems: isMobile && layoutMode === 'full' ? 'flex-start' : 'center',
+          justifyContent: isMobile && layoutMode === 'full' ? 'flex-start' : 'center',
+          opacity: isVisible ? 1 : 0,
+          transition: 'opacity 150ms ease-out',
         }}
         onClick={handleStripClick}
       >
@@ -541,21 +657,16 @@ export const IngredientDisplay = ({
             font-black
             tracking-tight
             ${isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]'}
-            ${isDrawerOpen ? 'pointer-events-auto' : ''}
+            ${layoutMode === 'compact' ? 'pointer-events-auto' : ''}
           `}
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
             fontSize: getFontSize(),
-            lineHeight: isMobile ? 1.3 : 1.15,
-            // Match the delay from the container for synchronized animation
-            transition: isMobile
-              ? (isDrawerOpen
-                ? 'all 300ms ease-out 150ms'
-                : 'all 300ms ease-out')
-              : 'all 300ms ease-out',
+            lineHeight: isMobile && layoutMode === 'full' ? 1.04 : (isMobile ? 1.3 : 1.15),
+            textAlign: isMobile && layoutMode === 'full' ? 'left' : 'center',
             display: 'flex',
             flexWrap: 'wrap',
-            justifyContent: 'center',
+            justifyContent: isMobile && layoutMode === 'full' ? 'flex-start' : 'center',
             alignItems: 'baseline',
             gap: isMobile ? '0 0.2em' : '0 0.15em',
           }}
@@ -576,7 +687,7 @@ export const IngredientDisplay = ({
             const color = getIngredientColor(ingredient, ingredientProfiles);
             const { showComma, showAmpersand, isLastIngredient } = getIngredientDisplayInfo(displayIndex);
 
-            return (
+            const ingredientElement = (
               <Ingredient
                 key={`${ingredient}-${displayIndex}`}
                 ingredient={ingredient}
@@ -594,9 +705,118 @@ export const IngredientDisplay = ({
                 showComma={showComma}
                 showAmpersand={showAmpersand}
                 isMobile={isMobile}
-                isCompact={isDrawerOpen}
+                isCompact={layoutMode === 'compact'}
               />
             );
+
+            // On mobile with drawer closed, wrap each ingredient in a full-width container
+            if (isMobile && layoutMode === 'full') {
+              const isSecondToLast = displayIndex === validIngredients.length - 2;
+              const shouldShowAmpersandAfter = isSecondToLast && validIngredients.length >= 2 && emptySlotCount === 0;
+              const isLocked = lockedIngredients.has(actualIndex);
+
+              return (
+                <React.Fragment key={`${ingredient}-${displayIndex}`}>
+                  <div style={{ width: '100%', position: 'relative' }}>
+                    {isLocked ? (
+                      // Locked ingredient with colored background
+                      <div
+                        style={{
+                          backgroundColor: color,
+                          padding: '0.15em 0.4em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          position: 'relative',
+                        }}
+                      >
+                        {/* Lock icon on the left */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', flex: 1 }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onLockToggle(actualIndex);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: 0,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Lock size="0.5em" style={{ color: 'white' }} strokeWidth={2} />
+                          </button>
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onLockToggle(actualIndex);
+                            }}
+                            style={{
+                              fontWeight: 900,
+                              color: 'white',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {ingredient}
+                            {showComma && (
+                              <span
+                                style={{
+                                  color: 'white',
+                                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                                  fontStyle: 'italic',
+                                  fontWeight: 400,
+                                }}
+                              >
+                                ,
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                        {/* Delete button on the right */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemove(actualIndex);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <X size="0.5em" style={{ color: 'white' }} strokeWidth={2} />
+                        </button>
+                      </div>
+                    ) : (
+                      // Unlocked ingredient (normal display)
+                      ingredientElement
+                    )}
+                  </div>
+                  {shouldShowAmpersandAfter && (
+                    <div style={{ width: '100%' }}>
+                      <span
+                        className="font-serif italic"
+                        style={{
+                          color: '#1a1a1a',
+                          fontWeight: 400,
+                        }}
+                      >
+                        &
+                      </span>
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            }
+
+            return ingredientElement;
           })}
 
           {/* Single empty slot: show clickable tip text instead of underscore */}
@@ -619,7 +839,7 @@ export const IngredientDisplay = ({
             Array.from({ length: emptySlotCount }).map((_, emptyIndex) => {
               const { showAmpersand, showComma } = getEmptySlotDisplayInfo(emptyIndex);
 
-              return (
+              const emptySlotElement = (
                 <EmptySlot
                   key={`empty-${emptyIndex}`}
                   showAmpersand={showAmpersand}
@@ -627,10 +847,21 @@ export const IngredientDisplay = ({
                   isFaded={hasHoveredIngredient}
                   onClick={onEmptySlotClick}
                   isMobile={isMobile}
-                  isCompact={isDrawerOpen}
+                  isCompact={layoutMode === 'compact'}
                   isSingleSlot={false}
                 />
               );
+
+              // On mobile with drawer closed, wrap each empty slot in a full-width container
+              if (isMobile && layoutMode === 'full') {
+                return (
+                  <div key={`empty-${emptyIndex}`} style={{ width: '100%' }}>
+                    {emptySlotElement}
+                  </div>
+                );
+              }
+
+              return emptySlotElement;
             })
           )}
         </div>

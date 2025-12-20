@@ -562,7 +562,7 @@ export const IngredientDrawer = ({
           `}
           style={{
             bottom: '68px', // Height of bottom bar (py-3 = 24px + h-12 button = 48px + border)
-            top: isOpen ? '120px' : '100%', // Below header (56px) + ingredient strip (~64px)
+            top: isOpen ? '140px' : '100%', // Below header (56px) + ingredient strip (~84px)
             transition: 'top 300ms ease-out',
           }}
           onTouchStart={onTouchStart}
@@ -570,131 +570,62 @@ export const IngredientDrawer = ({
           onTouchEnd={onTouchEnd}
         >
             <div className="flex flex-col h-full">
-              {/* Sort Tabs (Mobile) */}
-              <div className="flex gap-4 px-4 pt-3 pb-2 flex-shrink-0 overflow-x-auto border-b border-gray-100" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {[
-                  { key: 'alphabetical', label: 'Alphabetical' },
-                  { key: 'category', label: 'Category' },
-                  { key: 'taste', label: 'Taste' },
-                  { key: 'popularity', label: 'Popularity' },
-                ].map(({ key, label }) => (
+              {/* Search Bar with Filters Toggle - at the top */}
+              <div className="flex-shrink-0 px-4 pt-3 pb-2 bg-white border-b border-gray-100">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search
+                      size={18}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => onSearchChange(e.target.value)}
+                      placeholder="Search ingredients..."
+                      className="
+                        w-full pl-10 pr-10 py-3
+                        rounded-xl border border-gray-200
+                        focus:border-gray-400 focus:outline-none
+                        text-base bg-gray-50
+                      "
+                      style={{ fontSize: '16px' }} // Prevents iOS zoom
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => onSearchChange('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                      >
+                        <X size={18} className="text-gray-400" />
+                      </button>
+                    )}
+                  </div>
+                  {/* Filters Toggle Button */}
                   <button
-                    key={key}
-                    onClick={() => setSortMode(key)}
+                    onClick={() => setIsMobileFiltersVisible(!isMobileFiltersVisible)}
+                    title={isMobileFiltersVisible ? "Hide filters" : "Show filters"}
                     className={`
-                      text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0
-                      ${sortMode === key
-                        ? 'text-gray-900'
-                        : 'text-gray-400'
+                      p-3
+                      rounded-xl
+                      border-2
+                      transition-all
+                      min-h-[44px]
+                      ${isMobileFiltersVisible || activeFilterCount > 0
+                        ? 'text-gray-800 border-gray-800 bg-gray-100'
+                        : 'text-gray-400 border-gray-300'
                       }
                     `}
                   >
-                    {label}
+                    <Filter size={18} />
                   </button>
-                ))}
-              </div>
-
-              {/* Suggested Ingredients Grid - fills remaining space */}
-              <div data-ingredients-list className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
-                <div className="flex flex-wrap gap-2.5">
-                  {sortedSuggestionsWithDividers.map((item) => {
-                    if (item.type === 'divider') {
-                      return (
-                        <div
-                          key={item.value}
-                          className="w-full flex items-center gap-2 py-2 first:pt-0"
-                        >
-                          <span
-                            className="text-sm font-semibold capitalize"
-                            style={{ color: item.color || '#6b7280' }}
-                          >
-                            {item.label}
-                          </span>
-                          <div className="flex-1 h-px bg-gray-200" />
-                        </div>
-                      );
-                    }
-
-                    if (item.type === 'partial-button') {
-                      return (
-                        <button
-                          key="partial-button"
-                          onClick={onTogglePartialMatches}
-                          title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
-                          className={`
-                            w-full
-                            px-5 py-3
-                            rounded-full font-semibold text-base
-                            transition-all duration-150
-                            min-h-[48px]
-                            flex items-center justify-center gap-2
-                            border-2 border-dashed
-                            ${showPartialMatches
-                              ? 'text-gray-800 border-[#FFC233] bg-amber-50'
-                              : 'text-gray-400 border-gray-300'
-                            }
-                          `}
-                        >
-                          <Zap size={18} />
-                          <span>Show Partial Matches</span>
-                        </button>
-                      );
-                    }
-
-                    const ingredient = item.value;
-                    const isSelected = selectedIngredients.includes(ingredient);
-                    const color = getIngredientColor(ingredient);
-                    const partial = isPartialMatch(ingredient);
-
-                    return (
-                      <button
-                        key={ingredient}
-                        onClick={() => {
-                          if (!isSelected) {
-                            onIngredientSelect(ingredient);
-                          }
-                        }}
-                        disabled={isSelected}
-                        className={`
-                          px-5 py-3
-                          rounded-full font-semibold text-base
-                          transition-all duration-150
-                          min-h-[48px]
-                          ${isSelected
-                            ? 'opacity-30 cursor-not-allowed'
-                            : 'active:scale-95'
-                          }
-                        `}
-                        style={{
-                          color: isSelected ? '#d1d5db' : '#1f2937',
-                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
-                          backgroundColor: 'white',
-                        }}
-                      >
-                        {ingredient}
-                      </button>
-                    );
-                  })}
                 </div>
-
-                {/* Empty States */}
-                {suggestions.length === 0 && searchTerm && (
-                  <div className="text-center py-8 text-gray-400">
-                    No compatible ingredients found for "{searchTerm}"
-                  </div>
-                )}
-
-                {suggestions.length === 0 && !searchTerm && (
-                  <div className="text-center py-8 text-gray-400">
-                    No more compatible ingredients available
-                  </div>
-                )}
               </div>
 
-              {/* Collapsible Filter Section */}
+              {/* Collapsible Filter Section - appears below search bar */}
               <div
                 className={`
-                  flex-shrink-0 border-t border-b border-gray-200
+                  flex-shrink-0 border-b border-gray-200
                   overflow-hidden transition-all duration-300 ease-out
                 `}
                 style={{
@@ -835,56 +766,125 @@ export const IngredientDrawer = ({
                 )}
               </div>
 
-              {/* Search Bar with Filters Toggle */}
-              <div className="flex-shrink-0 px-4 pt-2 pb-3">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Search
-                      size={18}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => onSearchChange(e.target.value)}
-                      placeholder="Search ingredients..."
-                      className="
-                        w-full pl-10 pr-10 py-3
-                        rounded-xl border border-gray-200
-                        focus:border-gray-400 focus:outline-none
-                        text-base bg-gray-50
-                      "
-                      style={{ fontSize: '16px' }} // Prevents iOS zoom
-                    />
-                    {searchTerm && (
-                      <button
-                        onClick={() => onSearchChange('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                      >
-                        <X size={18} className="text-gray-400" />
-                      </button>
-                    )}
-                  </div>
-                  {/* Filters Toggle Button */}
+              {/* Sort Tabs (Mobile) */}
+              <div className="flex gap-4 px-4 pt-3 pb-2 flex-shrink-0 overflow-x-auto border-b border-gray-100" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {[
+                  { key: 'alphabetical', label: 'Alphabetical' },
+                  { key: 'category', label: 'Category' },
+                  { key: 'taste', label: 'Taste' },
+                  { key: 'popularity', label: 'Popularity' },
+                ].map(({ key, label }) => (
                   <button
-                    onClick={() => setIsMobileFiltersVisible(!isMobileFiltersVisible)}
-                    title={isMobileFiltersVisible ? "Hide filters" : "Show filters"}
+                    key={key}
+                    onClick={() => setSortMode(key)}
                     className={`
-                      p-3
-                      rounded-xl
-                      border-2
-                      transition-all
-                      min-h-[44px]
-                      ${isMobileFiltersVisible || activeFilterCount > 0
-                        ? 'text-gray-800 border-gray-800 bg-gray-100'
-                        : 'text-gray-400 border-gray-300'
+                      text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0
+                      ${sortMode === key
+                        ? 'text-gray-900'
+                        : 'text-gray-400'
                       }
                     `}
                   >
-                    <Filter size={18} />
+                    {label}
                   </button>
+                ))}
+              </div>
+
+              {/* Suggested Ingredients Grid - fills remaining space */}
+              <div data-ingredients-list className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
+                <div className="flex flex-wrap gap-2.5">
+                  {sortedSuggestionsWithDividers.map((item) => {
+                    if (item.type === 'divider') {
+                      return (
+                        <div
+                          key={item.value}
+                          className="w-full flex items-center gap-2 py-2 first:pt-0"
+                        >
+                          <span
+                            className="text-sm font-semibold capitalize"
+                            style={{ color: item.color || '#6b7280' }}
+                          >
+                            {item.label}
+                          </span>
+                          <div className="flex-1 h-px bg-gray-200" />
+                        </div>
+                      );
+                    }
+
+                    if (item.type === 'partial-button') {
+                      return (
+                        <button
+                          key="partial-button"
+                          onClick={onTogglePartialMatches}
+                          title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
+                          className={`
+                            w-full
+                            px-5 py-3
+                            rounded-full font-semibold text-base
+                            transition-all duration-150
+                            min-h-[48px]
+                            flex items-center justify-center gap-2
+                            border-2 border-dashed
+                            ${showPartialMatches
+                              ? 'text-gray-800 border-[#FFC233] bg-amber-50'
+                              : 'text-gray-400 border-gray-300'
+                            }
+                          `}
+                        >
+                          <Zap size={18} />
+                          <span>Show Partial Matches</span>
+                        </button>
+                      );
+                    }
+
+                    const ingredient = item.value;
+                    const isSelected = selectedIngredients.includes(ingredient);
+                    const color = getIngredientColor(ingredient);
+                    const partial = isPartialMatch(ingredient);
+
+                    return (
+                      <button
+                        key={ingredient}
+                        onClick={() => {
+                          if (!isSelected) {
+                            onIngredientSelect(ingredient);
+                          }
+                        }}
+                        disabled={isSelected}
+                        className={`
+                          px-5 py-3
+                          rounded-full font-semibold text-base
+                          transition-all duration-150
+                          min-h-[48px]
+                          ${isSelected
+                            ? 'opacity-30 cursor-not-allowed'
+                            : 'active:scale-95'
+                          }
+                        `}
+                        style={{
+                          color: isSelected ? '#d1d5db' : '#1f2937',
+                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
+                          backgroundColor: 'white',
+                        }}
+                      >
+                        {ingredient}
+                      </button>
+                    );
+                  })}
                 </div>
+
+                {/* Empty States */}
+                {suggestions.length === 0 && searchTerm && (
+                  <div className="text-center py-8 text-gray-400">
+                    No compatible ingredients found for "{searchTerm}"
+                  </div>
+                )}
+
+                {suggestions.length === 0 && !searchTerm && (
+                  <div className="text-center py-8 text-gray-400">
+                    No more compatible ingredients available
+                  </div>
+                )}
               </div>
             </div>
           </div>

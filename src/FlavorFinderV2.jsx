@@ -486,7 +486,7 @@ export default function FlavorFinderV2() {
       next.splice(index, 1);
       return next;
     });
-    
+
     // Also remove lock if exists and adjust indices
     setLockedIngredients(prev => {
       const next = new Set(prev);
@@ -498,6 +498,16 @@ export default function FlavorFinderV2() {
         else adjusted.add(i);
       });
       return adjusted;
+    });
+
+    // Reduce target count if it's greater than the new ingredient count
+    setTargetIngredientCount(prev => {
+      const newIngredientCount = selectedIngredients.length - 1;
+      // Only reduce if current target is greater than new ingredient count
+      if (prev > newIngredientCount) {
+        return Math.max(1, newIngredientCount);
+      }
+      return prev;
     });
   };
 
@@ -615,6 +625,9 @@ export default function FlavorFinderV2() {
     // Otherwise, find and remove the last unlocked ingredient
     for (let i = selectedIngredients.length - 1; i >= 0; i--) {
       if (!lockedIngredients.has(i)) {
+        // Calculate what the new ingredient count will be after removal
+        const newIngredientCount = selectedIngredients.length - 1;
+
         // Inline removal logic to avoid double history save from handleRemove
         setSelectedIngredients(prev => {
           const next = [...prev];
@@ -635,8 +648,9 @@ export default function FlavorFinderV2() {
           return adjusted;
         });
 
-        // Keep target at 1 minimum so there's always an empty slot for Generate
-        setTargetIngredientCount(Math.max(1, minTarget));
+        // Set target to the new ingredient count (maintaining the count after removal)
+        // This ensures Generate will maintain the same number of ingredients
+        setTargetIngredientCount(Math.max(1, newIngredientCount));
         return;
       }
     }
