@@ -26,28 +26,33 @@ src/
 ├── FlavorFinder.js           # Legacy v1 component
 ├── FlavorFinderV2.jsx        # Current main component (default)
 ├── components/
-│   ├── v2/                   # V2 UI components
-│   │   ├── MinimalHeader.jsx
-│   │   ├── IngredientDisplay.jsx   # Unified ingredient display (hero + compact)
-│   │   ├── IngredientDrawer.jsx
-│   │   ├── DietaryFilterPills.jsx
-│   │   ├── EmptySlotIndicator.jsx
-│   │   ├── HeroIngredient.jsx      # Deprecated - use IngredientDisplay
-│   │   ├── HeroIngredientDisplay.jsx # Deprecated - use IngredientDisplay
-│   │   ├── CompactIngredientDisplay.jsx # Deprecated - use IngredientDisplay
-│   │   └── ...
-│   └── mobile/               # Mobile-specific components
+│   └── v2/                   # V2 UI components
+│       ├── MinimalHeader.jsx
+│       ├── IngredientDisplay.jsx   # Unified ingredient display (hero + compact)
+│       ├── IngredientDrawer.jsx
+│       ├── Sidebar.jsx             # Search/filter sidebar panel
+│       ├── DietaryFilterPills.jsx
+│       ├── MobileBottomBar.jsx
+│       ├── EmptySlotIndicator.jsx
+│       ├── HeroIngredient.jsx      # Deprecated - use IngredientDisplay
+│       ├── HeroIngredientDisplay.jsx # Deprecated - use IngredientDisplay
+│       └── CompactIngredientDisplay.jsx # Deprecated - use IngredientDisplay
 ├── data/
 │   ├── flavorPairings.ts     # Core ingredient pairing data
 │   ├── experimentalPairings.ts
 │   └── ingredientProfiles.ts # Ingredient metadata (category, taste profiles)
 ├── hooks/
-│   └── useScreenSize.ts      # Responsive breakpoint hook
+│   ├── useScreenSize.ts      # Responsive breakpoint hook
+│   └── useSavedCombinations.ts # Saved ingredient combinations
 └── utils/
     ├── searchUtils.ts        # Ingredient filtering/search
+    ├── search.ts             # Search utilities
+    ├── categorySearch.ts     # Category-based search
     ├── compatibility.ts      # Pairing compatibility logic
     ├── colors.ts             # Color utilities (includes TASTE_COLORS)
-    └── ...
+    ├── sorting.ts            # Sorting utilities
+    ├── tasteAnalysis.ts      # Taste profile analysis
+    └── tasteSuggestions.ts   # Taste-based suggestions
 ```
 
 ## Key Concepts

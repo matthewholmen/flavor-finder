@@ -1,7 +1,124 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Lock, Unlock, Sparkles } from 'lucide-react';
 import { TASTE_COLORS } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
+
+// Custom hook for swipe-to-delete gesture
+const useSwipeToDelete = ({ onDelete, enabled = true }) => {
+  const [swipeX, setSwipeX] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const touchStartRef = useRef({ x: 0, y: 0 });
+  const isSwipingRef = useRef(false);
+
+  const SWIPE_THRESHOLD = 80; // pixels to trigger delete
+  const MAX_SWIPE = 120; // max swipe distance
+
+  const handleTouchStart = (e) => {
+    if (!enabled) return;
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    isSwipingRef.current = false;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!enabled) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+
+    // Only register as swipe if horizontal movement is greater than vertical
+    if (!isSwipingRef.current && Math.abs(deltaX) > 10) {
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        isSwipingRef.current = true;
+      }
+    }
+
+    if (isSwipingRef.current && deltaX < 0) {
+      // Swiping left - limit the swipe distance with resistance
+      const resistance = 0.6;
+      const constrainedX = Math.max(-MAX_SWIPE, deltaX * resistance);
+      setSwipeX(constrainedX);
+      e.preventDefault(); // Prevent scrolling while swiping
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!enabled) return;
+
+    if (swipeX < -SWIPE_THRESHOLD) {
+      // Trigger delete - animate off screen first
+      setIsDeleting(true);
+      setSwipeX(-300); // Slide fully off screen
+      setTimeout(() => {
+        onDelete();
+        setSwipeX(0);
+        setIsDeleting(false);
+      }, 200);
+    } else {
+      // Snap back
+      setSwipeX(0);
+    }
+    isSwipingRef.current = false;
+  };
+
+  return {
+    swipeX,
+    isDeleting,
+    handlers: {
+      onTouchStart: handleTouchStart,
+      onTouchMove: handleTouchMove,
+      onTouchEnd: handleTouchEnd,
+    },
+  };
+};
+
+// Swipeable row wrapper for mobile ingredients
+const SwipeableRow = ({ children, onDelete, enabled = true }) => {
+  const { swipeX, isDeleting, handlers } = useSwipeToDelete({ onDelete, enabled });
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        position: 'relative',
+        overflowX: 'clip',
+        overflowY: 'visible',
+      }}
+      {...handlers}
+    >
+      <div
+        style={{
+          transform: `translateX(${swipeX}px)`,
+          transition: isDeleting ? 'transform 200ms ease-out' : (swipeX === 0 ? 'transform 200ms ease-out' : 'none'),
+          opacity: isDeleting ? 0 : 1,
+        }}
+      >
+        {children}
+      </div>
+      {/* Delete indicator that shows behind */}
+      {swipeX < -10 && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            paddingRight: '1rem',
+            color: '#ef4444',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            opacity: Math.min(1, Math.abs(swipeX) / 80),
+          }}
+        >
+          <X size={24} strokeWidth={2} />
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Custom Lock icon with white-filled body
 const FilledLock = ({ color, size = '100%' }) => (
@@ -656,7 +773,7 @@ export const IngredientDisplay = ({
           className={`
             font-black
             tracking-tight
-            ${isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]'}
+            ${isMobile && layoutMode === 'full' ? 'w-[90vw]' : (isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]')}
             ${layoutMode === 'compact' ? 'pointer-events-auto' : ''}
           `}
           style={{
@@ -709,7 +826,7 @@ export const IngredientDisplay = ({
               />
             );
 
-            // On mobile with drawer closed, wrap each ingredient in a full-width container
+            // On mobile with drawer closed, wrap each ingredient in a full-width swipeable container
             if (isMobile && layoutMode === 'full') {
               const isSecondToLast = displayIndex === validIngredients.length - 2;
               const shouldShowAmpersandAfter = isSecondToLast && validIngredients.length >= 2 && emptySlotCount === 0;
@@ -717,88 +834,54 @@ export const IngredientDisplay = ({
 
               return (
                 <React.Fragment key={`${ingredient}-${displayIndex}`}>
-                  <div style={{ width: '100%', position: 'relative' }}>
-                    {isLocked ? (
-                      // Locked ingredient with colored background
+                  <SwipeableRow onDelete={() => onRemove(actualIndex)}>
+                    <div style={{
+                      paddingLeft: '0.1em',
+                      position: 'relative',
+                      width: '100%',
+                      zIndex: 10 - displayIndex, // Higher z-index for earlier ingredients (first = 10, second = 9, etc.)
+                    }}>
+                      {/* Background rectangle - always rendered, animated via scaleX */}
                       <div
                         style={{
+                          position: 'absolute',
+                          left: '-0.1em',
+                          right: 0,
+                          top: '0.12em',
+                          bottom: '-0.08em',
                           backgroundColor: color,
-                          padding: '0.15em 0.4em',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          position: 'relative',
+                          transformOrigin: 'left center',
+                          transform: isLocked ? 'scaleX(1)' : 'scaleX(0)',
+                          transition: 'transform 250ms ease-out',
                         }}
-                      >
-                        {/* Lock icon on the left */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', flex: 1 }}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onLockToggle(actualIndex);
-                            }}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              padding: 0,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              flexShrink: 0,
-                            }}
-                          >
-                            <Lock size="0.5em" style={{ color: 'white' }} strokeWidth={2} />
-                          </button>
-                          <span
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onLockToggle(actualIndex);
-                            }}
-                            style={{
-                              fontWeight: 900,
-                              color: 'white',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {ingredient}
-                            {showComma && (
-                              <span
-                                style={{
-                                  color: 'white',
-                                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
-                                  fontStyle: 'italic',
-                                  fontWeight: 400,
-                                }}
-                              >
-                                ,
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                        {/* Delete button on the right */}
-                        <button
+                      />
+                      {isLocked ? (
+                        // Locked ingredient with white text
+                        <span
                           onClick={(e) => {
                             e.stopPropagation();
-                            onRemove(actualIndex);
+                            onLockToggle(actualIndex);
                           }}
                           style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: 0,
+                            position: 'relative',
+                            fontWeight: 900,
+                            color: 'white',
                             cursor: 'pointer',
-                            display: 'flex',
+                            display: 'inline-flex',
                             alignItems: 'center',
-                            flexShrink: 0,
+                            gap: '0.25em',
+                            paddingRight: '0.1em',
                           }}
                         >
-                          <X size="0.5em" style={{ color: 'white' }} strokeWidth={2} />
-                        </button>
-                      </div>
-                    ) : (
-                      // Unlocked ingredient (normal display)
-                      ingredientElement
-                    )}
-                  </div>
+                          {ingredient}
+                          <Lock size="0.45em" style={{ color: 'white', flexShrink: 0 }} strokeWidth={2.5} />
+                        </span>
+                      ) : (
+                        // Unlocked ingredient (normal display)
+                        ingredientElement
+                      )}
+                    </div>
+                  </SwipeableRow>
                   {shouldShowAmpersandAfter && (
                     <div style={{ width: '100%' }}>
                       <span
