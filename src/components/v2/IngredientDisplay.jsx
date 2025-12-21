@@ -73,7 +73,7 @@ const useSwipeToDelete = ({ onDelete, enabled = true }) => {
 };
 
 // Swipeable row wrapper for mobile ingredients
-const SwipeableRow = ({ children, onDelete, enabled = true }) => {
+const SwipeableRow = ({ children, onDelete, enabled = true, isLocked = false }) => {
   const { swipeX, isDeleting, handlers } = useSwipeToDelete({ onDelete, enabled });
 
   return (
@@ -95,7 +95,7 @@ const SwipeableRow = ({ children, onDelete, enabled = true }) => {
       >
         {children}
       </div>
-      {/* Delete indicator that shows behind */}
+      {/* Delete indicator - fades in when swiping, positioned below content */}
       {swipeX < -10 && (
         <div
           style={{
@@ -111,6 +111,7 @@ const SwipeableRow = ({ children, onDelete, enabled = true }) => {
             fontWeight: 600,
             fontSize: '0.875rem',
             opacity: Math.min(1, Math.abs(swipeX) / 80),
+            zIndex: -1, // Behind the swipeable content (below colored rectangle)
           }}
         >
           <X size={24} strokeWidth={2} />
@@ -717,13 +718,20 @@ export const IngredientDisplay = ({
   };
 
   // Calculate vertical position
-  // Mobile with drawer open: fixed strip below header
+  // Mobile with drawer open: centered between header and drawer top, skewing slightly up
   // Mobile with drawer closed: aligned to top below header
   // Desktop: centered between header and drawer (or viewport center when closed)
   const getTopPosition = () => {
     if (isMobile) {
-      // Mobile: fixed position below header in both compact and full modes
-      return '80px'; // Aligned to top in both states
+      if (layoutMode === 'compact') {
+        // Drawer is open - center between header (56px) and drawer top (140px)
+        // Available space: 140px - 56px = 84px
+        // True center: 56px + 42px = 98px
+        // Skew slightly up: use 45% of the space instead of 50%
+        return 'calc(56px + (140px - 56px) * 0.45)';
+      }
+      // Drawer closed - aligned to top below header
+      return '80px';
     }
     // Desktop behavior unchanged
     if (layoutMode === 'compact') {
@@ -735,7 +743,11 @@ export const IngredientDisplay = ({
   // Get transform based on state
   const getTransform = () => {
     if (isMobile) {
-      return 'translateY(0)'; // No transform on mobile - align to top
+      if (layoutMode === 'compact') {
+        // Center vertically around the calculated top position
+        return 'translateY(-50%)';
+      }
+      return 'translateY(0)'; // No transform when drawer closed - align to top
     }
     return 'translateY(-50%)'; // Center vertically on desktop
   };
@@ -758,7 +770,7 @@ export const IngredientDisplay = ({
         `}
         style={{
           padding: layoutMode === 'compact'
-            ? (isMobile ? '0.75rem 1rem' : '0.75rem 1rem')
+            ? (isMobile ? '0.75rem 1.5rem' : '0.75rem 1rem')
             : (isMobile ? '1rem' : '0 3rem'),
           top: getTopPosition(),
           transform: getTransform(),
@@ -834,7 +846,7 @@ export const IngredientDisplay = ({
 
               return (
                 <React.Fragment key={`${ingredient}-${displayIndex}`}>
-                  <SwipeableRow onDelete={() => onRemove(actualIndex)}>
+                  <SwipeableRow onDelete={() => onRemove(actualIndex)} isLocked={isLocked}>
                     <div style={{
                       paddingLeft: '0.1em',
                       position: 'relative',
@@ -847,8 +859,8 @@ export const IngredientDisplay = ({
                           position: 'absolute',
                           left: '-0.1em',
                           right: 0,
-                          top: '0.12em',
-                          bottom: '-0.08em',
+                          top: '0.05em',
+                          bottom: '0em',
                           backgroundColor: color,
                           transformOrigin: 'left center',
                           transform: isLocked ? 'scaleX(1)' : 'scaleX(0)',
@@ -867,14 +879,14 @@ export const IngredientDisplay = ({
                             fontWeight: 900,
                             color: 'white',
                             cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.25em',
+                            display: 'inline',
                             paddingRight: '0.1em',
                           }}
                         >
                           {ingredient}
-                          <Lock size="0.45em" style={{ color: 'white', flexShrink: 0 }} strokeWidth={2.5} />
+                          <span className="inline-flex items-center whitespace-nowrap" style={{ marginLeft: '0.2em', verticalAlign: 'baseline' }}>
+                            <Lock size="0.45em" style={{ color: 'white', flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
+                          </span>
                         </span>
                       ) : (
                         // Unlocked ingredient (normal display)
