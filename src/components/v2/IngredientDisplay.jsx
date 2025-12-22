@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Lock, Unlock, Sparkles } from 'lucide-react';
-import { TASTE_COLORS } from '../../utils/colors.ts';
+import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Custom hook for swipe-to-delete gesture
 const useSwipeToDelete = ({ onDelete, enabled = true }) => {
@@ -160,12 +161,12 @@ const CustomUnlock = ({ color, size = '100%' }) => (
 );
 
 // Get dominant taste color for ingredient
-const getIngredientColor = (ingredient, ingredientProfiles) => {
+const getIngredientColor = (ingredient, ingredientProfiles, isHighContrast, isDarkMode) => {
   const profile = ingredientProfiles.find(
     p => p.name.toLowerCase() === ingredient.toLowerCase()
   );
 
-  if (!profile?.flavorProfile) return '#374151';
+  if (!profile?.flavorProfile) return getIngredientColorWithContrast('#374151', isHighContrast, isDarkMode);
 
   let dominantTaste = 'sweet';
   let maxValue = -1;
@@ -177,7 +178,8 @@ const getIngredientColor = (ingredient, ingredientProfiles) => {
     }
   });
 
-  return maxValue > 0 ? (TASTE_COLORS[dominantTaste] || '#374151') : '#374151';
+  const baseColor = maxValue > 0 ? (TASTE_COLORS[dominantTaste] || '#374151') : '#374151';
+  return getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode);
 };
 
 // Single Ingredient component - handles both hero and compact modes
@@ -280,6 +282,7 @@ const Ingredient = ({
         >
           <button
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onLockToggle();
             }}
@@ -297,6 +300,7 @@ const Ingredient = ({
           </button>
           <span
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onLockToggle();
             }}
@@ -356,6 +360,7 @@ const Ingredient = ({
           textUnderlineOffset: '0.08em',
         }}
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           // Both mobile and desktop: tap/click toggles lock
           onLockToggle();
@@ -537,6 +542,7 @@ export const IngredientDisplay = ({
   const [layoutMode, setLayoutMode] = useState(isDrawerOpen ? 'compact' : 'full');
   const [isVisible, setIsVisible] = useState(true); // For fade in/out animation
   const { isMobile } = useScreenSize();
+  const { isHighContrast, isDarkMode } = useTheme(); // Force re-render when high contrast changes
 
   const validIngredients = ingredients.filter(Boolean);
   const emptySlotCount = maxSlots - validIngredients.length;
@@ -755,21 +761,12 @@ export const IngredientDisplay = ({
     return 'translateY(-50%)'; // Center vertically on desktop
   };
 
-  // Handle tap on the ingredient strip background to close drawer
-  const handleStripClick = (e) => {
-    // Only close if clicking the background, not the ingredients themselves
-    if (isMobile && isDrawerOpen && e.target === e.currentTarget && onCloseDrawer) {
-      onCloseDrawer();
-    }
-  };
-
   return (
     <>
       <div
         className={`
           fixed left-0 right-0 z-50
           flex text-center
-          ${layoutMode === 'compact' && isMobile ? 'cursor-pointer' : ''}
         `}
         style={{
           padding: layoutMode === 'compact'
@@ -781,15 +778,15 @@ export const IngredientDisplay = ({
           justifyContent: isMobile && layoutMode === 'full' ? 'flex-start' : 'center',
           opacity: isVisible ? 1 : 0,
           transition: 'opacity 150ms ease-out',
+          pointerEvents: 'none',
         }}
-        onClick={handleStripClick}
       >
         <div
           className={`
             font-black
             tracking-tight
             ${isMobile && layoutMode === 'full' ? 'w-[90vw]' : (isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]')}
-            ${layoutMode === 'compact' ? 'pointer-events-auto' : ''}
+            pointer-events-auto
           `}
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
@@ -816,7 +813,7 @@ export const IngredientDisplay = ({
               }
             }
 
-            const color = getIngredientColor(ingredient, ingredientProfiles);
+            const color = getIngredientColor(ingredient, ingredientProfiles, isHighContrast, isDarkMode);
             const { showComma, showAmpersand, isLastIngredient } = getIngredientDisplayInfo(displayIndex);
 
             const ingredientElement = (
@@ -874,6 +871,7 @@ export const IngredientDisplay = ({
                         // Locked ingredient with white text
                         <span
                           onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             onLockToggle(actualIndex);
                           }}

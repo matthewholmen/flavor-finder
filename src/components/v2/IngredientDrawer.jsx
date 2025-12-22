@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap } from 'lucide-react';
-import { TASTE_COLORS } from '../../utils/colors.ts';
+import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Filter constants
 const CATEGORIES = [
@@ -86,6 +87,7 @@ export const IngredientDrawer = ({
   const inputRef = useRef(null);
   const drawerRef = useRef(null);
   const { isMobile, width } = useScreenSize();
+  const { isHighContrast, isDarkMode } = useTheme(); // Force re-render when high contrast changes
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState('search'); // 'search' or 'generation'
   const [activeSearchTab, setActiveSearchTab] = useState('category'); // 'category' or 'taste'
@@ -155,7 +157,7 @@ export const IngredientDrawer = ({
       p => p.name.toLowerCase() === ingredient.toLowerCase()
     );
 
-    if (!profile) return '#374151';
+    if (!profile) return getIngredientColorWithContrast('#374151', isHighContrast, isDarkMode);
 
     let dominantTaste = 'sweet';
     let maxValue = -1;
@@ -167,7 +169,8 @@ export const IngredientDrawer = ({
       }
     });
 
-    return TASTE_COLORS[dominantTaste] || '#374151';
+    const baseColor = TASTE_COLORS[dominantTaste] || '#374151';
+    return getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode);
   };
 
   const getIngredientProfile = (ingredient) => {
@@ -552,6 +555,15 @@ export const IngredientDrawer = ({
     return (
       <>
         <style>{sliderStyles}{scrollbarHideStyles}</style>
+        {/* Backdrop - closes drawer when tapped (only covers drawer area, not ingredient display) */}
+        {isOpen && (
+          <div
+            className="fixed left-0 right-0 z-[54]"
+            style={{ top: '140px', bottom: '68px' }}
+            onClick={onClose}
+            aria-hidden="true"
+          />
+        )}
         {/* Drawer - positioned below ingredient strip and above bottom bar */}
         <div
           ref={drawerRef}
@@ -1533,7 +1545,7 @@ export const IngredientDrawer = ({
                             <span
                               key={taste}
                               className="px-4 py-1.5 rounded-full text-sm font-medium text-white capitalize"
-                              style={{ backgroundColor: TASTE_COLORS[taste] }}
+                              style={{ backgroundColor: getIngredientColorWithContrast(TASTE_COLORS[taste], isHighContrast, isDarkMode) }}
                             >
                               {taste}
                             </span>

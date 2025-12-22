@@ -80,3 +80,14 @@ body.modal-open {
     background-size: 100% 5px;
   }
 }
+
+/* High Contrast Mode - Monochromatic ingredient colors only */
+.high-contrast {
+  /* Light mode high contrast: ~90% grey for ingredients */
+  --hc-ingredient-color: #1a1a1a;
+}
+
+.high-contrast.dark {
+  /* Dark mode high contrast: ~90% light grey for ingredients */
+  --hc-ingredient-color: #e6e6e6;
+}

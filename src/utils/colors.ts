@@ -7,3 +7,19 @@ export const TASTE_COLORS = {
     fat: '#FFC233',
     spicy: '#F44336'
   };
+
+// Get ingredient color with high-contrast mode support
+export const getIngredientColorWithContrast = (color: string, isHighContrast?: boolean, isDarkMode?: boolean): string => {
+  // Use passed parameters if available (for React components), otherwise check DOM
+  const highContrast = isHighContrast !== undefined
+    ? isHighContrast
+    : (typeof document !== 'undefined' && document.documentElement.classList.contains('high-contrast'));
+
+  if (!highContrast) return color;
+
+  const isDark = isDarkMode !== undefined
+    ? isDarkMode
+    : (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+
+  return isDark ? '#e6e6e6' : '#1a1a1a';
+};

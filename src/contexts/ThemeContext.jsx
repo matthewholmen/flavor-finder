@@ -21,6 +21,11 @@ export const ThemeProvider = ({ children }) => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
+  const [isHighContrast, setIsHighContrast] = useState(() => {
+    const saved = localStorage.getItem('highContrast');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
+
   // Update localStorage and document class when theme changes
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
@@ -31,10 +36,20 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [isDarkMode]);
 
+  useEffect(() => {
+    localStorage.setItem('highContrast', JSON.stringify(isHighContrast));
+    if (isHighContrast) {
+      document.documentElement.classList.add('high-contrast');
+    } else {
+      document.documentElement.classList.remove('high-contrast');
+    }
+  }, [isHighContrast]);
+
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
+  const toggleHighContrast = () => setIsHighContrast(prev => !prev);
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode, isHighContrast, toggleHighContrast }}>
       {children}
     </ThemeContext.Provider>
   );

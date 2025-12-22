@@ -227,7 +227,7 @@ const GenerationOptionsContent = ({
 
 // Settings Content
 const SettingsContent = () => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode, toggleDarkMode, isHighContrast, toggleHighContrast } = useTheme();
 
   return (
     <div className="space-y-4">
@@ -252,6 +252,25 @@ const SettingsContent = () => {
             className={`
               absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200
               ${isDarkMode ? 'translate-x-6' : 'translate-x-1'}
+            `}
+          />
+        </button>
+      </div>
+
+      {/* High Contrast Toggle */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-gray-700 dark:text-gray-300">High Contrast</span>
+        <button
+          onClick={toggleHighContrast}
+          className={`
+            relative w-11 h-6 rounded-full transition-colors duration-200
+            ${isHighContrast ? 'bg-gray-900' : 'bg-gray-300'}
+          `}
+        >
+          <div
+            className={`
+              absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200
+              ${isHighContrast ? 'translate-x-6' : 'translate-x-1'}
             `}
           />
         </button>
