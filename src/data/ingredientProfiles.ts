@@ -644,7 +644,7 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Aromatic herb with sweet-peppery notes and clove-like undertones, essential in Mediterranean cuisine"
   },
   {
-    name: "basmati rice",
+    name: "basmati",
     category: "Grains",
     subcategory: "Rice",
     flavorProfile: {
@@ -9222,7 +9222,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Slightly sweet, neutral-tasting seafood also known as Calamari"
       },
       {
-        name: "basmati rice",
+        name: "basmati",
         category: "Grains",
         subcategory: "Rice",
         flavorProfile: {

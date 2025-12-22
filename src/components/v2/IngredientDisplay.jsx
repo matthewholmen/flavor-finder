@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, Unlock, Sparkles } from 'lucide-react';
+import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -524,6 +524,78 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
   );
 };
 
+// Mobile Ingredient Info Component
+const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode }) => {
+  const profile = ingredientProfiles?.find(
+    p => p.name.toLowerCase() === ingredient.toLowerCase()
+  );
+
+  const getTasteTags = (profile) => {
+    if (!profile || !profile.flavorProfile) return [];
+    return Object.entries(profile.flavorProfile)
+      .filter(([_, value]) => value >= 5)
+      .map(([taste, _]) => taste);
+  };
+
+  const getNonPairingIngredients = (ingredient) => {
+    if (!flavorMap || selectedIngredients.length <= 1) return [];
+    const otherIngredients = selectedIngredients.filter(ing => ing !== ingredient);
+    return otherIngredients.filter(other =>
+      !flavorMap.get(ingredient)?.has(other)
+    );
+  };
+
+  const tasteTags = getTasteTags(profile);
+  const nonPairingIngredients = getNonPairingIngredients(ingredient);
+
+  return (
+    <div className="px-1 pt-3 pb-2">
+      {/* Category & Subcategory */}
+      {profile && (
+        <p className="text-base text-gray-500 dark:text-gray-400 mb-3 tracking-wide">
+          {profile.category.toLowerCase()}
+          {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
+        </p>
+      )}
+
+      {/* Description */}
+      {profile?.description && (
+        <p
+          className="text-base leading-relaxed mb-4 tracking-wide dark:text-gray-300"
+          style={{ fontWeight: 400, color: 'rgb(55, 65, 81)' }}
+        >
+          {profile.description}
+        </p>
+      )}
+
+      {/* Non-pairing warning */}
+      {nonPairingIngredients.length > 0 && (
+        <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+          <p className="text-base text-amber-800 dark:text-amber-200 font-light">
+            <span className="font-medium">Not a suggested pairing with: </span>
+            {nonPairingIngredients.join(', ')}
+          </p>
+        </div>
+      )}
+
+      {/* Taste Tags */}
+      {tasteTags.length > 0 && (
+        <div className="flex flex-wrap gap-2.5">
+          {tasteTags.map((taste) => (
+            <span
+              key={taste}
+              className="px-5 py-2 rounded-full text-base font-medium text-white capitalize"
+              style={{ backgroundColor: getIngredientColorWithContrast(TASTE_COLORS[taste], isHighContrast, isDarkMode) }}
+            >
+              {taste}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Main unified component
 export const IngredientDisplay = ({
   ingredients,
@@ -541,6 +613,7 @@ export const IngredientDisplay = ({
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
   const [layoutMode, setLayoutMode] = useState(isDrawerOpen ? 'compact' : 'full');
   const [isVisible, setIsVisible] = useState(true); // For fade in/out animation
+  const [expandedInfoIndex, setExpandedInfoIndex] = useState(null); // For mobile ingredient info expansion
   const { isMobile } = useScreenSize();
   const { isHighContrast, isDarkMode } = useTheme(); // Force re-render when high contrast changes
 
@@ -587,6 +660,13 @@ export const IngredientDisplay = ({
       setHoveredIndex(null);
     }
   }, [isDrawerOpen]);
+
+  // Clear expanded info when the ingredient is unlocked or removed
+  useEffect(() => {
+    if (expandedInfoIndex !== null && !lockedIngredients.has(expandedInfoIndex)) {
+      setExpandedInfoIndex(null);
+    }
+  }, [lockedIngredients, expandedInfoIndex]);
 
   // Click outside handler for mobile
   useEffect(() => {
@@ -843,6 +923,7 @@ export const IngredientDisplay = ({
               const isSecondToLast = displayIndex === validIngredients.length - 2;
               const shouldShowAmpersandAfter = isSecondToLast && validIngredients.length >= 2 && emptySlotCount === 0;
               const isLocked = lockedIngredients.has(actualIndex);
+              const isExpanded = expandedInfoIndex === actualIndex;
 
               return (
                 <React.Fragment key={`${ingredient}-${displayIndex}`}>
@@ -868,26 +949,59 @@ export const IngredientDisplay = ({
                         }}
                       />
                       {isLocked ? (
-                        // Locked ingredient with white text
+                        // Locked ingredient with white text, lock icon, and chevron
                         <span
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            onLockToggle(actualIndex);
-                          }}
                           style={{
                             position: 'relative',
-                            fontWeight: 900,
-                            color: 'white',
-                            cursor: 'pointer',
-                            display: 'inline',
-                            paddingRight: '0.1em',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            paddingRight: '0.3em',
                           }}
                         >
-                          {ingredient}
-                          <span className="inline-flex items-center whitespace-nowrap" style={{ marginLeft: '0.2em', verticalAlign: 'baseline' }}>
-                            <Lock size="0.45em" style={{ color: 'white', flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
+                          <span
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onLockToggle(actualIndex);
+                            }}
+                            style={{
+                              fontWeight: 900,
+                              color: 'white',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {ingredient}
+                            <span className="inline-flex items-center whitespace-nowrap" style={{ marginLeft: '0.2em', verticalAlign: 'baseline' }}>
+                              <Lock size="0.45em" style={{ color: 'white', flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
+                            </span>
                           </span>
+                          {/* Chevron button to expand/collapse info */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setExpandedInfoIndex(isExpanded ? null : actualIndex);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '0.1em',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              marginLeft: '0.2em',
+                            }}
+                            aria-label={isExpanded ? "Collapse ingredient info" : "Expand ingredient info"}
+                          >
+                            {isExpanded ? (
+                              <ChevronUp size="0.55em" style={{ color: 'white' }} strokeWidth={2.5} />
+                            ) : (
+                              <ChevronDown size="0.55em" style={{ color: 'white' }} strokeWidth={2.5} />
+                            )}
+                          </button>
                         </span>
                       ) : (
                         // Unlocked ingredient (normal display)
@@ -895,6 +1009,27 @@ export const IngredientDisplay = ({
                       )}
                     </div>
                   </SwipeableRow>
+                  {/* Expandable ingredient info - shown below the ingredient when expanded */}
+                  {isLocked && (
+                    <div
+                      style={{
+                        width: '100%',
+                        overflow: 'hidden',
+                        maxHeight: isExpanded ? '300px' : '0px',
+                        opacity: isExpanded ? 1 : 0,
+                        transition: 'max-height 300ms ease-out, opacity 200ms ease-out',
+                      }}
+                    >
+                      <MobileIngredientInfo
+                        ingredient={ingredient}
+                        ingredientProfiles={ingredientProfiles}
+                        flavorMap={flavorMap}
+                        selectedIngredients={validIngredients}
+                        isHighContrast={isHighContrast}
+                        isDarkMode={isDarkMode}
+                      />
+                    </div>
+                  )}
                   {shouldShowAmpersandAfter && (
                     <div style={{ width: '100%' }}>
                       <span
