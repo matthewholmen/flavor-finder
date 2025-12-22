@@ -557,8 +557,9 @@ export const IngredientDrawer = ({
           ref={drawerRef}
           className={`
             fixed left-0 right-0 z-[55]
-            bg-white overflow-hidden
+            bg-white dark:bg-gray-900 overflow-hidden
             rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]
+            transition-colors duration-300
           `}
           style={{
             bottom: '68px', // Height of bottom bar (py-3 = 24px + h-12 button = 48px + border)
@@ -571,7 +572,7 @@ export const IngredientDrawer = ({
         >
             <div className="flex flex-col h-full">
               {/* Search Bar with Filters Toggle - at the top */}
-              <div className="flex-shrink-0 px-4 pt-3 pb-2 bg-white border-b border-gray-100">
+              <div className="flex-shrink-0 px-4 pt-3 pb-2 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Search
@@ -586,9 +587,11 @@ export const IngredientDrawer = ({
                       placeholder="Search ingredients..."
                       className="
                         w-full pl-10 pr-10 py-3
-                        rounded-xl border border-gray-200
-                        focus:border-gray-400 focus:outline-none
-                        text-base bg-gray-50
+                        rounded-xl border border-gray-200 dark:border-gray-700
+                        focus:border-gray-400 dark:focus:border-gray-500 focus:outline-none
+                        text-base bg-gray-50 dark:bg-gray-800
+                        text-gray-900 dark:text-gray-100
+                        placeholder-gray-400 dark:placeholder-gray-500
                       "
                       style={{ fontSize: '16px' }} // Prevents iOS zoom
                     />
@@ -612,8 +615,8 @@ export const IngredientDrawer = ({
                       transition-all
                       min-h-[44px]
                       ${isMobileFiltersVisible || activeFilterCount > 0
-                        ? 'text-gray-800 border-gray-800 bg-gray-100'
-                        : 'text-gray-400 border-gray-300'
+                        ? 'text-gray-800 dark:text-gray-100 border-gray-800 dark:border-gray-100 bg-gray-100 dark:bg-gray-800'
+                        : 'text-gray-400 border-gray-300 dark:border-gray-600'
                       }
                     `}
                   >
@@ -625,7 +628,7 @@ export const IngredientDrawer = ({
               {/* Collapsible Filter Section - appears below search bar */}
               <div
                 className={`
-                  flex-shrink-0 border-b border-gray-200
+                  flex-shrink-0 border-b border-gray-200 dark:border-gray-700
                   overflow-hidden transition-all duration-300 ease-out
                 `}
                 style={{
@@ -639,7 +642,7 @@ export const IngredientDrawer = ({
                     onClick={() => setActiveSearchTab('category')}
                     className={`
                       text-sm font-medium transition-colors
-                      ${activeSearchTab === 'category' ? 'text-gray-900' : 'text-gray-400'}
+                      ${activeSearchTab === 'category' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}
                     `}
                   >
                     Category
@@ -648,7 +651,7 @@ export const IngredientDrawer = ({
                     onClick={() => setActiveSearchTab('taste')}
                     className={`
                       text-sm font-medium transition-colors
-                      ${activeSearchTab === 'taste' ? 'text-gray-900' : 'text-gray-400'}
+                      ${activeSearchTab === 'taste' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}
                     `}
                   >
                     Taste
@@ -672,7 +675,7 @@ export const IngredientDrawer = ({
                               transition-all
                               ${isActive
                                 ? 'border-[#6AAFE8] bg-[#6AAFE8] text-white'
-                                : 'border-gray-300 bg-white text-gray-700'
+                                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                               }
                             `}
                           >
@@ -693,7 +696,7 @@ export const IngredientDrawer = ({
                               rounded-full border-2 font-medium capitalize
                               whitespace-nowrap flex-shrink-0
                               transition-all
-                              ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}
+                              ${isActive ? 'text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600'}
                             `}
                             style={isActive ? { backgroundColor: color, borderColor: color } : {}}
                           >
@@ -721,8 +724,8 @@ export const IngredientDrawer = ({
                               whitespace-nowrap flex-shrink-0
                               transition-all
                               ${isSelected
-                                ? 'border-[#6AAFE8] bg-blue-50 text-[#6AAFE8]'
-                                : 'border-gray-300 bg-white text-gray-600'
+                                ? 'border-[#6AAFE8] bg-blue-50 dark:bg-blue-900/30 text-[#6AAFE8]'
+                                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                               }
                             `}
                           >
@@ -767,7 +770,7 @@ export const IngredientDrawer = ({
               </div>
 
               {/* Sort Tabs (Mobile) */}
-              <div className="flex gap-4 px-4 pt-3 pb-2 flex-shrink-0 overflow-x-auto border-b border-gray-100" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex gap-4 px-4 pt-3 pb-2 flex-shrink-0 overflow-x-auto border-b border-gray-100 dark:border-gray-800" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {[
                   { key: 'alphabetical', label: 'Alphabetical' },
                   { key: 'category', label: 'Category' },
@@ -780,8 +783,8 @@ export const IngredientDrawer = ({
                     className={`
                       text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0
                       ${sortMode === key
-                        ? 'text-gray-900'
-                        : 'text-gray-400'
+                        ? 'text-gray-900 dark:text-gray-100'
+                        : 'text-gray-400 dark:text-gray-500'
                       }
                     `}
                   >
@@ -806,7 +809,7 @@ export const IngredientDrawer = ({
                           >
                             {item.label}
                           </span>
-                          <div className="flex-1 h-px bg-gray-200" />
+                          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
                         </div>
                       );
                     }
@@ -826,8 +829,8 @@ export const IngredientDrawer = ({
                             flex items-center justify-center gap-2
                             border-2 border-dashed
                             ${showPartialMatches
-                              ? 'text-gray-800 border-[#FFC233] bg-amber-50'
-                              : 'text-gray-400 border-gray-300'
+                              ? 'text-gray-800 dark:text-gray-100 border-[#FFC233] bg-amber-50 dark:bg-amber-900/30'
+                              : 'text-gray-400 border-gray-300 dark:border-gray-600'
                             }
                           `}
                         >
@@ -856,15 +859,16 @@ export const IngredientDrawer = ({
                           rounded-full font-semibold text-base
                           transition-all duration-150
                           min-h-[48px]
+                          bg-white dark:bg-gray-800
+                          ${!isSelected ? 'text-gray-800 dark:text-gray-100' : ''}
                           ${isSelected
                             ? 'opacity-30 cursor-not-allowed'
                             : 'active:scale-95'
                           }
                         `}
                         style={{
-                          color: isSelected ? '#d1d5db' : '#1f2937',
+                          color: isSelected ? '#d1d5db' : undefined,
                           border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
-                          backgroundColor: 'white',
                         }}
                       >
                         {ingredient}
@@ -875,13 +879,13 @@ export const IngredientDrawer = ({
 
                 {/* Empty States */}
                 {suggestions.length === 0 && searchTerm && (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="text-center py-8 text-gray-400 dark:text-gray-500">
                     No compatible ingredients found for "{searchTerm}"
                   </div>
                 )}
 
                 {suggestions.length === 0 && !searchTerm && (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="text-center py-8 text-gray-400 dark:text-gray-500">
                     No more compatible ingredients available
                   </div>
                 )}

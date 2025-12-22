@@ -905,7 +905,7 @@ export default function FlavorFinderV2() {
   }, [searchTerm, allIngredients, selectedIngredients, flavorMap, activeCategory, selectedSubcategories, activeSliders, tasteValues, dietaryRestrictions, showPartialMatches]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col transition-colors duration-300">
       {/* Minimal Header */}
       <MinimalHeader
         targetCount={targetIngredientCount}
@@ -970,11 +970,11 @@ export default function FlavorFinderV2() {
             fixed left-6 z-[51]
             w-12 h-12 rounded-full
             flex items-center justify-center
-            border-2 bg-white
+            border-2 bg-white dark:bg-gray-800
             transition-all duration-300
             ${history.length > 0
-              ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100 cursor-pointer'
-              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+              ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-700 cursor-pointer'
+              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-600 cursor-not-allowed'
             }
           `}
           style={{

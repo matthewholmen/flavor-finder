@@ -6,10 +6,8 @@ const DIETARY_LABELS = {
   pescatarian: 'pescatarian',
   'gluten-free': 'gluten-free',
   'dairy-free': 'dairy-free',
-  'alcohol-free': 'alcohol-free',
+  'alcohol-free': 'alc-free',
   'nut-free': 'nut-free',
-  'nightshade-free': 'nightshade-free',
-  'low-fodmap': 'low-FODMAP',
   'keto': 'keto'
 };
 
@@ -56,16 +54,6 @@ const getActiveDietaryFilters = (dietaryRestrictions) => {
   // Check nut-free (specific nut ingredients marked with special key)
   if (dietaryRestrictions['_nuts'] === false) {
     active.push('nut-free');
-  }
-
-  // Check nightshade-free
-  if (dietaryRestrictions['_nightshades'] === false) {
-    active.push('nightshade-free');
-  }
-
-  // Check low-FODMAP
-  if (dietaryRestrictions['_fodmap'] === false) {
-    active.push('low-fodmap');
   }
 
   // Check keto (grains and sweeteners restricted)
@@ -119,14 +107,6 @@ const removeDietaryFilter = (key, dietaryRestrictions, onDietaryChange) => {
       // Re-enable nuts
       delete newRestrictions['_nuts'];
       break;
-    case 'nightshade-free':
-      // Re-enable nightshades
-      delete newRestrictions['_nightshades'];
-      break;
-    case 'low-fodmap':
-      // Re-enable high-FODMAP foods
-      delete newRestrictions['_fodmap'];
-      break;
     case 'keto':
       // Re-enable grains and sweeteners
       ['Rice', 'Ancient Grains', 'Bread', 'Pasta', 'Starches'].forEach(k => {
@@ -148,14 +128,16 @@ export const DietaryFilterPills = ({
   if (activeFilters.length === 0) return null;
   
   return (
-    <div className="fixed bottom-24 left-6 z-30 flex flex-col gap-2">
-      {activeFilters.map((filter) => (
-        <FilterPill
-          key={filter}
-          label={DIETARY_LABELS[filter]}
-          onRemove={() => removeDietaryFilter(filter, dietaryRestrictions, onDietaryChange)}
-        />
-      ))}
+    <div className="fixed bottom-24 left-0 right-0 z-30 px-4 overflow-x-auto scrollbar-hide">
+      <div className="flex flex-row gap-2 w-max">
+        {activeFilters.map((filter) => (
+          <FilterPill
+            key={filter}
+            label={DIETARY_LABELS[filter]}
+            onRemove={() => removeDietaryFilter(filter, dietaryRestrictions, onDietaryChange)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

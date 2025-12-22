@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { default as FlavorFinder } from './FlavorFinder';
 import { default as FlavorFinderV2 } from './FlavorFinderV2.jsx';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
   // V2 is now the default
@@ -30,9 +31,11 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      {useV2 ? <FlavorFinderV2 /> : <FlavorFinder />}
-    </div>
+    <ThemeProvider>
+      <div className="App">
+        {useV2 ? <FlavorFinderV2 /> : <FlavorFinder />}
+      </div>
+    </ThemeProvider>
   );
 }
 

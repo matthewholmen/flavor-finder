@@ -26,11 +26,12 @@ export const MobileBottomBar = ({
     <div
       className="
         fixed left-0 right-0 bottom-0 z-[60]
-        bg-white
+        bg-white dark:bg-gray-900
+        transition-colors duration-300
       "
     >
       {/* Five equal-width buttons */}
-      <div className="flex items-center gap-2 px-4 py-3 border-t border-gray-200">
+      <div className="flex items-center gap-2 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
         {/* Undo Button */}
         <button
           onClick={onUndo}
@@ -38,8 +39,8 @@ export const MobileBottomBar = ({
           className={`
             ${buttonBase}
             ${canUndo
-              ? 'border-gray-300 text-gray-500 active:bg-gray-100'
-              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+              ? 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
+              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
             }
           `}
           aria-label="Undo"
@@ -54,8 +55,8 @@ export const MobileBottomBar = ({
           className={`
             ${buttonBase}
             ${canDecrement
-              ? 'border-gray-300 text-gray-500 active:bg-gray-100'
-              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+              ? 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
+              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
             }
           `}
           aria-label="Remove ingredient"
@@ -68,9 +69,9 @@ export const MobileBottomBar = ({
           onClick={onGenerate}
           className={`
             ${buttonBase}
-            border-gray-900
-            text-gray-900
-            active:bg-gray-900 active:text-white
+            border-gray-900 dark:border-white
+            text-gray-900 dark:text-white
+            active:bg-gray-900 dark:active:bg-white active:text-white dark:active:text-gray-900
             ${isGeneratePulsing ? 'animate-pulse shadow-lg scale-105' : ''}
           `}
           aria-label="Generate"
@@ -85,8 +86,8 @@ export const MobileBottomBar = ({
           className={`
             ${buttonBase}
             ${canIncrement
-              ? 'border-gray-300 text-gray-500 active:bg-gray-100'
-              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+              ? 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
+              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
             }
           `}
           aria-label="Add ingredient"
@@ -100,8 +101,8 @@ export const MobileBottomBar = ({
           className={`
             ${buttonBase}
             ${isDrawerOpen
-              ? 'border-gray-900 bg-gray-900 text-white'
-              : 'border-gray-300 text-gray-500 active:bg-gray-100'
+              ? 'border-gray-900 dark:border-white bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+              : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
             }
           `}
           aria-label={isDrawerOpen ? "Close ingredient drawer" : "Search ingredients"}

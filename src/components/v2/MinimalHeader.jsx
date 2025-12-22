@@ -32,9 +32,10 @@ export const MinimalHeader = ({
         className={`
           fixed top-0 left-0 right-0
           flex items-center justify-between
-          bg-white
+          bg-white dark:bg-gray-900
           z-50
           px-4 py-3
+          transition-colors duration-300
         `}
       >
         {/* Logo */}
@@ -78,9 +79,10 @@ export const MinimalHeader = ({
       className="
         fixed top-0 left-0 right-0
         flex items-center justify-between
-        bg-white
+        bg-white dark:bg-gray-900
         z-50
         px-8 py-5
+        transition-colors duration-300
       "
     >
       {/* Logo */}

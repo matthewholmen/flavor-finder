@@ -11,8 +11,6 @@ export const EmptySlotIndicator = ({
   // Match mockup: faded state for empty slot when another ingredient is hovered
   const fadedColor = '#e8e8e8';
   const normalColor = '#c0c0c0'; // Light gray for the underscore
-  const ampersandColor = isFaded ? fadedColor : '#1a1a1a'; // Black ampersand when not faded
-  const commaColor = isFaded ? fadedColor : '#1a1a1a'; // Black comma when not faded
   
   // Adjust underscore width for mobile - tighter to match text size
   const underscoreWidth = isMobile ? '2em' : '3.5em';
@@ -33,10 +31,10 @@ export const EmptySlotIndicator = ({
     >
       {/* Ampersand before empty slot (only for the last slot) */}
       {showAmpersand && (
-        <span 
-          className="font-serif italic transition-all duration-200"
-          style={{ 
-            color: ampersandColor,
+        <span
+          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
+          style={{
+            color: isFaded ? fadedColor : undefined,
             fontWeight: 400,
           }}
         >
@@ -64,10 +62,10 @@ export const EmptySlotIndicator = ({
       
       {/* Comma after empty slot - use serif italic to match ingredient commas */}
       {showComma && (
-        <span 
-          className="font-serif italic transition-all duration-200"
-          style={{ 
-            color: commaColor,
+        <span
+          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
+          style={{
+            color: isFaded ? fadedColor : undefined,
             fontWeight: 400,
           }}
         >

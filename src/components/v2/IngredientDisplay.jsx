@@ -260,9 +260,8 @@ const Ingredient = ({
       >
         {showAmpersand && (
           <span
-            className="font-serif italic transition-all duration-200"
+            className="font-serif italic transition-all duration-200 text-gray-900 dark:text-white"
             style={{
-              color: '#1a1a1a',
               fontWeight: 400,
               marginRight: '0.2em',
             }}
@@ -335,9 +334,9 @@ const Ingredient = ({
     >
       {showAmpersand && (
         <span
-          className="font-serif italic transition-all duration-200"
+          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
           style={{
-            color: isFaded ? fadedColor : '#1a1a1a',
+            color: isFaded ? fadedColor : undefined,
             fontWeight: 400,
             marginRight: '0.2em',
           }}
@@ -378,8 +377,9 @@ const Ingredient = ({
                 )}
                 {isMobile && showComma && (
                   <span
+                    className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                     style={{
-                      color: isFaded ? fadedColor : '#1a1a1a',
+                      color: isFaded ? fadedColor : undefined,
                       fontFamily: 'Georgia, "Times New Roman", Times, serif',
                       fontStyle: 'italic',
                       fontWeight: 400,
@@ -392,8 +392,9 @@ const Ingredient = ({
                   <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
                     {!isLocked && !showControls && (
                       <span
+                        className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                         style={{
-                          color: isFaded ? fadedColor : '#1a1a1a',
+                          color: isFaded ? fadedColor : undefined,
                           fontFamily: 'Georgia, "Times New Roman", Times, serif',
                           fontStyle: 'italic',
                           fontWeight: 400,
@@ -425,8 +426,9 @@ const Ingredient = ({
                 )}
                 {isMobile && showComma && (
                   <span
+                    className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                     style={{
-                      color: isFaded ? fadedColor : '#1a1a1a',
+                      color: isFaded ? fadedColor : undefined,
                       fontFamily: 'Georgia, "Times New Roman", Times, serif',
                       fontStyle: 'italic',
                       fontWeight: 400,
@@ -439,8 +441,9 @@ const Ingredient = ({
                   <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
                     {!isLocked && !showControls && (
                       <span
+                        className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                         style={{
-                          color: isFaded ? fadedColor : '#1a1a1a',
+                          color: isFaded ? fadedColor : undefined,
                           fontFamily: 'Georgia, "Times New Roman", Times, serif',
                           fontStyle: 'italic',
                           fontWeight: 400,
@@ -486,8 +489,8 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
     >
       {showAmpersand && (
         <span
-          className="font-serif italic transition-all duration-200"
-          style={{ color: isFaded ? fadedColor : '#1a1a1a', fontWeight: 400 }}
+          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
+          style={{ color: isFaded ? fadedColor : undefined, fontWeight: 400 }}
         >
           {' '}&amp;{' '}
         </span>
@@ -506,8 +509,8 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 
       {showComma && (
         <span
-          className="font-serif italic transition-all duration-200"
-          style={{ color: isFaded ? fadedColor : '#1a1a1a', fontWeight: 400 }}
+          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
+          style={{ color: isFaded ? fadedColor : undefined, fontWeight: 400 }}
         >
           ,{' '}
         </span>
@@ -897,9 +900,8 @@ export const IngredientDisplay = ({
                   {shouldShowAmpersandAfter && (
                     <div style={{ width: '100%' }}>
                       <span
-                        className="font-serif italic"
+                        className="font-serif italic text-gray-900 dark:text-white"
                         style={{
-                          color: '#1a1a1a',
                           fontWeight: 400,
                         }}
                       >
