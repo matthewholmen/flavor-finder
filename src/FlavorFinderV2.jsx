@@ -939,27 +939,52 @@ export default function FlavorFinderV2() {
         />
       )}
 
-      {/* Unified Ingredient Display - adapts between hero and compact modes */}
-      <main className={`flex-1 flex items-center justify-center pt-20 ${isMobile ? 'pb-24' : 'pb-32'}`}>
-        <IngredientDisplay
-          ingredients={selectedIngredients}
-          lockedIngredients={lockedIngredients}
-          ingredientProfiles={ingredientProfiles}
-          maxSlots={targetIngredientCount}
-          onRemove={handleRemove}
-          onLockToggle={handleLockToggle}
-          onEmptySlotClick={() => setIsDrawerOpen(true)}
-          onCloseDrawer={() => setIsDrawerOpen(false)}
-          isDrawerOpen={isDrawerOpen}
-          flavorMap={flavorMap}
-        />
+      {/* Main content area - scrollable on mobile when drawer is closed */}
+      <main className={`
+        flex-1 flex flex-col
+        pt-20 ${isMobile ? 'pb-24' : 'pb-32'}
+        ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
+      `}>
+        {/* Ingredient Display - uses flow layout on mobile with drawer closed */}
+        <div className={`
+          ${isMobile && !isDrawerOpen ? 'flex-shrink-0' : 'flex-1 flex items-center justify-center'}
+        `}>
+          <IngredientDisplay
+            ingredients={selectedIngredients}
+            lockedIngredients={lockedIngredients}
+            ingredientProfiles={ingredientProfiles}
+            maxSlots={targetIngredientCount}
+            onRemove={handleRemove}
+            onLockToggle={handleLockToggle}
+            onEmptySlotClick={() => setIsDrawerOpen(true)}
+            onCloseDrawer={() => setIsDrawerOpen(false)}
+            isDrawerOpen={isDrawerOpen}
+            flavorMap={flavorMap}
+          />
+        </div>
+
+        {/* Dietary Filter Pills - sticky to bottom on mobile, fixed otherwise */}
+        {isMobile && !isDrawerOpen ? (
+          <>
+            {/* Spacer to push pills to bottom when content is short */}
+            <div className="flex-grow" />
+            {/* Sticky container - stays at bottom but can be pushed down by content */}
+            {/* px-4 matches the 1rem padding of the ingredient display container */}
+            <div className="flex-shrink-0 sticky bottom-0 pb-2 pt-6 px-4 bg-gradient-to-t from-white dark:from-gray-900 to-transparent">
+              <DietaryFilterPills
+                dietaryRestrictions={dietaryRestrictions}
+                onDietaryChange={setDietaryRestrictions}
+                isInFlow={true}
+              />
+            </div>
+          </>
+        ) : (
+          <DietaryFilterPills
+            dietaryRestrictions={dietaryRestrictions}
+            onDietaryChange={setDietaryRestrictions}
+          />
+        )}
       </main>
-      
-      {/* Dietary Filter Pills - Fixed position on home screen */}
-      <DietaryFilterPills
-        dietaryRestrictions={dietaryRestrictions}
-        onDietaryChange={setDietaryRestrictions}
-      />
 
       {/* Undo Button - Desktop only (mobile has it in bottom bar) */}
       {!isMobile && (

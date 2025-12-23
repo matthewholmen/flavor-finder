@@ -99,6 +99,7 @@ export const IngredientDrawer = ({
   // Swipe to close state
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const minSwipeDistance = 50; // minimum swipe distance to trigger close
 
   // Handle swipe gestures for closing drawer
@@ -107,6 +108,7 @@ export const IngredientDrawer = ({
     if (e.target.closest('[data-ingredients-list]')) return;
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientY);
+    setIsDragging(true);
   };
 
   const onTouchMove = (e) => {
@@ -125,6 +127,7 @@ export const IngredientDrawer = ({
     }
     setTouchStart(null);
     setTouchEnd(null);
+    setIsDragging(false);
   };
   const [isFiltersPanelCollapsed, setIsFiltersPanelCollapsed] = useState(false);
   const [sortMode, setSortMode] = useState('alphabetical'); // 'alphabetical' | 'category' | 'taste' | 'popularity'
@@ -152,12 +155,13 @@ export const IngredientDrawer = ({
     }
   }, [selectedIngredients, selectedInfoIndex]);
 
-  const getIngredientColor = (ingredient) => {
+  // Get the raw taste color for an ingredient (not adjusted for high contrast)
+  const getIngredientColorRaw = (ingredient) => {
     const profile = ingredientProfiles.find(
       p => p.name.toLowerCase() === ingredient.toLowerCase()
     );
 
-    if (!profile) return getIngredientColorWithContrast('#374151', isHighContrast, isDarkMode);
+    if (!profile) return '#374151';
 
     let dominantTaste = 'sweet';
     let maxValue = -1;
@@ -169,7 +173,12 @@ export const IngredientDrawer = ({
       }
     });
 
-    const baseColor = TASTE_COLORS[dominantTaste] || '#374151';
+    return TASTE_COLORS[dominantTaste] || '#374151';
+  };
+
+  // Get ingredient color with high contrast adjustment (for text/fills)
+  const getIngredientColor = (ingredient) => {
+    const baseColor = getIngredientColorRaw(ingredient);
     return getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode);
   };
 
@@ -423,13 +432,19 @@ export const IngredientDrawer = ({
   const getDietaryState = (key) => {
     switch(key) {
       case 'vegetarian':
+        // Vegetarian: all animal proteins excluded (including fish)
         return dietaryRestrictions['Proteins:Meat'] === false &&
                dietaryRestrictions['Proteins:Poultry'] === false &&
-               dietaryRestrictions['Proteins:Fish'] === false;
+               dietaryRestrictions['Proteins:Fish'] === false &&
+               dietaryRestrictions['Proteins:Crustacean'] === false &&
+               dietaryRestrictions['Proteins:Mollusk'] === false;
       case 'pescatarian':
+        // Pescatarian: land meats excluded, but seafood explicitly allowed
         return dietaryRestrictions['Proteins:Meat'] === false &&
                dietaryRestrictions['Proteins:Poultry'] === false &&
-               dietaryRestrictions['Proteins:Fish'] !== false;
+               dietaryRestrictions['Proteins:Fish'] !== false &&
+               dietaryRestrictions['Proteins:Crustacean'] !== false &&
+               dietaryRestrictions['Proteins:Mollusk'] !== false;
       case 'gluten-free':
         return dietaryRestrictions['Grains:Bread'] === false ||
                dietaryRestrictions['Grains:Pasta'] === false;
@@ -464,17 +479,35 @@ export const IngredientDrawer = ({
 
     switch(key) {
       case 'vegetarian':
-        const proteinKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal', 'Fish', 'Crustacean', 'Mollusk'];
-        proteinKeys.forEach(k => {
-          newRestrictions[`Proteins:${k}`] = isActive;
-        });
+        // Toggle all animal proteins (including seafood)
+        const allProteinKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal', 'Fish', 'Crustacean', 'Mollusk'];
+        if (isActive) {
+          // Turning off vegetarian - allow all proteins
+          allProteinKeys.forEach(k => {
+            newRestrictions[`Proteins:${k}`] = true;
+          });
+        } else {
+          // Turning on vegetarian - exclude all proteins
+          allProteinKeys.forEach(k => {
+            newRestrictions[`Proteins:${k}`] = false;
+          });
+        }
         break;
       case 'pescatarian':
-        ['Meat', 'Poultry', 'Game', 'Pork', 'Offal'].forEach(k => {
-          newRestrictions[`Proteins:${k}`] = isActive;
-        });
-        if (!isActive) {
-          ['Fish', 'Crustacean', 'Mollusk'].forEach(k => {
+        // Toggle land meats only, keep seafood allowed
+        const landMeatKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal'];
+        const seafoodKeys = ['Fish', 'Crustacean', 'Mollusk'];
+        if (isActive) {
+          // Turning off pescatarian - allow all proteins
+          landMeatKeys.forEach(k => {
+            newRestrictions[`Proteins:${k}`] = true;
+          });
+        } else {
+          // Turning on pescatarian - exclude land meats, ensure seafood is allowed
+          landMeatKeys.forEach(k => {
+            newRestrictions[`Proteins:${k}`] = false;
+          });
+          seafoodKeys.forEach(k => {
             newRestrictions[`Proteins:${k}`] = true;
           });
         }
@@ -576,7 +609,10 @@ export const IngredientDrawer = ({
           style={{
             bottom: '68px', // Height of bottom bar (py-3 = 24px + h-12 button = 48px + border)
             top: isOpen ? '140px' : '100%', // Below header (56px) + ingredient strip (~84px)
-            transition: 'top 300ms ease-out',
+            transition: isDragging ? 'none' : 'top 300ms ease-out, transform 300ms ease-out',
+            transform: touchStart && touchEnd && touchEnd > touchStart
+              ? `translateY(${Math.max(0, touchEnd - touchStart)}px)`
+              : 'translateY(0)',
           }}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
@@ -854,7 +890,7 @@ export const IngredientDrawer = ({
 
                     const ingredient = item.value;
                     const isSelected = selectedIngredients.includes(ingredient);
-                    const color = getIngredientColor(ingredient);
+                    const borderColor = getIngredientColorRaw(ingredient); // Always use raw color for borders
                     const partial = isPartialMatch(ingredient);
 
                     return (
@@ -880,7 +916,7 @@ export const IngredientDrawer = ({
                         `}
                         style={{
                           color: isSelected ? '#d1d5db' : undefined,
-                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
+                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : borderColor}`,
                         }}
                       >
                         {ingredient}
@@ -1375,7 +1411,7 @@ export const IngredientDrawer = ({
 
                     const ingredient = item.value;
                     const isSelected = selectedIngredients.includes(ingredient);
-                    const color = getIngredientColor(ingredient);
+                    const borderColor = getIngredientColorRaw(ingredient); // Always use raw color for borders
                     const partial = isPartialMatch(ingredient);
                     const isPairingHighlight = pairsWithHovered(ingredient);
                     const isHovered = hoveredIngredient === ingredient;
@@ -1395,10 +1431,10 @@ export const IngredientDrawer = ({
                       bgColor = 'white';
                       textColor = '#d1d5db';
                     } else if (isHovered) {
-                      bgColor = color;
+                      bgColor = borderColor;
                       textColor = 'white';
                     } else if (isPairingHighlight) {
-                      bgColor = hexToRgba(color, 0.15);
+                      bgColor = hexToRgba(borderColor, 0.15);
                       textColor = '#1f2937';
                     }
 
@@ -1422,7 +1458,7 @@ export const IngredientDrawer = ({
                         `}
                         style={{
                           color: textColor,
-                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : color}`,
+                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : borderColor}`,
                           backgroundColor: bgColor,
                         }}
                         onMouseEnter={() => {

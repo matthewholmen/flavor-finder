@@ -34,7 +34,7 @@ export const MinimalHeader = ({
           flex items-center justify-between
           bg-white dark:bg-gray-900
           z-50
-          px-4 py-3
+          pl-4 pr-6 py-5
           transition-colors duration-300
         `}
       >
@@ -58,12 +58,11 @@ export const MinimalHeader = ({
         <button
           onClick={onRecipesClick}
           className="
-            text-gray-300
             font-medium
-            active:text-gray-500
             transition-colors duration-200
             text-lg
           "
+          style={{ color: '#6d727f' }}
           title="Find Recipes"
           aria-label="Find Recipes"
         >

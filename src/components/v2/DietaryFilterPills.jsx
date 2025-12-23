@@ -119,14 +119,33 @@ const removeDietaryFilter = (key, dietaryRestrictions, onDietaryChange) => {
   onDietaryChange(newRestrictions);
 };
 
-export const DietaryFilterPills = ({ 
-  dietaryRestrictions, 
-  onDietaryChange 
+export const DietaryFilterPills = ({
+  dietaryRestrictions,
+  onDietaryChange,
+  isInFlow = false // When true, uses relative positioning instead of fixed
 }) => {
   const activeFilters = getActiveDietaryFilters(dietaryRestrictions);
-  
+
   if (activeFilters.length === 0) return null;
-  
+
+  // In-flow mode: pills align with left margin, can scroll off right edge
+  if (isInFlow) {
+    return (
+      <div className="overflow-x-auto scrollbar-hide -mr-4">
+        <div className="flex flex-row gap-2 w-max pr-4">
+          {activeFilters.map((filter) => (
+            <FilterPill
+              key={filter}
+              label={DIETARY_LABELS[filter]}
+              onRemove={() => removeDietaryFilter(filter, dietaryRestrictions, onDietaryChange)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Fixed mode: pills are fixed at bottom of screen
   return (
     <div className="fixed bottom-24 left-0 right-0 z-30 px-4 overflow-x-auto scrollbar-hide">
       <div className="flex flex-row gap-2 w-max">

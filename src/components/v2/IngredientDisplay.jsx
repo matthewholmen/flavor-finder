@@ -82,8 +82,8 @@ const SwipeableRow = ({ children, onDelete, enabled = true, isLocked = false }) 
       style={{
         width: '100%',
         position: 'relative',
-        overflowX: 'clip',
-        overflowY: 'visible',
+        // Allow overflow on left (for backgrounds extending to edge), clip on right only
+        overflow: 'visible',
       }}
       {...handlers}
     >
@@ -200,10 +200,18 @@ const Ingredient = ({
   showAmpersand,
   isMobile,
   isCompact,
+  isHighContrast,
+  isDarkMode,
 }) => {
   const fadedColor = '#e8e8e8';
   const iconSize = '0.35em';
   const showControls = isHovered;
+
+  // For locked ingredients in compact mode (drawer open), background is the ingredient color
+  // In dark mode, the background is light so we need dark text for contrast
+  // In light mode, background is the vibrant color so white text works
+  const lockedTextColor = isDarkMode ? '#1f2937' : 'white';
+  const lockedIconColor = isDarkMode ? '#1f2937' : 'white';
 
   const iconContainerStyle = {
     width: iconSize,
@@ -252,8 +260,14 @@ const Ingredient = ({
     </span>
   );
 
-  // Mobile with drawer open and locked: show colored background
+  // Mobile with drawer open and locked: colored background with lock icon on right
+  // This matches the closed-drawer visualization style
   if (isMobile && isCompact && isLocked) {
+    // Match the closed-drawer locked style:
+    // - Dark mode (with or without high contrast): dark text matching gray-900 background (#111827)
+    // - Light mode: white text against vibrant colored backgrounds
+    const compactLockedTextColor = isDarkMode ? '#111827' : 'white';
+
     return (
       <span
         data-ingredient
@@ -272,58 +286,47 @@ const Ingredient = ({
           </span>
         )}
         <span
-          style={{
-            backgroundColor: color,
-            padding: '0.05em 0.3em',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.2em',
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onLockToggle();
           }}
+          className="relative inline transition-all duration-200 cursor-pointer"
+          style={{
+            fontWeight: 900,
+            color: compactLockedTextColor,
+            backgroundColor: color,
+            padding: '0.05em 0.25em',
+          }}
+          title="Click to unlock"
         >
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onLockToggle();
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Lock size="0.35em" style={{ color: 'white' }} strokeWidth={2} />
-          </button>
-          <span
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onLockToggle();
-            }}
-            style={{
-              fontWeight: 900,
-              color: 'white',
-              cursor: 'pointer',
-            }}
-          >
-            {ingredient}
-            {showComma && (
-              <span
-                style={{
-                  color: 'white',
-                  fontFamily: 'Georgia, "Times New Roman", Times, serif',
-                  fontStyle: 'italic',
-                  fontWeight: 400,
-                }}
-              >
-                ,
-              </span>
-            )}
-          </span>
+          {/* Split ingredient: allow wrapping but keep last word + lock together */}
+          {(() => {
+            const words = ingredient.split(' ');
+            if (words.length === 1) {
+              return (
+                <span className="whitespace-nowrap">
+                  {ingredient}
+                  <span className="inline-flex items-center" style={{ marginLeft: '0.15em', verticalAlign: 'middle' }}>
+                    <Lock size="0.45em" style={{ color: compactLockedTextColor, flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
+                  </span>
+                </span>
+              );
+            }
+            const firstWords = words.slice(0, -1).join(' ');
+            const lastWord = words[words.length - 1];
+            return (
+              <>
+                {firstWords}{' '}
+                <span className="whitespace-nowrap">
+                  {lastWord}
+                  <span className="inline-flex items-center" style={{ marginLeft: '0.15em', verticalAlign: 'middle' }}>
+                    <Lock size="0.45em" style={{ color: compactLockedTextColor, flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
+                  </span>
+                </span>
+              </>
+            );
+          })()}
         </span>
       </span>
     );
@@ -552,7 +555,7 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
     <div className="px-1 pt-3 pb-2">
       {/* Category & Subcategory */}
       {profile && (
-        <p className="text-base text-gray-500 dark:text-gray-400 mb-3 tracking-wide">
+        <p className="text-base text-gray-500 dark:text-gray-400 mb-3 tracking-wide" style={{ fontWeight: 400 }}>
           {profile.category.toLowerCase()}
           {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
         </p>
@@ -561,8 +564,8 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
       {/* Description */}
       {profile?.description && (
         <p
-          className="text-base leading-relaxed mb-4 tracking-wide dark:text-gray-300"
-          style={{ fontWeight: 400, color: 'rgb(55, 65, 81)' }}
+          className="text-base leading-relaxed mb-4 tracking-wide text-gray-700 dark:text-gray-300"
+          style={{ fontWeight: 400 }}
         >
           {profile.description}
         </p>
@@ -584,7 +587,7 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
           {tasteTags.map((taste) => (
             <span
               key={taste}
-              className="px-5 py-2 rounded-full text-base font-medium text-white capitalize"
+              className="px-5 py-1.5 rounded-full text-base font-medium text-white capitalize tracking-wide"
               style={{ backgroundColor: getIngredientColorWithContrast(TASTE_COLORS[taste], isHighContrast, isDarkMode) }}
             >
               {taste}
@@ -841,41 +844,50 @@ export const IngredientDisplay = ({
     return 'translateY(-50%)'; // Center vertically on desktop
   };
 
+  // On mobile with drawer closed, use relative positioning so content flows naturally
+  // This allows the page to scroll when ingredient info is expanded
+  const usesFlowLayout = isMobile && layoutMode === 'full';
+
   return (
     <>
       <div
         className={`
-          fixed left-0 right-0 z-50
+          ${usesFlowLayout ? 'relative' : 'fixed left-0 right-0 z-50'}
           flex text-center
         `}
         style={{
           padding: layoutMode === 'compact'
             ? (isMobile ? '0.75rem 1.5rem' : '0.75rem 1rem')
             : (isMobile ? '1rem' : '0 3rem'),
-          top: getTopPosition(),
-          transform: getTransform(),
-          alignItems: isMobile && layoutMode === 'full' ? 'flex-start' : 'center',
-          justifyContent: isMobile && layoutMode === 'full' ? 'flex-start' : 'center',
+          // Only use top/transform for fixed positioning
+          ...(usesFlowLayout ? {} : {
+            top: getTopPosition(),
+            transform: getTransform(),
+          }),
+          alignItems: usesFlowLayout ? 'flex-start' : 'center',
+          justifyContent: usesFlowLayout ? 'flex-start' : 'center',
           opacity: isVisible ? 1 : 0,
           transition: 'opacity 150ms ease-out',
           pointerEvents: 'none',
+          // For flow layout, add width
+          ...(usesFlowLayout ? { width: '100%' } : {}),
         }}
       >
         <div
           className={`
             font-black
             tracking-tight
-            ${isMobile && layoutMode === 'full' ? 'w-[90vw]' : (isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]')}
+            ${usesFlowLayout ? 'w-full' : (isMobile ? 'max-w-[90vw]' : 'max-w-[95vw] sm:max-w-[90vw]')}
             pointer-events-auto
           `}
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
             fontSize: getFontSize(),
-            lineHeight: isMobile && layoutMode === 'full' ? 1.04 : (isMobile ? 1.3 : 1.15),
-            textAlign: isMobile && layoutMode === 'full' ? 'left' : 'center',
+            lineHeight: usesFlowLayout ? 1.04 : (isMobile ? 1.3 : 1.15),
+            textAlign: usesFlowLayout ? 'left' : 'center',
             display: 'flex',
             flexWrap: 'wrap',
-            justifyContent: isMobile && layoutMode === 'full' ? 'flex-start' : 'center',
+            justifyContent: usesFlowLayout ? 'flex-start' : 'center',
             alignItems: 'baseline',
             gap: isMobile ? '0 0.2em' : '0 0.15em',
           }}
@@ -915,11 +927,13 @@ export const IngredientDisplay = ({
                 showAmpersand={showAmpersand}
                 isMobile={isMobile}
                 isCompact={layoutMode === 'compact'}
+                isHighContrast={isHighContrast}
+                isDarkMode={isDarkMode}
               />
             );
 
-            // On mobile with drawer closed, wrap each ingredient in a full-width swipeable container
-            if (isMobile && layoutMode === 'full') {
+            // On mobile with drawer closed (flow layout), wrap each ingredient in a full-width swipeable container
+            if (usesFlowLayout) {
               const isSecondToLast = displayIndex === validIngredients.length - 2;
               const shouldShowAmpersandAfter = isSecondToLast && validIngredients.length >= 2 && emptySlotCount === 0;
               const isLocked = lockedIngredients.has(actualIndex);
@@ -934,11 +948,11 @@ export const IngredientDisplay = ({
                       width: '100%',
                       zIndex: 10 - displayIndex, // Higher z-index for earlier ingredients (first = 10, second = 9, etc.)
                     }}>
-                      {/* Background rectangle - always rendered, animated via scaleX */}
+                      {/* Background rectangle - aligns with text, extends left when swiping */}
                       <div
                         style={{
                           position: 'absolute',
-                          left: '-0.1em',
+                          left: '-0.1em', // Slight overhang to left of text
                           right: 0,
                           top: '0.05em',
                           bottom: '0em',
@@ -949,60 +963,67 @@ export const IngredientDisplay = ({
                         }}
                       />
                       {isLocked ? (
-                        // Locked ingredient with white text, lock icon, and chevron
-                        <span
-                          style={{
-                            position: 'relative',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            paddingRight: '0.3em',
-                          }}
-                        >
-                          <span
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              onLockToggle(actualIndex);
-                            }}
-                            style={{
-                              fontWeight: 900,
-                              color: 'white',
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                            }}
-                          >
-                            {ingredient}
-                            <span className="inline-flex items-center whitespace-nowrap" style={{ marginLeft: '0.2em', verticalAlign: 'baseline' }}>
-                              <Lock size="0.45em" style={{ color: 'white', flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
+                        // Locked ingredient with contrasting text, lock icon, and chevron
+                        (() => {
+                          // Dark mode: dark text matching gray-900 background (#111827)
+                          // Light mode: white text against vibrant colored backgrounds
+                          const lockedTextColor = isDarkMode ? '#111827' : 'white';
+                          return (
+                            <span
+                              style={{
+                                position: 'relative',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                paddingRight: '0.3em',
+                              }}
+                            >
+                              <span
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  onLockToggle(actualIndex);
+                                }}
+                                style={{
+                                  fontWeight: 900,
+                                  color: lockedTextColor,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                {ingredient}
+                                <span className="inline-flex items-center whitespace-nowrap" style={{ marginLeft: '0.2em', verticalAlign: 'baseline' }}>
+                                  <Lock size="0.45em" style={{ color: lockedTextColor, flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
+                                </span>
+                              </span>
+                              {/* Chevron button to expand/collapse info */}
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setExpandedInfoIndex(isExpanded ? null : actualIndex);
+                                }}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: '0.1em',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  marginLeft: '0.2em',
+                                }}
+                                aria-label={isExpanded ? "Collapse ingredient info" : "Expand ingredient info"}
+                              >
+                                {isExpanded ? (
+                                  <ChevronUp size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
+                                ) : (
+                                  <ChevronDown size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
+                                )}
+                              </button>
                             </span>
-                          </span>
-                          {/* Chevron button to expand/collapse info */}
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setExpandedInfoIndex(isExpanded ? null : actualIndex);
-                            }}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              padding: '0.1em',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              marginLeft: '0.2em',
-                            }}
-                            aria-label={isExpanded ? "Collapse ingredient info" : "Expand ingredient info"}
-                          >
-                            {isExpanded ? (
-                              <ChevronUp size="0.55em" style={{ color: 'white' }} strokeWidth={2.5} />
-                            ) : (
-                              <ChevronDown size="0.55em" style={{ color: 'white' }} strokeWidth={2.5} />
-                            )}
-                          </button>
-                        </span>
+                          );
+                        })()
                       ) : (
                         // Unlocked ingredient (normal display)
                         ingredientElement
@@ -1031,7 +1052,7 @@ export const IngredientDisplay = ({
                     </div>
                   )}
                   {shouldShowAmpersandAfter && (
-                    <div style={{ width: '100%' }}>
+                    <div style={{ width: '100%', paddingLeft: '0.1em' }}>
                       <span
                         className="font-serif italic text-gray-900 dark:text-white"
                         style={{
@@ -1082,8 +1103,8 @@ export const IngredientDisplay = ({
                 />
               );
 
-              // On mobile with drawer closed, wrap each empty slot in a full-width container
-              if (isMobile && layoutMode === 'full') {
+              // On mobile with drawer closed (flow layout), wrap each empty slot in a full-width container
+              if (usesFlowLayout) {
                 return (
                   <div key={`empty-${emptyIndex}`} style={{ width: '100%' }}>
                     {emptySlotElement}
