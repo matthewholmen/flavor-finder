@@ -944,6 +944,7 @@ export const IngredientDisplay = ({
                   <SwipeableRow onDelete={() => onRemove(actualIndex)} isLocked={isLocked}>
                     <div style={{
                       paddingLeft: '0.1em',
+                      marginTop: displayIndex > 0 ? '0.08em' : 0, // Small vertical gap between ingredients
                       position: 'relative',
                       width: '100%',
                       zIndex: 10 - displayIndex, // Higher z-index for earlier ingredients (first = 10, second = 9, etc.)
@@ -954,83 +955,95 @@ export const IngredientDisplay = ({
                           position: 'absolute',
                           left: '-0.1em', // Slight overhang to left of text
                           right: 0,
-                          top: '0.05em',
-                          bottom: '0em',
+                          top: 0,
+                          bottom: 0,
                           backgroundColor: color,
                           transformOrigin: 'left center',
                           transform: isLocked ? 'scaleX(1)' : 'scaleX(0)',
                           transition: 'transform 250ms ease-out',
                         }}
                       />
-                      {isLocked ? (
-                        // Locked ingredient with contrasting text, lock icon, and chevron
-                        (() => {
-                          // Dark mode: dark text matching gray-900 background (#111827)
-                          // Light mode: white text against vibrant colored backgrounds
-                          const lockedTextColor = isDarkMode ? '#111827' : 'white';
-                          return (
+                      {/* Always render ingredient text - just change color when locked */}
+                      {(() => {
+                        // Dark mode: dark text matching gray-900 background (#111827)
+                        // Light mode: white text against vibrant colored backgrounds
+                        const lockedTextColor = isDarkMode ? '#111827' : 'white';
+                        // Use ingredient color when unlocked, contrasting color when locked
+                        const textColor = isLocked ? lockedTextColor : color;
+
+                        return (
+                          <span
+                            style={{
+                              position: 'relative',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              paddingRight: isLocked ? '0.3em' : 0,
+                            }}
+                          >
                             <span
+                              data-ingredient
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onLockToggle(actualIndex);
+                              }}
                               style={{
-                                position: 'relative',
-                                display: 'flex',
+                                fontWeight: 900,
+                                color: textColor,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
                                 alignItems: 'center',
-                                justifyContent: 'space-between',
-                                paddingRight: '0.3em',
+                                transition: 'color 250ms ease-out',
                               }}
                             >
+                              {ingredient}
+                              {/* Lock icon - always present, fades in/out */}
                               <span
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  onLockToggle(actualIndex);
-                                }}
+                                className="inline-flex items-center whitespace-nowrap"
                                 style={{
-                                  fontWeight: 900,
-                                  color: lockedTextColor,
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                }}
-                              >
-                                {ingredient}
-                                <span className="inline-flex items-center whitespace-nowrap" style={{ marginLeft: '0.2em', verticalAlign: 'baseline' }}>
-                                  <Lock size="0.45em" style={{ color: lockedTextColor, flexShrink: 0, marginBottom: '0.05em' }} strokeWidth={2.5} />
-                                </span>
-                              </span>
-                              {/* Chevron button to expand/collapse info */}
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setExpandedInfoIndex(isExpanded ? null : actualIndex);
-                                }}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  padding: '0.1em',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
                                   marginLeft: '0.2em',
+                                  verticalAlign: 'baseline',
+                                  opacity: isLocked ? 1 : 0,
+                                  transition: 'opacity 250ms ease-out',
                                 }}
-                                aria-label={isExpanded ? "Collapse ingredient info" : "Expand ingredient info"}
                               >
-                                {isExpanded ? (
-                                  <ChevronUp size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
-                                ) : (
-                                  <ChevronDown size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
-                                )}
-                              </button>
+                                <Lock size="0.45em" style={{ color: textColor, flexShrink: 0, marginBottom: '0.05em', transition: 'color 250ms ease-out' }} strokeWidth={2.5} />
+                              </span>
                             </span>
-                          );
-                        })()
-                      ) : (
-                        // Unlocked ingredient (normal display)
-                        ingredientElement
-                      )}
+                            {/* Chevron button to expand/collapse info - only visible when locked */}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setExpandedInfoIndex(isExpanded ? null : actualIndex);
+                              }}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '0.1em',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginLeft: '0.2em',
+                                opacity: isLocked ? 1 : 0,
+                                pointerEvents: isLocked ? 'auto' : 'none',
+                                transition: 'opacity 250ms ease-out',
+                              }}
+                              aria-label={isExpanded ? "Collapse ingredient info" : "Expand ingredient info"}
+                            >
+                              {isExpanded ? (
+                                <ChevronUp size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
+                              ) : (
+                                <ChevronDown size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
+                              )}
+                            </button>
+                          </span>
+                        );
+                      })()}
                     </div>
                   </SwipeableRow>
-                  {/* Expandable ingredient info - shown below the ingredient when expanded */}
+                  {/* Expandable ingredient info - shown below the ingredient when expanded (only when locked) */}
                   {isLocked && (
                     <div
                       style={{
@@ -1052,7 +1065,7 @@ export const IngredientDisplay = ({
                     </div>
                   )}
                   {shouldShowAmpersandAfter && (
-                    <div style={{ width: '100%', paddingLeft: '0.1em' }}>
+                    <div style={{ width: '100%', paddingLeft: '0.1em', marginTop: '0.12em', marginBottom: '-0.08em' }}>
                       <span
                         className="font-serif italic text-gray-900 dark:text-white"
                         style={{

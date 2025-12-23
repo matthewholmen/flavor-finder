@@ -25,25 +25,70 @@ src/
 ├── App.js                    # Main app with v1/v2 version switching
 ├── FlavorFinder.js           # Legacy v1 component
 ├── FlavorFinderV2.jsx        # Current main component (default)
+├── types.ts                  # Shared TypeScript types
+├── contexts/
+│   └── ThemeContext.jsx      # Dark mode theme context
 ├── components/
-│   └── v2/                   # V2 UI components
-│       ├── MinimalHeader.jsx
-│       ├── IngredientDisplay.jsx   # Unified ingredient display (hero + compact)
-│       ├── IngredientDrawer.jsx
-│       ├── Sidebar.jsx             # Search/filter sidebar panel
-│       ├── DietaryFilterPills.jsx
-│       ├── MobileBottomBar.jsx
-│       ├── EmptySlotIndicator.jsx
-│       ├── HeroIngredient.jsx      # Deprecated - use IngredientDisplay
-│       ├── HeroIngredientDisplay.jsx # Deprecated - use IngredientDisplay
-│       └── CompactIngredientDisplay.jsx # Deprecated - use IngredientDisplay
+│   ├── v2/                   # V2 UI components
+│   │   ├── MinimalHeader.jsx
+│   │   ├── IngredientDisplay.jsx   # Unified ingredient display (hero + compact)
+│   │   ├── IngredientDrawer.jsx
+│   │   ├── Sidebar.jsx             # Search/filter sidebar panel
+│   │   ├── DietaryFilterPills.jsx
+│   │   ├── MobileBottomBar.jsx
+│   │   ├── EmptySlotIndicator.jsx
+│   │   ├── HeroIngredient.jsx      # Deprecated - use IngredientDisplay
+│   │   ├── HeroIngredientDisplay.jsx # Deprecated - use IngredientDisplay
+│   │   └── CompactIngredientDisplay.jsx # Deprecated - use IngredientDisplay
+│   ├── mobile/               # Mobile-specific components
+│   │   ├── MobileApp.tsx           # Main mobile app container
+│   │   ├── MobileSearchScreen.tsx
+│   │   ├── MobileDiscoverScreen.tsx
+│   │   ├── MobileSettingsScreen.tsx
+│   │   ├── SavedCombinationsScreen.tsx
+│   │   └── BottomNavigation.tsx
+│   ├── MenuPlanner/          # Menu planning wizard
+│   │   ├── index.tsx               # Main MenuPlanner component
+│   │   ├── WizardInterface.tsx     # Step-by-step wizard UI
+│   │   ├── ProgressSteps.tsx
+│   │   ├── ModeSelector.tsx
+│   │   ├── KeyIngredientSelector.tsx
+│   │   ├── DishConfigSelector.tsx
+│   │   ├── DietaryRestrictions.tsx
+│   │   ├── ReviewAndGenerate.tsx
+│   │   ├── MenuOverview.tsx
+│   │   ├── DishEditor.tsx
+│   │   └── InteractiveBuilder.tsx
+│   ├── filters/
+│   │   └── UnifiedFilterPanel/     # Unified filter panel
+│   │       ├── index.tsx
+│   │       ├── FilterPanel.tsx
+│   │       ├── FilterPanelTrigger.tsx
+│   │       ├── CategorySection.tsx
+│   │       ├── DietarySection.tsx
+│   │       ├── TasteSection.tsx
+│   │       └── types.ts
+│   ├── SearchBar.tsx
+│   ├── IngredientSlot.tsx
+│   ├── IngredientEditDialog.tsx
+│   ├── SelectedIngredients.tsx
+│   ├── SuggestedIngredients.tsx
+│   ├── EnhancedTasteAnalysis.tsx
+│   ├── TasteAnalysisModal.tsx
+│   ├── CompactTasteSliders.tsx
+│   ├── SortingFilter.tsx
+│   ├── SettingsModal.tsx
+│   ├── ShareButton.jsx
+│   ├── Notification.jsx
+│   └── categoryFilter.tsx
 ├── data/
 │   ├── flavorPairings.ts     # Core ingredient pairing data
 │   ├── experimentalPairings.ts
 │   └── ingredientProfiles.ts # Ingredient metadata (category, taste profiles)
 ├── hooks/
 │   ├── useScreenSize.ts      # Responsive breakpoint hook
-│   └── useSavedCombinations.ts # Saved ingredient combinations
+│   ├── useSavedCombinations.ts # Saved ingredient combinations
+│   └── useFavorites.tsx      # Favorite ingredients management
 └── utils/
     ├── searchUtils.ts        # Ingredient filtering/search
     ├── search.ts             # Search utilities
@@ -52,7 +97,13 @@ src/
     ├── colors.ts             # Color utilities (includes TASTE_COLORS)
     ├── sorting.ts            # Sorting utilities
     ├── tasteAnalysis.ts      # Taste profile analysis
-    └── tasteSuggestions.ts   # Taste-based suggestions
+    ├── tasteSuggestions.ts   # Taste-based suggestions
+    ├── urlEncoding.js        # URL state encoding/decoding
+    └── menuPlanner/          # Menu planning utilities
+        ├── index.ts
+        ├── tasteBalance.ts
+        ├── dishSuggestion.ts
+        └── menuGeneration.ts
 ```
 
 ## Key Concepts
@@ -78,6 +129,9 @@ The unified `IngredientDisplay` component handles both hero (full-screen) and co
 - **Category/Subcategory**: Filter by ingredient type (proteins, vegetables, etc.)
 - **Taste Profile**: Filter by flavor attributes (sweet, salty, umami, etc.)
 - **Dietary Restrictions**: Exclude ingredient categories
+
+### Theme Support
+Dark mode is supported via `ThemeContext.jsx`. Toggle available in settings.
 
 ## Version Switching
 
