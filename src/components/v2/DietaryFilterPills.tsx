@@ -128,11 +128,11 @@ export const DietaryFilterPills = ({
 
   if (activeFilters.length === 0) return null;
 
-  // In-flow mode: pills align with left margin, can scroll off right edge
+  // In-flow mode: pills can scroll and spill off both edges
   if (isInFlow) {
     return (
-      <div className="overflow-x-auto scrollbar-hide -mr-4">
-        <div className="flex flex-row gap-2 w-max pr-4">
+      <div className="overflow-x-auto scrollbar-hide -mx-4">
+        <div className="flex flex-row gap-2 w-max px-4">
           {activeFilters.map((filter) => (
             <FilterPill
               key={filter}
@@ -170,12 +170,25 @@ const FilterPill = ({ label, onRemove }) => {
         pl-3 pr-2.5 py-2
         rounded-full
         font-medium text-sm
-        bg-[#6AAFE8] text-white
-        border-2 border-[#6AAFE8]
+        bg-transparent
+        border-2
         transition-colors duration-200
-        hover:bg-[#5a9ed6] hover:border-[#5a9ed6]
       "
+      style={{
+        borderColor: 'var(--pill-border)',
+        color: 'var(--pill-text)',
+      }}
     >
+      <style>{`
+        :root {
+          --pill-border: #d2d5db;
+          --pill-text: #121826;
+        }
+        .dark {
+          --pill-border: #4d5562;
+          --pill-text: #ffffff;
+        }
+      `}</style>
       <span>{label}</span>
       <span className="flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity duration-200">
         <X size={14} strokeWidth={2.5} />

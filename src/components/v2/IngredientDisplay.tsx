@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext.tsx';
+import { FilledLock, CustomUnlock } from '../icons/LockIcons.tsx';
+import { getIngredientColor } from '../../utils/ingredientColors.ts';
 
 // Custom hook for swipe-to-delete gesture
 const useSwipeToDelete = ({ onDelete, enabled = true }) => {
@@ -120,66 +122,6 @@ const SwipeableRow = ({ children, onDelete, enabled = true, isLocked = false }) 
       )}
     </div>
   );
-};
-
-// Custom Lock icon with white-filled body
-const FilledLock = ({ color, size = '100%' }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    style={{ width: size, height: size }}
-  >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="white" />
-    <rect
-      x="3" y="11" width="18" height="11" rx="2" ry="2"
-      stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
-    />
-    <path
-      d="M7 11V7a5 5 0 0 1 10 0v4"
-      stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
-    />
-  </svg>
-);
-
-
-// Custom Unlock icon
-const CustomUnlock = ({ color, size = '100%' }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    style={{ width: size, height: size }}
-  >
-    <rect
-      x="3" y="11" width="18" height="11" rx="2" ry="2"
-      stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
-    />
-    <path
-      d="M7 11V7a5 5 0 0 1 9.9-1"
-      stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
-    />
-  </svg>
-);
-
-// Get dominant taste color for ingredient
-const getIngredientColor = (ingredient, ingredientProfiles, isHighContrast, isDarkMode) => {
-  const profile = ingredientProfiles.find(
-    p => p.name.toLowerCase() === ingredient.toLowerCase()
-  );
-
-  if (!profile?.flavorProfile) return getIngredientColorWithContrast('#374151', isHighContrast, isDarkMode);
-
-  let dominantTaste = 'sweet';
-  let maxValue = -1;
-
-  Object.entries(profile.flavorProfile).forEach(([taste, value]) => {
-    if (value > maxValue) {
-      maxValue = value;
-      dominantTaste = taste;
-    }
-  });
-
-  const baseColor = maxValue > 0 ? (TASTE_COLORS[dominantTaste] || '#374151') : '#374151';
-  return getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode);
 };
 
 // Single Ingredient component - handles both hero and compact modes
@@ -564,8 +506,8 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
       {/* Description */}
       {profile?.description && (
         <p
-          className="text-base leading-relaxed mb-4 tracking-wide text-gray-700 dark:text-gray-300"
-          style={{ fontWeight: 400 }}
+          className="mb-4 text-gray-700 dark:text-gray-300"
+          style={{ fontWeight: 400, fontSize: '14px', lineHeight: '23px', letterSpacing: '0' }}
         >
           {profile.description}
         </p>
@@ -583,12 +525,12 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
 
       {/* Taste Tags */}
       {tasteTags.length > 0 && (
-        <div className="flex flex-wrap gap-2.5">
+        <div className="flex flex-wrap gap-2">
           {tasteTags.map((taste) => (
             <span
               key={taste}
-              className="px-5 py-1.5 rounded-full text-base font-medium text-white capitalize tracking-wide"
-              style={{ backgroundColor: getIngredientColorWithContrast(TASTE_COLORS[taste], isHighContrast, isDarkMode) }}
+              className="px-4 py-1 rounded-full text-sm font-medium capitalize tracking-wide"
+              style={{ backgroundColor: getIngredientColorWithContrast(TASTE_COLORS[taste], isHighContrast, isDarkMode), color: isDarkMode ? '#131823' : 'white' }}
             >
               {taste}
             </span>
@@ -978,7 +920,6 @@ export const IngredientDisplay = ({
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              paddingRight: isLocked ? '0.3em' : 0,
                             }}
                           >
                             <span
@@ -992,26 +933,75 @@ export const IngredientDisplay = ({
                                 fontWeight: 900,
                                 color: textColor,
                                 cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
+                                display: 'inline',
                                 transition: 'color 250ms ease-out',
                               }}
                             >
-                              {ingredient}
-                              {/* Lock icon - always present, fades in/out */}
-                              <span
-                                className="inline-flex items-center whitespace-nowrap"
-                                style={{
-                                  marginLeft: '0.2em',
-                                  verticalAlign: 'baseline',
-                                  opacity: isLocked ? 1 : 0,
-                                  transition: 'opacity 250ms ease-out',
-                                }}
-                              >
-                                <Lock size="0.45em" style={{ color: textColor, flexShrink: 0, marginBottom: '0.05em', transition: 'color 250ms ease-out' }} strokeWidth={2.5} />
-                              </span>
+                              {/* Split ingredient: allow wrapping but keep last word + comma/lock together */}
+                              {/* Lock icon and comma are always rendered but visibility toggled to prevent layout shifts */}
+                              {(() => {
+                                const words = ingredient.split(' ');
+                                // Trailing element: shows lock when locked, comma when unlocked (if showComma)
+                                // Both are positioned in the same spot, tight to the ingredient
+                                const trailingElement = (
+                                  <span
+                                    className="inline-flex items-center"
+                                    style={{ verticalAlign: 'baseline', position: 'relative' }}
+                                  >
+                                    {/* Lock icon - always rendered, opacity controls visibility, same position as comma */}
+                                    <span
+                                      style={{
+                                        opacity: isLocked ? 1 : 0,
+                                        transition: 'opacity 250ms ease-out',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Lock size="0.35em" style={{ color: textColor, flexShrink: 0, transition: 'color 250ms ease-out' }} strokeWidth={3.5} />
+                                    </span>
+                                    {/* Comma - positioned absolutely in same spot as lock, visible when unlocked */}
+                                    {showComma && (
+                                      <span
+                                        style={{
+                                          position: 'absolute',
+                                          left: '-.0em',
+                                          top: '-.45em',
+                                          color: isDarkMode ? 'white' : '#1a1a1a',
+                                          fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                                          fontStyle: 'italic',
+                                          fontWeight: 400,
+                                          opacity: isLocked ? 0 : 1,
+                                          transition: 'opacity 250ms ease-out',
+                                        }}
+                                      >
+                                        ,
+                                      </span>
+                                    )}
+                                  </span>
+                                );
+                                if (words.length === 1) {
+                                  return (
+                                    <span className="whitespace-nowrap">
+                                      {ingredient}
+                                      {trailingElement}
+                                    </span>
+                                  );
+                                }
+                                const firstWords = words.slice(0, -1).join(' ');
+                                const lastWord = words[words.length - 1];
+                                return (
+                                  <>
+                                    {firstWords}{' '}
+                                    <span className="whitespace-nowrap">
+                                      {lastWord}
+                                      {trailingElement}
+                                    </span>
+                                  </>
+                                );
+                              })()}
                             </span>
                             {/* Chevron button to expand/collapse info - only visible when locked */}
+                            {/* Uses position:absolute so it doesn't affect text layout */}
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -1019,13 +1009,16 @@ export const IngredientDisplay = ({
                                 setExpandedInfoIndex(isExpanded ? null : actualIndex);
                               }}
                               style={{
+                                position: 'absolute',
+                                right: 0,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
                                 background: 'none',
                                 border: 'none',
                                 padding: '0.1em',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                marginLeft: '0.2em',
                                 opacity: isLocked ? 1 : 0,
                                 pointerEvents: isLocked ? 'auto' : 'none',
                                 transition: 'opacity 250ms ease-out',
@@ -1043,29 +1036,27 @@ export const IngredientDisplay = ({
                       })()}
                     </div>
                   </SwipeableRow>
-                  {/* Expandable ingredient info - shown below the ingredient when expanded (only when locked) */}
-                  {isLocked && (
-                    <div
-                      style={{
-                        width: '100%',
-                        overflow: 'hidden',
-                        maxHeight: isExpanded ? '300px' : '0px',
-                        opacity: isExpanded ? 1 : 0,
-                        transition: 'max-height 300ms ease-out, opacity 200ms ease-out',
-                      }}
-                    >
-                      <MobileIngredientInfo
-                        ingredient={ingredient}
-                        ingredientProfiles={ingredientProfiles}
-                        flavorMap={flavorMap}
-                        selectedIngredients={validIngredients}
-                        isHighContrast={isHighContrast}
-                        isDarkMode={isDarkMode}
-                      />
-                    </div>
-                  )}
+                  {/* Expandable ingredient info - always rendered to avoid layout shifts, visibility controlled by CSS */}
+                  <div
+                    style={{
+                      width: '100%',
+                      overflow: 'hidden',
+                      maxHeight: (isLocked && isExpanded) ? '300px' : '0px',
+                      opacity: (isLocked && isExpanded) ? 1 : 0,
+                      transition: 'max-height 300ms ease-out, opacity 200ms ease-out',
+                    }}
+                  >
+                    <MobileIngredientInfo
+                      ingredient={ingredient}
+                      ingredientProfiles={ingredientProfiles}
+                      flavorMap={flavorMap}
+                      selectedIngredients={validIngredients}
+                      isHighContrast={isHighContrast}
+                      isDarkMode={isDarkMode}
+                    />
+                  </div>
                   {shouldShowAmpersandAfter && (
-                    <div style={{ width: '100%', paddingLeft: '0.1em', marginTop: '0.12em', marginBottom: '-0.08em' }}>
+                    <div style={{ width: '100%', paddingLeft: '0.1em', marginTop: '0.08em', marginBottom: '-0.05em' }}>
                       <span
                         className="font-serif italic text-gray-900 dark:text-white"
                         style={{
@@ -1130,37 +1121,6 @@ export const IngredientDisplay = ({
           )}
         </div>
       </div>
-
-      {/* Mobile action buttons - commented out, tap now toggles lock directly
-      {isMobile && !isDrawerOpen && focusedInfo && (
-        <div
-          data-action-buttons
-          className="fixed left-1/2 -translate-x-1/2 flex items-center gap-6 z-50"
-          style={{ bottom: '120px' }}
-        >
-          <button
-            onClick={handleMobileRemove}
-            className="flex items-center justify-center bg-white rounded-full shadow-lg active:bg-gray-100"
-            style={{ width: '64px', height: '64px', boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)' }}
-            title="Remove ingredient"
-          >
-            <X size={28} className="text-gray-500" strokeWidth={2} />
-          </button>
-          <button
-            onClick={handleMobileLockToggle}
-            className="flex items-center justify-center bg-white rounded-full shadow-lg active:bg-gray-100"
-            style={{ width: '64px', height: '64px', boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)' }}
-            title={focusedInfo.isLocked ? "Unlock ingredient" : "Lock ingredient"}
-          >
-            {focusedInfo.isLocked ? (
-              <Lock size={28} className="text-gray-700" strokeWidth={2} />
-            ) : (
-              <Unlock size={28} className="text-gray-400" strokeWidth={2} />
-            )}
-          </button>
-        </div>
-      )}
-      */}
     </>
   );
 };

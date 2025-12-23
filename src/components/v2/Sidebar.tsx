@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, Moon, Sun } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext.tsx';
 
 const shortcuts = [
   { key: 'space', action: 'generate' },
@@ -179,7 +179,7 @@ const GenerationOptionsContent = ({
                 rounded-full border-2 font-medium
                 transition-all
                 ${isActive
-                  ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
+                  ? 'border-gray-500 dark:border-gray-400 bg-gray-500 dark:bg-gray-400 text-white dark:text-gray-700'
                   : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
                 }
               `}
@@ -225,12 +225,12 @@ const GenerationOptionsContent = ({
   );
 };
 
-// Settings Content
-const SettingsContent = () => {
+// Bottom Settings Toggles (not in a collapsible)
+const BottomSettingsToggles = () => {
   const { isDarkMode, toggleDarkMode, isHighContrast, toggleHighContrast } = useTheme();
 
   return (
-    <div className="space-y-4">
+    <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
       {/* Dark Mode Toggle */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -286,14 +286,14 @@ const MobileSidebarContent = ({
   compatibilityMode,
   onCompatibilityChange,
 }) => {
-  const [openSections, setOpenSections] = useState({ generation: true, settings: false });
+  const [openSections, setOpenSections] = useState({ generation: true });
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 flex flex-col overflow-y-auto">
       {/* Description text */}
       <p className="text-gray-700 dark:text-gray-400 text-sm leading-relaxed px-4 py-3">
         Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidu.
@@ -313,13 +313,11 @@ const MobileSidebarContent = ({
         />
       </CollapsibleSection>
 
-      <CollapsibleSection
-        title="Settings"
-        isOpen={openSections.settings}
-        onToggle={() => toggleSection('settings')}
-      >
-        <SettingsContent />
-      </CollapsibleSection>
+      {/* Spacer to push settings to bottom */}
+      <div className="flex-1" />
+
+      {/* Settings toggles at bottom */}
+      <BottomSettingsToggles />
     </div>
   );
 };

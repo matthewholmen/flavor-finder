@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext.tsx';
 
 // Filter constants
 const CATEGORIES = [

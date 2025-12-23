@@ -1,8 +1,19 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-const ThemeContext = createContext();
+interface ThemeContextType {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  isHighContrast: boolean;
+  toggleHighContrast: () => void;
+}
 
-export const useTheme = () => {
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');
@@ -10,20 +21,28 @@ export const useTheme = () => {
   return context;
 };
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Initialize from localStorage or system preference
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    if (saved !== null) {
-      return JSON.parse(saved);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('darkMode');
+      if (saved !== null) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // Ignore parse errors
     }
     // Check system preference
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
-  const [isHighContrast, setIsHighContrast] = useState(() => {
-    const saved = localStorage.getItem('highContrast');
-    return saved !== null ? JSON.parse(saved) : false;
+  const [isHighContrast, setIsHighContrast] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('highContrast');
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
   });
 
   // Update localStorage and document class when theme changes
@@ -45,8 +64,8 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [isHighContrast]);
 
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
-  const toggleHighContrast = () => setIsHighContrast(prev => !prev);
+  const toggleDarkMode = (): void => setIsDarkMode(prev => !prev);
+  const toggleHighContrast = (): void => setIsHighContrast(prev => !prev);
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode, isHighContrast, toggleHighContrast }}>
