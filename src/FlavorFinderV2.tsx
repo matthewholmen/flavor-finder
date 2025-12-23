@@ -680,14 +680,11 @@ export default function FlavorFinderV2() {
         pt-20 ${isMobile ? 'pb-24' : 'pb-32'}
         ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
-        {/* Mobile flow layout: content + pills in a flex column with min-height to push pills to bottom */}
+        {/* Mobile flow layout: content fills space, pills fixed above bottom bar */}
         {isMobile && !isDrawerOpen ? (
-          <div
-            className="flex flex-col"
-            style={{ minHeight: 'calc(100vh - 5rem - 6rem)' }} // viewport - header - bottom bar
-          >
+          <>
             {/* Ingredient Display */}
-            <div className="flex-shrink-0">
+            <div className="flex-1 flex flex-col">
               <IngredientDisplay
                 ingredients={selectedIngredients}
                 lockedIngredients={lockedIngredients}
@@ -702,18 +699,15 @@ export default function FlavorFinderV2() {
               />
             </div>
 
-            {/* Spacer pushes pills to bottom when content is short */}
-            <div className="flex-grow" />
-
-            {/* Dietary Filter Pills - at bottom of content, scrolls with it */}
-            <div className="flex-shrink-0 pb-2 pt-6 px-4">
+            {/* Dietary Filter Pills - fixed above bottom bar on mobile */}
+            <div className="fixed left-0 right-0 bottom-[84px] z-[55] px-4 overflow-x-auto scrollbar-hide">
               <DietaryFilterPills
                 dietaryRestrictions={dietaryRestrictions}
                 onDietaryChange={setDietaryRestrictions}
                 isInFlow={true}
               />
             </div>
-          </div>
+          </>
         ) : (
           <>
             {/* Desktop/drawer-open layout */}
