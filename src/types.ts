@@ -1,30 +1,14 @@
 // types.ts
 
-type AromaSubcategory = {
-  Fruity: "Berry" | "Citrus" | "Dried Fruit" | "Melon" | "Tree Fruit" | "Tropical";
-  Maillard: "Caramel" | "Chocolate" | "Meaty" | "Nutty" | "Roasted" | "Toasted";
-  Terpene: "Medicinal" | "Spice" | "Smoke" | "Petrol" | "Wood";
-  Vegetal: "Green" | "Earthy" | "Fruit-Like" | "Herbaceous";
-  Phenol: never;
-  Pungent: never;
-  Marine: never;
-  Sour: never;
-  Savory: never;
-  Sulphur: never;
-  Alcohol: never;
-  Dairy: never;
-}
-
 type IngredientSubcategory = {
-  Proteins: "Plant Proteins" | "Fish" | "Pork" | "Poultry" | "Game" | "Crustacean" | "Mollusk" | "Meat" | "Offal";
-  Vegetables: "Allium" | "Brassicas" | "Leafy Greens" | "Roots" | "Squash" | "Mushroom" | "Peppers" | "Stalks" | "Fruit Vegetables";
-  Fruits: "Citrus" | "Pome Fruit" | "Stone Fruit" | "Tropical Fruit" | "Berries" | "Melons" | "Other Fruits";
-  Seasonings: "Herbs" | "Spices" |  "Seeds & Botanicals" | "Chilis";
-  Dairy: "Cultured Dairy" | "Hard Cheese" | "Soft Cheese" | "Milk & Cream";
+  Proteins: "Meat" | "Poultry" | "Seafood" | "Plant Proteins";
+  Vegetables: "Allium" | "Leafy Greens" | "Roots" | "Squash" | "Brassicas" | "Mushrooms" | "Stalks" | "Fruit Vegetables";
+  Fruits: "Citrus" | "Stone Fruit" | "Tropical" | "Berries" | "Pome Fruit" | "Melons";
+  Dairy: "Cheese" | "Cultured" | "Milk & Cream";
+  Seasonings: "Herbs" | "Spices" | "Chilis";
+  Pantry: "Oils & Fats" | "Vinegars" | "Stocks" | "Sauces" | "Sweeteners";
   Grains: "Rice" | "Pasta" | "Bread" | "Ancient Grains";
-  Liquids: "Broths & Stocks" | "Oils & Fats" | "Vinegars";
-  Condiments: "Fermented" | "Sauces" | "Preserves" | "Sweeteners";
-  Alcohol: "Wines" | "Spirits" | "Liqueurs";
+  Alcohol: "Wine" | "Spirits" | "Liqueurs";
 }
 
 export interface IngredientProfile {
@@ -35,14 +19,10 @@ export interface IngredientProfile {
     sweet: number;
     salty: number;
     sour: number;
-    bitter: number;
     umami: number;
     fat: number;
     spicy: number;
-  };
-  aromas: {
-    primary: keyof AromaSubcategory;
-    secondary?: AromaSubcategory[keyof AromaSubcategory];
+    aromatic: number;
   };
   description: string;
   // MVP+
@@ -70,10 +50,10 @@ export interface Dish {
     sweet: number;
     salty: number;
     sour: number;
-    bitter: number;
     umami: number;
     fat: number;
     spicy: number;
+    aromatic: number;
   };
   weight: number; // Overall weight/intensity
   preparationTime?: number; // Optional: estimated minutes
@@ -90,16 +70,16 @@ export interface Menu {
     sweet: number;
     salty: number;
     sour: number;
-    bitter: number;
     umami: number;
     fat: number;
     spicy: number;
+    aromatic: number;
   };
 }
 
 // Taste properties for filtering
-export type TasteProperty = 'sweet' | 'salty' | 'sour' | 'bitter' | 'umami' | 'fat' | 'spicy';
+export type TasteProperty = 'sweet' | 'salty' | 'sour' | 'umami' | 'fat' | 'spicy' | 'aromatic';
 
-export const TASTE_PROPERTIES: TasteProperty[] = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
+export const TASTE_PROPERTIES: TasteProperty[] = ['sweet', 'salty', 'sour', 'umami', 'fat', 'spicy', 'aromatic'];
 
-export type { AromaSubcategory, IngredientSubcategory };
+export type { IngredientSubcategory };

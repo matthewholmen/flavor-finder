@@ -4,10 +4,10 @@ interface FlavorProfile {
   sweet?: number;
   salty?: number;
   sour?: number;
-  bitter?: number;
   umami?: number;
   fat?: number;
   spicy?: number;
+  aromatic?: number;
 }
 
 interface IngredientProfile {

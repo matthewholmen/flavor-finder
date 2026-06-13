@@ -6,7 +6,7 @@ export interface TasteValues {
   sweet: number;
   salty: number;
   sour: number;
-  bitter: number;
+  aromatic: number;
   umami: number;
   fat: number;
   spicy: number;

@@ -140,6 +140,7 @@ const Ingredient = ({
   onLockToggle,
   showComma,
   showAmpersand,
+  tightAmpersand = false, // Two-ingredient set: preceding item has no comma, pull & closer
   isMobile,
   isCompact,
   isHighContrast,
@@ -194,7 +195,8 @@ const Ingredient = ({
         }}
       >
         {isLocked ? (
-          <FilledLock color={isFaded ? fadedColor : '#1a1a1a'} />
+          // Sits on the colored highlight bar, so match the locked text color
+          <FilledLock color={isDarkMode ? '#111827' : '#ffffff'} />
         ) : (
           <CustomUnlock color="#d1d5db" />
         )}
@@ -221,7 +223,8 @@ const Ingredient = ({
             className="font-serif italic transition-all duration-200 text-gray-900 dark:text-white"
             style={{
               fontWeight: 400,
-              marginRight: '0.2em',
+              marginLeft: '0.08em',
+              marginRight: '0.26em',
             }}
           >
             &amp;
@@ -287,7 +290,10 @@ const Ingredient = ({
           style={{
             color: isFaded ? fadedColor : undefined,
             fontWeight: 400,
-            marginRight: '0.2em',
+            // In a two-ingredient set the preceding ingredient has no comma but
+            // still reserves space for its hover controls, so pull the & back in
+            marginLeft: tightAmpersand ? '-0.2em' : '0.08em',
+            marginRight: '0.26em',
           }}
         >
           &amp;
@@ -297,12 +303,22 @@ const Ingredient = ({
       <span
         className="relative inline transition-all duration-200 cursor-pointer"
         style={{
-          fontWeight: isPerfectMatch ? 900 : 400,
-          color: isFaded ? fadedColor : color,
-          textDecoration: isLocked ? 'underline' : 'none',
-          textDecorationColor: isFaded ? fadedColor : color,
-          textDecorationThickness: '0.06em',
-          textUnderlineOffset: '0.08em',
+          // Lighter weight + muted color = not a suggested pairing with everything
+          // selected. Locking restores full weight since the user chose to keep it.
+          fontWeight: (isLocked || isPerfectMatch) ? 900 : 500,
+          opacity: (isLocked || isPerfectMatch || isFaded) ? 1 : 0.65,
+          color: isLocked
+            ? (isDarkMode ? '#111827' : 'white')
+            : (isFaded ? fadedColor : color),
+          // Locked = colored highlight bar that sweeps across (matches the
+          // mobile lock animation)
+          backgroundImage: `linear-gradient(${isFaded ? fadedColor : color}, ${isFaded ? fadedColor : color})`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'left center',
+          backgroundSize: isLocked ? '100% 100%' : '0% 100%',
+          WebkitBoxDecorationBreak: 'clone',
+          boxDecorationBreak: 'clone',
+          transition: 'background-size 250ms ease-out, color 250ms ease-out, opacity 200ms ease-out',
         }}
         onClick={(e) => {
           e.preventDefault();
@@ -310,7 +326,7 @@ const Ingredient = ({
           // Both mobile and desktop: tap/click toggles lock
           onLockToggle();
         }}
-        title={isLocked ? "Click to unlock" : "Click to lock"}
+        title={`${!isPerfectMatch ? 'Not a suggested pairing with everything selected. ' : ''}${isLocked ? 'Click to unlock' : 'Click to lock'}`}
       >
         {/* Split ingredient: allow wrapping but keep last word + comma together */}
         {(() => {
@@ -322,7 +338,7 @@ const Ingredient = ({
                 {ingredient}
                 {isMobile && isLocked && (
                   <span className="inline-flex items-center" style={{ marginLeft: '0.1em', verticalAlign: 'middle' }}>
-                    <FilledLock color={isFaded ? fadedColor : '#1a1a1a'} size="0.5em" />
+                    <FilledLock color={isFaded ? fadedColor : (isDarkMode ? '#ffffff' : '#1a1a1a')} size="0.5em" />
                   </span>
                 )}
                 {isMobile && showComma && (
@@ -371,7 +387,7 @@ const Ingredient = ({
                 {lastWord}
                 {isMobile && isLocked && (
                   <span className="inline-flex items-center" style={{ marginLeft: '0.1em', verticalAlign: 'middle' }}>
-                    <FilledLock color={isFaded ? fadedColor : '#1a1a1a'} size="0.5em" />
+                    <FilledLock color={isFaded ? fadedColor : (isDarkMode ? '#ffffff' : '#1a1a1a')} size="0.5em" />
                   </span>
                 )}
                 {isMobile && showComma && (
@@ -497,7 +513,7 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
     <div className="px-1 pt-3 pb-2">
       {/* Category & Subcategory */}
       {profile && (
-        <p className="text-base text-gray-500 dark:text-gray-400 mb-3 tracking-wide" style={{ fontWeight: 400 }}>
+        <p className="text-gray-500 dark:text-gray-400 mb-2 tracking-wide" style={{ fontWeight: 400, fontSize: '17px', lineHeight: '1.3' }}>
           {profile.category.toLowerCase()}
           {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
         </p>
@@ -506,8 +522,8 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
       {/* Description */}
       {profile?.description && (
         <p
-          className="mb-4 text-gray-700 dark:text-gray-300"
-          style={{ fontWeight: 400, fontSize: '14px', lineHeight: '23px', letterSpacing: '0' }}
+          className={`${tasteTags.length > 0 ? 'mb-4' : 'mb-0'} text-gray-700 dark:text-gray-300`}
+          style={{ fontWeight: 400, fontSize: '16px', lineHeight: '1.4', letterSpacing: '0' }}
         >
           {profile.description}
         </p>
@@ -867,6 +883,13 @@ export const IngredientDisplay = ({
                 onLockToggle={() => onLockToggle(actualIndex)}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
+                tightAmpersand={
+                  // Two-ingredient set with an unlocked first ingredient: its
+                  // trailing control space renders empty, so pull the & closer.
+                  // (When locked, the highlight bar fills that space.)
+                  validIngredients.length === 2 &&
+                  !lockedIngredients.has(ingredients.findIndex(Boolean))
+                }
                 isMobile={isMobile}
                 isCompact={layoutMode === 'compact'}
                 isHighContrast={isHighContrast}
@@ -930,7 +953,11 @@ export const IngredientDisplay = ({
                                 onLockToggle(actualIndex);
                               }}
                               style={{
-                                fontWeight: 900,
+                                // Lighter weight + muted color = not a suggested pairing
+                                // with the other selected ingredients (underline stays
+                                // reserved for the locked state)
+                                fontWeight: (isLocked || isPerfectMatch(ingredient)) ? 900 : 500,
+                                opacity: (isLocked || isPerfectMatch(ingredient)) ? 1 : 0.65,
                                 color: textColor,
                                 cursor: 'pointer',
                                 display: 'inline',

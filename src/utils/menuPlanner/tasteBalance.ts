@@ -5,7 +5,7 @@ export const TASTE_PROPERTIES = [
   'sweet',
   'salty',
   'sour',
-  'bitter',
+  'aromatic',
   'umami',
   'fat',
   'spicy'
@@ -30,7 +30,7 @@ export const calculateMenuBalance = (dishes: Dish[]): number => {
       });
       return acc;
     },
-    { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, fat: 0, spicy: 0 }
+    { sweet: 0, salty: 0, sour: 0, aromatic: 0, umami: 0, fat: 0, spicy: 0 }
   );
   
   // 2. Normalize values
@@ -110,7 +110,7 @@ export const calculateProfileMatchScore = (
  */
 export const calculateCombinedTasteProfile = (dishes: Dish[]): Dish['tasteProfile'] => {
   if (!dishes.length) {
-    return { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, fat: 0, spicy: 0 };
+    return { sweet: 0, salty: 0, sour: 0, aromatic: 0, umami: 0, fat: 0, spicy: 0 };
   }
   
   // Calculate the sum of all profiles
@@ -121,7 +121,7 @@ export const calculateCombinedTasteProfile = (dishes: Dish[]): Dish['tasteProfil
       });
       return acc;
     },
-    { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, fat: 0, spicy: 0 }
+    { sweet: 0, salty: 0, sour: 0, aromatic: 0, umami: 0, fat: 0, spicy: 0 }
   );
   
   // Normalize values to 0-10 scale

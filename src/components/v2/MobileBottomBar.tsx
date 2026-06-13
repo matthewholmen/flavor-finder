@@ -14,13 +14,15 @@ export const MobileBottomBar = ({
   isGeneratePulsing = false,
 }) => {
   const buttonBase = `
-    flex items-center justify-center
+    flex flex-col items-center justify-center gap-0.5
     flex-1
-    h-12
-    rounded-full
+    h-14
+    rounded-2xl
     border-2
     transition-all duration-200
   `;
+
+  const labelClass = 'text-[10px] font-medium leading-none';
 
   return (
     <div
@@ -45,7 +47,8 @@ export const MobileBottomBar = ({
           `}
           aria-label="Undo"
         >
-          <Undo2 size={20} strokeWidth={1.5} />
+          <Undo2 size={18} strokeWidth={1.5} />
+          <span className={labelClass}>Undo</span>
         </button>
 
         {/* Decrement Button */}
@@ -61,7 +64,8 @@ export const MobileBottomBar = ({
           `}
           aria-label="Remove ingredient"
         >
-          <Minus size={20} strokeWidth={1.5} />
+          <Minus size={18} strokeWidth={1.5} />
+          <span className={labelClass}>Fewer</span>
         </button>
 
         {/* Generate Button (Sparkle) */}
@@ -76,7 +80,8 @@ export const MobileBottomBar = ({
           `}
           aria-label="Generate"
         >
-          <Sparkles size={22} strokeWidth={1.5} />
+          <Sparkles size={18} strokeWidth={1.5} />
+          <span className={labelClass}>Generate</span>
         </button>
 
         {/* Increment Button */}
@@ -92,7 +97,8 @@ export const MobileBottomBar = ({
           `}
           aria-label="Add ingredient"
         >
-          <Plus size={20} strokeWidth={1.5} />
+          <Plus size={18} strokeWidth={1.5} />
+          <span className={labelClass}>More</span>
         </button>
 
         {/* Search/Drawer Toggle Button */}
@@ -107,7 +113,8 @@ export const MobileBottomBar = ({
           `}
           aria-label={isDrawerOpen ? "Close ingredient drawer" : "Search ingredients"}
         >
-          <Search size={20} strokeWidth={1.5} />
+          <Search size={18} strokeWidth={1.5} />
+          <span className={labelClass}>Search</span>
         </button>
       </div>
     </div>

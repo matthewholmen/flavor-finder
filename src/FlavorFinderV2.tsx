@@ -4,6 +4,8 @@ import { MobileBottomBar } from './components/v2/MobileBottomBar.tsx';
 import { IngredientDisplay } from './components/v2/IngredientDisplay.tsx';
 import { IngredientDrawer } from './components/v2/IngredientDrawer.tsx';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
+import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
+import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
 import { Sidebar } from './components/v2/Sidebar.tsx';
 import { Undo2 } from 'lucide-react';
 import { useScreenSize } from './hooks/useScreenSize.ts';
@@ -11,7 +13,6 @@ import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
 import { useCompatibility } from './hooks/useCompatibility.ts';
 import { flavorPairings } from './data/flavorPairings.ts';
-import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { filterIngredients } from './utils/searchUtils.ts';
 import {
@@ -21,7 +22,7 @@ import {
 } from './data/dietaryRestrictions.ts';
 
 // Create flavor map helper
-const createFlavorMap = (includeExperimental = false) => {
+const createFlavorMap = () => {
   const flavorMap = new Map<string, Set<string>>();
 
   const addPairing = (ingredient1: string, ingredient2: string) => {
@@ -35,25 +36,11 @@ const createFlavorMap = (includeExperimental = false) => {
     flavorMap.get(ingredient2)!.add(ingredient1);
   };
 
-  const pairingExists = (ingredient1: string, ingredient2: string) => {
-    return (flavorMap.get(ingredient1)?.has(ingredient2) || flavorMap.get(ingredient2)?.has(ingredient1));
-  };
-
   flavorPairings.forEach(pair => {
     const [ingredient1, ingredient2] = pair.split(',');
     if (!ingredient1 || !ingredient2) return;
     addPairing(ingredient1, ingredient2);
   });
-
-  if (includeExperimental) {
-    experimentalPairings.forEach(pair => {
-      const [ingredient1, ingredient2] = pair.split(',');
-      if (!ingredient1 || !ingredient2) return;
-      if (!pairingExists(ingredient1, ingredient2)) {
-        addPairing(ingredient1, ingredient2);
-      }
-    });
-  }
 
   return { flavorMap, totalPairings: flavorMap.size };
 };
@@ -107,11 +94,14 @@ export default function FlavorFinderV2() {
   // UI state (not extracted to hooks as they're specific to this component)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const [isIngredientFiltersOpen, setIsIngredientFiltersOpen] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [introAnimationComplete, setIntroAnimationComplete] = useState(false);
+  const [noMatchToast, setNoMatchToast] = useState(false);
 
   // Create flavor map
-  const { flavorMap } = useMemo(() => createFlavorMap(false), []);
+  const { flavorMap } = useMemo(() => createFlavorMap(), []);
 
   // All ingredients
   const allIngredients = useMemo(
@@ -330,13 +320,13 @@ export default function FlavorFinderV2() {
     }
   }, []);
 
-  // Intro animation - run generate 10 times at 5 per second (200ms interval)
+  // Intro animation - a brief shuffle so the app feels alive without delaying interaction
   useEffect(() => {
     if (introAnimationComplete || selectedIngredients.length === 0) return;
 
     let generationCount = 0;
-    const maxGenerations = 10;
-    const intervalMs = 200;
+    const maxGenerations = 3;
+    const intervalMs = 180;
 
     const intervalId = setInterval(() => {
       generationCount++;
@@ -416,10 +406,22 @@ export default function FlavorFinderV2() {
     setSearchTerm('');
   };
 
-  // Wrap handleIncrementTarget to pass flavorMap and isIngredientRestricted
+  // Wrap handleIncrementTarget to pass flavorMap and isIngredientRestricted.
+  // If no compatible ingredient can be added, surface UI feedback instead of
+  // silently adding an empty slot.
   const handleIncrementTarget = () => {
-    baseHandleIncrementTarget(flavorMap, isIngredientRestricted);
+    const added = baseHandleIncrementTarget(flavorMap, isIngredientRestricted);
+    if (!added) {
+      setNoMatchToast(true);
+    }
   };
+
+  // Auto-dismiss the "no matching ingredient" toast
+  useEffect(() => {
+    if (!noMatchToast) return;
+    const timer = setTimeout(() => setNoMatchToast(false), 3000);
+    return () => clearTimeout(timer);
+  }, [noMatchToast]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -485,23 +487,10 @@ export default function FlavorFinderV2() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedIngredients, lockedIngredients, canIncrementTarget, canDecrementTarget]);
 
-  // Handle recipe search
+  // Handle recipe search - opens the recipe finder modal
   const handleRecipeSearch = () => {
     if (selectedIngredients.length === 0) return;
-
-    const ingredientsText = selectedIngredients.join(' ');
-
-    navigator.clipboard.writeText(ingredientsText)
-      .then(() => {
-        const searchURL = `https://www.google.com/search?q=${encodeURIComponent(ingredientsText + ' recipe')}`;
-        window.open(searchURL, '_blank');
-      })
-      .catch(err => {
-        console.error('Failed to copy ingredients:', err);
-        // Still open search even if copy fails
-        const searchURL = `https://www.google.com/search?q=${encodeURIComponent(selectedIngredients.join(' ') + ' recipe')}`;
-        window.open(searchURL, '_blank');
-      });
+    setIsRecipeModalOpen(true);
   };
 
   // Filter suggestions for drawer
@@ -513,8 +502,13 @@ export default function FlavorFinderV2() {
       ingredientProfiles
     );
 
-    // Filter by compatibility with selected ingredients
-    if (selectedIngredients.length > 0) {
+    // When the user is typing a search, never hide name matches behind the
+    // compatibility filter - home chefs need to add what's in their kitchen.
+    // Compatible matches are sorted first below instead.
+    const isSearching = searchTerm.trim().length > 0;
+
+    // Filter by compatibility with selected ingredients (browsing mode only)
+    if (selectedIngredients.length > 0 && !isSearching) {
       filtered = filtered.filter(ingredient => {
         if (!showPartialMatches) {
           // Strict matching - all ingredients must match
@@ -617,21 +611,20 @@ export default function FlavorFinderV2() {
       });
     }
 
-    // Sort: perfect matches first (alphabetically), then partial matches (alphabetically)
-    if (showPartialMatches && selectedIngredients.length > 0) {
+    // Sort: perfect matches first, then partial, then the rest (alphabetically within each)
+    if ((showPartialMatches || isSearching) && selectedIngredients.length > 0) {
+      const matchTier = (ingredient: string) => {
+        const matches = selectedIngredients.filter(selected =>
+          flavorMap.get(selected)?.has(ingredient)
+        ).length;
+        if (matches === selectedIngredients.length) return 0; // perfect
+        if (matches > 0) return 1; // partial
+        return 2; // no pairing data
+      };
+
       filtered.sort((a, b) => {
-        const aIsPerfect = selectedIngredients.every(selected =>
-          flavorMap.get(selected)?.has(a)
-        );
-        const bIsPerfect = selectedIngredients.every(selected =>
-          flavorMap.get(selected)?.has(b)
-        );
-
-        // Perfect matches come first
-        if (aIsPerfect && !bIsPerfect) return -1;
-        if (!aIsPerfect && bIsPerfect) return 1;
-
-        // Within same category, sort alphabetically
+        const tierDiff = matchTier(a) - matchTier(b);
+        if (tierDiff !== 0) return tierDiff;
         return a.toLowerCase().localeCompare(b.toLowerCase());
       });
     }
@@ -641,6 +634,25 @@ export default function FlavorFinderV2() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col transition-colors duration-300">
+      {/* "No matching ingredient" toast */}
+      {noMatchToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`
+            fixed left-1/2 -translate-x-1/2 z-50
+            ${isMobile ? 'bottom-28 animate-toast-in-bottom' : 'top-32 animate-toast-in'}
+            flex items-center gap-2
+            px-4 py-2.5 rounded-full
+            bg-gray-900 dark:bg-white
+            text-white dark:text-gray-900
+            text-sm font-medium shadow-lg
+          `}
+        >
+          No other ingredient pairs with all of these
+        </div>
+      )}
+
       {/* Minimal Header */}
       <MinimalHeader
         targetCount={targetIngredientCount}
@@ -699,8 +711,16 @@ export default function FlavorFinderV2() {
               />
             </div>
 
+            {/* First-load hint */}
+            {isFirstLoad && introAnimationComplete && (
+              <p className="text-center text-sm text-gray-400 dark:text-gray-500 px-8 pb-3">
+                Tap <span className="font-semibold">Search</span> to add what's in your kitchen,
+                then <span className="font-semibold">Find recipes</span>
+              </p>
+            )}
+
             {/* Dietary Filter Pills - fixed above bottom bar on mobile */}
-            <div className="fixed left-0 right-0 bottom-[84px] z-[55] px-4 overflow-x-auto scrollbar-hide">
+            <div className="fixed left-0 right-0 bottom-[92px] z-[55] px-4 overflow-x-auto scrollbar-hide">
               <DietaryFilterPills
                 dietaryRestrictions={dietaryRestrictions}
                 onDietaryChange={setDietaryRestrictions}
@@ -725,6 +745,13 @@ export default function FlavorFinderV2() {
                 flavorMap={flavorMap}
               />
             </div>
+            {/* First-load hint */}
+            {isFirstLoad && introAnimationComplete && !isDrawerOpen && (
+              <p className="text-center text-sm text-gray-400 dark:text-gray-500 px-8 pb-3">
+                Add what's in your kitchen below, hit <span className="font-semibold">Generate</span> for
+                ideas, then <span className="font-semibold">Find recipes</span>
+              </p>
+            )}
             <DietaryFilterPills
               dietaryRestrictions={dietaryRestrictions}
               onDietaryChange={setDietaryRestrictions}
@@ -789,6 +816,13 @@ export default function FlavorFinderV2() {
         flavorMap={flavorMap}
       />
 
+      {/* Recipe Finder Modal */}
+      <RecipeFinderModal
+        isOpen={isRecipeModalOpen}
+        onClose={() => setIsRecipeModalOpen(false)}
+        ingredients={selectedIngredients}
+      />
+
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -797,6 +831,16 @@ export default function FlavorFinderV2() {
         onDietaryChange={setDietaryRestrictions}
         compatibilityMode={compatibilityMode}
         onCompatibilityChange={handleCompatibilityChange}
+        onOpenIngredientFilters={() => setIsIngredientFiltersOpen(true)}
+      />
+
+      {/* Ingredient Filters Modal */}
+      <IngredientFiltersModal
+        isOpen={isIngredientFiltersOpen}
+        onClose={() => setIsIngredientFiltersOpen(false)}
+        dietaryRestrictions={dietaryRestrictions}
+        onDietaryChange={setDietaryRestrictions}
+        ingredientProfiles={ingredientProfiles}
       />
     </div>
   );

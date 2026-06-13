@@ -4,10 +4,10 @@ export interface TasteValues {
   sweet: number;
   salty: number;
   sour: number;
-  bitter: number;
   umami: number;
   fat: number;
   spicy: number;
+  aromatic: number;
 }
 
 export interface DietaryRestrictions {
@@ -41,10 +41,10 @@ const DEFAULT_TASTE_VALUES: TasteValues = {
   sweet: 0,
   salty: 0,
   sour: 0,
-  bitter: 0,
   umami: 0,
   fat: 0,
   spicy: 0,
+  aromatic: 0,
 };
 
 export const useFilters = (): UseFiltersReturn => {

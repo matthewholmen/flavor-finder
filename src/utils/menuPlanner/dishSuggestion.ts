@@ -198,9 +198,9 @@ export const isRestricted = (
     }
     
     // Category-based restrictions (e.g., "no meat")
-    if (restriction === 'no meat' && 
-        (profile.category === 'Proteins' && 
-         ['Meat', 'Pork', 'Poultry', 'Game', 'Fish', 'Offal'].includes(profile.subcategory as string))) {
+    if (restriction === 'no meat' &&
+        (profile.category === 'Proteins' &&
+         ['Meat', 'Poultry', 'Seafood'].includes(profile.subcategory as string))) {
       return true;
     }
     
@@ -226,7 +226,7 @@ export const calculateDishTasteProfile = (
     sweet: 0,
     salty: 0,
     sour: 0,
-    bitter: 0,
+    aromatic: 0,
     umami: 0,
     fat: 0,
     spicy: 0

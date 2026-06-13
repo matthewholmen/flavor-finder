@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { TasteSectionProps } from './types.ts';
 import { TASTE_COLORS } from '../../../utils/colors.ts';
 
-const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'] as const;
+const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'aromatic', 'umami', 'fat', 'spicy'] as const;
 const DEFAULT_VALUE = 1;
 
 const TasteSection: React.FC<TasteSectionProps> = ({

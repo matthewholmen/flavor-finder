@@ -81,6 +81,36 @@ body.modal-open {
   }
 }
 
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-toast-in {
+  animation: toastIn 0.2s ease-out;
+}
+
+@keyframes toastInBottom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-toast-in-bottom {
+  animation: toastInBottom 0.2s ease-out;
+}
+
 /* High Contrast Mode - Monochromatic ingredient colors only */
 .high-contrast {
   /* Light mode high contrast: ~90% grey for ingredients */

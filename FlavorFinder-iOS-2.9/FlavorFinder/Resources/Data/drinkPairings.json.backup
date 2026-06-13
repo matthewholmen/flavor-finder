@@ -1,0 +1,8371 @@
+{
+  "version": "2.1",
+  "tier": 2,
+  "updated": "2026-01-17",
+  "pairings": {
+    "avocado": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sauvignon blanc": {
+      "wines": [
+        {
+          "name": "Torrontés",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Verdicchio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        },
+        {
+          "name": "Vinho Verde",
+          "style": "crisp white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Vermouth",
+          "style": "fortified wine"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "bacon": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Grenache",
+          "style": "medium red"
+        },
+        {
+          "name": "Malbec",
+          "style": "bold red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Lambrusco",
+          "style": "light red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Stout",
+          "style": "dark"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pinot noir": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "banana": {
+      "wines": [
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Armagnac",
+          "style": "brandy"
+        },
+        {
+          "name": "Calvados",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "bbq": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "beer": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Grenache",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        },
+        {
+          "name": "Lambic",
+          "style": "sour"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Vodka",
+          "style": "vodka"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "tea": {
+      "wines": [
+        {
+          "name": "Malbec",
+          "style": "bold red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Petite Sirah",
+          "style": "bold red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Bitters",
+          "style": "bitters"
+        },
+        {
+          "name": "Whiskey",
+          "style": "whiskey"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Lemonade",
+          "style": "citrus drink"
+        },
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "ribs": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Franc",
+          "style": "bold red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Bourbon",
+          "style": "whiskey"
+        },
+        {
+          "name": "Whiskey",
+          "style": "whiskey"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Dark Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "basil": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Gavi",
+          "style": "crisp white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Nebbiolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Orvieto",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "bass": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "bay leaf": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "beef": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Porter",
+          "style": "dark"
+        },
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        },
+        {
+          "name": "Belgian Ale",
+          "style": "belgian"
+        },
+        {
+          "name": "Lager",
+          "style": "light lager"
+        },
+        {
+          "name": "Beer",
+          "style": "various"
+        },
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "cabernet sauvignon": {
+      "wines": [
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        },
+        {
+          "name": "Bourbon",
+          "style": "whiskey"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Whiskey",
+          "style": "whiskey"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        },
+        {
+          "name": "Lemonade",
+          "style": "citrus drink"
+        }
+      ]
+    },
+    "brisket": {
+      "wines": [
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "wine": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Belgian Ale",
+          "style": "belgian"
+        },
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        },
+        {
+          "name": "India Pale Ale",
+          "style": "ipa"
+        },
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Vodka",
+          "style": "vodka"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "short rib": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Petite Sirah",
+          "style": "bold red"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "tenderloin": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        },
+        {
+          "name": "India Pale Ale",
+          "style": "ipa"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "beet": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "riesling": {
+      "wines": [
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "blackberry": {
+      "wines": [
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        }
+      ]
+    },
+    "blueberry": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Bourbon",
+          "style": "whiskey"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        }
+      ]
+    },
+    "bluefish": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "bread": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "broccoli": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "broccoli rabe": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "brown sugar": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "butter": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Marsanne",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chardonnay": {
+      "wines": [
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Armagnac",
+          "style": "brandy"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Calvados",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Vodka",
+          "style": "vodka"
+        },
+        {
+          "name": "Sake",
+          "style": "sake"
+        },
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        },
+        {
+          "name": "Bourbon",
+          "style": "whiskey"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "butterscotch": {
+      "wines": [],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        }
+      ]
+    },
+    "cabbage": {
+      "wines": [
+        {
+          "name": "Cabernet Franc",
+          "style": "bold red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "cake": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Marsala",
+          "style": "fortified"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        },
+        {
+          "name": "India Pale Ale",
+          "style": "ipa"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        },
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "almond": {
+      "wines": [
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Vin Santo",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "coffee": {
+      "wines": [
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Vin Santo",
+          "style": "sweet white"
+        },
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        },
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "cantaloupe": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "capers": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "caramel": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        }
+      ]
+    },
+    "caraway seed": {
+      "wines": [
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "champagne": {
+      "wines": [
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Prosecco",
+          "style": "sparkling"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        },
+        {
+          "name": "Valpolicella",
+          "style": "light red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Vodka",
+          "style": "vodka"
+        },
+        {
+          "name": "Gin",
+          "style": "gin"
+        },
+        {
+          "name": "Sake",
+          "style": "sake"
+        },
+        {
+          "name": "Vermouth",
+          "style": "fortified wine"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        },
+        {
+          "name": "Sambuca",
+          "style": "liqueur"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        },
+        {
+          "name": "Apple Juice",
+          "style": "fruit juice"
+        }
+      ]
+    },
+    "carrot": {
+      "wines": [
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Tokaji",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Wheat Beer",
+          "style": "wheat"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "cashew": {
+      "wines": [
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Prosecco",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "catfish": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Lambrusco",
+          "style": "light red"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "cauliflower": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "caviar": {
+      "wines": [],
+      "beers": [
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "celery": {
+      "wines": [
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "ceviche": {
+      "wines": [
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "asiago": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Nebbiolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "garlic": {
+      "wines": [
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "brie": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Stout",
+          "style": "dark"
+        },
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "burrata": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cheddar": {
+      "wines": [
+        {
+          "name": "Amarone",
+          "style": "bold red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Brown Ale",
+          "style": "brown"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chèvre": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "colby": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Brown Ale",
+          "style": "brown"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cream cheese": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "feta": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Ouzo",
+          "style": "liqueur"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "goat": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Cabernet Franc",
+          "style": "bold red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Saison",
+          "style": "belgian"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "goat cheese": {
+      "wines": [
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "gorgonzola": {
+      "wines": [
+        {
+          "name": "Amarone",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "gouda": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "manchego": {
+      "wines": [
+        {
+          "name": "Cava",
+          "style": "sparkling"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sherry": {
+      "wines": [
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Tokaji",
+          "style": "sweet white"
+        },
+        {
+          "name": "Vin Santo",
+          "style": "sweet white"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Whiskey",
+          "style": "whiskey"
+        },
+        {
+          "name": "Amaretto",
+          "style": "liqueur"
+        },
+        {
+          "name": "Vermouth",
+          "style": "fortified wine"
+        },
+        {
+          "name": "Vodka",
+          "style": "vodka"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "monterey jack": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "mozzarella": {
+      "wines": [
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Orvieto",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Prosecco",
+          "style": "sparkling"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pecorino": {
+      "wines": [
+        {
+          "name": "Amarone",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Brown Ale",
+          "style": "brown"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "ricotta": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Lambrusco",
+          "style": "light red"
+        },
+        {
+          "name": "Marsala",
+          "style": "fortified"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "romano": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Nebbiolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "roquefort": {
+      "wines": [
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Belgian Ale",
+          "style": "belgian"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "milk": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "taleggio": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Nebbiolo",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cherry": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Armagnac",
+          "style": "brandy"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "chervil": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chicken": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Vermentino",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "liver": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "paprika": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "curry": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Petite Sirah",
+          "style": "bold red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        },
+        {
+          "name": "India Pale Ale",
+          "style": "ipa"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chickpea": {
+      "wines": [
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chipotle": {
+      "wines": [
+        {
+          "name": "Malbec",
+          "style": "bold red"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "habanero": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "jalapeño": {
+      "wines": [
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "poblano": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chili": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chive": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chocolate": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "madeira": {
+      "wines": [
+        {
+          "name": "Marsala",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cilantro": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cinnamon": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "clove": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "coconut": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Apple Juice",
+          "style": "fruit juice"
+        }
+      ]
+    },
+    "cod": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        },
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "savory": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "collard greens": {
+      "wines": [
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "coriander": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "corn": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cornish hen": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Grenache",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "couscous": {
+      "wines": [
+        {
+          "name": "Cabernet Franc",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Grenache",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Petite Sirah",
+          "style": "bold red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "rosé": {
+      "wines": [
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        },
+        {
+          "name": "Valpolicella",
+          "style": "light red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "crab": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        },
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        },
+        {
+          "name": "Wheat Beer",
+          "style": "wheat"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "cranberry": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cucumber": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Verdicchio",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Gin",
+          "style": "gin"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "cumin": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "currant": {
+      "wines": [
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Grenache",
+          "style": "medium red"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "date": {
+      "wines": [
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Tokaji",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "dill": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "duck": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Grenache",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Armagnac",
+          "style": "brandy"
+        },
+        {
+          "name": "Bourbon",
+          "style": "whiskey"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Calvados",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        },
+        {
+          "name": "Cranberry Juice",
+          "style": "fruit juice"
+        },
+        {
+          "name": "Apple Juice",
+          "style": "fruit juice"
+        }
+      ]
+    },
+    "merlot": {
+      "wines": [
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Orange Juice",
+          "style": "citrus juice"
+        }
+      ]
+    },
+    "eggplant": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "parmesan": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "egg": {
+      "wines": [
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "quail": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "epazote": {
+      "wines": [
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Torrontés",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "fennel": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "fig": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cointreau",
+          "style": "liqueur"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "custard": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "flounder": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "foie gras": {
+      "wines": [
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Armagnac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "game bird": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "grapefruit": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Vinho Verde",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Campari",
+          "style": "bitter liqueur"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        },
+        {
+          "name": "Vodka",
+          "style": "vodka"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "grouper": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "guacamole": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "guava": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "halibut": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "hazelnut": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Vin Santo",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "herring": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "honey": {
+      "wines": [
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Vin Santo",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "horseradish": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "hummus": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "ice cream": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sake": {
+      "wines": [
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "jicama": {
+      "wines": [
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "juniper berry": {
+      "wines": [
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Gin",
+          "style": "gin"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "kiwi": {
+      "wines": [
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "kumquat": {
+      "wines": [],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Apple Juice",
+          "style": "fruit juice"
+        }
+      ]
+    },
+    "lamb": {
+      "wines": [
+        {
+          "name": "Amarone",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "mustard": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "rosemary": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "leek": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "lemon": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "lemongrass": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "lime": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "lobster": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Semillon",
+          "style": "rich white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        },
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "lychee": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "macadamia nut": {
+      "wines": [
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Tokaji",
+          "style": "sweet white"
+        },
+        {
+          "name": "Vin Santo",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "mackerel": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        },
+        {
+          "name": "Wheat Beer",
+          "style": "wheat"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "malt": {
+      "wines": [
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "mango": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Rum",
+          "style": "rum"
+        },
+        {
+          "name": "Gin",
+          "style": "gin"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "maple syrup": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "marjoram": {
+      "wines": [
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "mascarpone": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Marsala",
+          "style": "fortified"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "mayonnaise": {
+      "wines": [
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "melon": {
+      "wines": [
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "meringue": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "mint": {
+      "wines": [
+        {
+          "name": "Cabernet Franc",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "miso": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "mole": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Brown Ale",
+          "style": "brown"
+        },
+        {
+          "name": "Porter",
+          "style": "dark"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "monkfish": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "mushroom": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chanterelle": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "morel": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "oyster": {
+      "wines": [
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "porcini": {
+      "wines": [
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "portobello": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "shiitake": {
+      "wines": [
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "nutmeg": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "olive": {
+      "wines": [
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "orange": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        }
+      ]
+    },
+    "oregano": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Nebbiolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "oxtail": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Brown Ale",
+          "style": "brown"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "papaya": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "passion fruit": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Late Harvest",
+          "style": "sweet white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "peanut": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Gin",
+          "style": "gin"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "pear": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pea": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pecan": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Bourbon",
+          "style": "whiskey"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "persimmon": {
+      "wines": [
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "pesto": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pheasant": {
+      "wines": [
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pickles": {
+      "wines": [],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pike": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pineapple": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        }
+      ]
+    },
+    "pistachio": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "plantain": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "plum": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "polenta": {
+      "wines": [],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pomegranate": {
+      "wines": [
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pork": {
+      "wines": [
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "potato": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "turkey": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "prune": {
+      "wines": [
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Armagnac",
+          "style": "brandy"
+        },
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "pumpkin": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gamay",
+          "style": "light red"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Valpolicella",
+          "style": "light red"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Bourbon",
+          "style": "whiskey"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Rum",
+          "style": "rum"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "quince": {
+      "wines": [
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "rabbit": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "raisin": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Grenache",
+          "style": "medium red"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "raspberry": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "snapper": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Franc",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "rhubarb": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "rice pudding": {
+      "wines": [
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauternes",
+          "style": "sweet white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Stout",
+          "style": "dark"
+        },
+        {
+          "name": "Imperial Stout",
+          "style": "dark"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "risotto": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Brunello",
+          "style": "bold red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "saffron": {
+      "wines": [
+        {
+          "name": "Cabernet Franc",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sage": {
+      "wines": [
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "asparagus": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "pasta": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "shrimp": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Gin",
+          "style": "gin"
+        },
+        {
+          "name": "Vermouth",
+          "style": "fortified wine"
+        },
+        {
+          "name": "Bitters",
+          "style": "bitters"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "spinach": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Orvieto",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "tomato": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "tuna": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "vinaigrette": {
+      "wines": [
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Marsala",
+          "style": "fortified"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Verdicchio",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "white beans": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "salami": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Montepulciano",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "salmon": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Belgian Ale",
+          "style": "belgian"
+        },
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        },
+        {
+          "name": "Saison",
+          "style": "belgian"
+        },
+        {
+          "name": "Lager",
+          "style": "light lager"
+        },
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        },
+        {
+          "name": "Smoked Beer",
+          "style": "specialty"
+        },
+        {
+          "name": "Stout",
+          "style": "dark"
+        },
+        {
+          "name": "India Pale Ale",
+          "style": "ipa"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        },
+        {
+          "name": "Vermouth",
+          "style": "fortified wine"
+        },
+        {
+          "name": "Vodka",
+          "style": "vodka"
+        },
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "salt cod": {
+      "wines": [
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "ham": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Amontillado",
+          "style": "fortified"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Apple Juice",
+          "style": "fruit juice"
+        },
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "soft-shell crab": {
+      "wines": [],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sardine": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Gavi",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "béarnaise": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "black beans": {
+      "wines": [
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "clam": {
+      "wines": [
+        {
+          "name": "Gavi",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cream": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Pinot Grigio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        },
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Vermouth",
+          "style": "fortified wine"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "hoisin": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "hollandaise": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "ponzu": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "red wine": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sauerkraut": {
+      "wines": [
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chorizo": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Tempranillo",
+          "style": "medium red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "scallop": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sea bass": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sausage": {
+      "wines": [
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sea urchin": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "skate": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "smoked fish": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Lager",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "smoked trout": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Chenin Blanc",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Pale Ale",
+          "style": "pale ale"
+        },
+        {
+          "name": "Lager",
+          "style": "light lager"
+        },
+        {
+          "name": "Pilsner",
+          "style": "light lager"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "noodles": {
+      "wines": [
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Sake",
+          "style": "sake"
+        }
+      ],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "sorbet": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sorrel": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Vermouth",
+          "style": "fortified wine"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "onion": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sherry",
+          "style": "fortified"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "strawberry": {
+      "wines": [
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "soy sauce": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Chablis",
+          "style": "crisp white"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [
+        {
+          "name": "Cocktail",
+          "style": "mixed"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "squab": {
+      "wines": [
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Sangiovese",
+          "style": "medium red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Brandy",
+          "style": "brandy"
+        },
+        {
+          "name": "Cognac",
+          "style": "brandy"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "squid": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Gavi",
+          "style": "crisp white"
+        },
+        {
+          "name": "Orvieto",
+          "style": "crisp white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Soave",
+          "style": "crisp white"
+        },
+        {
+          "name": "Verdicchio",
+          "style": "crisp white"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "star anise": {
+      "wines": [
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sirloin": {
+      "wines": [
+        {
+          "name": "Barolo",
+          "style": "bold red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Rioja",
+          "style": "medium red"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sweetbreads": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sweet potato": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "chard": {
+      "wines": [
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "swordfish": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "tabasco": {
+      "wines": [
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        },
+        {
+          "name": "Vinho Verde",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "tamarind": {
+      "wines": [
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "tarragon": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Viognier",
+          "style": "rich white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "teriyaki": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Zinfandel",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "thai basil": {
+      "wines": [
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "thyme": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    },
+    "tomatillo": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Côtes Du Rhône",
+          "style": "medium red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Syrah",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "trout": {
+      "wines": [
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "vanilla": {
+      "wines": [
+        {
+          "name": "Asti",
+          "style": "sweet sparkling"
+        },
+        {
+          "name": "Banyuls",
+          "style": "fortified sweet"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Ice Wine",
+          "style": "sweet white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Coffee",
+          "style": "coffee"
+        }
+      ]
+    },
+    "veal": {
+      "wines": [
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Grüner Veltliner",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "marsala": {
+      "wines": [
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Chianti",
+          "style": "medium red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Gris",
+          "style": "crisp white"
+        },
+        {
+          "name": "Moscato",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Muscat",
+          "style": "sweet white"
+        },
+        {
+          "name": "Port",
+          "style": "fortified sweet"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "venison": {
+      "wines": [
+        {
+          "name": "Amarone",
+          "style": "bold red"
+        },
+        {
+          "name": "Barbaresco",
+          "style": "bold red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "balsamic": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Lambrusco",
+          "style": "light red"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Valpolicella",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "cider": {
+      "wines": [
+        {
+          "name": "Bordeaux",
+          "style": "bold red"
+        },
+        {
+          "name": "Muscadet",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [
+        {
+          "name": "Beer",
+          "style": "various"
+        }
+      ],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "walnut": {
+      "wines": [
+        {
+          "name": "Cabernet Sauvignon",
+          "style": "bold red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Madeira",
+          "style": "fortified"
+        },
+        {
+          "name": "Merlot",
+          "style": "medium red"
+        },
+        {
+          "name": "Pinot Noir",
+          "style": "light red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "wasabi": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "watermelon": {
+      "wines": [
+        {
+          "name": "Champagne",
+          "style": "sparkling"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [
+        {
+          "name": "Sambuca",
+          "style": "liqueur"
+        }
+      ],
+      "nonAlcoholic": []
+    },
+    "yogurt": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Riesling",
+          "style": "aromatic white"
+        },
+        {
+          "name": "Rosé",
+          "style": "rosé"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sparkling Wine",
+          "style": "sparkling"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "zucchini": {
+      "wines": [
+        {
+          "name": "Barbera",
+          "style": "medium red"
+        },
+        {
+          "name": "Beaujolais",
+          "style": "light red"
+        },
+        {
+          "name": "Dolcetto",
+          "style": "medium red"
+        },
+        {
+          "name": "Montepulciano",
+          "style": "medium red"
+        },
+        {
+          "name": "Sancerre",
+          "style": "crisp white"
+        },
+        {
+          "name": "Sauvignon Blanc",
+          "style": "crisp white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "zucchini blossom": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        },
+        {
+          "name": "Chardonnay",
+          "style": "rich white"
+        },
+        {
+          "name": "Gewürztraminer",
+          "style": "aromatic white"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "sole": {
+      "wines": [
+        {
+          "name": "Burgundy",
+          "style": "medium red"
+        }
+      ],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": []
+    },
+    "shellfish": {
+      "wines": [],
+      "beers": [],
+      "spirits": [],
+      "nonAlcoholic": [
+        {
+          "name": "Tea",
+          "style": "tea"
+        }
+      ]
+    }
+  }
+}

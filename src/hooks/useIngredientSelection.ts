@@ -37,7 +37,7 @@ interface UseIngredientSelectionReturn {
   handleIncrementTarget: (
     flavorMap: Map<string, Set<string>>,
     isIngredientRestricted: (ingredient: string) => boolean
-  ) => void;
+  ) => boolean;
   handleDecrementTarget: () => void;
 }
 
@@ -172,11 +172,10 @@ export const useIngredientSelection = ({
     flavorMap: Map<string, Set<string>>,
     isIngredientRestricted: (ingredient: string) => boolean
   ) => {
-    if (targetIngredientCount >= maxIngredients) return;
+    if (targetIngredientCount >= maxIngredients) return false;
 
-    saveToHistory();
-
-    // Try to find a compatible ingredient to add
+    // Find a compatible ingredient to add
+    let newIngredient: string | undefined;
     if (selectedIngredients.length > 0) {
       // Get all ingredients compatible with current selection
       const compatibleIngredients = Array.from(flavorMap.keys()).filter(candidate => {
@@ -190,40 +189,33 @@ export const useIngredientSelection = ({
         );
       });
 
-      if (compatibleIngredients.length > 0) {
-        // Pick a random compatible ingredient
-        const randomIndex = Math.floor(Math.random() * compatibleIngredients.length);
-        const newIngredient = compatibleIngredients[randomIndex];
+      // No compatible ingredient exists - signal failure so the UI can give feedback
+      if (compatibleIngredients.length === 0) return false;
 
-        // Add the ingredient
-        setSelectedIngredients(prev => [...prev, newIngredient]);
-        // Only increment target if we're already at capacity (no empty slots)
-        if (selectedIngredients.length >= targetIngredientCount) {
-          setTargetIngredientCount(prev => prev + 1);
-        }
-        return;
-      }
+      // Pick a random compatible ingredient
+      const randomIndex = Math.floor(Math.random() * compatibleIngredients.length);
+      newIngredient = compatibleIngredients[randomIndex];
     } else {
       // No ingredients selected yet - pick any random ingredient
       const allAvailable = Array.from(flavorMap.keys()).filter(
         candidate => !isIngredientRestricted(candidate)
       );
 
-      if (allAvailable.length > 0) {
-        const randomIndex = Math.floor(Math.random() * allAvailable.length);
-        const newIngredient = allAvailable[randomIndex];
+      if (allAvailable.length === 0) return false;
 
-        setSelectedIngredients(prev => [...prev, newIngredient]);
-        // Only increment target if we're already at capacity
-        if (selectedIngredients.length >= targetIngredientCount) {
-          setTargetIngredientCount(prev => prev + 1);
-        }
-        return;
-      }
+      const randomIndex = Math.floor(Math.random() * allAvailable.length);
+      newIngredient = allAvailable[randomIndex];
     }
 
-    // No compatible ingredients found - just add an empty slot
-    setTargetIngredientCount(prev => prev + 1);
+    saveToHistory();
+
+    // Add the ingredient
+    setSelectedIngredients(prev => [...prev, newIngredient!]);
+    // Only increment target if we're already at capacity (no empty slots)
+    if (selectedIngredients.length >= targetIngredientCount) {
+      setTargetIngredientCount(prev => prev + 1);
+    }
+    return true;
   }, [selectedIngredients, targetIngredientCount, maxIngredients, saveToHistory]);
 
   // Decrement: Remove empty slot first, then remove last unlocked ingredient (for - button)

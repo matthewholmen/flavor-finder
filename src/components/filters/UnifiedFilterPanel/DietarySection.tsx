@@ -16,72 +16,46 @@ const DietarySection: React.FC<DietarySectionProps> = ({
 }) => {
   const handleQuickToggle = (restrictionKey: string) => {
     let newRestrictions = { ...restrictions };
-    
+
+    // Helper: set restriction to false (excluded) or delete key (allowed)
+    const setRestriction = (key: string, shouldExclude: boolean) => {
+      if (shouldExclude) {
+        newRestrictions[key] = false;
+      } else {
+        delete newRestrictions[key];
+      }
+    };
+
+    const isActive = getToggleState(restrictionKey);
+    const shouldExclude = !isActive;
+
     switch(restrictionKey) {
       case 'vegetarian':
-        // If vegetarian is currently active, turn it off
-        if (getToggleState('vegetarian')) {
-          // Enable all protein categories
-          newRestrictions['Proteins:Meat'] = true;
-          newRestrictions['Proteins:Poultry'] = true;
-          newRestrictions['Proteins:Game'] = true;
-          newRestrictions['Proteins:Pork'] = true;
-          newRestrictions['Proteins:Offal'] = true;
-          newRestrictions['Proteins:Fish'] = true;
-          newRestrictions['Proteins:Crustacean'] = true;
-          newRestrictions['Proteins:Mollusk'] = true;
-        } else {
-          // Exclude all animal proteins
-          newRestrictions['Proteins:Meat'] = false;
-          newRestrictions['Proteins:Poultry'] = false;
-          newRestrictions['Proteins:Game'] = false;
-          newRestrictions['Proteins:Pork'] = false;
-          newRestrictions['Proteins:Offal'] = false;
-          newRestrictions['Proteins:Fish'] = false;
-          newRestrictions['Proteins:Crustacean'] = false;
-          newRestrictions['Proteins:Mollusk'] = false;
-        }
+        setRestriction('Proteins:Meat', shouldExclude);
+        setRestriction('Proteins:Poultry', shouldExclude);
+        setRestriction('Proteins:Seafood', shouldExclude);
         break;
       case 'pescatarian':
-        // If pescatarian is currently active, turn it off
-        if (getToggleState('pescatarian')) {
-          // Enable meat and poultry categories
-          newRestrictions['Proteins:Meat'] = true;
-          newRestrictions['Proteins:Poultry'] = true;
-          newRestrictions['Proteins:Game'] = true;
-          newRestrictions['Proteins:Pork'] = true;
-          newRestrictions['Proteins:Offal'] = true;
-        } else {
-          // Exclude meat and poultry but allow fish
-          newRestrictions['Proteins:Meat'] = false;
-          newRestrictions['Proteins:Poultry'] = false;
-          newRestrictions['Proteins:Game'] = false;
-          newRestrictions['Proteins:Pork'] = false;
-          newRestrictions['Proteins:Offal'] = false;
-          // Ensure fish/seafood is enabled
-          newRestrictions['Proteins:Fish'] = true;
-          newRestrictions['Proteins:Crustacean'] = true;
-          newRestrictions['Proteins:Mollusk'] = true;
+        setRestriction('Proteins:Meat', shouldExclude);
+        setRestriction('Proteins:Poultry', shouldExclude);
+        if (shouldExclude) {
+          // Ensure seafood is allowed when turning on pescatarian
+          delete newRestrictions['Proteins:Seafood'];
         }
         break;
       case 'gluten-free':
-        // Toggle gluten-containing grains
-        const glutenActive = getToggleState('gluten-free');
-        newRestrictions['Grains:Bread'] = glutenActive;
-        newRestrictions['Grains:Pasta'] = glutenActive;
+        setRestriction('Grains:Bread', shouldExclude);
+        setRestriction('Grains:Pasta', shouldExclude);
         break;
       case 'dairy-free':
-        // Toggle all dairy categories
-        const dairyActive = getToggleState('dairy-free');
-        newRestrictions['Dairy:Hard Cheese'] = dairyActive;
-        newRestrictions['Dairy:Soft Cheese'] = dairyActive;
-        newRestrictions['Dairy:Cultured Dairy'] = dairyActive;
-        newRestrictions['Dairy:Milk & Cream'] = dairyActive;
+        setRestriction('Dairy:Cheese', shouldExclude);
+        setRestriction('Dairy:Cultured', shouldExclude);
+        setRestriction('Dairy:Milk & Cream', shouldExclude);
         break;
       default:
         newRestrictions[restrictionKey] = !restrictions[restrictionKey];
     }
-    
+
     onChange(newRestrictions);
   };
 
@@ -91,40 +65,18 @@ const DietarySection: React.FC<DietarySectionProps> = ({
       case 'vegetarian':
         return restrictions['Proteins:Meat'] === false &&
                restrictions['Proteins:Poultry'] === false &&
-               restrictions['Proteins:Game'] === false &&
-               restrictions['Proteins:Pork'] === false &&
-               restrictions['Proteins:Offal'] === false &&
-               restrictions['Proteins:Fish'] === false &&
-               restrictions['Proteins:Crustacean'] === false &&
-               restrictions['Proteins:Mollusk'] === false;
+               restrictions['Proteins:Seafood'] === false;
       case 'pescatarian':
-        // Pescatarian is only active if land animals are disabled but fish is enabled
-        // AND it's not vegetarian
-        const isVegetarian = restrictions['Proteins:Meat'] === false &&
-                            restrictions['Proteins:Poultry'] === false &&
-                            restrictions['Proteins:Game'] === false &&
-                            restrictions['Proteins:Pork'] === false &&
-                            restrictions['Proteins:Offal'] === false &&
-                            restrictions['Proteins:Fish'] === false &&
-                            restrictions['Proteins:Crustacean'] === false &&
-                            restrictions['Proteins:Mollusk'] === false;
-        
-        return !isVegetarian &&
-               restrictions['Proteins:Meat'] === false &&
+        // Pescatarian: land meats excluded, seafood allowed
+        return restrictions['Proteins:Meat'] === false &&
                restrictions['Proteins:Poultry'] === false &&
-               restrictions['Proteins:Game'] === false &&
-               restrictions['Proteins:Pork'] === false &&
-               restrictions['Proteins:Offal'] === false &&
-               restrictions['Proteins:Fish'] !== false &&
-               restrictions['Proteins:Crustacean'] !== false &&
-               restrictions['Proteins:Mollusk'] !== false;
+               restrictions['Proteins:Seafood'] !== false;
       case 'gluten-free':
-        return restrictions['Grains:Bread'] === false ||
+        return restrictions['Grains:Bread'] === false &&
                restrictions['Grains:Pasta'] === false;
       case 'dairy-free':
-        return restrictions['Dairy:Hard Cheese'] === false ||
-               restrictions['Dairy:Soft Cheese'] === false ||
-               restrictions['Dairy:Cultured Dairy'] === false ||
+        return restrictions['Dairy:Cheese'] === false &&
+               restrictions['Dairy:Cultured'] === false &&
                restrictions['Dairy:Milk & Cream'] === false;
       default:
         return restrictions[restrictionKey] === false;

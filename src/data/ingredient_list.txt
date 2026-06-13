@@ -54,7 +54,7 @@ black bass
 black beans
 black cod
 black olive
-black pepper
+black peppercorn
 black sesame seed
 black tea
 black truffle
@@ -235,7 +235,7 @@ grapefruit
 grapeseed oil
 green beans
 green olive
-green pepper
+green peppercorn
 green plantain
 green tea
 grenadine
@@ -382,7 +382,7 @@ pickles
 pike
 pine nut
 pineapple
-pink pepper
+pink peppercorn
 pinot noir
 pinto beans
 piquillo pepper
@@ -564,7 +564,7 @@ watercress
 watermelon
 whiskey
 white chocolate
-white pepper
+white peppercorn
 white sesame seed
 white sugar
 white truffle

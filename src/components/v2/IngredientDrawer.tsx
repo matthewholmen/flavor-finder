@@ -6,41 +6,22 @@ import { useTheme } from '../../contexts/ThemeContext.tsx';
 
 // Filter constants
 const CATEGORIES = [
-  'Alcohol', 'Condiments', 'Dairy', 'Fruits', 
-  'Grains', 'Liquids', 'Proteins', 'Seasonings', 'Vegetables'
+  'Proteins', 'Vegetables', 'Fruits', 'Dairy',
+  'Seasonings', 'Pantry', 'Grains', 'Alcohol'
 ];
 
 const SUBCATEGORIES = {
-  Proteins: ["Plant Proteins", "Fish", "Pork", "Poultry", "Game", "Crustacean", "Mollusk", "Meat", "Offal"],
-  Vegetables: ["Allium", "Brassicas", "Leafy Greens", "Roots", "Squash", "Mushroom", "Stalks", "Fruit Vegetables"],
-  Fruits: ["Citrus", "Pome Fruit", "Stone Fruit", "Tropical Fruit", "Berries", "Melons", "Other Fruits"],
-  Seasonings: ["Herbs", "Spices", "Chilis", "Seeds & Botanicals"],
-  Dairy: ["Cultured Dairy", "Hard Cheese", "Soft Cheese", "Milk & Cream"],
+  Proteins: ["Meat", "Poultry", "Seafood", "Plant Proteins"],
+  Vegetables: ["Allium", "Leafy Greens", "Roots", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
+  Fruits: ["Citrus", "Stone Fruit", "Tropical", "Berries", "Pome Fruit", "Melons"],
+  Dairy: ["Cheese", "Cultured", "Milk & Cream"],
+  Seasonings: ["Herbs", "Spices", "Chilis"],
+  Pantry: ["Oils & Fats", "Vinegars", "Stocks", "Sauces", "Sweeteners"],
   Grains: ["Rice", "Pasta", "Bread", "Ancient Grains"],
-  Liquids: ["Broths & Stocks", "Oils & Fats", "Vinegars"],
-  Condiments: ["Fermented", "Sauces", "Preserves", "Sweeteners"],
-  Alcohol: ["Wines", "Spirits", "Liqueurs"]
+  Alcohol: ["Wine", "Spirits", "Liqueurs"]
 };
 
-const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
-
-const DIETARY_TOGGLES = [
-  { key: 'vegetarian', label: 'Vegetarian' },
-  { key: 'pescatarian', label: 'Pescatarian' },
-  { key: 'gluten-free', label: 'Gluten-free' },
-  { key: 'dairy-free', label: 'Dairy-free' },
-  { key: 'alcohol-free', label: 'Alcohol-free' },
-  { key: 'nut-free', label: 'Nut-free' },
-  { key: 'nightshade-free', label: 'Nightshade-free' },
-  { key: 'low-fodmap', label: 'Low-FODMAP' }
-  // { key: 'keto', label: 'Keto' }
-];
-
-const COMPATIBILITY_MODES = [
-  { key: 'perfect', label: 'Perfect', description: 'Generated pairings include only perfect matches — each ingredient is a recommended pairing for one another.' },
-  { key: 'mixed', label: 'Mixed', description: 'Each ingredient pairs with at least one other ingredient in the set, allowing for more creative combinations.' },
-  { key: 'random', label: 'Random', description: 'Completely random ingredients with no pairing requirements — for adventurous cooks!' }
-];
+const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'umami', 'fat', 'spicy', 'aromatic'];
 
 const getDesaturatedColor = (hexColor) => {
   const r = parseInt(hexColor.slice(1, 3), 16);
@@ -89,9 +70,7 @@ export const IngredientDrawer = ({
   const { isMobile, width } = useScreenSize();
   const { isHighContrast, isDarkMode } = useTheme(); // Force re-render when high contrast changes
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
-  const [activeSection, setActiveSection] = useState('search'); // 'search' or 'generation'
   const [activeSearchTab, setActiveSearchTab] = useState('category'); // 'category' or 'taste'
-  const [activeGenerationTab, setActiveGenerationTab] = useState('compatibility'); // 'compatibility' or 'dietary'
   const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
   const [showMaxMessage, setShowMaxMessage] = useState(false);
   const [hoveredIngredient, setHoveredIngredient] = useState(null);
@@ -129,7 +108,7 @@ export const IngredientDrawer = ({
     setTouchEnd(null);
     setIsDragging(false);
   };
-  const [isFiltersPanelCollapsed, setIsFiltersPanelCollapsed] = useState(false);
+  const [isFiltersPanelCollapsed, setIsFiltersPanelCollapsed] = useState(true);
   const [sortMode, setSortMode] = useState('alphabetical'); // 'alphabetical' | 'category' | 'taste' | 'popularity'
   const [isMobileFiltersVisible, setIsMobileFiltersVisible] = useState(false);
   
@@ -205,13 +184,14 @@ export const IngredientDrawer = ({
     );
   };
 
-  // Check if an ingredient is a partial match (pairs with some but not all selected ingredients)
+  // Check if an ingredient is NOT a perfect match (doesn't pair with every selected
+  // ingredient). Used for the dashed-border treatment so users always see which
+  // suggestions aren't recommended pairings - regardless of the Partial toggle.
   const isPartialMatch = (ingredient) => {
-    if (!showPartialMatches || selectedIngredients.length === 0) return false;
-    const matchCount = selectedIngredients.filter(selected =>
+    if (selectedIngredients.length === 0) return false;
+    return !selectedIngredients.every(selected =>
       flavorMap?.get(selected)?.has(ingredient)
-    ).length;
-    return matchCount > 0 && matchCount < selectedIngredients.length;
+    );
   };
 
   // Check if an ingredient pairs with the currently hovered ingredient
@@ -341,7 +321,7 @@ export const IngredientDrawer = ({
 
       case 'taste': {
         // Group by primary taste, then alphabetically within each taste
-        const tasteOrder = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
+        const tasteOrder = ['sweet', 'salty', 'sour', 'umami', 'fat', 'spicy', 'aromatic'];
         const sortByTaste = (a, b) => {
           const tasteA = getPrimaryTaste(a);
           const tasteB = getPrimaryTaste(b);
@@ -426,124 +406,6 @@ export const IngredientDrawer = ({
   // Taste handlers
   const handleTasteToggle = (taste) => {
     onSliderToggle(taste);
-  };
-
-  // Dietary handlers
-  const getDietaryState = (key) => {
-    switch(key) {
-      case 'vegetarian':
-        // Vegetarian: all animal proteins excluded (including fish)
-        return dietaryRestrictions['Proteins:Meat'] === false &&
-               dietaryRestrictions['Proteins:Poultry'] === false &&
-               dietaryRestrictions['Proteins:Fish'] === false &&
-               dietaryRestrictions['Proteins:Crustacean'] === false &&
-               dietaryRestrictions['Proteins:Mollusk'] === false;
-      case 'pescatarian':
-        // Pescatarian: land meats excluded, but seafood explicitly allowed
-        return dietaryRestrictions['Proteins:Meat'] === false &&
-               dietaryRestrictions['Proteins:Poultry'] === false &&
-               dietaryRestrictions['Proteins:Fish'] !== false &&
-               dietaryRestrictions['Proteins:Crustacean'] !== false &&
-               dietaryRestrictions['Proteins:Mollusk'] !== false;
-      case 'gluten-free':
-        return dietaryRestrictions['Grains:Bread'] === false ||
-               dietaryRestrictions['Grains:Pasta'] === false;
-      case 'dairy-free':
-        return dietaryRestrictions['Dairy:Hard Cheese'] === false ||
-               dietaryRestrictions['Dairy:Soft Cheese'] === false;
-      case 'alcohol-free':
-        return dietaryRestrictions['Alcohol:Liqueurs'] === false ||
-               dietaryRestrictions['Alcohol:Spirits'] === false ||
-               dietaryRestrictions['Alcohol:Wines'] === false;
-      case 'nut-free':
-        return dietaryRestrictions['_nuts'] === false;
-      case 'nightshade-free':
-        return dietaryRestrictions['_nightshades'] === false;
-      case 'low-fodmap':
-        return dietaryRestrictions['_fodmap'] === false;
-      case 'keto':
-        return (dietaryRestrictions['Grains:Rice'] === false ||
-                dietaryRestrictions['Grains:Ancient Grains'] === false ||
-                dietaryRestrictions['Grains:Bread'] === false ||
-                dietaryRestrictions['Grains:Pasta'] === false ||
-                dietaryRestrictions['Grains:Starches'] === false) &&
-               dietaryRestrictions['Condiments:Sweeteners'] === false;
-      default:
-        return false;
-    }
-  };
-
-  const handleDietaryToggle = (key) => {
-    let newRestrictions = { ...dietaryRestrictions };
-    const isActive = getDietaryState(key);
-
-    switch(key) {
-      case 'vegetarian':
-        // Toggle all animal proteins (including seafood)
-        const allProteinKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal', 'Fish', 'Crustacean', 'Mollusk'];
-        if (isActive) {
-          // Turning off vegetarian - allow all proteins
-          allProteinKeys.forEach(k => {
-            newRestrictions[`Proteins:${k}`] = true;
-          });
-        } else {
-          // Turning on vegetarian - exclude all proteins
-          allProteinKeys.forEach(k => {
-            newRestrictions[`Proteins:${k}`] = false;
-          });
-        }
-        break;
-      case 'pescatarian':
-        // Toggle land meats only, keep seafood allowed
-        const landMeatKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal'];
-        const seafoodKeys = ['Fish', 'Crustacean', 'Mollusk'];
-        if (isActive) {
-          // Turning off pescatarian - allow all proteins
-          landMeatKeys.forEach(k => {
-            newRestrictions[`Proteins:${k}`] = true;
-          });
-        } else {
-          // Turning on pescatarian - exclude land meats, ensure seafood is allowed
-          landMeatKeys.forEach(k => {
-            newRestrictions[`Proteins:${k}`] = false;
-          });
-          seafoodKeys.forEach(k => {
-            newRestrictions[`Proteins:${k}`] = true;
-          });
-        }
-        break;
-      case 'gluten-free':
-        newRestrictions['Grains:Bread'] = isActive;
-        newRestrictions['Grains:Pasta'] = isActive;
-        break;
-      case 'dairy-free':
-        ['Hard Cheese', 'Soft Cheese', 'Cultured Dairy', 'Milk & Cream'].forEach(k => {
-          newRestrictions[`Dairy:${k}`] = isActive;
-        });
-        break;
-      case 'alcohol-free':
-        ['Liqueurs', 'Spirits', 'Wines'].forEach(k => {
-          newRestrictions[`Alcohol:${k}`] = isActive;
-        });
-        break;
-      case 'nut-free':
-        newRestrictions['_nuts'] = isActive;
-        break;
-      case 'nightshade-free':
-        newRestrictions['_nightshades'] = isActive;
-        break;
-      case 'low-fodmap':
-        newRestrictions['_fodmap'] = isActive;
-        break;
-      case 'keto':
-        ['Rice', 'Ancient Grains', 'Bread', 'Pasta', 'Starches'].forEach(k => {
-          newRestrictions[`Grains:${k}`] = isActive;
-        });
-        newRestrictions['Condiments:Sweeteners'] = isActive;
-        break;
-    }
-
-    onDietaryChange(newRestrictions);
   };
 
   // Count active filters
@@ -951,8 +813,7 @@ export const IngredientDrawer = ({
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40"
-          style={{ backgroundColor: 'white' }}
+          className="fixed inset-0 z-40 bg-white dark:bg-gray-900"
           onClick={onClose}
         />
       )}
@@ -965,14 +826,17 @@ export const IngredientDrawer = ({
             <button
               onClick={onToggle}
               className="
-                relative -mb-1 px-12 pt-3 pb-4
-                bg-white rounded-t-3xl
-                border-2 border-gray-300 border-b-0
-                flex flex-col items-center
-                hover:border-gray-400 transition-colors
+                relative -mb-1 px-8 pt-3 pb-4
+                bg-white dark:bg-gray-800 rounded-t-3xl
+                border-2 border-gray-300 dark:border-gray-600 border-b-0
+                flex items-center gap-2
+                text-gray-600 dark:text-gray-300 font-medium
+                hover:border-gray-400 dark:hover:border-gray-500 transition-colors
               "
             >
-              <ChevronUp size={24} className="text-gray-500" strokeWidth={1.5} />
+              <Search size={18} strokeWidth={1.75} />
+              Search &amp; add ingredients
+              <ChevronUp size={18} className="text-gray-400" strokeWidth={1.75} />
             </button>
           </div>
         )}
@@ -980,7 +844,7 @@ export const IngredientDrawer = ({
         {/* Drawer Content - Fixed height */}
         <div
           className={`
-            bg-white overflow-hidden
+            bg-white dark:bg-gray-900 overflow-hidden
             transition-all duration-300 ease-out
             rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
             ${isOpen ? 'h-[50vh]' : 'h-0'}
@@ -992,41 +856,18 @@ export const IngredientDrawer = ({
             {/* Left Side: Filter Panel */}
             <div
               className={`
-                flex-shrink-0 border-r border-gray-100 overflow-y-auto overflow-x-hidden
+                flex-shrink-0 border-r border-gray-100 dark:border-gray-700 overflow-y-auto overflow-x-hidden
                 transition-all duration-300 ease-out
                 ${isFiltersPanelCollapsed ? 'w-0 p-0' : 'w-[340px] p-5'}
               `}
             >
-              {/* Top-level Section Navigation */}
-              <div className="flex gap-4 mb-4">
-                <button
-                  onClick={() => setActiveSection('search')}
-                  className={`
-                    text-sm font-semibold transition-colors
-                    ${activeSection === 'search'
-                      ? 'text-gray-900'
-                      : 'text-gray-400 hover:text-gray-600'
-                    }
-                  `}
-                >
-                  Search Filters
-                </button>
-                <button
-                  onClick={() => setActiveSection('generation')}
-                  className={`
-                    text-sm font-semibold transition-colors
-                    ${activeSection === 'generation'
-                      ? 'text-gray-900'
-                      : 'text-gray-400 hover:text-gray-600'
-                    }
-                  `}
-                >
-                  Generation Options
-                </button>
-              </div>
+              {/* Search Filters */}
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+                Search Filters
+              </h3>
 
               {/* Search Filters Section */}
-              {activeSection === 'search' && (
+              {(
                 <>
                   {/* Sub-tabs for Category and Taste */}
                   <div className="flex gap-4 mb-4">
@@ -1035,8 +876,8 @@ export const IngredientDrawer = ({
                       className={`
                         text-sm font-medium transition-colors
                         ${activeSearchTab === 'category'
-                          ? 'text-gray-700'
-                          : 'text-gray-400 hover:text-gray-500'
+                          ? 'text-gray-700 dark:text-gray-200'
+                          : 'text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300'
                         }
                       `}
                     >
@@ -1047,8 +888,8 @@ export const IngredientDrawer = ({
                       className={`
                         text-sm font-medium transition-colors
                         ${activeSearchTab === 'taste'
-                          ? 'text-gray-700'
-                          : 'text-gray-400 hover:text-gray-500'
+                          ? 'text-gray-700 dark:text-gray-200'
+                          : 'text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300'
                         }
                       `}
                     >
@@ -1067,9 +908,9 @@ export const IngredientDrawer = ({
                               onClick={() => handleCategoryClick(cat)}
                               className="
                                 py-2.5 px-3 text-sm
-                                rounded-full border-2 border-gray-300
-                                bg-white text-gray-700 font-medium
-                                hover:border-gray-400 hover:bg-gray-50
+                                rounded-full border-2 border-gray-300 dark:border-gray-600
+                                bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium
+                                hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700
                                 transition-all
                               "
                             >
@@ -1082,9 +923,9 @@ export const IngredientDrawer = ({
                           <div className="flex items-center gap-2">
                             <button
                               onClick={handleClearCategory}
-                              className="p-1 rounded-full hover:bg-gray-100"
+                              className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                             >
-                              <X size={16} className="text-gray-600" />
+                              <X size={16} className="text-gray-600 dark:text-gray-300" />
                             </button>
                             <span className="py-2 px-4 rounded-full border-2 border-[#6AAFE8] bg-[#6AAFE8] text-white font-medium text-sm">
                               {activeCategory}
@@ -1092,7 +933,7 @@ export const IngredientDrawer = ({
                           </div>
                           {subcategories.length > 0 && (
                             <div>
-                              <h4 className="text-xs font-medium text-gray-600 mb-2">Subcategories</h4>
+                              <h4 className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-2">Subcategories</h4>
                               <div className="grid grid-cols-2 gap-1.5">
                                 {subcategories.map((subcat) => {
                                   const isSelected = selectedSubcategories.includes(subcat);
@@ -1105,8 +946,8 @@ export const IngredientDrawer = ({
                                         rounded-full border-2 font-medium
                                         transition-all truncate
                                         ${isSelected
-                                          ? 'border-[#6AAFE8] bg-blue-50 text-[#6AAFE8]'
-                                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                                          ? 'border-[#6AAFE8] bg-blue-50 dark:bg-blue-900/30 text-[#6AAFE8]'
+                                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500'
                                         }
                                       `}
                                     >
@@ -1137,7 +978,7 @@ export const IngredientDrawer = ({
                                 py-2.5 px-3 text-sm
                                 rounded-full border-2 font-medium capitalize
                                 transition-all
-                                ${isActive ? 'text-white' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}
+                                ${isActive ? 'text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'}
                               `}
                               style={isActive ? { backgroundColor: color, borderColor: color } : {}}
                             >
@@ -1156,7 +997,7 @@ export const IngredientDrawer = ({
                                   className="w-2.5 h-2.5 rounded-full"
                                   style={{ backgroundColor: color }}
                                 />
-                                <span className="text-xs font-medium capitalize w-12">{taste}</span>
+                                <span className="text-xs font-medium capitalize w-12 text-gray-700 dark:text-gray-300">{taste}</span>
                                 <input
                                   type="range"
                                   min="1"
@@ -1169,106 +1010,12 @@ export const IngredientDrawer = ({
                                     background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
                                   }}
                                 />
-                                <span className="text-xs text-gray-500 w-6">{tasteValues[taste] || 1}</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 w-6">{tasteValues[taste] || 1}</span>
                               </div>
                             );
                           })}
                         </div>
                       )}
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Generation Options Section */}
-              {activeSection === 'generation' && (
-                <>
-                  {/* Sub-tabs for Compatibility and Dietary */}
-                  <div className="flex gap-4 mb-4">
-                    <button
-                      onClick={() => setActiveGenerationTab('compatibility')}
-                      className={`
-                        text-sm font-medium transition-colors
-                        ${activeGenerationTab === 'compatibility'
-                          ? 'text-gray-700'
-                          : 'text-gray-400 hover:text-gray-500'
-                        }
-                      `}
-                    >
-                      Compatibility
-                    </button>
-                    <button
-                      onClick={() => setActiveGenerationTab('dietary')}
-                      className={`
-                        text-sm font-medium transition-colors
-                        ${activeGenerationTab === 'dietary'
-                          ? 'text-gray-700'
-                          : 'text-gray-400 hover:text-gray-500'
-                        }
-                      `}
-                    >
-                      Dietary
-                    </button>
-                  </div>
-
-                  {/* Compatibility Content */}
-                  {activeGenerationTab === 'compatibility' && (
-                    <div className="space-y-4">
-                      <div className="relative inline-grid grid-cols-3 bg-gray-100 rounded-full p-1">
-                        {/* Sliding background indicator */}
-                        <div
-                          className="absolute top-1 bottom-1 bg-gray-900 rounded-full transition-all duration-200 ease-out"
-                          style={{
-                            width: 'calc(33.333% - 2px)',
-                            left: `calc(${COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode) * 33.333}% + 1px)`,
-                          }}
-                        />
-                        {COMPATIBILITY_MODES.map((mode) => (
-                          <button
-                            key={mode.key}
-                            onClick={() => onCompatibilityChange(mode.key)}
-                            className={`
-                              relative z-10 py-2.5 px-5 text-sm font-medium text-center
-                              rounded-full transition-colors duration-200
-                              ${compatibilityMode === mode.key
-                                ? 'text-white'
-                                : 'text-gray-600 hover:text-gray-800'
-                              }
-                            `}
-                          >
-                            {mode.label}
-                          </button>
-                        ))}
-                      </div>
-                      <p className="text-sm text-gray-500 leading-relaxed">
-                        {COMPATIBILITY_MODES.find(m => m.key === compatibilityMode)?.description}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Dietary Content */}
-                  {activeGenerationTab === 'dietary' && (
-                    <div className="grid grid-cols-2 gap-2">
-                      {DIETARY_TOGGLES.map((toggle) => {
-                        const isActive = getDietaryState(toggle.key);
-                        return (
-                          <button
-                            key={toggle.key}
-                            onClick={() => handleDietaryToggle(toggle.key)}
-                            className={`
-                              py-2.5 px-3 text-sm
-                              rounded-full border-2 font-medium
-                              transition-all
-                              ${isActive
-                                ? 'border-[#6AAFE8] bg-[#6AAFE8] text-white'
-                                : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                              }
-                            `}
-                          >
-                            {toggle.label}
-                          </button>
-                        );
-                      })}
                     </div>
                   )}
                 </>
@@ -1281,9 +1028,9 @@ export const IngredientDrawer = ({
               className="
                 flex-shrink-0 w-6
                 flex items-center justify-center
-                border-r border-gray-100
-                hover:bg-gray-50 transition-colors
-                text-gray-400 hover:text-gray-600
+                border-r border-gray-100 dark:border-gray-700
+                hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors
+                text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300
               "
               aria-label={isFiltersPanelCollapsed ? "Show filters" : "Hide filters"}
             >
@@ -1294,7 +1041,7 @@ export const IngredientDrawer = ({
             </button>
 
             {/* Middle: Search + Ingredients */}
-            <div className="flex-1 p-5 overflow-hidden flex flex-col border-r border-gray-100">
+            <div className="flex-1 p-5 overflow-hidden flex flex-col border-r border-gray-100 dark:border-gray-700">
               {/* Search Bar with Partial Matches Toggle */}
               <div className="flex gap-3 mb-4 flex-shrink-0">
                 <div className="relative flex-1">
@@ -1323,9 +1070,9 @@ export const IngredientDrawer = ({
                     placeholder="Search ingredients..."
                     className="
                       w-full pl-12 pr-10 py-3
-                      rounded-full border-2 border-gray-200
-                      focus:border-gray-400 focus:outline-none
-                      text-base bg-gray-50
+                      rounded-full border-2 border-gray-200 dark:border-gray-600
+                      focus:border-gray-400 dark:focus:border-gray-400 focus:outline-none
+                      text-base bg-gray-50 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500
                     "
                   />
                   {searchTerm && (
@@ -1333,7 +1080,7 @@ export const IngredientDrawer = ({
                       onClick={() => onSearchChange('')}
                       className="absolute right-4 top-1/2 -translate-y-1/2"
                     >
-                      <X size={20} className="text-gray-400 hover:text-gray-600" />
+                      <X size={20} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
                     </button>
                   )}
                 </div>
@@ -1349,8 +1096,8 @@ export const IngredientDrawer = ({
                     flex items-center gap-2
                     whitespace-nowrap
                     ${showPartialMatches
-                      ? 'text-gray-800 border-[#FFC233] bg-amber-50'
-                      : 'text-gray-400 border-gray-300 hover:border-[#FFC233] hover:text-gray-600'
+                      ? 'text-gray-800 dark:text-amber-200 border-[#FFC233] bg-amber-50 dark:bg-amber-900/30'
+                      : 'text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 hover:border-[#FFC233] hover:text-gray-600 dark:hover:text-gray-300'
                     }
                   `}
                 >
@@ -1373,8 +1120,8 @@ export const IngredientDrawer = ({
                     className={`
                       text-sm font-medium transition-colors
                       ${sortMode === key
-                        ? 'text-gray-900'
-                        : 'text-gray-400 hover:text-gray-600'
+                        ? 'text-gray-900 dark:text-white'
+                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                       }
                     `}
                   >
@@ -1399,7 +1146,7 @@ export const IngredientDrawer = ({
                           >
                             {item.label}
                           </span>
-                          <div className="flex-1 h-px bg-gray-200" />
+                          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
                         </div>
                       );
                     }
@@ -1425,17 +1172,19 @@ export const IngredientDrawer = ({
                     };
 
                     // Determine background color based on state
-                    let bgColor = 'white';
-                    let textColor = '#1f2937';
+                    const baseBg = isDarkMode ? '#111827' : 'white';
+                    const baseText = isDarkMode ? '#f3f4f6' : '#1f2937';
+                    let bgColor = baseBg;
+                    let textColor = baseText;
                     if (isSelected) {
-                      bgColor = 'white';
-                      textColor = '#d1d5db';
+                      bgColor = baseBg;
+                      textColor = isDarkMode ? '#4b5563' : '#d1d5db';
                     } else if (isHovered) {
                       bgColor = borderColor;
-                      textColor = 'white';
+                      textColor = isDarkMode ? '#111827' : 'white';
                     } else if (isPairingHighlight) {
                       bgColor = hexToRgba(borderColor, 0.15);
-                      textColor = '#1f2937';
+                      textColor = baseText;
                     }
 
                     return (
@@ -1458,7 +1207,7 @@ export const IngredientDrawer = ({
                         `}
                         style={{
                           color: textColor,
-                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : borderColor}`,
+                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? (isDarkMode ? '#374151' : '#e5e7eb') : borderColor}`,
                           backgroundColor: bgColor,
                         }}
                         onMouseEnter={() => {
@@ -1469,7 +1218,7 @@ export const IngredientDrawer = ({
                         onMouseLeave={() => {
                           setHoveredIngredient(null);
                         }}
-                        title={partial ? 'Partial match - pairs with some selected ingredients' : undefined}
+                        title={partial ? 'Not a suggested pairing with everything you’ve selected' : undefined}
                       >
                         {ingredient}
                       </button>
@@ -1510,31 +1259,31 @@ export const IngredientDrawer = ({
                           onClick={() => setSelectedInfoIndex(Math.max(0, selectedInfoIndex - 1))}
                           disabled={selectedInfoIndex === 0}
                           className={`
-                            w-8 h-8 rounded-full border-2 border-gray-300
+                            w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600
                             flex items-center justify-center
                             transition-all
                             ${selectedInfoIndex === 0
                               ? 'opacity-30 cursor-not-allowed'
-                              : 'hover:border-gray-400 hover:bg-gray-50'
+                              : 'hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }
                           `}
                         >
-                          <ChevronLeft size={18} className="text-gray-600" />
+                          <ChevronLeft size={18} className="text-gray-600 dark:text-gray-300" />
                         </button>
                         <button
                           onClick={() => setSelectedInfoIndex(Math.min(selectedIngredients.length - 1, selectedInfoIndex + 1))}
                           disabled={selectedInfoIndex >= selectedIngredients.length - 1}
                           className={`
-                            w-8 h-8 rounded-full border-2 border-gray-300
+                            w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600
                             flex items-center justify-center
                             transition-all
                             ${selectedInfoIndex >= selectedIngredients.length - 1
                               ? 'opacity-30 cursor-not-allowed'
-                              : 'hover:border-gray-400 hover:bg-gray-50'
+                              : 'hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }
                           `}
                         >
-                          <ChevronRight size={18} className="text-gray-600" />
+                          <ChevronRight size={18} className="text-gray-600 dark:text-gray-300" />
                         </button>
                       </div>
 
@@ -1551,7 +1300,7 @@ export const IngredientDrawer = ({
 
                       {/* Category & Subcategory */}
                       {profile && (
-                        <p className="text-sm text-gray-500 mb-4">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                           {profile.category.toLowerCase()}
                           {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
                         </p>
@@ -1559,15 +1308,15 @@ export const IngredientDrawer = ({
 
                       {/* Description */}
                       {profile?.description && (
-                        <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                           {profile.description}
                         </p>
                       )}
 
                       {/* Non-pairing warning */}
                       {nonPairingIngredients.length > 0 && (
-                        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-sm text-amber-800">
+                        <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+                          <p className="text-sm text-amber-800 dark:text-amber-200">
                             <span className="font-medium">Not a suggested pairing with: </span>
                             {nonPairingIngredients.join(', ')}
                           </p>
@@ -1592,7 +1341,7 @@ export const IngredientDrawer = ({
                   );
                 })()
               ) : (
-                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-sm">
                   Select an ingredient to see details
                 </div>
               )}

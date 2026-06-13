@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Moon, Sun } from 'lucide-react';
+import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 
@@ -12,123 +12,11 @@ const shortcuts = [
   { key: 'z', action: 'undo' },
 ];
 
-const DIETARY_TOGGLES = [
-  { key: 'vegetarian', label: 'Vegetarian' },
-  { key: 'pescatarian', label: 'Pescatarian' },
-  { key: 'gluten-free', label: 'Gluten-free' },
-  { key: 'dairy-free', label: 'Dairy-free' },
-  { key: 'alcohol-free', label: 'Alc-free' },
-  { key: 'nut-free', label: 'Nut-free' }
-];
-
 const COMPATIBILITY_MODES = [
   { key: 'perfect', label: 'Perfect', description: 'Generated pairings include only perfect matches — each ingredient is a recommended pairing for one another.' },
   { key: 'mixed', label: 'Mixed', description: 'Each ingredient pairs with at least one other ingredient in the set, allowing for more creative combinations.' },
   { key: 'random', label: 'Random', description: 'Completely random ingredients with no pairing requirements — for adventurous cooks!' }
 ];
-
-// Helper to check dietary restriction state
-// Uses flat format: 'Category:Subcategory' = false (false means excluded)
-const getDietaryState = (dietaryRestrictions, key) => {
-  if (key === 'vegetarian') {
-    return dietaryRestrictions['Proteins:Meat'] === false &&
-           dietaryRestrictions['Proteins:Poultry'] === false &&
-           dietaryRestrictions['Proteins:Game'] === false &&
-           dietaryRestrictions['Proteins:Pork'] === false &&
-           dietaryRestrictions['Proteins:Offal'] === false &&
-           dietaryRestrictions['Proteins:Fish'] === false &&
-           dietaryRestrictions['Proteins:Crustacean'] === false &&
-           dietaryRestrictions['Proteins:Mollusk'] === false;
-  }
-  if (key === 'pescatarian') {
-    return dietaryRestrictions['Proteins:Meat'] === false &&
-           dietaryRestrictions['Proteins:Poultry'] === false &&
-           dietaryRestrictions['Proteins:Game'] === false &&
-           dietaryRestrictions['Proteins:Pork'] === false &&
-           dietaryRestrictions['Proteins:Offal'] === false;
-  }
-  if (key === 'gluten-free') {
-    return dietaryRestrictions['Grains:Pasta'] === false &&
-           dietaryRestrictions['Grains:Bread'] === false;
-  }
-  if (key === 'dairy-free') {
-    return dietaryRestrictions['Dairy:Cultured Dairy'] === false &&
-           dietaryRestrictions['Dairy:Hard Cheese'] === false &&
-           dietaryRestrictions['Dairy:Soft Cheese'] === false &&
-           dietaryRestrictions['Dairy:Milk & Cream'] === false;
-  }
-  if (key === 'alcohol-free') {
-    return dietaryRestrictions['Alcohol:Wines'] === false &&
-           dietaryRestrictions['Alcohol:Spirits'] === false &&
-           dietaryRestrictions['Alcohol:Liqueurs'] === false;
-  }
-  if (key === 'nut-free') {
-    return dietaryRestrictions['_nuts'] === false;
-  }
-  if (key === 'nightshade-free') {
-    return dietaryRestrictions['_nightshades'] === false;
-  }
-  if (key === 'low-fodmap') {
-    return dietaryRestrictions['_fodmap'] === false;
-  }
-  return false;
-};
-
-// Helper to handle dietary toggle
-// Uses flat format: 'Category:Subcategory' = false (false means excluded)
-const handleDietaryToggle = (dietaryRestrictions, onDietaryChange, key) => {
-  const newRestrictions = { ...dietaryRestrictions };
-  const isCurrentlyActive = getDietaryState(dietaryRestrictions, key);
-
-  // When toggling ON (activating restriction), set to false (excluded)
-  // When toggling OFF (deactivating), delete the key
-  const setRestriction = (restrictionKey, shouldExclude) => {
-    if (shouldExclude) {
-      newRestrictions[restrictionKey] = false;
-    } else {
-      delete newRestrictions[restrictionKey];
-    }
-  };
-
-  const shouldExclude = !isCurrentlyActive;
-
-  if (key === 'vegetarian') {
-    setRestriction('Proteins:Meat', shouldExclude);
-    setRestriction('Proteins:Poultry', shouldExclude);
-    setRestriction('Proteins:Game', shouldExclude);
-    setRestriction('Proteins:Pork', shouldExclude);
-    setRestriction('Proteins:Offal', shouldExclude);
-    setRestriction('Proteins:Fish', shouldExclude);
-    setRestriction('Proteins:Crustacean', shouldExclude);
-    setRestriction('Proteins:Mollusk', shouldExclude);
-  } else if (key === 'pescatarian') {
-    setRestriction('Proteins:Meat', shouldExclude);
-    setRestriction('Proteins:Poultry', shouldExclude);
-    setRestriction('Proteins:Game', shouldExclude);
-    setRestriction('Proteins:Pork', shouldExclude);
-    setRestriction('Proteins:Offal', shouldExclude);
-  } else if (key === 'gluten-free') {
-    setRestriction('Grains:Pasta', shouldExclude);
-    setRestriction('Grains:Bread', shouldExclude);
-  } else if (key === 'dairy-free') {
-    setRestriction('Dairy:Cultured Dairy', shouldExclude);
-    setRestriction('Dairy:Hard Cheese', shouldExclude);
-    setRestriction('Dairy:Soft Cheese', shouldExclude);
-    setRestriction('Dairy:Milk & Cream', shouldExclude);
-  } else if (key === 'alcohol-free') {
-    setRestriction('Alcohol:Wines', shouldExclude);
-    setRestriction('Alcohol:Spirits', shouldExclude);
-    setRestriction('Alcohol:Liqueurs', shouldExclude);
-  } else if (key === 'nut-free') {
-    setRestriction('_nuts', shouldExclude);
-  } else if (key === 'nightshade-free') {
-    setRestriction('_nightshades', shouldExclude);
-  } else if (key === 'low-fodmap') {
-    setRestriction('_fodmap', shouldExclude);
-  }
-
-  onDietaryChange(newRestrictions);
-};
 
 // Collapsible Section Component
 const CollapsibleSection = ({ title, isOpen, onToggle, children }) => {
@@ -156,42 +44,15 @@ const CollapsibleSection = ({ title, isOpen, onToggle, children }) => {
   );
 };
 
-// Mobile Generation Options Content
+// Generation Options Content (shared between mobile and desktop)
 const GenerationOptionsContent = ({
-  dietaryRestrictions,
-  onDietaryChange,
   compatibilityMode,
   onCompatibilityChange,
 }) => {
   return (
     <>
-      {/* Dietary Section */}
-      <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm mb-3">Dietary</h3>
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        {DIETARY_TOGGLES.map((toggle) => {
-          const isActive = getDietaryState(dietaryRestrictions, toggle.key);
-          return (
-            <button
-              key={toggle.key}
-              onClick={() => handleDietaryToggle(dietaryRestrictions, onDietaryChange, toggle.key)}
-              className={`
-                py-2 px-3 text-sm
-                rounded-full border-2 font-medium
-                transition-all
-                ${isActive
-                  ? 'border-gray-500 dark:border-gray-400 bg-gray-500 dark:bg-gray-400 text-white dark:text-gray-700'
-                  : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
-                }
-              `}
-            >
-              {toggle.label}
-            </button>
-          );
-        })}
-      </div>
-
       {/* Compatibility Section */}
-      <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm mb-3 mt-4">Compatibility</h3>
+      <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm mb-3">Compatibility</h3>
       <div className="relative inline-grid grid-cols-3 bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-full mb-2">
         {/* Sliding background indicator */}
         <div
@@ -225,7 +86,7 @@ const GenerationOptionsContent = ({
   );
 };
 
-// Bottom Settings Toggles (not in a collapsible)
+// Bottom Settings Toggles (shared)
 const BottomSettingsToggles = () => {
   const { isDarkMode, toggleDarkMode, isHighContrast, toggleHighContrast } = useTheme();
 
@@ -279,59 +140,21 @@ const BottomSettingsToggles = () => {
   );
 };
 
-// Mobile Sidebar Content with Collapsible Sections
-const MobileSidebarContent = ({
-  dietaryRestrictions,
-  onDietaryChange,
-  compatibilityMode,
-  onCompatibilityChange,
+export const Sidebar = ({
+  isOpen,
+  onClose,
+  dietaryRestrictions = {},
+  onDietaryChange = () => {},
+  compatibilityMode = 'perfect',
+  onCompatibilityChange = () => {},
+  onOpenIngredientFilters = () => {},
 }) => {
+  const { isMobile } = useScreenSize();
   const [openSections, setOpenSections] = useState({ generation: true });
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
-
-  return (
-    <div className="flex-1 flex flex-col overflow-y-auto">
-      {/* Description text */}
-      <p className="text-gray-700 dark:text-gray-400 text-sm leading-relaxed px-4 py-3">
-        Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidu.
-      </p>
-
-      {/* Collapsible Sections */}
-      <CollapsibleSection
-        title="Generation Options"
-        isOpen={openSections.generation}
-        onToggle={() => toggleSection('generation')}
-      >
-        <GenerationOptionsContent
-          dietaryRestrictions={dietaryRestrictions}
-          onDietaryChange={onDietaryChange}
-          compatibilityMode={compatibilityMode}
-          onCompatibilityChange={onCompatibilityChange}
-        />
-      </CollapsibleSection>
-
-      {/* Spacer to push settings to bottom */}
-      <div className="flex-1" />
-
-      {/* Settings toggles at bottom */}
-      <BottomSettingsToggles />
-    </div>
-  );
-};
-
-export const Sidebar = ({
-  isOpen,
-  onClose,
-  // Generation options props (for mobile)
-  dietaryRestrictions = {},
-  onDietaryChange = () => {},
-  compatibilityMode = 'perfect',
-  onCompatibilityChange = () => {},
-}) => {
-  const { isMobile } = useScreenSize();
 
   return (
     <>
@@ -354,7 +177,7 @@ export const Sidebar = ({
           shadow-lg
           z-[61]
           transition-transform duration-300 ease-in-out
-          ${isMobile ? 'w-64' : 'w-80'}
+          ${isMobile ? 'w-72' : 'w-80'}
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
@@ -382,22 +205,47 @@ export const Sidebar = ({
             </button>
           </div>
 
-          {isMobile ? (
-            /* Mobile: Collapsible Sections */
-            <MobileSidebarContent
-              dietaryRestrictions={dietaryRestrictions}
-              onDietaryChange={onDietaryChange}
-              compatibilityMode={compatibilityMode}
-              onCompatibilityChange={onCompatibilityChange}
-            />
-          ) : (
-            /* Desktop: Shortcuts */
-            <>
-              <div className="px-6 py-6">
-                <h2 className="text-gray-400 dark:text-gray-500 font-medium text-lg mb-4">Shortcuts</h2>
-                <ul className="space-y-2">
+          <div className="flex-1 flex flex-col overflow-y-auto">
+            {/* Description */}
+            <p className="text-gray-700 dark:text-gray-400 text-sm leading-relaxed px-4 py-3">
+              Mix and match ingredients that taste great together, then jump
+              straight to recipes for your combination.
+            </p>
+
+            {/* Generation Options */}
+            <CollapsibleSection
+              title="Generation Options"
+              isOpen={openSections.generation}
+              onToggle={() => toggleSection('generation')}
+            >
+              <GenerationOptionsContent
+                compatibilityMode={compatibilityMode}
+                onCompatibilityChange={onCompatibilityChange}
+              />
+            </CollapsibleSection>
+
+            {/* Ingredient Filters */}
+            <button
+              onClick={() => {
+                onClose();
+                onOpenIngredientFilters();
+              }}
+              className="w-full flex items-center justify-between py-3 px-4 text-left border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold text-base">
+                <SlidersHorizontal size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />
+                Ingredient Filters
+              </span>
+              <ChevronRight size={20} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
+            </button>
+
+            {/* Keyboard shortcuts - desktop only */}
+            {!isMobile && (
+              <div className="px-4 py-4">
+                <h3 className="text-gray-400 dark:text-gray-500 font-medium text-sm mb-3">Shortcuts</h3>
+                <ul className="space-y-1.5">
                   {shortcuts.map(({ key, action }) => (
-                    <li key={key} className="flex items-baseline gap-2">
+                    <li key={key} className="flex items-baseline gap-2 text-sm">
                       <span className="font-bold text-gray-700 dark:text-gray-300">{key}</span>
                       <span className="text-gray-400 dark:text-gray-500">—</span>
                       <span className="text-gray-600 dark:text-gray-400">{action}</span>
@@ -405,18 +253,14 @@ export const Sidebar = ({
                   ))}
                 </ul>
               </div>
+            )}
 
-              {/* Spacer */}
-              <div className="flex-1" />
+            {/* Spacer to push settings to bottom */}
+            <div className="flex-1" />
 
-              {/* Settings link at bottom */}
-              <div className="px-6 py-6">
-                <button className="text-gray-300 dark:text-gray-600 font-medium text-lg hover:text-gray-500 dark:hover:text-gray-400 transition-colors">
-                  Settings
-                </button>
-              </div>
-            </>
-          )}
+            {/* Settings toggles at bottom */}
+            <BottomSettingsToggles />
+          </div>
         </div>
       </aside>
     </>

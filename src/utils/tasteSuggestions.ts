@@ -11,7 +11,7 @@ type TasteProfile = {
   sweet: number;
   salty: number;
   sour: number;
-  bitter: number;
+  aromatic: number;
   umami: number;
   fat: number;
   spicy: number;
@@ -38,8 +38,8 @@ export function generateTasteSuggestions(
   // Find complementary tastes based on flavor principles
   const complementaryTastes: Record<keyof TasteProfile, Array<keyof TasteProfile>> = {
     sour: ['sweet', 'fat'],
-    sweet: ['sour', 'bitter'],
-    bitter: ['sweet', 'fat'],
+    sweet: ['sour', 'aromatic'],
+    aromatic: ['sweet', 'fat'],
     salty: ['fat', 'umami'],
     umami: ['salty', 'sour'],
     fat: ['salty', 'sour'],
@@ -118,7 +118,7 @@ function calculateCompatibilityScore(
 
 function calculateAggregateTastes(profiles: IngredientProfile[]): TasteProfile {
   const aggregate: TasteProfile = {
-    sweet: 0, sour: 0, salty: 0, bitter: 0, umami: 0, fat: 0, spicy: 0
+    sweet: 0, sour: 0, salty: 0, aromatic: 0, umami: 0, fat: 0, spicy: 0
   };
   
   profiles.forEach(profile => {

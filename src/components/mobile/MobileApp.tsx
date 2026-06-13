@@ -629,20 +629,26 @@ export default function MobileApp({
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => {
-                            // Toggle vegetarian (disable all meat categories)
-                            const isVegetarian = dietaryRestrictions['Proteins:Meat'] === false;
-                            const updates = {
-                              ...dietaryRestrictions,
-                              'Proteins:Meat': !isVegetarian ? false : true,
-                              'Proteins:Poultry': !isVegetarian ? false : true,
-                              'Proteins:Game': !isVegetarian ? false : true,
-                              'Proteins:Pork': !isVegetarian ? false : true,
-                              'Proteins:Offal': !isVegetarian ? false : true,
-                            };
-                            onDietaryChange(updates);
+                            // Toggle vegetarian (disable all animal proteins including seafood)
+                            const isVegetarian = dietaryRestrictions['Proteins:Meat'] === false &&
+                                                 dietaryRestrictions['Proteins:Poultry'] === false &&
+                                                 dietaryRestrictions['Proteins:Seafood'] === false;
+                            const newRestrictions = { ...dietaryRestrictions };
+                            if (isVegetarian) {
+                              delete newRestrictions['Proteins:Meat'];
+                              delete newRestrictions['Proteins:Poultry'];
+                              delete newRestrictions['Proteins:Seafood'];
+                            } else {
+                              newRestrictions['Proteins:Meat'] = false;
+                              newRestrictions['Proteins:Poultry'] = false;
+                              newRestrictions['Proteins:Seafood'] = false;
+                            }
+                            onDietaryChange(newRestrictions);
                           }}
                           className={`px-3 py-2.5 text-sm rounded-lg border transition-colors ${
-                            dietaryRestrictions['Proteins:Meat'] === false
+                            dietaryRestrictions['Proteins:Meat'] === false &&
+                            dietaryRestrictions['Proteins:Poultry'] === false &&
+                            dietaryRestrictions['Proteins:Seafood'] === false
                               ? 'bg-green-100 border-green-300 text-green-800'
                               : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
                           }`}
@@ -652,18 +658,25 @@ export default function MobileApp({
                         <button
                           onClick={() => {
                             // Toggle dairy-free
-                            const isDairyFree = dietaryRestrictions['Dairy:Hard Cheese'] === false;
-                            const updates = {
-                              ...dietaryRestrictions,
-                              'Dairy:Hard Cheese': !isDairyFree ? false : true,
-                              'Dairy:Soft Cheese': !isDairyFree ? false : true,
-                              'Dairy:Cultured Dairy': !isDairyFree ? false : true,
-                              'Dairy:Milk & Cream': !isDairyFree ? false : true,
-                            };
-                            onDietaryChange(updates);
+                            const isDairyFree = dietaryRestrictions['Dairy:Cheese'] === false &&
+                                               dietaryRestrictions['Dairy:Cultured'] === false &&
+                                               dietaryRestrictions['Dairy:Milk & Cream'] === false;
+                            const newRestrictions = { ...dietaryRestrictions };
+                            if (isDairyFree) {
+                              delete newRestrictions['Dairy:Cheese'];
+                              delete newRestrictions['Dairy:Cultured'];
+                              delete newRestrictions['Dairy:Milk & Cream'];
+                            } else {
+                              newRestrictions['Dairy:Cheese'] = false;
+                              newRestrictions['Dairy:Cultured'] = false;
+                              newRestrictions['Dairy:Milk & Cream'] = false;
+                            }
+                            onDietaryChange(newRestrictions);
                           }}
                           className={`px-3 py-2.5 text-sm rounded-lg border transition-colors ${
-                            dietaryRestrictions['Dairy:Hard Cheese'] === false
+                            dietaryRestrictions['Dairy:Cheese'] === false &&
+                            dietaryRestrictions['Dairy:Cultured'] === false &&
+                            dietaryRestrictions['Dairy:Milk & Cream'] === false
                               ? 'bg-green-100 border-green-300 text-green-800'
                               : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
                           }`}

@@ -54,21 +54,23 @@ export const MinimalHeader = ({
           />
         </button>
 
-        {/* Recipes Link */}
+        {/* Recipes CTA */}
         <button
           onClick={onRecipesClick}
           className="
-            font-semibold
-            transition-colors duration-200
-            text-lg
-            flex items-center gap-0.5
+            flex items-center gap-1
+            px-4 py-2 rounded-full
+            bg-gray-900 dark:bg-white
+            text-white dark:text-gray-900
+            font-semibold text-base
+            active:opacity-80
+            transition-all duration-200
           "
-          style={{ color: '#6d727f' }}
-          title="Find Recipes"
-          aria-label="Find Recipes"
+          title="Find recipes with these ingredients"
+          aria-label="Find recipes"
         >
-          Recipes
-          <ArrowUpRight size={18} strokeWidth={2} />
+          Find recipes
+          <ArrowUpRight size={16} strokeWidth={2.5} />
         </button>
       </header>
     );
@@ -87,16 +89,16 @@ export const MinimalHeader = ({
       "
     >
       {/* Logo */}
-      <div className="flex-shrink-0 w-24">
+      <div className="flex-1">
         <button
           onClick={onLogoClick}
           className="relative group cursor-pointer bg-transparent border-none p-0"
           aria-label="Open menu"
         >
           <img
-            src="/flavor-finder-1.png"
+            src="/flavor-finder-HORIZONTAL-512.png"
             alt="ff"
-            className="w-auto h-8 transition-opacity duration-200 group-hover:opacity-0"
+            className="w-auto h-6 transition-opacity duration-200 group-hover:opacity-0"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               const sibling = e.currentTarget.parentElement?.querySelector('.logo-hover');
@@ -106,9 +108,9 @@ export const MinimalHeader = ({
             }}
           />
           <img
-            src="/flavor-finder-1-hover.png"
+            src="/flavor-finder-HORIZONTAL-512.png"
             alt="ff"
-            className="logo-hover absolute top-0 left-0 w-auto h-8 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            className="logo-hover absolute top-0 left-0 w-auto h-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
           />
         </button>
         <span
@@ -132,8 +134,8 @@ export const MinimalHeader = ({
             transition-all duration-200
             w-14 h-14
             ${canDecrement
-              ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100'
-              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+              ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
+              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
             }
           `}
           title="Remove last ingredient"
@@ -147,12 +149,12 @@ export const MinimalHeader = ({
           onClick={onGenerate}
           className={`
             rounded-full
-            border-2 border-gray-900
-            text-gray-900
+            border-2 border-gray-900 dark:border-white
+            text-gray-900 dark:text-white
             font-medium
             transition-all duration-200
-            hover:bg-gray-900 hover:text-white
-            active:bg-gray-800 active:text-white
+            hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900
+            active:bg-gray-800 active:text-white dark:active:bg-gray-200 dark:active:text-gray-900
             px-10 py-3.5 text-lg
             ${isGeneratePulsing ? 'animate-pulse shadow-lg scale-105' : ''}
           `}
@@ -171,8 +173,8 @@ export const MinimalHeader = ({
             transition-all duration-200
             w-14 h-14
             ${canIncrement
-              ? 'border-gray-300 hover:border-gray-400 text-gray-500 active:bg-gray-100'
-              : 'border-gray-200 text-gray-200 cursor-not-allowed'
+              ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
+              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
             }
           `}
           title="Add ingredient slot"
@@ -182,21 +184,24 @@ export const MinimalHeader = ({
         </button>
       </div>
 
-      {/* Recipes Link */}
-      <div className="text-right w-24">
+      {/* Recipes CTA */}
+      <div className="flex-1 flex justify-end">
         <button
           onClick={onRecipesClick}
           className="
-            text-gray-300
-            font-medium
-            hover:text-gray-500
-            transition-colors duration-200
-            text-lg
+            flex items-center gap-1.5
+            px-5 py-2.5 rounded-full
+            bg-gray-900 dark:bg-white
+            text-white dark:text-gray-900
+            font-semibold text-base
+            hover:bg-gray-700 dark:hover:bg-gray-200
+            transition-all duration-200
           "
-          title="Find Recipes"
-          aria-label="Find Recipes"
+          title="Find recipes with these ingredients"
+          aria-label="Find recipes"
         >
-          Recipes
+          Find recipes
+          <ArrowUpRight size={18} strokeWidth={2.5} />
         </button>
       </div>
     </header>

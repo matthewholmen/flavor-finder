@@ -4,7 +4,6 @@ import Notification from './components/Notification';
 import ShareButton from './components/ShareButton';
 import { Search, Sparkles, ChartPieIcon, ChartPie, X, ChevronDown, CircleFadingPlus, RectangleEllipsis, Zap, SendToBack, Settings, Clipboard, Share, Globe } from 'lucide-react';
 import { flavorPairings } from './data/flavorPairings.ts';
-import { experimentalPairings } from './data/experimentalPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import SuggestedIngredients from './components/SuggestedIngredients.tsx';
 import CompactTasteSliders from './components/CompactTasteSliders.tsx';
@@ -25,6 +24,10 @@ import FilterPanel from './components/filters/UnifiedFilterPanel/FilterPanel.tsx
 import MobileApp from './components/mobile/MobileApp.tsx';
 import { useMobileDetection } from './hooks/useScreenSize.ts';
 
+// Experimental pairings dataset was removed; keep an empty list so the
+// "experimental" toggle simply adds nothing.
+const experimentalPairings = [];
+
 const getIngredientColor = (profile) => {
   if (!profile) return 'rgb(249 250 251)'; // or 'bg-gray-50' for Tailwind
   
@@ -44,7 +47,7 @@ const getIngredientColor = (profile) => {
 };
 
 // Helper functions for taste analysis
-const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'fat', 'spicy'];
+const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'aromatic', 'umami', 'fat', 'spicy'];
 
 
 const filterByTasteValues = (ingredients, tasteValues) => {
@@ -280,7 +283,7 @@ export default function FlavorFinder() {
         sweet: 5,
         salty: 5,
         sour: 5,
-        bitter: 5,
+        aromatic: 5,
         umami: 5,
         fat: 5,
         spicy: 5
@@ -331,7 +334,7 @@ export default function FlavorFinder() {
         sweet: 5,
         salty: 5,
         sour: 5,
-        bitter: 5,
+        aromatic: 5,
         umami: 5,
         fat: 5,
         spicy: 5
@@ -378,7 +381,7 @@ const exitSubstitutionMode = () => {
     sweet: 5,
     salty: 5,
     sour: 5,
-    bitter: 5,
+    aromatic: 5,
     umami: 5,
     fat: 5,
     spicy: 5
@@ -458,7 +461,7 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     sweet: 0,
     salty: 0,
     sour: 0,
-    bitter: 0,
+    aromatic: 0,
     umami: 0,
     fat: 0,
     spicy: 0
@@ -468,7 +471,7 @@ const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     sweet: 5,
     salty: 5,
     sour: 5,
-    bitter: 5,
+    aromatic: 5,
     umami: 5,
     fat: 5,
     spicy: 5
@@ -810,34 +813,23 @@ const [showPartialMatches, setShowPartialMatches] = useState(true);
       // Check if vegetarian is active (all animal proteins disabled)
       const vegetarianActive = dietaryRestrictions['Proteins:Meat'] === false &&
                               dietaryRestrictions['Proteins:Poultry'] === false &&
-                              dietaryRestrictions['Proteins:Game'] === false &&
-                              dietaryRestrictions['Proteins:Pork'] === false &&
-                              dietaryRestrictions['Proteins:Offal'] === false &&
-                              dietaryRestrictions['Proteins:Fish'] === false &&
-                              dietaryRestrictions['Proteins:Crustacean'] === false &&
-                              dietaryRestrictions['Proteins:Mollusk'] === false;
-      
-      // Check if pescatarian is active (land animals disabled, but fish/seafood enabled)
-      const pescatarianActive = !vegetarianActive && // Not vegetarian
+                              dietaryRestrictions['Proteins:Seafood'] === false;
+
+      // Check if pescatarian is active (land meats disabled, seafood allowed)
+      const pescatarianActive = !vegetarianActive &&
                                dietaryRestrictions['Proteins:Meat'] === false &&
                                dietaryRestrictions['Proteins:Poultry'] === false &&
-                               dietaryRestrictions['Proteins:Game'] === false &&
-                               dietaryRestrictions['Proteins:Pork'] === false &&
-                               dietaryRestrictions['Proteins:Offal'] === false &&
-                               dietaryRestrictions['Proteins:Fish'] !== false &&
-                               dietaryRestrictions['Proteins:Crustacean'] !== false &&
-                               dietaryRestrictions['Proteins:Mollusk'] !== false;
-      
+                               dietaryRestrictions['Proteins:Seafood'] !== false;
+
       // Check if gluten-free is active
-      const glutenFreeActive = dietaryRestrictions['Grains:Bread'] === false ||
+      const glutenFreeActive = dietaryRestrictions['Grains:Bread'] === false &&
                               dietaryRestrictions['Grains:Pasta'] === false;
-      
+
       // Check if dairy-free is active
-      const dairyFreeActive = dietaryRestrictions['Dairy:Hard Cheese'] === false ||
-                             dietaryRestrictions['Dairy:Soft Cheese'] === false ||
-                             dietaryRestrictions['Dairy:Cultured Dairy'] === false ||
+      const dairyFreeActive = dietaryRestrictions['Dairy:Cheese'] === false &&
+                             dietaryRestrictions['Dairy:Cultured'] === false &&
                              dietaryRestrictions['Dairy:Milk & Cream'] === false;
-      
+
       if (vegetarianActive) count++;
       if (pescatarianActive) count++;
       if (glutenFreeActive) count++;

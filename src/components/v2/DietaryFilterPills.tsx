@@ -14,40 +14,40 @@ const DIETARY_LABELS = {
 // Determine which dietary filters are active based on restrictions
 const getActiveDietaryFilters = (dietaryRestrictions) => {
   const active = [];
-  
-  // Check vegetarian - all meat/poultry/fish/seafood restricted
-  const proteinKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal', 'Fish', 'Crustacean', 'Mollusk'];
-  const allProteinsRestricted = proteinKeys.every(k => dietaryRestrictions[`Proteins:${k}`] === false);
-  if (allProteinsRestricted) {
+
+  // Check vegetarian - all animal proteins restricted (meat, poultry, seafood)
+  const vegetarian = dietaryRestrictions['Proteins:Meat'] === false &&
+                     dietaryRestrictions['Proteins:Poultry'] === false &&
+                     dietaryRestrictions['Proteins:Seafood'] === false;
+  if (vegetarian) {
     active.push('vegetarian');
   } else {
     // Check pescatarian - land meat restricted but seafood allowed
-    const landMeatKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal'];
-    const landMeatRestricted = landMeatKeys.every(k => dietaryRestrictions[`Proteins:${k}`] === false);
-    const seafoodAllowed = ['Fish', 'Crustacean', 'Mollusk'].some(k => dietaryRestrictions[`Proteins:${k}`] !== false);
-    if (landMeatRestricted && seafoodAllowed) {
+    const pescatarian = dietaryRestrictions['Proteins:Meat'] === false &&
+                        dietaryRestrictions['Proteins:Poultry'] === false &&
+                        dietaryRestrictions['Proteins:Seafood'] !== false;
+    if (pescatarian) {
       active.push('pescatarian');
     }
   }
-  
+
   // Check gluten-free
-  const glutenKeys = ['Bread', 'Pasta'];
-  const glutenRestricted = glutenKeys.some(k => dietaryRestrictions[`Grains:${k}`] === false);
-  if (glutenRestricted) {
+  if (dietaryRestrictions['Grains:Bread'] === false &&
+      dietaryRestrictions['Grains:Pasta'] === false) {
     active.push('gluten-free');
   }
-  
+
   // Check dairy-free
-  const dairyKeys = ['Hard Cheese', 'Soft Cheese', 'Cultured Dairy', 'Milk & Cream'];
-  const dairyRestricted = dairyKeys.some(k => dietaryRestrictions[`Dairy:${k}`] === false);
-  if (dairyRestricted) {
+  if (dietaryRestrictions['Dairy:Cheese'] === false &&
+      dietaryRestrictions['Dairy:Cultured'] === false &&
+      dietaryRestrictions['Dairy:Milk & Cream'] === false) {
     active.push('dairy-free');
   }
 
   // Check alcohol-free
-  const alcoholKeys = ['Liqueurs', 'Spirits', 'Wines'];
-  const alcoholRestricted = alcoholKeys.some(k => dietaryRestrictions[`Alcohol:${k}`] === false);
-  if (alcoholRestricted) {
+  if (dietaryRestrictions['Alcohol:Wine'] === false &&
+      dietaryRestrictions['Alcohol:Spirits'] === false &&
+      dietaryRestrictions['Alcohol:Liqueurs'] === false) {
     active.push('alcohol-free');
   }
 
@@ -57,10 +57,11 @@ const getActiveDietaryFilters = (dietaryRestrictions) => {
   }
 
   // Check keto (grains and sweeteners restricted)
-  const grainKeys = ['Rice', 'Ancient Grains', 'Bread', 'Pasta', 'Starches'];
-  const grainsRestricted = grainKeys.some(k => dietaryRestrictions[`Grains:${k}`] === false);
-  const sweetenersRestricted = dietaryRestrictions['Condiments:Sweeteners'] === false;
-  if (grainsRestricted && sweetenersRestricted) {
+  if (dietaryRestrictions['Grains:Rice'] === false &&
+      dietaryRestrictions['Grains:Ancient Grains'] === false &&
+      dietaryRestrictions['Grains:Bread'] === false &&
+      dietaryRestrictions['Grains:Pasta'] === false &&
+      dietaryRestrictions['Pantry:Sweeteners'] === false) {
     active.push('keto');
   }
 
@@ -70,49 +71,40 @@ const getActiveDietaryFilters = (dietaryRestrictions) => {
 // Remove a specific dietary filter
 const removeDietaryFilter = (key, dietaryRestrictions, onDietaryChange) => {
   const newRestrictions = { ...dietaryRestrictions };
-  
+
   switch(key) {
     case 'vegetarian':
-      // Re-enable all protein subcategories
-      const proteinKeys = ['Meat', 'Poultry', 'Game', 'Pork', 'Offal', 'Fish', 'Crustacean', 'Mollusk'];
-      proteinKeys.forEach(k => {
-        delete newRestrictions[`Proteins:${k}`];
-      });
+      delete newRestrictions['Proteins:Meat'];
+      delete newRestrictions['Proteins:Poultry'];
+      delete newRestrictions['Proteins:Seafood'];
       break;
     case 'pescatarian':
-      // Re-enable land meat
-      ['Meat', 'Poultry', 'Game', 'Pork', 'Offal'].forEach(k => {
-        delete newRestrictions[`Proteins:${k}`];
-      });
+      delete newRestrictions['Proteins:Meat'];
+      delete newRestrictions['Proteins:Poultry'];
       break;
     case 'gluten-free':
-      // Re-enable gluten items
-      ['Bread', 'Pasta'].forEach(k => {
-        delete newRestrictions[`Grains:${k}`];
-      });
+      delete newRestrictions['Grains:Bread'];
+      delete newRestrictions['Grains:Pasta'];
       break;
     case 'dairy-free':
-      // Re-enable dairy items
-      ['Hard Cheese', 'Soft Cheese', 'Cultured Dairy', 'Milk & Cream'].forEach(k => {
-        delete newRestrictions[`Dairy:${k}`];
-      });
+      delete newRestrictions['Dairy:Cheese'];
+      delete newRestrictions['Dairy:Cultured'];
+      delete newRestrictions['Dairy:Milk & Cream'];
       break;
     case 'alcohol-free':
-      // Re-enable alcohol items
-      ['Liqueurs', 'Spirits', 'Wines'].forEach(k => {
-        delete newRestrictions[`Alcohol:${k}`];
-      });
+      delete newRestrictions['Alcohol:Wine'];
+      delete newRestrictions['Alcohol:Spirits'];
+      delete newRestrictions['Alcohol:Liqueurs'];
       break;
     case 'nut-free':
-      // Re-enable nuts
       delete newRestrictions['_nuts'];
       break;
     case 'keto':
-      // Re-enable grains and sweeteners
-      ['Rice', 'Ancient Grains', 'Bread', 'Pasta', 'Starches'].forEach(k => {
-        delete newRestrictions[`Grains:${k}`];
-      });
-      delete newRestrictions['Condiments:Sweeteners'];
+      delete newRestrictions['Grains:Rice'];
+      delete newRestrictions['Grains:Ancient Grains'];
+      delete newRestrictions['Grains:Bread'];
+      delete newRestrictions['Grains:Pasta'];
+      delete newRestrictions['Pantry:Sweeteners'];
       break;
   }
 
@@ -170,7 +162,7 @@ const FilterPill = ({ label, onRemove }) => {
         pl-3 pr-2.5 py-2
         rounded-full
         font-medium text-sm
-        bg-transparent
+        bg-white dark:bg-black
         border-2
         transition-colors duration-200
       "

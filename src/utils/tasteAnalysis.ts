@@ -18,7 +18,7 @@ interface TasteProfile {
   sweet: number;
   salty: number;
   sour: number;
-  bitter: number;
+  aromatic: number;
   umami: number;
   fat: number;
   spicy: number;
@@ -57,7 +57,7 @@ interface BalanceAnalysis {
 const TASTE_ENHANCEMENTS: TasteEnhancement[] = [
   { primary: 'sweet', complementary: 'salty', enhancementFactor: 1.5 },
   { primary: 'sour', complementary: 'sweet', enhancementFactor: 1.3 },
-  { primary: 'bitter', complementary: 'sweet', enhancementFactor: 1.4 },
+  { primary: 'aromatic', complementary: 'sweet', enhancementFactor: 1.4 },
   { primary: 'umami', complementary: 'salty', enhancementFactor: 1.4 },
   { primary: 'spicy', complementary: 'sweet', enhancementFactor: 1.3 },
   { primary: 'fat', complementary: 'salt', enhancementFactor: 1.4 },
@@ -76,7 +76,7 @@ export const calculateThresholds = (numIngredients: number): ThresholdLevels => 
 export const calculateEnhancedTasteScores = (ingredients: IngredientProfile[]): TasteProfile => {
   if (ingredients.length === 0) {
     return {
-      sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, fat: 0, spicy: 0
+      sweet: 0, salty: 0, sour: 0, aromatic: 0, umami: 0, fat: 0, spicy: 0
     };
   }
 
@@ -134,11 +134,11 @@ const calculateBalanceScore = (tasteProfile: TasteProfile): number => {
 
 const findBalancingTaste = (taste: string, scores: TasteProfile): string => {
   const balancingPairs: Record<string, string[]> = {
-    sweet: ['sour', 'bitter'],
+    sweet: ['sour', 'aromatic'],
     salty: ['sweet', 'sour'],
     sour: ['sweet', 'fat'],
-    bitter: ['sweet', 'umami'],
-    umami: ['sour', 'bitter'],
+    aromatic: ['sweet', 'umami'],
+    umami: ['sour', 'aromatic'],
     fat: ['sour', 'spicy'],
     spicy: ['sweet', 'fat']
   };

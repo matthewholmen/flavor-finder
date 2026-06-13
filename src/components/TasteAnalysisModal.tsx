@@ -57,7 +57,7 @@ const TasteAnalysisModal: React.FC<TasteAnalysisModalProps> = ({
     sweet: 0,
     salty: 0,
     sour: 0,
-    bitter: 0,
+    aromatic: 0,
     umami: 0,
     fat: 0,
     spicy: 0

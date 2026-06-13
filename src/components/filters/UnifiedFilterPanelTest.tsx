@@ -17,7 +17,7 @@ const UnifiedFilterPanelTest: React.FC = () => {
     sweet: 5,
     salty: 5,
     sour: 5,
-    bitter: 5,
+    aromatic: 5,
     umami: 5,
     fat: 5,
     spicy: 5
@@ -27,9 +27,9 @@ const UnifiedFilterPanelTest: React.FC = () => {
   // Dietary state (simplified for testing)
   const [dietaryRestrictions, setDietaryRestrictions] = useState<Record<string, boolean>>({
     'Proteins:Plant Proteins': true,
-    'Proteins:Fish': true,
+    'Proteins:Seafood': true,
     'Grains:Bread': true,
-    'Dairy': true
+    'Dairy:Cheese': true
   });
 
   // Calculate active filter count

@@ -2,27 +2,25 @@ import React, { useRef } from 'react';
 import { X } from 'lucide-react';
 
 const SUBCATEGORIES: Record<string, string[]> = {
-  Proteins: ["Plant Proteins", "Fish", "Pork", "Poultry", "Game", "Crustacean", "Mollusk", "Meat", "Offal"],
-  Vegetables: ["Allium", "Brassicas", "Leafy Greens", "Roots", "Squash", "Mushroom", "Stalks", "Fruit Vegetables"],
-  Fruits: ["Citrus", "Pome Fruit", "Stone Fruit", "Tropical Fruit", "Berries", "Melons", "Other Fruits"],
-  Seasonings: ["Herbs", "Spices", "Chilis", "Seeds & Botanicals"],
-  Dairy: ["Cultured Dairy", "Hard Cheese", "Soft Cheese", "Milk & Cream"],
+  Proteins: ["Meat", "Poultry", "Seafood", "Plant Proteins"],
+  Vegetables: ["Allium", "Leafy Greens", "Roots", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
+  Fruits: ["Citrus", "Stone Fruit", "Tropical", "Berries", "Pome Fruit", "Melons"],
+  Dairy: ["Cheese", "Cultured", "Milk & Cream"],
+  Seasonings: ["Herbs", "Spices", "Chilis"],
+  Pantry: ["Oils & Fats", "Vinegars", "Stocks", "Sauces", "Sweeteners"],
   Grains: ["Rice", "Pasta", "Bread", "Ancient Grains"],
-  Liquids: ["Broths & Stocks", "Oils & Fats", "Vinegars"],
-  Condiments: ["Fermented", "Sauces", "Preserves", "Sweeteners"],
-  Alcohol: ["Wines", "Spirits", "Liqueurs"]
+  Alcohol: ["Wine", "Spirits", "Liqueurs"]
 };
 
 export const CATEGORIES = [
-  'Alcohol',
-  'Condiments',
-  'Dairy',
-  'Fruits',
-  'Grains',
-  'Liquids',
   'Proteins',
+  'Vegetables',
+  'Fruits',
+  'Dairy',
   'Seasonings',
-  'Vegetables'
+  'Pantry',
+  'Grains',
+  'Alcohol'
 ] as const;
 
 interface CategoryFilterProps {

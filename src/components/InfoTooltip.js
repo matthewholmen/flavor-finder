@@ -237,10 +237,10 @@ const InfoTooltip = ({ handleRandomize, handleRecipeSearch }) => {
                     { taste: 'sweet', examples: 'honey, raisin' },
                     { taste: 'salty', examples: 'capers, pecorino' },
                     { taste: 'sour', examples: 'citrus, vinegar' },
-                    { taste: 'bitter', examples: 'coffee, chicory' },
                     { taste: 'umami', examples: 'dashi, anchovy' },
                     { taste: 'fat', examples: 'oil, nuts' },
-                    { taste: 'spicy', examples: 'chili, horseradish' }
+                    { taste: 'spicy', examples: 'chili, horseradish' },
+                    { taste: 'aromatic', examples: 'basil, vanilla' }
                   ].map(({ taste, examples }) => (
                     <div key={taste} className="space-y-2">
                       <div className="flex items-center gap-3">
