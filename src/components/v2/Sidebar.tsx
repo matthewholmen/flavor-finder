@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal } from 'lucide-react';
+import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2 } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 
@@ -140,6 +140,58 @@ const BottomSettingsToggles = () => {
   );
 };
 
+// Saved Combinations Content (shared)
+const SavedCombinationsContent = ({
+  savedCombinations,
+  onLoadCombination,
+  onDeleteCombination,
+}) => {
+  if (savedCombinations.length === 0) {
+    return (
+      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+        Tap the <Bookmark size={12} className="inline -mt-0.5" strokeWidth={2.5} /> Save
+        button up top to keep a combination here for later.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2 max-h-[320px] overflow-y-auto -mx-1 px-1">
+      {savedCombinations.map((combo) => (
+        <div
+          key={combo.id}
+          className="group flex items-start gap-1 rounded-lg bg-white dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-colors"
+        >
+          <button
+            onClick={() => onLoadCombination(combo.ingredients)}
+            className="flex-1 text-left px-3 py-2.5 min-w-0"
+            title="Load this combination"
+          >
+            <div className="flex flex-wrap gap-1">
+              {combo.ingredients.map((ing, i) => (
+                <span
+                  key={i}
+                  className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
+                >
+                  {ing}
+                </span>
+              ))}
+            </div>
+          </button>
+          <button
+            onClick={() => onDeleteCombination(combo.id)}
+            className="shrink-0 p-2 mt-1 mr-1 text-gray-300 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+            aria-label="Delete saved combination"
+            title="Delete"
+          >
+            <Trash2 size={15} strokeWidth={1.75} />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const Sidebar = ({
   isOpen,
   onClose,
@@ -148,9 +200,12 @@ export const Sidebar = ({
   compatibilityMode = 'perfect',
   onCompatibilityChange = () => {},
   onOpenIngredientFilters = () => {},
+  savedCombinations = [],
+  onLoadCombination = () => {},
+  onDeleteCombination = () => {},
 }) => {
   const { isMobile } = useScreenSize();
-  const [openSections, setOpenSections] = useState({ generation: true });
+  const [openSections, setOpenSections] = useState({ saved: false, generation: false, shortcuts: false });
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -185,16 +240,19 @@ export const Sidebar = ({
           {/* Header */}
           <div className={`flex items-center justify-between ${isMobile ? 'px-4 py-3' : 'px-6 py-5'}`}>
             <div className="relative group cursor-pointer" onClick={onClose}>
-              <img
-                src="/flavor-finder-1.png"
-                alt="ff"
-                className={`w-auto ${isMobile ? 'h-6' : 'h-8'} transition-opacity duration-200 group-hover:opacity-0`}
-              />
-              <img
-                src="/flavor-finder-1-hover.png"
-                alt="ff"
-                className={`absolute top-0 left-0 w-auto ${isMobile ? 'h-6' : 'h-8'} opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
-              />
+              {isMobile ? (
+                <img
+                  src="/flavor-finder-HORIZONTAL-512.png"
+                  alt="ff"
+                  className="w-auto h-[18px] transition-opacity duration-200 group-hover:opacity-70"
+                />
+              ) : (
+                <img
+                  src="/mobile-logo.png"
+                  alt="ff"
+                  className="w-auto h-8 transition-opacity duration-200 group-hover:opacity-70"
+                />
+              )}
             </div>
             <button
               onClick={onClose}
@@ -211,6 +269,19 @@ export const Sidebar = ({
               Mix and match ingredients that taste great together, then jump
               straight to recipes for your combination.
             </p>
+
+            {/* Saved Combinations */}
+            <CollapsibleSection
+              title={`Saved Combinations${savedCombinations.length ? ` (${savedCombinations.length})` : ''}`}
+              isOpen={openSections.saved}
+              onToggle={() => toggleSection('saved')}
+            >
+              <SavedCombinationsContent
+                savedCombinations={savedCombinations}
+                onLoadCombination={onLoadCombination}
+                onDeleteCombination={onDeleteCombination}
+              />
+            </CollapsibleSection>
 
             {/* Generation Options */}
             <CollapsibleSection
@@ -241,8 +312,11 @@ export const Sidebar = ({
 
             {/* Keyboard shortcuts - desktop only */}
             {!isMobile && (
-              <div className="px-4 py-4">
-                <h3 className="text-gray-400 dark:text-gray-500 font-medium text-sm mb-3">Shortcuts</h3>
+              <CollapsibleSection
+                title="Shortcuts"
+                isOpen={openSections.shortcuts}
+                onToggle={() => toggleSection('shortcuts')}
+              >
                 <ul className="space-y-1.5">
                   {shortcuts.map(({ key, action }) => (
                     <li key={key} className="flex items-baseline gap-2 text-sm">
@@ -252,7 +326,7 @@ export const Sidebar = ({
                     </li>
                   ))}
                 </ul>
-              </div>
+              </CollapsibleSection>
             )}
 
             {/* Spacer to push settings to bottom */}

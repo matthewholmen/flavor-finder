@@ -1,5 +1,5 @@
 import React from 'react';
-import { Minus, Plus, ArrowUpRight } from 'lucide-react';
+import { Minus, Plus, ArrowUpRight, Bookmark } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
 export const MinimalHeader = ({
@@ -13,6 +13,8 @@ export const MinimalHeader = ({
   onIncrementTarget,
   onDecrementTarget,
   onRecipesClick,
+  onSaveClick,
+  isSaved = false,
   onLogoClick,
   isGeneratePulsing = false,
   isMobile: isMobileProp,
@@ -54,24 +56,47 @@ export const MinimalHeader = ({
           />
         </button>
 
-        {/* Recipes CTA */}
-        <button
-          onClick={onRecipesClick}
-          className="
-            flex items-center gap-1
-            px-4 py-2 rounded-full
-            bg-gray-900 dark:bg-white
-            text-white dark:text-gray-900
-            font-semibold text-base
-            active:opacity-80
-            transition-all duration-200
-          "
-          title="Find recipes with these ingredients"
-          aria-label="Find recipes"
-        >
-          Find recipes
-          <ArrowUpRight size={16} strokeWidth={2.5} />
-        </button>
+        {/* Right-side actions */}
+        <div className="flex items-center gap-2">
+          {/* Save combination */}
+          <button
+            onClick={onSaveClick}
+            className={`
+              flex items-center justify-center
+              w-10 h-10 rounded-full border-2
+              transition-all duration-200 active:opacity-80
+              ${isSaved
+                ? 'border-transparent'
+                : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
+              }
+            `}
+            style={isSaved ? { borderColor: '#F86A8A', color: '#F86A8A' } : undefined}
+            title={isSaved ? 'Saved — tap to remove' : 'Save this combination'}
+            aria-label={isSaved ? 'Saved' : 'Save combination'}
+            aria-pressed={isSaved}
+          >
+            <Bookmark size={18} strokeWidth={2.5} className={isSaved ? 'fill-current' : ''} />
+          </button>
+
+          {/* Recipes CTA */}
+          <button
+            onClick={onRecipesClick}
+            className="
+              flex items-center gap-1
+              px-4 py-2 rounded-full
+              bg-gray-900 dark:bg-white
+              text-white dark:text-gray-900
+              font-semibold text-base
+              active:opacity-80
+              transition-all duration-200
+            "
+            title="Find recipes with these ingredients"
+            aria-label="Find recipes"
+          >
+            Find recipes
+            <ArrowUpRight size={16} strokeWidth={2.5} />
+          </button>
+        </div>
       </header>
     );
   }
@@ -184,8 +209,31 @@ export const MinimalHeader = ({
         </button>
       </div>
 
-      {/* Recipes CTA */}
-      <div className="flex-1 flex justify-end">
+      {/* Right-side actions */}
+      <div className="flex-1 flex justify-end items-center gap-3">
+        {/* Save combination */}
+        <button
+          onClick={onSaveClick}
+          className={`
+            flex items-center gap-1.5
+            px-5 py-2.5 rounded-full border-2
+            font-semibold text-base
+            transition-all duration-200
+            ${isSaved
+              ? ''
+              : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
+            }
+          `}
+          style={isSaved ? { borderColor: '#F86A8A', color: '#F86A8A' } : undefined}
+          title={isSaved ? 'Saved — click to remove' : 'Save this combination'}
+          aria-label={isSaved ? 'Saved' : 'Save combination'}
+          aria-pressed={isSaved}
+        >
+          <Bookmark size={18} strokeWidth={2.5} className={isSaved ? 'fill-current' : ''} />
+          {isSaved ? 'Saved' : 'Save'}
+        </button>
+
+        {/* Recipes CTA */}
         <button
           onClick={onRecipesClick}
           className="

@@ -12,6 +12,7 @@ import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
 import { useCompatibility } from './hooks/useCompatibility.ts';
+import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
 import { flavorPairings } from './data/flavorPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { filterIngredients } from './utils/searchUtils.ts';
@@ -91,6 +92,12 @@ export default function FlavorFinderV2() {
     togglePartialMatches,
   } = useCompatibility();
 
+  const {
+    combinations,
+    saveCombination,
+    deleteCombination,
+  } = useSavedCombinations();
+
   // UI state (not extracted to hooks as they're specific to this component)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -99,6 +106,7 @@ export default function FlavorFinderV2() {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [introAnimationComplete, setIntroAnimationComplete] = useState(false);
   const [noMatchToast, setNoMatchToast] = useState(false);
+  const [saveToast, setSaveToast] = useState<'saved' | 'removed' | null>(null);
 
   // Create flavor map
   const { flavorMap } = useMemo(() => createFlavorMap(), []);
@@ -493,6 +501,45 @@ export default function FlavorFinderV2() {
     setIsRecipeModalOpen(true);
   };
 
+  // Find a saved combination matching the current selection (order-independent)
+  const currentSavedId = useMemo(() => {
+    if (selectedIngredients.length === 0) return null;
+    const match = combinations.find(combo =>
+      combo.ingredients.length === selectedIngredients.length &&
+      combo.ingredients.every(ing => selectedIngredients.includes(ing))
+    );
+    return match ? match.id : null;
+  }, [combinations, selectedIngredients]);
+
+  // Toggle saving the current combination from the header bookmark button
+  const handleSaveToggle = () => {
+    if (selectedIngredients.length === 0) return;
+    if (currentSavedId) {
+      deleteCombination(currentSavedId);
+      setSaveToast('removed');
+    } else {
+      saveCombination(selectedIngredients.join(', '), selectedIngredients);
+      setSaveToast('saved');
+    }
+  };
+
+  // Load a saved combination into the workspace (from the sidebar)
+  const handleLoadCombination = (ingredients: string[]) => {
+    if (ingredients.length === 0) return;
+    saveToHistory();
+    setSelectedIngredients([...ingredients]);
+    setLockedIngredients(new Set());
+    setTargetIngredientCount(ingredients.length);
+    setIsSidebarOpen(false);
+  };
+
+  // Auto-dismiss the save/remove confirmation toast
+  useEffect(() => {
+    if (!saveToast) return;
+    const timer = setTimeout(() => setSaveToast(null), 2200);
+    return () => clearTimeout(timer);
+  }, [saveToast]);
+
   // Filter suggestions for drawer
   const filteredSuggestions = useMemo(() => {
     let filtered = filterIngredients(
@@ -653,6 +700,25 @@ export default function FlavorFinderV2() {
         </div>
       )}
 
+      {/* Save confirmation toast */}
+      {saveToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`
+            fixed left-1/2 -translate-x-1/2 z-50
+            ${isMobile ? 'bottom-28 animate-toast-in-bottom' : 'top-32 animate-toast-in'}
+            flex items-center gap-2
+            px-4 py-2.5 rounded-full
+            bg-gray-900 dark:bg-white
+            text-white dark:text-gray-900
+            text-sm font-medium shadow-lg
+          `}
+        >
+          {saveToast === 'saved' ? 'Saved to your combinations' : 'Removed from saved'}
+        </div>
+      )}
+
       {/* Minimal Header */}
       <MinimalHeader
         targetCount={targetIngredientCount}
@@ -665,6 +731,8 @@ export default function FlavorFinderV2() {
         onIncrementTarget={handleIncrementTarget}
         onDecrementTarget={handleDecrementTarget}
         onRecipesClick={handleRecipeSearch}
+        onSaveClick={handleSaveToggle}
+        isSaved={currentSavedId !== null}
         onLogoClick={() => setIsSidebarOpen(true)}
         isGeneratePulsing={isFirstLoad}
         isMobile={isMobile}
@@ -711,14 +779,6 @@ export default function FlavorFinderV2() {
               />
             </div>
 
-            {/* First-load hint */}
-            {isFirstLoad && introAnimationComplete && (
-              <p className="text-center text-sm text-gray-400 dark:text-gray-500 px-8 pb-3">
-                Tap <span className="font-semibold">Search</span> to add what's in your kitchen,
-                then <span className="font-semibold">Find recipes</span>
-              </p>
-            )}
-
             {/* Dietary Filter Pills - fixed above bottom bar on mobile */}
             <div className="fixed left-0 right-0 bottom-[92px] z-[55] px-4 overflow-x-auto scrollbar-hide">
               <DietaryFilterPills
@@ -745,13 +805,6 @@ export default function FlavorFinderV2() {
                 flavorMap={flavorMap}
               />
             </div>
-            {/* First-load hint */}
-            {isFirstLoad && introAnimationComplete && !isDrawerOpen && (
-              <p className="text-center text-sm text-gray-400 dark:text-gray-500 px-8 pb-3">
-                Add what's in your kitchen below, hit <span className="font-semibold">Generate</span> for
-                ideas, then <span className="font-semibold">Find recipes</span>
-              </p>
-            )}
             <DietaryFilterPills
               dietaryRestrictions={dietaryRestrictions}
               onDietaryChange={setDietaryRestrictions}
@@ -832,6 +885,9 @@ export default function FlavorFinderV2() {
         compatibilityMode={compatibilityMode}
         onCompatibilityChange={handleCompatibilityChange}
         onOpenIngredientFilters={() => setIsIngredientFiltersOpen(true)}
+        savedCombinations={combinations}
+        onLoadCombination={handleLoadCombination}
+        onDeleteCombination={deleteCombination}
       />
 
       {/* Ingredient Filters Modal */}

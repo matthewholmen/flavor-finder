@@ -12,6 +12,9 @@ export interface SavedCombination {
 
 export const useSavedCombinations = () => {
   const [combinations, setCombinations] = useState<SavedCombination[]>([]);
+  // Don't persist until the initial load has run, otherwise the mount effect
+  // would overwrite stored data with the empty initial state.
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -29,14 +32,14 @@ export const useSavedCombinations = () => {
         setCombinations([]);
       }
     }
+    setHasLoaded(true);
   }, []);
 
-  // Save to localStorage when combinations change
+  // Persist whenever combinations change (including down to an empty list)
   useEffect(() => {
-    if (combinations.length > 0) {
-      localStorage.setItem('flavorFinderCombinations', JSON.stringify(combinations));
-    }
-  }, [combinations]);
+    if (!hasLoaded) return;
+    localStorage.setItem('flavorFinderCombinations', JSON.stringify(combinations));
+  }, [combinations, hasLoaded]);
 
   const saveCombination = (name: string, ingredients: string[], tags?: string[], notes?: string) => {
     const newCombination: SavedCombination = {
