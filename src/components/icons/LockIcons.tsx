@@ -6,8 +6,8 @@ interface LockIconProps {
 }
 
 /**
- * Custom Lock icon with white-filled body for better visibility
- * Used to indicate locked/pinned ingredients
+ * Custom Lock icon (outline only) used to indicate locked/pinned ingredients.
+ * Matches the lucide outline lock used in the mobile compact view.
  */
 export const FilledLock: React.FC<LockIconProps> = ({ color, size = '100%' }) => (
   <svg
@@ -15,7 +15,6 @@ export const FilledLock: React.FC<LockIconProps> = ({ color, size = '100%' }) =>
     fill="none"
     style={{ width: size, height: size }}
   >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="white" />
     <rect
       x="3" y="11" width="18" height="11" rx="2" ry="2"
       stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
