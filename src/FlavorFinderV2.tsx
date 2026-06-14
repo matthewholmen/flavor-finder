@@ -7,6 +7,7 @@ import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
 import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
 import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
 import { Sidebar } from './components/v2/Sidebar.tsx';
+import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
 import { Undo2 } from 'lucide-react';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
@@ -103,6 +104,7 @@ export default function FlavorFinderV2() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [isIngredientFiltersOpen, setIsIngredientFiltersOpen] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [introAnimationComplete, setIntroAnimationComplete] = useState(false);
   const [noMatchToast, setNoMatchToast] = useState(false);
@@ -327,6 +329,27 @@ export default function FlavorFinderV2() {
       setSelectedIngredients(initial);
     }
   }, []);
+
+  // Show the onboarding wizard on a user's first visit (desktop/web only).
+  // Replayable any time from the sidebar's "Take the tour" button.
+  useEffect(() => {
+    if (isMobile) return;
+    try {
+      const seen = localStorage.getItem('hasSeenOnboarding');
+      if (!seen) setIsWizardOpen(true);
+    } catch {
+      // Ignore storage access errors (e.g. private mode)
+    }
+  }, [isMobile]);
+
+  const handleWizardClose = () => {
+    setIsWizardOpen(false);
+    try {
+      localStorage.setItem('hasSeenOnboarding', 'true');
+    } catch {
+      // Ignore storage access errors
+    }
+  };
 
   // Intro animation - a brief shuffle so the app feels alive without delaying interaction
   useEffect(() => {
@@ -885,6 +908,10 @@ export default function FlavorFinderV2() {
         compatibilityMode={compatibilityMode}
         onCompatibilityChange={handleCompatibilityChange}
         onOpenIngredientFilters={() => setIsIngredientFiltersOpen(true)}
+        onStartTour={() => {
+          setIsSidebarOpen(false);
+          setIsWizardOpen(true);
+        }}
         savedCombinations={combinations}
         onLoadCombination={handleLoadCombination}
         onDeleteCombination={deleteCombination}
@@ -897,6 +924,12 @@ export default function FlavorFinderV2() {
         dietaryRestrictions={dietaryRestrictions}
         onDietaryChange={setDietaryRestrictions}
         ingredientProfiles={ingredientProfiles}
+      />
+
+      {/* Onboarding Wizard */}
+      <OnboardingWizard
+        isOpen={isWizardOpen}
+        onClose={handleWizardClose}
       />
     </div>
   );

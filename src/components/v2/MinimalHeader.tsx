@@ -1,5 +1,5 @@
 import React from 'react';
-import { Minus, Plus, ArrowUpRight, Bookmark } from 'lucide-react';
+import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
 export const MinimalHeader = ({
@@ -173,6 +173,7 @@ export const MinimalHeader = ({
         <button
           onClick={onGenerate}
           className={`
+            inline-flex items-center gap-2
             rounded-full
             border-2 border-gray-900 dark:border-white
             text-gray-900 dark:text-white
@@ -184,6 +185,7 @@ export const MinimalHeader = ({
             ${isGeneratePulsing ? 'animate-pulse shadow-lg scale-105' : ''}
           `}
         >
+          <Sparkles size={18} strokeWidth={2} />
           Generate
         </button>
 

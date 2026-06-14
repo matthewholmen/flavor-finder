@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Compass, Sparkles, Keyboard } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 
@@ -19,14 +19,17 @@ const COMPATIBILITY_MODES = [
 ];
 
 // Collapsible Section Component
-const CollapsibleSection = ({ title, isOpen, onToggle, children }) => {
+const CollapsibleSection = ({ title, icon, isOpen, onToggle, children }) => {
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between py-3 px-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       >
-        <span className="text-gray-900 dark:text-gray-100 font-semibold text-base">{title}</span>
+        <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold text-base">
+          {icon}
+          {title}
+        </span>
         <ChevronDown
           size={20}
           strokeWidth={1.5}
@@ -200,6 +203,7 @@ export const Sidebar = ({
   compatibilityMode = 'perfect',
   onCompatibilityChange = () => {},
   onOpenIngredientFilters = () => {},
+  onStartTour = () => {},
   savedCombinations = [],
   onLoadCombination = () => {},
   onDeleteCombination = () => {},
@@ -272,7 +276,8 @@ export const Sidebar = ({
 
             {/* Saved Combinations */}
             <CollapsibleSection
-              title={`Saved Combinations${savedCombinations.length ? ` (${savedCombinations.length})` : ''}`}
+              title="Saved Combinations"
+              icon={<Bookmark size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />}
               isOpen={openSections.saved}
               onToggle={() => toggleSection('saved')}
             >
@@ -286,6 +291,7 @@ export const Sidebar = ({
             {/* Generation Options */}
             <CollapsibleSection
               title="Generation Options"
+              icon={<Sparkles size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />}
               isOpen={openSections.generation}
               onToggle={() => toggleSection('generation')}
             >
@@ -310,10 +316,23 @@ export const Sidebar = ({
               <ChevronRight size={20} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
             </button>
 
+            {/* Take the tour */}
+            <button
+              onClick={onStartTour}
+              className="w-full flex items-center justify-between py-3 px-4 text-left border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold text-base">
+                <Compass size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />
+                Take the tour
+              </span>
+              <ChevronRight size={20} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
+            </button>
+
             {/* Keyboard shortcuts - desktop only */}
             {!isMobile && (
               <CollapsibleSection
                 title="Shortcuts"
+                icon={<Keyboard size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />}
                 isOpen={openSections.shortcuts}
                 onToggle={() => toggleSection('shortcuts')}
               >
