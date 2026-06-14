@@ -8,7 +8,6 @@ import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
 import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
 import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
-import { Undo2 } from 'lucide-react';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
@@ -836,36 +835,14 @@ export default function FlavorFinderV2() {
         )}
       </main>
 
-      {/* Undo Button - Desktop only (mobile has it in bottom bar) */}
-      {!isMobile && (
-        <button
-          onClick={handleUndo}
-          disabled={!canUndo}
-          className={`
-            fixed left-6 z-[51]
-            w-12 h-12 rounded-full
-            flex items-center justify-center
-            border-2 bg-white dark:bg-gray-800
-            transition-all duration-300
-            ${canUndo
-              ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-700 cursor-pointer'
-              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-600 cursor-not-allowed'
-            }
-          `}
-          style={{
-            bottom: isDrawerOpen ? 'calc(50vh + 16px)' : '24px'
-          }}
-          aria-label="Undo"
-        >
-          <Undo2 size={20} strokeWidth={1.5} className="pointer-events-none" />
-        </button>
-      )}
-
-      {/* Ingredient Drawer */}
+      {/* Ingredient Drawer (desktop undo lives in the drawer's bottom bar) */}
       <IngredientDrawer
         isOpen={isDrawerOpen}
         onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
         onClose={() => setIsDrawerOpen(false)}
+        onOpen={() => setIsDrawerOpen(true)}
+        onUndo={handleUndo}
+        canUndo={canUndo}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         suggestions={filteredSuggestions}

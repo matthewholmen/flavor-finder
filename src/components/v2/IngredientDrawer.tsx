@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap, Undo2 } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
@@ -40,6 +40,9 @@ export const IngredientDrawer = ({
   isOpen,
   onToggle,
   onClose,
+  onOpen = () => {},
+  onUndo = () => {},
+  canUndo = false,
   searchTerm,
   onSearchChange,
   suggestions,
@@ -818,36 +821,15 @@ export const IngredientDrawer = ({
         />
       )}
       
-      {/* Drawer - Fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 z-50">
-        {/* Pull Handle - only show when drawer is closed */}
-        {!isOpen && (
-          <div className="flex justify-center">
-            <button
-              onClick={onToggle}
-              className="
-                relative -mb-1 px-8 pt-3 pb-4
-                bg-white dark:bg-gray-800 rounded-t-3xl
-                border-2 border-gray-300 dark:border-gray-600 border-b-0
-                flex items-center gap-2
-                text-gray-600 dark:text-gray-300 font-medium
-                hover:border-gray-400 dark:hover:border-gray-500 transition-colors
-              "
-            >
-              <Search size={18} strokeWidth={1.75} />
-              Search &amp; add ingredients
-              <ChevronUp size={18} className="text-gray-400" strokeWidth={1.75} />
-            </button>
-          </div>
-        )}
-
+      {/* Drawer panel - centered card floating above the persistent bottom search bar */}
+      <div className="fixed left-0 right-0 z-50 px-4" style={{ bottom: '84px' }}>
         {/* Drawer Content - Fixed height */}
         <div
           className={`
+            mx-auto max-w-7xl
             bg-white dark:bg-gray-900 overflow-hidden
             transition-all duration-300 ease-out
-            rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
-            ${isOpen ? 'h-[50vh]' : 'h-0'}
+            ${isOpen ? 'h-[50vh] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl' : 'h-0'}
           `}
         >
           <div className="flex flex-col h-full">
@@ -856,7 +838,7 @@ export const IngredientDrawer = ({
             {/* Left Side: Filter Panel */}
             <div
               className={`
-                flex-shrink-0 border-r border-gray-100 dark:border-gray-700 overflow-y-auto overflow-x-hidden
+                flex-shrink-0 border-r border-gray-200 dark:border-gray-700 overflow-y-auto overflow-x-hidden
                 transition-all duration-300 ease-out
                 ${isFiltersPanelCollapsed ? 'w-0 p-0' : 'w-[340px] p-5'}
               `}
@@ -1028,7 +1010,7 @@ export const IngredientDrawer = ({
               className="
                 flex-shrink-0 w-6
                 flex items-center justify-center
-                border-r border-gray-100 dark:border-gray-700
+                border-r border-gray-200 dark:border-gray-700
                 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors
                 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300
               "
@@ -1040,72 +1022,8 @@ export const IngredientDrawer = ({
               />
             </button>
 
-            {/* Middle: Search + Ingredients */}
-            <div className="flex-1 p-5 overflow-hidden flex flex-col border-r border-gray-100 dark:border-gray-700">
-              {/* Search Bar with Partial Matches Toggle */}
-              <div className="flex gap-3 mb-4 flex-shrink-0">
-                <div className="relative flex-1">
-                  <Search
-                    size={20}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const availableSuggestions = suggestions.filter(
-                          ing => !selectedIngredients.includes(ing)
-                        );
-                        if (availableSuggestions.length > 0) {
-                          handleIngredientAdd(availableSuggestions[0]);
-                          if (selectedIngredients.length < 5) {
-                            onSearchChange('');
-                          }
-                        }
-                      }
-                    }}
-                    placeholder="Search ingredients..."
-                    className="
-                      w-full pl-12 pr-10 py-3
-                      rounded-full border-2 border-gray-200 dark:border-gray-600
-                      focus:border-gray-400 dark:focus:border-gray-400 focus:outline-none
-                      text-base bg-gray-50 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500
-                    "
-                  />
-                  {searchTerm && (
-                    <button
-                      onClick={() => onSearchChange('')}
-                      className="absolute right-4 top-1/2 -translate-y-1/2"
-                    >
-                      <X size={20} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                    </button>
-                  )}
-                </div>
-                {/* Show Partial Matches Button */}
-                <button
-                  onClick={onTogglePartialMatches}
-                  title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
-                  className={`
-                    px-4 py-3
-                    rounded-full
-                    border-2 border-dashed
-                    transition-all
-                    flex items-center gap-2
-                    whitespace-nowrap
-                    ${showPartialMatches
-                      ? 'text-gray-800 dark:text-amber-200 border-[#FFC233] bg-amber-50 dark:bg-amber-900/30'
-                      : 'text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 hover:border-[#FFC233] hover:text-gray-600 dark:hover:text-gray-300'
-                    }
-                  `}
-                >
-                  <Zap size={18} />
-                  <span className="text-sm font-medium">Partial</span>
-                </button>
-              </div>
-
+            {/* Middle: Sort + Ingredients */}
+            <div className="flex-1 p-5 overflow-hidden flex flex-col border-r border-gray-200 dark:border-gray-700">
               {/* Sort Tabs */}
               <div className="flex gap-6 mb-4 flex-shrink-0">
                 {[
@@ -1365,6 +1283,90 @@ export const IngredientDrawer = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Persistent bottom bar - undo + search + partial, centered beneath the drawer.
+          Same width/position whether the drawer is open or closed. */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[51] flex items-center gap-3">
+        {/* Undo */}
+        <button
+          onClick={onUndo}
+          disabled={!canUndo}
+          className={`
+            w-12 h-12 rounded-full flex-shrink-0
+            flex items-center justify-center
+            border-2 bg-white dark:bg-gray-800
+            transition-all duration-300
+            ${canUndo
+              ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-700 cursor-pointer'
+              : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-600 cursor-not-allowed'
+            }
+          `}
+          aria-label="Undo"
+        >
+          <Undo2 size={20} strokeWidth={1.5} className="pointer-events-none" />
+        </button>
+        <div className="relative w-[480px] max-w-[calc(100vw-160px)]">
+          <Search
+            size={20}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
+          <input
+            ref={inputRef}
+            type="text"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onFocus={onOpen}
+            onClick={onOpen}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const availableSuggestions = suggestions.filter(
+                  ing => !selectedIngredients.includes(ing)
+                );
+                if (availableSuggestions.length > 0) {
+                  handleIngredientAdd(availableSuggestions[0]);
+                  if (selectedIngredients.length < 5) {
+                    onSearchChange('');
+                  }
+                }
+              }
+            }}
+            placeholder="Search ingredients"
+            className="
+              w-full h-12 pl-12 pr-10
+              rounded-full border-2 border-gray-200 dark:border-gray-600
+              focus:border-gray-400 dark:focus:border-gray-400 focus:outline-none
+              text-base bg-gray-50 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500
+            "
+          />
+          {searchTerm && (
+            <button
+              onClick={() => onSearchChange('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+            >
+              <X size={20} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+            </button>
+          )}
+        </div>
+        {/* Show Partial Matches - only relevant while browsing suggestions */}
+        {isOpen && (
+          <button
+            onClick={onTogglePartialMatches}
+            title={showPartialMatches ? "Showing partial matches" : "Show partial matches"}
+            className={`
+              h-12 px-4
+              rounded-full border-2 border-dashed
+              transition-all flex items-center gap-2 whitespace-nowrap
+              ${showPartialMatches
+                ? 'text-gray-800 dark:text-amber-200 border-[#FFC233] bg-amber-50 dark:bg-amber-900/30'
+                : 'text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600 hover:border-[#FFC233] hover:text-gray-600 dark:hover:text-gray-300'
+              }
+            `}
+          >
+            <Zap size={18} />
+            <span className="text-sm font-medium">Partial</span>
+          </button>
+        )}
       </div>
     </>
   );
