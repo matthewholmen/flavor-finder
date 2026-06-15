@@ -1,0 +1,13 @@
+title,ingredients,directions,link,source,NER
+Bibimbap,"stuff","steps","http://x","src","[""gochujang"", ""rice"", ""sesame oil"", ""scallions"", ""egg"", ""carrot""]"
+Tteokbokki,"stuff","steps","http://x","src","[""gochujang"", ""rice"", ""scallions"", ""garlic"", ""sugar""]"
+Korean stew,"stuff","steps","http://x","src","[""gochujang"", ""garlic"", ""onion"", ""tofu"", ""sesame oil""]"
+Harissa chicken,"stuff","steps","http://x","src","[""harissa"", ""chicken"", ""garlic"", ""lemon"", ""olive oil""]"
+Harissa carrots,"stuff","steps","http://x","src","[""harissa"", ""carrot"", ""cumin"", ""olive oil"", ""garlic""]"
+Roasted veg,"stuff","steps","http://x","src","[""carrot"", ""onion"", ""garlic"", ""olive oil"", ""thyme""]"
+Miso soup,"stuff","steps","http://x","src","[""miso paste"", ""dashi"", ""tofu"", ""scallions"", ""seaweed""]"
+Miso glaze,"stuff","steps","http://x","src","[""white miso"", ""mirin"", ""sugar"", ""ginger""]"
+Kimchi fried rice,"stuff","steps","http://x","src","[""kimchi"", ""rice"", ""scallions"", ""sesame oil"", ""egg""]"
+Simple salad,"stuff","steps","http://x","src","[""arugula"", ""olive oil"", ""lemon"", ""parmesan""]"
+Rocket salad,"stuff","steps","http://x","src","[""rocket"", ""olive oil"", ""lemon"", ""pine nuts""]"
+Garlic bread,"stuff","steps","http://x","src","[""garlic"", ""butter"", ""bread"", ""parsley""]"

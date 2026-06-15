@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Compass, Sparkles, Keyboard } from 'lucide-react';
+import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Compass, Sparkles, Keyboard, Layers } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 
@@ -17,6 +17,50 @@ const COMPATIBILITY_MODES = [
   { key: 'mixed', label: 'Mixed', description: 'Each ingredient pairs with at least one other ingredient in the set, allowing for more creative combinations.' },
   { key: 'random', label: 'Random', description: 'Completely random ingredients with no pairing requirements — for adventurous cooks!' }
 ];
+
+// Pairing sources the user can toggle. Keys must match PairingSource in data/pairingMeta.ts.
+const PAIRING_SOURCES = [
+  { key: 'flavorbible', label: "Chef's Canon", description: 'Classic chef-recommended pairings (The Flavor Bible).' },
+  { key: 'recipenlg', label: 'Recipe Data', description: 'Pairings found across 2.2M real-world recipes.' },
+  { key: 'analog', label: 'Similar Ingredients', description: 'Borrowed from close culinary cousins, for ingredients too new for recipe data.' },
+];
+
+// Pairing Sources Content
+const PairingSourcesContent = ({ enabledSources, onToggleSource }) => {
+  return (
+    <div className="space-y-3">
+      <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed">
+        Choose which evidence drives ingredient pairings. At least one stays on.
+      </p>
+      {PAIRING_SOURCES.map((source) => {
+        const enabled = enabledSources.includes(source.key);
+        return (
+          <div key={source.key} className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">{source.label}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 leading-snug">{source.description}</div>
+            </div>
+            <button
+              role="switch"
+              aria-checked={enabled}
+              aria-label={`Toggle ${source.label}`}
+              onClick={() => onToggleSource(source.key)}
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                enabled ? 'bg-gray-900 dark:bg-gray-100' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform ${
+                  enabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 // Collapsible Section Component
 const CollapsibleSection = ({ title, icon, isOpen, onToggle, children }) => {
@@ -202,6 +246,8 @@ export const Sidebar = ({
   onDietaryChange = () => {},
   compatibilityMode = 'perfect',
   onCompatibilityChange = () => {},
+  enabledSources = ['flavorbible', 'recipenlg', 'flavordb'],
+  onToggleSource = () => {},
   onOpenIngredientFilters = () => {},
   onStartTour = () => {},
   savedCombinations = [],
@@ -209,7 +255,7 @@ export const Sidebar = ({
   onDeleteCombination = () => {},
 }) => {
   const { isMobile } = useScreenSize();
-  const [openSections, setOpenSections] = useState({ saved: false, generation: false, shortcuts: false });
+  const [openSections, setOpenSections] = useState({ saved: false, generation: false, sources: false, shortcuts: false });
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -298,6 +344,19 @@ export const Sidebar = ({
               <GenerationOptionsContent
                 compatibilityMode={compatibilityMode}
                 onCompatibilityChange={onCompatibilityChange}
+              />
+            </CollapsibleSection>
+
+            {/* Pairing Sources */}
+            <CollapsibleSection
+              title="Pairing Sources"
+              icon={<Layers size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />}
+              isOpen={openSections.sources}
+              onToggle={() => toggleSection('sources')}
+            >
+              <PairingSourcesContent
+                enabledSources={enabledSources}
+                onToggleSource={onToggleSource}
               />
             </CollapsibleSection>
 

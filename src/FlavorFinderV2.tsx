@@ -13,8 +13,9 @@ import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
 import { useCompatibility } from './hooks/useCompatibility.ts';
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
-import { flavorPairings } from './data/flavorPairings.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
+import { buildFlavorMap, ALL_SOURCES } from './utils/flavorMap.ts';
+import { PairingSource } from './data/pairingMeta.ts';
 import { filterIngredients } from './utils/searchUtils.ts';
 import {
   NUT_INGREDIENTS_SET,
@@ -22,28 +23,24 @@ import {
   HIGH_FODMAP_INGREDIENTS_SET,
 } from './data/dietaryRestrictions.ts';
 
-// Create flavor map helper
-const createFlavorMap = () => {
-  const flavorMap = new Map<string, Set<string>>();
+// Sources enabled by default: only those that currently have data and a sidebar toggle.
+// (flavordb is a valid source for the ?sources= param and future use, but it has no edges
+// yet, so it's not on by default — otherwise it could silently keep the graph "non-empty"
+// while both real sources are toggled off.)
+const DEFAULT_SOURCES: PairingSource[] = ['flavorbible', 'recipenlg', 'analog'];
 
-  const addPairing = (ingredient1: string, ingredient2: string) => {
-    if (!flavorMap.has(ingredient1)) {
-      flavorMap.set(ingredient1, new Set());
-    }
-    if (!flavorMap.has(ingredient2)) {
-      flavorMap.set(ingredient2, new Set());
-    }
-    flavorMap.get(ingredient1)!.add(ingredient2);
-    flavorMap.get(ingredient2)!.add(ingredient1);
-  };
-
-  flavorPairings.forEach(pair => {
-    const [ingredient1, ingredient2] = pair.split(',');
-    if (!ingredient1 || !ingredient2) return;
-    addPairing(ingredient1, ingredient2);
-  });
-
-  return { flavorMap, totalPairings: flavorMap.size };
+// Initial sources for the flavor map. Defaults to DEFAULT_SOURCES; can be overridden for
+// A/B testing via the `?sources=` URL param, e.g. `?sources=flavorbible` to see only the
+// chef-canon graph. Invalid values are ignored.
+const getEnabledSources = (): PairingSource[] => {
+  if (typeof window === 'undefined') return DEFAULT_SOURCES;
+  const param = new URLSearchParams(window.location.search).get('sources');
+  if (!param) return DEFAULT_SOURCES;
+  const requested = param
+    .split(',')
+    .map(s => s.trim())
+    .filter((s): s is PairingSource => (ALL_SOURCES as string[]).includes(s));
+  return requested.length > 0 ? requested : DEFAULT_SOURCES;
 };
 
 export default function FlavorFinderV2() {
@@ -109,12 +106,35 @@ export default function FlavorFinderV2() {
   const [noMatchToast, setNoMatchToast] = useState(false);
   const [saveToast, setSaveToast] = useState<'saved' | 'removed' | null>(null);
 
-  // Create flavor map
-  const { flavorMap } = useMemo(() => createFlavorMap(), []);
+  // Pairing sources, toggleable from the sidebar (initial value can come from ?sources=).
+  const [enabledSources, setEnabledSources] = useState<PairingSource[]>(() => getEnabledSources());
+  const handleToggleSource = (source: PairingSource) => {
+    setEnabledSources(prev => {
+      if (prev.includes(source)) {
+        const next = prev.filter(s => s !== source);
+        return next.length === 0 ? prev : next; // keep at least one enabled
+      }
+      // Preserve canonical ordering.
+      return ALL_SOURCES.filter(s => prev.includes(s) || s === source);
+    });
+  };
 
-  // All ingredients
+  // Create flavor map
+  const { flavorMap } = useMemo(
+    () => buildFlavorMap({ sources: enabledSources }),
+    [enabledSources]
+  );
+
+  // All ingredients: union of the flavor map (pairing-connected) and every profiled
+  // ingredient. Sourcing from profiles too means newly-added ingredients are browsable
+  // and searchable even before the mining pass gives them pairing edges. (Generation
+  // still draws from flavorMap.keys() only, so pairless ingredients aren't forced into
+  // random combinations.)
   const allIngredients = useMemo(
-    () => Array.from(flavorMap.keys()).sort((a, b) =>
+    () => Array.from(new Set([
+      ...flavorMap.keys(),
+      ...ingredientProfiles.map(p => p.name),
+    ])).sort((a, b) =>
       a.toLowerCase().localeCompare(b.toLowerCase())
     ),
     [flavorMap]
@@ -884,6 +904,8 @@ export default function FlavorFinderV2() {
         onDietaryChange={setDietaryRestrictions}
         compatibilityMode={compatibilityMode}
         onCompatibilityChange={handleCompatibilityChange}
+        enabledSources={enabledSources}
+        onToggleSource={handleToggleSource}
         onOpenIngredientFilters={() => setIsIngredientFiltersOpen(true)}
         onStartTour={() => {
           setIsSidebarOpen(false);

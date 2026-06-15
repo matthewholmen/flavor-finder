@@ -1,0 +1,19 @@
+{
+  "_comment": "Analog inheritance: a target ingredient borrows the pairings of one or more close culinary siblings, for ingredients too new/niche for recipe data to cover. Edges produced here are tagged source 'analog' (separate, toggleable). Keys and sibling values must be canonical names in src/data/ingredientProfiles.ts. merge.mjs reads this.",
+  "analogs": {
+    "chili crisp": ["chili oil"],
+    "ssamjang": ["gochujang", "doenjang"],
+    "doenjang": ["miso"],
+    "labneh": ["yogurt"],
+    "rambutan": ["lychee"],
+    "yuzu kosho": ["yuzu"],
+    "eel": ["mackerel"],
+    "guanciale": ["pancetta"],
+    "tempeh": ["tofu"],
+    "spearmint": ["mint"],
+    "roasted red pepper": ["bell pepper"],
+    "sun-dried tomato": ["tomato"],
+    "camembert": ["brie"],
+    "sourdough": ["bread"]
+  }
+}
