@@ -67,14 +67,15 @@ for (const m of fpSrc.matchAll(/"([^"]+),([^"]+)"/g)) { addBase(m[1], m[2], null
 for (const [k, e] of edges) { const [a, b] = k.split(','); addBase(a, b, e.strength); addBase(b, a, e.strength); }
 
 // 3. analog edges: each target borrows its siblings' neighbors, tagged 'analog'.
+//    NB: we deliberately do NOT emit a direct target<->sibling edge. An analog is a
+//    *substitute* for its cousin (chili crisp ~ chili oil), not something you'd combine
+//    with it — a direct edge just produces redundant near-synonym pairings.
 const ANALOG_FLAVORBIBLE_STRENGTH = 3; // strength for an inherited unweighted flavorbible edge
-const ANALOG_SIBLING_STRENGTH = 5;     // direct target<->sibling edge
 const ANALOG_TOP_N = 30;               // cap inherited neighbors per sibling
 const { analogs } = JSON.parse(fs.readFileSync(path.join(__dirname, 'analog.json'), 'utf8'));
 let analogCount = 0;
 for (const [target, siblings] of Object.entries(analogs)) {
   for (const sib of siblings) {
-    addEdge(target, sib, 'analog', ANALOG_SIBLING_STRENGTH);
     const nbrs = base.get(sib);
     if (!nbrs) continue;
     const ranked = [...nbrs.entries()]

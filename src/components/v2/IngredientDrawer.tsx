@@ -67,6 +67,10 @@ export const IngredientDrawer = ({
   onTogglePartialMatches = () => {},
   // Flavor map for pairing info
   flavorMap = null,
+  // Side info panel focus, controlled by the parent so that actions outside the
+  // drawer (e.g. locking an ingredient) can focus it in the info panel too.
+  selectedInfoIndex = 0,
+  onInfoIndexChange = () => {},
 }) => {
   const inputRef = useRef(null);
   const drawerRef = useRef(null);
@@ -74,7 +78,7 @@ export const IngredientDrawer = ({
   const { isHighContrast, isDarkMode } = useTheme(); // Force re-render when high contrast changes
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [activeSearchTab, setActiveSearchTab] = useState('category'); // 'category' or 'taste'
-  const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
+  const setSelectedInfoIndex = onInfoIndexChange;
   const [showMaxMessage, setShowMaxMessage] = useState(false);
   const [hoveredIngredient, setHoveredIngredient] = useState(null);
 
@@ -383,7 +387,13 @@ export const IngredientDrawer = ({
       setTimeout(() => setShowMaxMessage(false), 2000);
       return;
     }
+    // Focus the just-added ingredient in the right-hand info panel. The new
+    // ingredient is appended, so its index is the current (pre-add) length.
+    setSelectedInfoIndex(selectedIngredients.length);
     onIngredientSelect(ingredient);
+    // Keep the search bar focused so you can tap an ingredient and immediately
+    // keep typing to pull up the next one (clicking the button steals focus).
+    requestAnimationFrame(() => inputRef.current?.focus());
   };
 
   // Category handlers

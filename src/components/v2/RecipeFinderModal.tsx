@@ -31,14 +31,14 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
   const [copied, setCopied] = useState(false);
   // When on, every selected ingredient is quoted so the search engine
   // treats it as required (rather than optionally dropping uncommon ones)
-  const [requireAll, setRequireAll] = useState(false);
+  const [requireAll, setRequireAll] = useState(true);
 
   // Reset selection whenever the modal opens with a new combination
   useEffect(() => {
     if (isOpen) {
       setExcluded(new Set());
       setCopied(false);
-      setRequireAll(false);
+      setRequireAll(true);
     }
   }, [isOpen, ingredients.join(',')]);
 

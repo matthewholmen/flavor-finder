@@ -456,6 +456,18 @@ export default function FlavorFinderV2() {
     setSearchTerm('');
   };
 
+  // Which selected ingredient the drawer's side info panel is focused on. Lifted
+  // here (rather than internal to the drawer) so locking an ingredient can also
+  // focus it in the panel.
+  const [selectedInfoIndex, setSelectedInfoIndex] = useState(0);
+
+  // Wrap handleLockToggle so locking/unlocking also focuses that ingredient in
+  // the side info panel.
+  const handleLockToggleWithFocus = (index: number) => {
+    handleLockToggle(index);
+    setSelectedInfoIndex(index);
+  };
+
   // Wrap handleIncrementTarget to pass flavorMap and isIngredientRestricted.
   // If no compatible ingredient can be added, surface UI feedback instead of
   // silently adding an empty slot.
@@ -813,7 +825,7 @@ export default function FlavorFinderV2() {
                 ingredientProfiles={ingredientProfiles}
                 maxSlots={targetIngredientCount}
                 onRemove={handleRemove}
-                onLockToggle={handleLockToggle}
+                onLockToggle={handleLockToggleWithFocus}
                 onEmptySlotClick={() => setIsDrawerOpen(true)}
                 onCloseDrawer={() => setIsDrawerOpen(false)}
                 isDrawerOpen={isDrawerOpen}
@@ -840,7 +852,7 @@ export default function FlavorFinderV2() {
                 ingredientProfiles={ingredientProfiles}
                 maxSlots={targetIngredientCount}
                 onRemove={handleRemove}
-                onLockToggle={handleLockToggle}
+                onLockToggle={handleLockToggleWithFocus}
                 onEmptySlotClick={() => setIsDrawerOpen(true)}
                 onCloseDrawer={() => setIsDrawerOpen(false)}
                 isDrawerOpen={isDrawerOpen}
@@ -887,6 +899,9 @@ export default function FlavorFinderV2() {
         onTogglePartialMatches={togglePartialMatches}
         // Flavor map for pairing info
         flavorMap={flavorMap}
+        // Side info panel focus (lifted so locking can focus it too)
+        selectedInfoIndex={selectedInfoIndex}
+        onInfoIndexChange={setSelectedInfoIndex}
       />
 
       {/* Recipe Finder Modal */}
