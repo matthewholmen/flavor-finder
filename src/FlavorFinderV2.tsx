@@ -121,7 +121,14 @@ export default function FlavorFinderV2() {
 
   // Create flavor map
   const { flavorMap } = useMemo(
-    () => buildFlavorMap({ sources: enabledSources }),
+    // Drop weak recipe-mined edges (strength <= 2) whose ingredients share fewer than 2
+    // common chef-canon neighbors. These are co-occurrence artifacts (e.g. butterscotch +
+    // noodles) that can't surface in multi-ingredient generation and only pollute pairs.
+    () => buildFlavorMap({
+      sources: enabledSources,
+      pruneWeakEdges: { maxStrength: 2, minSharedNeighbors: 2 },
+      suppressRedundant: true,
+    }),
     [enabledSources]
   );
 
