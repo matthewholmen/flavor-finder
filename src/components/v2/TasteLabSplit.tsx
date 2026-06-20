@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { ChevronDown, Lock, Search } from 'lucide-react';
 import {
   TASTE_COLORS,
@@ -62,6 +62,43 @@ const mixHex = (hex: string, target: string, amount: number): string => {
   return `rgb(${mix(0)}, ${mix(2)}, ${mix(4)})`;
 };
 
+const MENU_CAP = 260; // tallest a dropdown gets on a roomy screen (px)
+
+// Decide whether a menu anchored to `triggerRef` opens up or down, and how tall
+// it may be, so it always fits the viewport — important on short windows, where
+// a fixed-height menu would spill off-screen. Re-measures on open and on resize;
+// the menu then scrolls internally within the height returned here.
+const useMenuPlacement = (
+  open: boolean,
+  triggerRef: React.RefObject<HTMLElement>,
+  isMobile?: boolean
+) => {
+  const [placement, setPlacement] = useState({ up: false, maxHeight: MENU_CAP });
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const measure = () => {
+      const el = triggerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const margin = 12;
+      const reserveTop = 72; // fixed header
+      const reserveBottom = isMobile ? 88 : 24; // mobile bottom nav
+      const below = window.innerHeight - rect.bottom - margin - reserveBottom;
+      const above = rect.top - margin - reserveTop;
+      // Drop up only when below is cramped and above genuinely has more room.
+      const up = below < MENU_CAP && above > below;
+      const space = up ? above : below;
+      setPlacement({ up, maxHeight: Math.max(120, Math.min(MENU_CAP, space)) });
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [open, isMobile, triggerRef]);
+
+  return placement;
+};
+
 // One taste-colored half of the split: the ingredient (click to lock) centered,
 // with a Taste/Category mode toggle and a matching picker underneath.
 const SplitHalf = ({
@@ -70,7 +107,6 @@ const SplitHalf = ({
   candidates,
   optionCounts,
   isLocked,
-  dropUp,
   onChange,
   onPickIngredient,
   onLockToggle,
@@ -83,7 +119,6 @@ const SplitHalf = ({
   candidates: string[];
   optionCounts?: { taste: Record<string, number>; category: Record<string, number> };
   isLocked: boolean;
-  dropUp: boolean;
   onChange: (patch: Partial<SlotTaste>) => void;
   onPickIngredient: (ingredient: string) => void;
   onLockToggle: () => void;
@@ -97,6 +132,12 @@ const SplitHalf = ({
   const [hovered, setHovered] = useState<string | null>(null);
   const halfRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const pickerBtnRef = useRef<HTMLButtonElement>(null);
+  const searchBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Each menu opens up or down and is height-capped to fit the viewport.
+  const pickerPlacement = useMenuPlacement(pickerOpen, pickerBtnRef, isMobile);
+  const searchPlacement = useMenuPlacement(searchOpen, searchBtnRef, isMobile);
 
   // A click anywhere outside this half closes whichever menu is open.
   useEffect(() => {
@@ -220,6 +261,7 @@ const SplitHalf = ({
         {/* Value picker — content tracks the active mode */}
         <div className="relative w-full">
           <button
+            ref={pickerBtnRef}
             onClick={() => {
               setPickerOpen(o => !o);
               setSearchOpen(false);
@@ -233,17 +275,17 @@ const SplitHalf = ({
             <ChevronDown
               size={16}
               strokeWidth={2.5}
-              style={{ transform: dropUp ? 'rotate(180deg)' : undefined }}
+              style={{ transform: pickerOpen && pickerPlacement.up ? 'rotate(180deg)' : undefined }}
             />
           </button>
 
           {pickerOpen && (
             <div
               role="listbox"
-              className={`absolute left-0 right-0 z-[70] flex flex-col gap-0.5 p-1.5 rounded-2xl shadow-xl ${
-                dropUp ? 'bottom-full mb-2' : 'top-full mt-2'
+              className={`absolute left-0 right-0 z-[70] flex flex-col gap-0.5 p-1.5 rounded-2xl shadow-xl overflow-y-auto ${
+                pickerPlacement.up ? 'bottom-full mb-2' : 'top-full mt-2'
               }`}
-              style={{ backgroundColor: pillBg }}
+              style={{ backgroundColor: pillBg, maxHeight: pickerPlacement.maxHeight }}
             >
               {options.map(({ value, color, count }) => {
                 const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
@@ -275,6 +317,7 @@ const SplitHalf = ({
             partner", so it's also the size of the searchable list. */}
         <div className="relative w-full flex flex-col items-center">
           <button
+            ref={searchBtnRef}
             onClick={() => {
               setSearchOpen(o => !o);
               setPickerOpen(false);
@@ -291,7 +334,7 @@ const SplitHalf = ({
           {searchOpen && (
             <div
               className={`absolute left-0 right-0 z-[70] flex flex-col p-1.5 rounded-2xl shadow-xl ${
-                dropUp ? 'bottom-full mb-2' : 'top-full mt-2'
+                searchPlacement.up ? 'bottom-full mb-2' : 'top-full mt-2'
               }`}
               style={{ backgroundColor: pillBg }}
             >
@@ -300,10 +343,16 @@ const SplitHalf = ({
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search this slot…"
-                className="w-full px-3 py-2 mb-1 rounded-xl text-sm font-medium outline-none placeholder:opacity-50"
+                className="w-full px-3 py-2 mb-1 rounded-xl text-sm font-medium outline-none placeholder:opacity-50 shrink-0"
                 style={{ backgroundColor: strongBg, color: fg }}
               />
-              <div role="listbox" className="flex flex-col gap-0.5 max-h-44 overflow-y-auto">
+              {/* List scrolls within the space the placement hook allotted, less
+                  the fixed search field above it. */}
+              <div
+                role="listbox"
+                className="flex flex-col gap-0.5 overflow-y-auto"
+                style={{ maxHeight: Math.max(96, searchPlacement.maxHeight - 52) }}
+              >
                 {filteredCandidates.length === 0 ? (
                   <div className="px-3 py-2 text-sm font-medium" style={{ color: fg, opacity: 0.6 }}>
                     No matches
@@ -364,8 +413,6 @@ export const TasteLabSplit = ({
         candidates={slotCandidates[0] ?? []}
         optionCounts={slotOptionCounts[0]}
         isLocked={lockedIndices.has(0)}
-        // On mobile the top slot's menus open downward (toward center).
-        dropUp={false}
         onChange={(patch) => onSlotTasteChange(0, patch)}
         onPickIngredient={(ing) => onSlotIngredientPick(0, ing)}
         onLockToggle={() => onLockToggle(0)}
@@ -380,8 +427,6 @@ export const TasteLabSplit = ({
         candidates={slotCandidates[1] ?? []}
         optionCounts={slotOptionCounts[1]}
         isLocked={lockedIndices.has(1)}
-        // On mobile the bottom slot opens upward so the menu clears the nav bar.
-        dropUp={isMobile}
         onChange={(patch) => onSlotTasteChange(1, patch)}
         onPickIngredient={(ing) => onSlotIngredientPick(1, ing)}
         onLockToggle={() => onLockToggle(1)}
