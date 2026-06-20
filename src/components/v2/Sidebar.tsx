@@ -95,10 +95,53 @@ const CollapsibleSection = ({ title, icon, isOpen, onToggle, children }) => {
 const GenerationOptionsContent = ({
   compatibilityMode,
   onCompatibilityChange,
+  isTasteLab = false,
+  onTasteLabChange = () => {},
 }) => {
   return (
     <>
-      {/* Compatibility Section */}
+      {/* Mode Section: Classic vs Taste Lab */}
+      <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm mb-3">Mode</h3>
+      <div className="relative inline-grid grid-cols-2 bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-full mb-2">
+        <div
+          className="absolute top-1 bottom-1 bg-gray-900 dark:bg-gray-100 rounded-full transition-all duration-200 ease-out"
+          style={{
+            width: 'calc(50% - 2px)',
+            left: isTasteLab ? 'calc(50% + 1px)' : '1px',
+          }}
+        />
+        {[
+          { key: 'classic', label: 'Classic' },
+          { key: 'taste', label: 'Taste Lab' },
+        ].map((mode) => {
+          const active = (mode.key === 'taste') === isTasteLab;
+          return (
+            <button
+              key={mode.key}
+              onClick={() => onTasteLabChange(mode.key === 'taste')}
+              className={`
+                relative z-10 py-1.5 px-2 text-xs font-medium text-center
+                rounded-full transition-colors duration-200
+                ${active
+                  ? 'text-white dark:text-gray-900'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
+                }
+              `}
+            >
+              {mode.label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
+        {isTasteLab
+          ? 'Pick a dominant taste for each of two slots, set how intense it must be, and Generate finds a pairing that fits — like salty + sweet → anchovy & plum.'
+          : 'Generate random combinations of compatible ingredients.'}
+      </p>
+
+      {/* Compatibility Section (Classic mode only) */}
+      {!isTasteLab && (
+      <>
       <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm mb-3">Compatibility</h3>
       <div className="relative inline-grid grid-cols-3 bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-full mb-2">
         {/* Sliding background indicator */}
@@ -129,6 +172,8 @@ const GenerationOptionsContent = ({
       <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
         {COMPATIBILITY_MODES.find(m => m.key === compatibilityMode)?.description}
       </p>
+      </>
+      )}
     </>
   );
 };
@@ -246,6 +291,8 @@ export const Sidebar = ({
   onDietaryChange = () => {},
   compatibilityMode = 'perfect',
   onCompatibilityChange = () => {},
+  isTasteLab = false,
+  onTasteLabChange = () => {},
   enabledSources = ['flavorbible', 'recipenlg', 'flavordb'],
   onToggleSource = () => {},
   onOpenIngredientFilters = () => {},
@@ -344,6 +391,8 @@ export const Sidebar = ({
               <GenerationOptionsContent
                 compatibilityMode={compatibilityMode}
                 onCompatibilityChange={onCompatibilityChange}
+                isTasteLab={isTasteLab}
+                onTasteLabChange={onTasteLabChange}
               />
             </CollapsibleSection>
 

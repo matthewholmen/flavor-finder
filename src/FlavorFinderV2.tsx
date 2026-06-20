@@ -8,10 +8,13 @@ import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
 import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
 import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
+import { TasteLabSplit } from './components/v2/TasteLabSplit.tsx';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
 import { useCompatibility } from './hooks/useCompatibility.ts';
+import { useTasteLab, TASTE_KEYS } from './hooks/useTasteLab.ts';
+import { useTheme } from './contexts/ThemeContext.tsx';
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { buildFlavorMap, ALL_SOURCES } from './utils/flavorMap.ts';
@@ -95,6 +98,16 @@ export default function FlavorFinderV2() {
     deleteCombination,
   } = useSavedCombinations();
 
+  // Taste Lab: two-slot, taste-driven generation mode
+  const {
+    isTasteLab,
+    setIsTasteLab,
+    slotTastes,
+    setSlotTaste,
+  } = useTasteLab();
+
+  const { isDarkMode, isHighContrast } = useTheme();
+
   // UI state (not extracted to hooks as they're specific to this component)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -146,6 +159,13 @@ export default function FlavorFinderV2() {
     ),
     [flavorMap]
   );
+
+  // Fast lowercase-name → profile lookup (used by Taste Lab generation)
+  const profileByName = useMemo(() => {
+    const map = new Map<string, typeof ingredientProfiles[number]>();
+    ingredientProfiles.forEach(p => map.set(p.name.toLowerCase(), p));
+    return map;
+  }, []);
 
   // Helper to check if ingredient is restricted by dietary settings
   const isIngredientRestricted = (ingredient: string) => {
@@ -348,6 +368,208 @@ export default function FlavorFinderV2() {
     return [];
   };
 
+  // Taste Lab generation: find one ingredient per slot that clears its taste
+  // threshold, where the two results still pair with each other. A locked slot
+  // is treated as an anchor — its ingredient is kept and the other slot is
+  // generated to pair against it (e.g. lock peanut butter, find a sweet match).
+  //
+  // "Dominant" weighting: we first try to fill each slot with ingredients whose
+  // chosen taste is their single strongest note (anchovy → salty, plum → sweet),
+  // which makes pairings feel crisp. If no pairing exists under that constraint,
+  // we relax it one slot at a time, then fall back to the plain threshold pool.
+  //
+  // Core solver: given the two slot constraints and a set of fixed anchors
+  // (ingredients to keep in place), find a valid pair. `anchors` maps a slot
+  // index to an ingredient that must stay there; open slots are generated.
+  const computeTasteLabPair = (
+    slots: typeof slotTastes,
+    anchors: { 0?: string; 1?: string }
+  ): string[] => {
+    const profileFor = (ing: string) => profileByName.get(ing.toLowerCase())?.flavorProfile as any;
+    const tasteScore = (ing: string, taste: string) => profileFor(ing)?.[taste] ?? 0;
+
+    // Is `taste` this ingredient's (tied) strongest note?
+    const isDominant = (ing: string, taste: string) => {
+      const fp = profileFor(ing);
+      if (!fp) return false;
+      const max = Math.max(...TASTE_KEYS.map(t => fp[t] ?? 0));
+      return (fp[taste] ?? 0) >= max && max > 0;
+    };
+
+    // Candidates for a slot: clear the threshold and (optionally) be dominant in
+    // the chosen taste.
+    const poolFor = (
+      slot: typeof slots[number],
+      exclude: Set<string>,
+      requireDominant: boolean
+    ) =>
+      Array.from(flavorMap.keys()).filter(ing =>
+        !exclude.has(ing) &&
+        !isIngredientRestricted(ing) &&
+        tasteScore(ing, slot.taste) >= slot.threshold &&
+        (!requireDominant || isDominant(ing, slot.taste))
+      );
+
+    const pickRandom = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+    const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
+
+    const anchor0 = anchors[0];
+    const anchor1 = anchors[1];
+
+    // Both anchored — nothing to regenerate.
+    if (anchor0 && anchor1) return [anchor0, anchor1];
+
+    // One anchored — generate the partner that clears its taste and pairs,
+    // preferring a dominant match before relaxing.
+    if (anchor0 || anchor1) {
+      const anchor = (anchor0 ?? anchor1)!;
+      const openSlotIndex = anchor0 ? 1 : 0;
+      const partnersFor = (requireDominant: boolean) =>
+        poolFor(slots[openSlotIndex], new Set([anchor]), requireDominant)
+          .filter(ing => flavorMap.get(anchor)?.has(ing));
+      const partners = partnersFor(true).length ? partnersFor(true) : partnersFor(false);
+      if (partners.length === 0) return [];
+      const partner = pickRandom(partners);
+      return openSlotIndex === 0 ? [partner, anchor] : [anchor, partner];
+    }
+
+    // Neither anchored — search slot 0 × slot 1, preferring dominant on both
+    // slots and relaxing in priority order until a valid pairing is found.
+    const maxAttempts = 300;
+    const findPair = (domA: boolean, domB: boolean): string[] | null => {
+      const candidatesA = shuffle(poolFor(slots[0], new Set(), domA));
+      for (let i = 0; i < Math.min(candidatesA.length, maxAttempts); i++) {
+        const a = candidatesA[i];
+        const partners = poolFor(slots[1], new Set([a]), domB)
+          .filter(ing => flavorMap.get(a)?.has(ing));
+        if (partners.length > 0) return [a, pickRandom(partners)];
+      }
+      return null;
+    };
+
+    return (
+      findPair(true, true) ||
+      findPair(true, false) ||
+      findPair(false, true) ||
+      findPair(false, false) ||
+      []
+    );
+  };
+
+  // Full Generate: anchor whichever slots are locked (unless ignoring locks).
+  const getTasteLabPair = (opts: { ignoreLocks?: boolean } = {}): string[] => {
+    const anchors: { 0?: string; 1?: string } = {};
+    if (!opts.ignoreLocks) {
+      if (lockedIngredients.has(0)) anchors[0] = selectedIngredients[0];
+      if (lockedIngredients.has(1)) anchors[1] = selectedIngredients[1];
+    }
+    return computeTasteLabPair(slotTastes, anchors);
+  };
+
+  // How many ingredients currently clear each slot's taste threshold (respecting
+  // dietary filters). Surfaces how the threshold squeezes the candidate pool.
+  const slotMatchCounts = useMemo(
+    () =>
+      slotTastes.map(slot =>
+        Array.from(flavorMap.keys()).filter(ing => {
+          if (isIngredientRestricted(ing)) return false;
+          const fp = profileByName.get(ing.toLowerCase())?.flavorProfile as any;
+          return fp && (fp[slot.taste] ?? 0) >= slot.threshold;
+        }).length
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slotTastes, flavorMap, dietaryRestrictions, profileByName]
+  );
+
+  // Total number of valid combinations for the current constraints: distinct
+  // ingredient pairs where one side clears slot 0, the other clears slot 1, and
+  // the two actually pair. This is the real solution space — it can hit zero
+  // (no possible pairing) even while each side still has matching ingredients.
+  const tasteLabPairingCount = useMemo(() => {
+    const meets = (ing: string, slot: typeof slotTastes[number]) => {
+      if (isIngredientRestricted(ing)) return false;
+      const fp = profileByName.get(ing.toLowerCase())?.flavorProfile as any;
+      return fp && (fp[slot.taste] ?? 0) >= slot.threshold;
+    };
+    const p0 = new Set<string>();
+    const p1 = new Set<string>();
+    for (const ing of flavorMap.keys()) {
+      if (meets(ing, slotTastes[0])) p0.add(ing);
+      if (meets(ing, slotTastes[1])) p1.add(ing);
+    }
+    let count = 0;
+    for (const a of flavorMap.keys()) {
+      const neighbors = flavorMap.get(a);
+      if (!neighbors) continue;
+      for (const b of neighbors) {
+        // Count each unordered edge once.
+        if (a < b && ((p0.has(a) && p1.has(b)) || (p1.has(a) && p0.has(b)))) {
+          count++;
+        }
+      }
+    }
+    return count;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slotTastes, flavorMap, dietaryRestrictions, profileByName]);
+
+  // Changing a slot's taste (or pushing its threshold past the current pick)
+  // rerolls just that side, keeping the other ingredient anchored. Taste swaps
+  // always reroll; threshold only rerolls when the current pick no longer fits.
+  const handleSlotTasteChange = (slotIndex: number, patch: { taste?: any; threshold?: number }) => {
+    setSlotTaste(slotIndex, patch);
+    if (!isTasteLab) return;
+
+    const newSlots = slotTastes.map((s, i) =>
+      i === slotIndex ? { ...s, ...patch } : s
+    ) as typeof slotTastes;
+    const newSlot = newSlots[slotIndex];
+
+    const current = selectedIngredients[slotIndex];
+    const currentScore = current
+      ? (profileByName.get(current.toLowerCase())?.flavorProfile as any)?.[newSlot.taste] ?? 0
+      : -1;
+
+    const tasteChanged = patch.taste !== undefined;
+    const thresholdBroke = patch.threshold !== undefined && currentScore < newSlot.threshold;
+    if (!tasteChanged && !thresholdBroke) return;
+
+    const otherIndex = slotIndex === 0 ? 1 : 0;
+    const anchor = selectedIngredients[otherIndex];
+    const pair = computeTasteLabPair(newSlots, anchor ? { [otherIndex]: anchor } : {});
+    if (pair.length < 2) {
+      setNoMatchToast(true);
+      return;
+    }
+    // Taste swaps are discrete (undoable); live threshold drags are not, to keep
+    // the undo stack from filling with slider noise.
+    if (tasteChanged) saveToHistory();
+    setSelectedIngredients(pair);
+  };
+
+  // Toggle Taste Lab mode. Entering it resets to a fresh 2-slot pair.
+  const handleTasteLabChange = (enabled: boolean) => {
+    setIsTasteLab(enabled);
+    if (enabled) {
+      saveToHistory();
+      setLockedIngredients(new Set());
+      setTargetIngredientCount(2);
+      const pair = getTasteLabPair({ ignoreLocks: true });
+      if (pair.length === 2) setSelectedIngredients(pair);
+    }
+  };
+
+  // Taste Lab is a strict two-slot mode: each slot's taste governs the
+  // ingredient sitting at that index. The normal add/remove machinery shifts
+  // indices, which would scramble that mapping (e.g. a sweet pick ending up in
+  // the "spicy" slot). So any structural edit that leaves us with something
+  // other than exactly two ingredients drops back to Classic. (Generate and
+  // lock keep the count at two and stay in the mode.)
+  useEffect(() => {
+    if (isTasteLab && selectedIngredients.length !== 2) {
+      setIsTasteLab(false);
+    }
+  }, [isTasteLab, selectedIngredients.length, setIsTasteLab]);
+
   // Initialize with random ingredients and run intro animation
   useEffect(() => {
     if (selectedIngredients.length === 0) {
@@ -429,6 +651,18 @@ export default function FlavorFinderV2() {
 
   // Handle randomize/generate - creates exactly targetIngredientCount ingredients
   const handleRandomize = () => {
+    // Taste Lab mode: generate a taste-constrained pair instead.
+    if (isTasteLab) {
+      const pair = getTasteLabPair();
+      if (pair.length < 2) {
+        setNoMatchToast(true);
+        return;
+      }
+      saveToHistory();
+      setSelectedIngredients(pair);
+      return;
+    }
+
     saveToHistory();
 
     // Get locked ingredients (preserving their actual values)
@@ -527,19 +761,19 @@ export default function FlavorFinderV2() {
         return;
       }
 
-      // + or = - Add ingredient
+      // + or = - Add ingredient (disabled in Taste Lab, which is fixed at 2)
       if (e.key === '+' || e.key === '=') {
         e.preventDefault();
-        if (canIncrementTarget) {
+        if (!isTasteLab && canIncrementTarget) {
           handleIncrementTarget();
         }
         return;
       }
 
-      // - - Remove ingredient
+      // - - Remove ingredient (disabled in Taste Lab, which is fixed at 2)
       if (e.key === '-') {
         e.preventDefault();
-        if (canDecrementTarget) {
+        if (!isTasteLab && canDecrementTarget) {
           handleDecrementTarget();
         }
         return;
@@ -554,7 +788,7 @@ export default function FlavorFinderV2() {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedIngredients, lockedIngredients, canIncrementTarget, canDecrementTarget]);
+  }, [selectedIngredients, lockedIngredients, canIncrementTarget, canDecrementTarget, isTasteLab, slotTastes]);
 
   // Handle recipe search - opens the recipe finder modal
   const handleRecipeSearch = () => {
@@ -757,7 +991,9 @@ export default function FlavorFinderV2() {
             text-sm font-medium shadow-lg
           `}
         >
-          No other ingredient pairs with all of these
+          {isTasteLab
+            ? 'No pairing fits those tastes — try lowering a threshold'
+            : 'No other ingredient pairs with all of these'}
         </div>
       )}
 
@@ -786,8 +1022,8 @@ export default function FlavorFinderV2() {
         currentCount={selectedIngredients.length}
         minTarget={minTarget}
         maxTarget={5}
-        canIncrement={canIncrementTarget}
-        canDecrement={canDecrementTarget}
+        canIncrement={!isTasteLab && canIncrementTarget}
+        canDecrement={!isTasteLab && canDecrementTarget}
         onGenerate={handleRandomize}
         onIncrementTarget={handleIncrementTarget}
         onDecrementTarget={handleDecrementTarget}
@@ -802,8 +1038,8 @@ export default function FlavorFinderV2() {
       {/* Mobile Bottom Bar */}
       {isMobile && (
         <MobileBottomBar
-          canIncrement={canIncrementTarget}
-          canDecrement={canDecrementTarget}
+          canIncrement={!isTasteLab && canIncrementTarget}
+          canDecrement={!isTasteLab && canDecrementTarget}
           canUndo={canUndo}
           onGenerate={handleRandomize}
           onIncrementTarget={handleIncrementTarget}
@@ -818,11 +1054,24 @@ export default function FlavorFinderV2() {
       {/* Main content area - scrollable on mobile when drawer is closed */}
       <main className={`
         flex-1 flex flex-col
-        pt-20 ${isMobile ? 'pb-24' : 'pb-32'}
+        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-24' : 'pb-20') : (isMobile ? 'pb-24' : 'pb-32')}
         ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
-        {/* Mobile flow layout: content fills space, pills fixed above bottom bar */}
-        {isMobile && !isDrawerOpen ? (
+        {/* Taste Lab: full-bleed split view (columns on desktop, rows on mobile) */}
+        {isTasteLab && !isDrawerOpen ? (
+          <TasteLabSplit
+            slotTastes={slotTastes}
+            onSlotTasteChange={handleSlotTasteChange}
+            slotCounts={slotMatchCounts}
+            pairingCount={tasteLabPairingCount}
+            ingredients={selectedIngredients}
+            lockedIndices={lockedIngredients}
+            onLockToggle={handleLockToggleWithFocus}
+            isMobile={isMobile}
+            isDarkMode={isDarkMode}
+            isHighContrast={isHighContrast}
+          />
+        ) : isMobile && !isDrawerOpen ? (
           <>
             {/* Ingredient Display */}
             <div className="flex-1 flex flex-col">
@@ -926,6 +1175,8 @@ export default function FlavorFinderV2() {
         onDietaryChange={setDietaryRestrictions}
         compatibilityMode={compatibilityMode}
         onCompatibilityChange={handleCompatibilityChange}
+        isTasteLab={isTasteLab}
+        onTasteLabChange={handleTasteLabChange}
         enabledSources={enabledSources}
         onToggleSource={handleToggleSource}
         onOpenIngredientFilters={() => setIsIngredientFiltersOpen(true)}
