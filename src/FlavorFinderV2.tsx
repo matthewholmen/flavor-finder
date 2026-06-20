@@ -13,7 +13,7 @@ import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
 import { useCompatibility } from './hooks/useCompatibility.ts';
-import { useTasteLab, TASTE_KEYS } from './hooks/useTasteLab.ts';
+import { useTasteLab, TASTE_KEYS, TASTE_THRESHOLD } from './hooks/useTasteLab.ts';
 import { useTheme } from './contexts/ThemeContext.tsx';
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -368,15 +368,17 @@ export default function FlavorFinderV2() {
     return [];
   };
 
-  // Taste Lab generation: find one ingredient per slot that clears its taste
-  // threshold, where the two results still pair with each other. A locked slot
-  // is treated as an anchor — its ingredient is kept and the other slot is
-  // generated to pair against it (e.g. lock peanut butter, find a sweet match).
+  // Taste Lab generation: find one ingredient per slot that satisfies its
+  // constraint — a dominant taste or a category — where the two results still
+  // pair with each other. A locked slot is treated as an anchor: its ingredient
+  // is kept and the other slot is generated to pair against it (e.g. lock peanut
+  // butter, find a sweet match).
   //
-  // "Dominant" weighting: we first try to fill each slot with ingredients whose
-  // chosen taste is their single strongest note (anchovy → salty, plum → sweet),
-  // which makes pairings feel crisp. If no pairing exists under that constraint,
-  // we relax it one slot at a time, then fall back to the plain threshold pool.
+  // "Dominant" weighting (taste slots only): we first try to fill each taste
+  // slot with ingredients whose chosen taste is their single strongest note
+  // (anchovy → salty, plum → sweet), which makes pairings feel crisp. If no
+  // pairing exists under that constraint, we relax it one slot at a time, then
+  // fall back to the plain qualifying pool. Category slots ignore this weighting.
   //
   // Core solver: given the two slot constraints and a set of fixed anchors
   // (ingredients to keep in place), find a valid pair. `anchors` maps a slot
@@ -387,6 +389,7 @@ export default function FlavorFinderV2() {
   ): string[] => {
     const profileFor = (ing: string) => profileByName.get(ing.toLowerCase())?.flavorProfile as any;
     const tasteScore = (ing: string, taste: string) => profileFor(ing)?.[taste] ?? 0;
+    const categoryFor = (ing: string) => profileByName.get(ing.toLowerCase())?.category;
 
     // Is `taste` this ingredient's (tied) strongest note?
     const isDominant = (ing: string, taste: string) => {
@@ -396,8 +399,15 @@ export default function FlavorFinderV2() {
       return (fp[taste] ?? 0) >= max && max > 0;
     };
 
-    // Candidates for a slot: clear the threshold and (optionally) be dominant in
-    // the chosen taste.
+    // Does an ingredient satisfy a slot's constraint, ignoring the dominant-note
+    // preference? Taste slots clear the threshold; category slots match category.
+    const qualifies = (ing: string, slot: typeof slots[number]) =>
+      slot.mode === 'category'
+        ? categoryFor(ing) === slot.category
+        : tasteScore(ing, slot.taste) >= TASTE_THRESHOLD;
+
+    // Candidates for a slot. `requireDominant` only bites on taste slots — a
+    // category slot has no "dominant note" to prefer, so it ignores the flag.
     const poolFor = (
       slot: typeof slots[number],
       exclude: Set<string>,
@@ -406,8 +416,8 @@ export default function FlavorFinderV2() {
       Array.from(flavorMap.keys()).filter(ing =>
         !exclude.has(ing) &&
         !isIngredientRestricted(ing) &&
-        tasteScore(ing, slot.taste) >= slot.threshold &&
-        (!requireDominant || isDominant(ing, slot.taste))
+        qualifies(ing, slot) &&
+        (!requireDominant || slot.mode === 'category' || isDominant(ing, slot.taste))
       );
 
     const pickRandom = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -466,19 +476,33 @@ export default function FlavorFinderV2() {
     return computeTasteLabPair(slotTastes, anchors);
   };
 
-  // How many ingredients currently clear each slot's taste threshold (respecting
-  // dietary filters). Surfaces how the threshold squeezes the candidate pool.
-  const slotMatchCounts = useMemo(
+  // The ingredients that could actually fill each slot: they satisfy the slot's
+  // constraint (category or taste), they pair with the *other* slot's current
+  // ingredient, and they aren't that partner itself. This is what the per-slot
+  // search browses, and its length is the only count that means anything — a
+  // raw "N sweet ingredients" tally ignores whether they pair with the partner.
+  const slotCandidates = useMemo(
     () =>
-      slotTastes.map(slot =>
-        Array.from(flavorMap.keys()).filter(ing => {
+      slotTastes.map((slot, slotIndex) => {
+        const partner = selectedIngredients[slotIndex === 0 ? 1 : 0];
+        const partnerNeighbors = partner ? flavorMap.get(partner) : undefined;
+        const meetsSlot = (ing: string) => {
           if (isIngredientRestricted(ing)) return false;
-          const fp = profileByName.get(ing.toLowerCase())?.flavorProfile as any;
-          return fp && (fp[slot.taste] ?? 0) >= slot.threshold;
-        }).length
-      ),
+          const profile = profileByName.get(ing.toLowerCase());
+          if (slot.mode === 'category') return profile?.category === slot.category;
+          const fp = profile?.flavorProfile as any;
+          return fp && (fp[slot.taste] ?? 0) >= TASTE_THRESHOLD;
+        };
+        return Array.from(flavorMap.keys())
+          .filter(ing =>
+            ing !== partner &&
+            meetsSlot(ing) &&
+            (!partnerNeighbors || partnerNeighbors.has(ing))
+          )
+          .sort((a, b) => a.localeCompare(b));
+      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slotTastes, flavorMap, dietaryRestrictions, profileByName]
+    [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName]
   );
 
   // Total number of valid combinations for the current constraints: distinct
@@ -488,8 +512,10 @@ export default function FlavorFinderV2() {
   const tasteLabPairingCount = useMemo(() => {
     const meets = (ing: string, slot: typeof slotTastes[number]) => {
       if (isIngredientRestricted(ing)) return false;
-      const fp = profileByName.get(ing.toLowerCase())?.flavorProfile as any;
-      return fp && (fp[slot.taste] ?? 0) >= slot.threshold;
+      const profile = profileByName.get(ing.toLowerCase());
+      if (slot.mode === 'category') return profile?.category === slot.category;
+      const fp = profile?.flavorProfile as any;
+      return fp && (fp[slot.taste] ?? 0) >= TASTE_THRESHOLD;
     };
     const p0 = new Set<string>();
     const p1 = new Set<string>();
@@ -512,26 +538,19 @@ export default function FlavorFinderV2() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slotTastes, flavorMap, dietaryRestrictions, profileByName]);
 
-  // Changing a slot's taste (or pushing its threshold past the current pick)
-  // rerolls just that side, keeping the other ingredient anchored. Taste swaps
-  // always reroll; threshold only rerolls when the current pick no longer fits.
-  const handleSlotTasteChange = (slotIndex: number, patch: { taste?: any; threshold?: number }) => {
+  // Changing a slot's constraint (its mode, taste, or category) rerolls just
+  // that side, keeping the other ingredient anchored. Each change is a discrete,
+  // undoable user choice, so every one saves history and refreshes the pick.
+  const handleSlotTasteChange = (
+    slotIndex: number,
+    patch: { mode?: 'taste' | 'category'; taste?: any; category?: any }
+  ) => {
     setSlotTaste(slotIndex, patch);
     if (!isTasteLab) return;
 
     const newSlots = slotTastes.map((s, i) =>
       i === slotIndex ? { ...s, ...patch } : s
     ) as typeof slotTastes;
-    const newSlot = newSlots[slotIndex];
-
-    const current = selectedIngredients[slotIndex];
-    const currentScore = current
-      ? (profileByName.get(current.toLowerCase())?.flavorProfile as any)?.[newSlot.taste] ?? 0
-      : -1;
-
-    const tasteChanged = patch.taste !== undefined;
-    const thresholdBroke = patch.threshold !== undefined && currentScore < newSlot.threshold;
-    if (!tasteChanged && !thresholdBroke) return;
 
     const otherIndex = slotIndex === 0 ? 1 : 0;
     const anchor = selectedIngredients[otherIndex];
@@ -540,10 +559,20 @@ export default function FlavorFinderV2() {
       setNoMatchToast(true);
       return;
     }
-    // Taste swaps are discrete (undoable); live threshold drags are not, to keep
-    // the undo stack from filling with slider noise.
-    if (tasteChanged) saveToHistory();
+    saveToHistory();
     setSelectedIngredients(pair);
+  };
+
+  // Per-slot search: the user hand-picks an ingredient for one slot from the
+  // candidate list (which already pairs with the partner), keeping the other
+  // slot fixed. No regeneration needed — the choice is known-good.
+  const handleSlotIngredientPick = (slotIndex: number, ingredient: string) => {
+    if (!isTasteLab) return;
+    if (selectedIngredients[slotIndex] === ingredient) return;
+    saveToHistory();
+    const next = [...selectedIngredients];
+    next[slotIndex] = ingredient;
+    setSelectedIngredients(next);
   };
 
   // Toggle Taste Lab mode. Entering it resets to a fresh 2-slot pair.
@@ -992,7 +1021,7 @@ export default function FlavorFinderV2() {
           `}
         >
           {isTasteLab
-            ? 'No pairing fits those tastes — try lowering a threshold'
+            ? 'No pairing fits those slots — try a different taste or category'
             : 'No other ingredient pairs with all of these'}
         </div>
       )}
@@ -1062,7 +1091,8 @@ export default function FlavorFinderV2() {
           <TasteLabSplit
             slotTastes={slotTastes}
             onSlotTasteChange={handleSlotTasteChange}
-            slotCounts={slotMatchCounts}
+            slotCandidates={slotCandidates}
+            onSlotIngredientPick={handleSlotIngredientPick}
             pairingCount={tasteLabPairingCount}
             ingredients={selectedIngredients}
             lockedIndices={lockedIngredients}

@@ -20,18 +20,49 @@ export const TASTE_KEYS: TasteKey[] = [
   'aromatic',
 ];
 
-// A single Taste Lab slot: the dominant taste it's hunting for and the minimum
-// score (0-10) an ingredient must hit on that taste to qualify.
+// The 8 top-level ingredient categories a slot can be constrained to.
+export type CategoryKey =
+  | 'Proteins'
+  | 'Vegetables'
+  | 'Fruits'
+  | 'Dairy'
+  | 'Seasonings'
+  | 'Pantry'
+  | 'Grains'
+  | 'Alcohol';
+
+export const CATEGORY_KEYS: CategoryKey[] = [
+  'Proteins',
+  'Vegetables',
+  'Fruits',
+  'Dairy',
+  'Seasonings',
+  'Pantry',
+  'Grains',
+  'Alcohol',
+];
+
+// Minimum score (0-10) an ingredient must hit on a slot's taste to qualify in
+// taste mode. Fixed now that the intensity control is gone — the "dominant note"
+// preference in the solver does the heavy lifting of keeping pairings crisp.
+export const TASTE_THRESHOLD = 5;
+
+// How a Taste Lab slot constrains its ingredient. A slot is either hunting for a
+// dominant `taste` (e.g. salty → anchovy) or for membership in a `category`
+// (e.g. Fruits → plum). `mode` picks which constraint is live; the other value
+// is remembered so toggling back and forth keeps the user's last choice.
+export type SlotMode = 'taste' | 'category';
+
 export interface SlotTaste {
+  mode: SlotMode;
   taste: TasteKey;
-  threshold: number;
+  category: CategoryKey;
 }
 
-// Default to a classic contrast (salty + sweet → e.g. anchovy + plum) at a
-// threshold that feels intentional rather than bland.
+// Default to a classic contrast (salty + sweet → e.g. anchovy + plum).
 const DEFAULT_SLOTS: SlotTaste[] = [
-  { taste: 'salty', threshold: 5 },
-  { taste: 'sweet', threshold: 5 },
+  { mode: 'taste', taste: 'salty', category: 'Proteins' },
+  { mode: 'taste', taste: 'sweet', category: 'Fruits' },
 ];
 
 interface UseTasteLabReturn {
@@ -43,8 +74,8 @@ interface UseTasteLabReturn {
 
 /**
  * State for "Taste Lab" mode: a two-ingredient generation mode where each slot
- * is constrained to a dominant taste above a user-set threshold, and the two
- * results must still pair with each other.
+ * is constrained to either a dominant taste or a category, and the two results
+ * must still pair with each other.
  */
 export const useTasteLab = (): UseTasteLabReturn => {
   const [isTasteLab, setIsTasteLab] = useState(false);

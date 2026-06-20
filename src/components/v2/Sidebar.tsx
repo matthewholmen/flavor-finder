@@ -135,7 +135,7 @@ const GenerationOptionsContent = ({
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
         {isTasteLab
-          ? 'Pick a dominant taste for each of two slots, set how intense it must be, and Generate finds a pairing that fits — like salty + sweet → anchovy & plum.'
+          ? 'Constrain each of two slots by a dominant taste or a category, and Generate finds a pairing that fits — like salty + sweet → anchovy & plum.'
           : 'Generate random combinations of compatible ingredients.'}
       </p>
 
