@@ -20,6 +20,9 @@ interface TasteLabSplitProps {
   // Per slot: the ingredients that fit the slot AND pair with the other slot's
   // current pick. Length is the meaningful match count; the list is searchable.
   slotCandidates?: string[][];
+  // Per slot: how many partner-compatible matches each taste/category would
+  // yield, previewed next to each option in the picker.
+  slotOptionCounts?: { taste: Record<string, number>; category: Record<string, number> }[];
   onSlotIngredientPick: (slotIndex: number, ingredient: string) => void;
   pairingCount?: number;
   ingredients: string[];
@@ -65,6 +68,7 @@ const SplitHalf = ({
   slot,
   ingredient,
   candidates,
+  optionCounts,
   isLocked,
   dropUp,
   onChange,
@@ -77,6 +81,7 @@ const SplitHalf = ({
   slot: SlotTaste;
   ingredient?: string;
   candidates: string[];
+  optionCounts?: { taste: Record<string, number>; category: Record<string, number> };
   isLocked: boolean;
   dropUp: boolean;
   onChange: (patch: Partial<SlotTaste>) => void;
@@ -129,9 +134,9 @@ const SplitHalf = ({
 
   // The picker's current label and the options it offers depend on the mode.
   const currentLabel = isCategory ? slot.category : slot.taste;
-  const options: { value: string; color: string }[] = isCategory
-    ? CATEGORY_KEYS.map(c => ({ value: c, color: CATEGORY_COLORS[c] }))
-    : TASTE_KEYS.map(t => ({ value: t, color: TASTE_COLORS[t as TasteKey] }));
+  const options: { value: string; color: string; count: number }[] = isCategory
+    ? CATEGORY_KEYS.map(c => ({ value: c, color: CATEGORY_COLORS[c], count: optionCounts?.category[c] ?? 0 }))
+    : TASTE_KEYS.map(t => ({ value: t, color: TASTE_COLORS[t as TasteKey], count: optionCounts?.taste[t] ?? 0 }));
 
   const selectOption = (value: string) => {
     onChange(isCategory ? { category: value as CategoryKey } : { taste: value as TasteKey });
@@ -240,7 +245,7 @@ const SplitHalf = ({
               }`}
               style={{ backgroundColor: pillBg }}
             >
-              {options.map(({ value, color }) => {
+              {options.map(({ value, color, count }) => {
                 const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
                 const selected = value === currentLabel;
                 const highlighted = selected || hovered === value;
@@ -252,11 +257,12 @@ const SplitHalf = ({
                     onMouseEnter={() => setHovered(value)}
                     onMouseLeave={() => setHovered(null)}
                     onClick={() => selectOption(value)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium capitalize w-full text-left transition-colors"
-                    style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent' }}
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
+                    style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
                   >
                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
-                    {value}
+                    <span className="flex-1 capitalize">{value}</span>
+                    <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
                   </button>
                 );
               })}
@@ -297,7 +303,7 @@ const SplitHalf = ({
                 className="w-full px-3 py-2 mb-1 rounded-xl text-sm font-medium outline-none placeholder:opacity-50"
                 style={{ backgroundColor: strongBg, color: fg }}
               />
-              <div role="listbox" className="flex flex-col gap-0.5 max-h-56 overflow-y-auto">
+              <div role="listbox" className="flex flex-col gap-0.5 max-h-44 overflow-y-auto">
                 {filteredCandidates.length === 0 ? (
                   <div className="px-3 py-2 text-sm font-medium" style={{ color: fg, opacity: 0.6 }}>
                     No matches
@@ -314,7 +320,7 @@ const SplitHalf = ({
                         onMouseEnter={() => setHovered(value)}
                         onMouseLeave={() => setHovered(null)}
                         onClick={() => pickIngredient(value)}
-                        className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-sm font-medium capitalize w-full text-left transition-colors"
+                        className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl text-sm font-medium capitalize w-full text-left transition-colors"
                         style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent' }}
                       >
                         <span className="truncate">{value}</span>
@@ -340,6 +346,7 @@ export const TasteLabSplit = ({
   slotTastes,
   onSlotTasteChange,
   slotCandidates = [],
+  slotOptionCounts = [],
   onSlotIngredientPick,
   pairingCount,
   ingredients,
@@ -355,6 +362,7 @@ export const TasteLabSplit = ({
         slot={slotTastes[0]}
         ingredient={ingredients[0]}
         candidates={slotCandidates[0] ?? []}
+        optionCounts={slotOptionCounts[0]}
         isLocked={lockedIndices.has(0)}
         // On mobile the top slot's menus open downward (toward center).
         dropUp={false}
@@ -370,6 +378,7 @@ export const TasteLabSplit = ({
         slot={slotTastes[1]}
         ingredient={ingredients[1]}
         candidates={slotCandidates[1] ?? []}
+        optionCounts={slotOptionCounts[1]}
         isLocked={lockedIndices.has(1)}
         // On mobile the bottom slot opens upward so the menu clears the nav bar.
         dropUp={isMobile}

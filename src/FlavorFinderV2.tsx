@@ -505,6 +505,38 @@ export default function FlavorFinderV2() {
     [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName]
   );
 
+  // For each slot, how many partner-compatible ingredients each taste and each
+  // category would yield — i.e. the match count the user would get if they
+  // picked that option. Lets the picker preview counts before you commit, so a
+  // dead-end constraint (0 matches) is visible up front. Built by walking the
+  // partner's neighbors once and tallying every taste/category they satisfy.
+  const slotOptionCounts = useMemo(
+    () =>
+      slotTastes.map((_slot, slotIndex) => {
+        const partner = selectedIngredients[slotIndex === 0 ? 1 : 0];
+        const partnerNeighbors = partner ? flavorMap.get(partner) : undefined;
+        const taste: Record<string, number> = {};
+        const category: Record<string, number> = {};
+        TASTE_KEYS.forEach(t => (taste[t] = 0));
+        const pool = partnerNeighbors ? Array.from(partnerNeighbors) : Array.from(flavorMap.keys());
+        for (const ing of pool) {
+          if (ing === partner || isIngredientRestricted(ing)) continue;
+          const profile = profileByName.get(ing.toLowerCase());
+          if (!profile) continue;
+          const fp = profile.flavorProfile as any;
+          if (fp) {
+            for (const t of TASTE_KEYS) {
+              if ((fp[t] ?? 0) >= TASTE_THRESHOLD) taste[t]++;
+            }
+          }
+          if (profile.category) category[profile.category] = (category[profile.category] ?? 0) + 1;
+        }
+        return { taste, category };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName]
+  );
+
   // Total number of valid combinations for the current constraints: distinct
   // ingredient pairs where one side clears slot 0, the other clears slot 1, and
   // the two actually pair. This is the real solution space — it can hit zero
@@ -1092,6 +1124,7 @@ export default function FlavorFinderV2() {
             slotTastes={slotTastes}
             onSlotTasteChange={handleSlotTasteChange}
             slotCandidates={slotCandidates}
+            slotOptionCounts={slotOptionCounts}
             onSlotIngredientPick={handleSlotIngredientPick}
             pairingCount={tasteLabPairingCount}
             ingredients={selectedIngredients}
