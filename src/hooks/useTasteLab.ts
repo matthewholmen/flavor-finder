@@ -78,7 +78,9 @@ interface UseTasteLabReturn {
  * must still pair with each other.
  */
 export const useTasteLab = (): UseTasteLabReturn => {
-  const [isTasteLab, setIsTasteLab] = useState(false);
+  // Default on for now — Taste Lab is the mode we're actively iterating on, and
+  // landing straight in it saves a click. Flip back to false to default Classic.
+  const [isTasteLab, setIsTasteLab] = useState(true);
   const [slotTastes, setSlotTastes] = useState<SlotTaste[]>(DEFAULT_SLOTS);
 
   const setSlotTaste = useCallback((slotIndex: number, patch: Partial<SlotTaste>) => {

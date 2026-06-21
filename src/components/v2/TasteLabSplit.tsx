@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
-import { ChevronDown, Lock, Search } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Lock, Search } from 'lucide-react';
 import {
   TASTE_COLORS,
   CATEGORY_COLORS,
@@ -164,6 +164,70 @@ const SplitHalf = ({
     return q ? candidates.filter(ing => ing.toLowerCase().includes(q)) : candidates;
   }, [candidates, query]);
 
+  // Swipe-to-cycle (mobile): dragging a half horizontally walks to the next /
+  // previous candidate that fits this slot and still pairs with the partner —
+  // the same list the search browses, so each swipe lands on a known-good pick
+  // and the partner's pairings update live.
+  const [dragX, setDragX] = useState(0);
+  const [snapping, setSnapping] = useState(false);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const swipeAxis = useRef<null | 'h' | 'v'>(null);
+  // Mirror the live offset in a ref so the release decision doesn't depend on a
+  // re-render landing between the last touchmove and touchend.
+  const dragXRef = useRef(0);
+  const canSwipe = !!isMobile && candidates.length > 1;
+  const SWIPE_COMMIT = 56; // px past which a release advances a candidate
+
+  const cycleCandidate = (dir: 1 | -1) => {
+    if (candidates.length === 0) return;
+    const cur = ingredient ? candidates.indexOf(ingredient) : -1;
+    const nextIndex =
+      cur === -1
+        ? dir === 1
+          ? 0
+          : candidates.length - 1
+        : (cur + dir + candidates.length) % candidates.length;
+    const next = candidates[nextIndex];
+    if (next && next !== ingredient) onPickIngredient(next);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Don't hijack touches meant for an open menu's scroll/taps.
+    if (!canSwipe || pickerOpen || searchOpen) return;
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+    swipeAxis.current = null;
+    setSnapping(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    if (swipeAxis.current === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      swipeAxis.current = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+    }
+    if (swipeAxis.current === 'h') {
+      // Soft rubber-band so the drag has resistance rather than tracking 1:1.
+      const offset = Math.sign(dx) * Math.min(Math.abs(dx), 120) * 0.8;
+      dragXRef.current = offset;
+      setDragX(offset);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    const offset = dragXRef.current;
+    if (swipeAxis.current === 'h' && Math.abs(offset) > SWIPE_COMMIT) {
+      cycleCandidate(offset < 0 ? 1 : -1);
+    }
+    touchStart.current = null;
+    swipeAxis.current = null;
+    dragXRef.current = 0;
+    setSnapping(true);
+    setDragX(0);
+  };
+
   const isCategory = slot.mode === 'category';
   const baseColor = isCategory ? CATEGORY_COLORS[slot.category] : TASTE_COLORS[slot.taste];
   const bg = getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode);
@@ -184,10 +248,10 @@ const SplitHalf = ({
     setPickerOpen(false);
   };
 
-  const setMode = (mode: SlotMode) => {
+  // Switching mode inside the open picker swaps the option list in place
+  // (Taste ⇄ Category) rather than closing it, so the menu stays put.
+  const switchMode = (mode: SlotMode) => {
     if (mode === slot.mode) return;
-    setPickerOpen(false);
-    setSearchOpen(false);
     onChange({ mode });
   };
 
@@ -200,13 +264,44 @@ const SplitHalf = ({
     <div
       ref={halfRef}
       className="relative flex-1 flex flex-col items-center justify-center gap-7 px-6 transition-colors duration-300"
-      style={{ backgroundColor: bg }}
+      style={{ backgroundColor: bg, touchAction: canSwipe ? 'pan-y' : undefined }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
-      {/* Ingredient — click toggles lock */}
+      {/* Swipe affordance (mobile): edge chevrons hint the ingredient can be
+          flicked left/right — and tapping one steps to the prev/next match too. */}
+      {canSwipe && (
+        <>
+          <button
+            onClick={() => cycleCandidate(-1)}
+            aria-label="Previous match"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 active:opacity-70"
+            style={{ color: fg, opacity: 0.35 }}
+          >
+            <ChevronLeft size={24} strokeWidth={2.5} />
+          </button>
+          <button
+            onClick={() => cycleCandidate(1)}
+            aria-label="Next match"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 active:opacity-70"
+            style={{ color: fg, opacity: 0.35 }}
+          >
+            <ChevronRight size={24} strokeWidth={2.5} />
+          </button>
+        </>
+      )}
+
+      {/* Ingredient — click toggles lock; drags to cycle on mobile */}
       <button
         onClick={onLockToggle}
         className="group flex items-center gap-2 max-w-full"
-        style={{ color: fg }}
+        style={{
+          color: fg,
+          transform: `translateX(${dragX}px)`,
+          transition: snapping ? 'transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none',
+          opacity: 1 - Math.min(Math.abs(dragX) / 320, 0.35),
+        }}
         title={isLocked ? 'Click to unlock' : 'Click to lock'}
       >
         <span
@@ -228,86 +323,84 @@ const SplitHalf = ({
         )}
       </button>
 
-      {/* Controls underneath */}
-      <div className="flex flex-col items-center gap-3 w-full max-w-[280px]">
-        {/* Mode toggle: Taste | Category */}
-        <div
-          className="flex w-full p-1 rounded-full"
-          style={{ backgroundColor: pillBg }}
-          role="tablist"
-          aria-label="Constrain by"
-        >
-          {(['taste', 'category'] as SlotMode[]).map(mode => {
-            const active = slot.mode === mode;
-            return (
-              <button
-                key={mode}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setMode(mode)}
-                className="flex-1 px-3 py-1.5 rounded-full text-xs font-bold capitalize transition-all"
-                style={{
-                  color: fg,
-                  opacity: active ? 1 : 0.6,
-                  backgroundColor: active ? strongBg : 'transparent',
-                }}
-              >
-                {mode}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Value picker — content tracks the active mode */}
-        <div className="relative w-full">
+      {/* Controls underneath — one quiet line so the ingredient stays the hero */}
+      <div className="flex items-center justify-center gap-3">
+        {/* Value picker — the Taste ⇄ Category toggle lives inside its dropdown */}
+        <div className="relative">
           <button
             ref={pickerBtnRef}
             onClick={() => {
               setPickerOpen(o => !o);
               setSearchOpen(false);
             }}
-            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold capitalize w-full transition-transform hover:scale-[1.02]"
-            style={{ backgroundColor: pillBg, color: fg }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold capitalize transition-colors"
+            style={{ color: fg, opacity: pickerOpen ? 1 : 0.85, backgroundColor: pickerOpen ? pillBg : 'transparent' }}
             aria-haspopup="listbox"
             aria-expanded={pickerOpen}
           >
             {currentLabel}
             <ChevronDown
-              size={16}
+              size={14}
               strokeWidth={2.5}
-              style={{ transform: pickerOpen && pickerPlacement.up ? 'rotate(180deg)' : undefined }}
+              style={{ opacity: 0.7, transform: pickerOpen && pickerPlacement.up ? 'rotate(180deg)' : undefined }}
             />
           </button>
 
           {pickerOpen && (
             <div
-              role="listbox"
-              className={`absolute left-0 right-0 z-[70] flex flex-col gap-0.5 p-1.5 rounded-2xl shadow-xl overflow-y-auto ${
+              className={`absolute left-1/2 -translate-x-1/2 z-[70] w-[220px] flex flex-col p-1.5 rounded-2xl shadow-xl ${
                 pickerPlacement.up ? 'bottom-full mb-2' : 'top-full mt-2'
               }`}
               style={{ backgroundColor: pillBg, maxHeight: pickerPlacement.maxHeight }}
             >
-              {options.map(({ value, color, count }) => {
-                const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
-                const selected = value === currentLabel;
-                const highlighted = selected || hovered === value;
-                return (
-                  <button
-                    key={value}
-                    role="option"
-                    aria-selected={selected}
-                    onMouseEnter={() => setHovered(value)}
-                    onMouseLeave={() => setHovered(null)}
-                    onClick={() => selectOption(value)}
-                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
-                    style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
-                  >
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
-                    <span className="flex-1 capitalize">{value}</span>
-                    <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
-                  </button>
-                );
-              })}
+              {/* Mode toggle: Taste | Category */}
+              <div
+                className="flex p-0.5 mb-1 rounded-full shrink-0"
+                style={{ backgroundColor: strongBg }}
+                role="tablist"
+                aria-label="Constrain by"
+              >
+                {(['taste', 'category'] as SlotMode[]).map(mode => {
+                  const active = slot.mode === mode;
+                  return (
+                    <button
+                      key={mode}
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => switchMode(mode)}
+                      className="flex-1 px-3 py-1 rounded-full text-xs font-bold capitalize transition-all"
+                      style={{ color: fg, opacity: active ? 1 : 0.55, backgroundColor: active ? pillBg : 'transparent' }}
+                    >
+                      {mode}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Options — content tracks the active mode */}
+              <div role="listbox" className="flex flex-col gap-0.5 overflow-y-auto">
+                {options.map(({ value, color, count }) => {
+                  const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
+                  const selected = value === currentLabel;
+                  const highlighted = selected || hovered === value;
+                  return (
+                    <button
+                      key={value}
+                      role="option"
+                      aria-selected={selected}
+                      onMouseEnter={() => setHovered(value)}
+                      onMouseLeave={() => setHovered(null)}
+                      onClick={() => selectOption(value)}
+                      className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
+                      style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
+                    >
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
+                      <span className="flex-1 capitalize">{value}</span>
+                      <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -315,25 +408,26 @@ const SplitHalf = ({
         {/* Match count → opens a search to browse/replace within this slot.
             The count is "ingredients that fit this slot AND pair with the
             partner", so it's also the size of the searchable list. */}
-        <div className="relative w-full flex flex-col items-center">
+        <div className="relative">
           <button
             ref={searchBtnRef}
             onClick={() => {
               setSearchOpen(o => !o);
               setPickerOpen(false);
             }}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tabular-nums transition-colors"
-            style={{ color: fg, opacity: 0.85, backgroundColor: searchOpen ? pillBg : 'transparent' }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium tabular-nums transition-colors"
+            style={{ color: fg, opacity: searchOpen ? 1 : 0.7, backgroundColor: searchOpen ? pillBg : 'transparent' }}
             aria-haspopup="listbox"
             aria-expanded={searchOpen}
+            aria-label={`${matchCount} matching ingredient${matchCount === 1 ? '' : 's'} — search this slot`}
           >
-            <Search size={12} strokeWidth={2.5} />
-            {matchCount} {matchCount === 1 ? 'match' : 'matches'}
+            <Search size={13} strokeWidth={2.5} style={{ opacity: 0.7 }} />
+            {matchCount}
           </button>
 
           {searchOpen && (
             <div
-              className={`absolute left-0 right-0 z-[70] flex flex-col p-1.5 rounded-2xl shadow-xl ${
+              className={`absolute left-1/2 -translate-x-1/2 z-[70] w-[240px] flex flex-col p-1.5 rounded-2xl shadow-xl ${
                 searchPlacement.up ? 'bottom-full mb-2' : 'top-full mt-2'
               }`}
               style={{ backgroundColor: pillBg }}

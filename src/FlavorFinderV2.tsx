@@ -115,7 +115,6 @@ export default function FlavorFinderV2() {
   const [isIngredientFiltersOpen, setIsIngredientFiltersOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const [introAnimationComplete, setIntroAnimationComplete] = useState(false);
   const [noMatchToast, setNoMatchToast] = useState(false);
   const [saveToast, setSaveToast] = useState<'saved' | 'removed' | null>(null);
 
@@ -626,17 +625,40 @@ export default function FlavorFinderV2() {
   // other than exactly two ingredients drops back to Classic. (Generate and
   // lock keep the count at two and stay in the mode.)
   useEffect(() => {
-    if (isTasteLab && selectedIngredients.length !== 2) {
+    // length === 0 is the pre-init state (before the startup effect seeds a
+    // pair); don't treat it as a structural edit, or defaulting to Taste Lab
+    // would immediately bounce us back to Classic on first mount.
+    if (isTasteLab && selectedIngredients.length !== 2 && selectedIngredients.length !== 0) {
       setIsTasteLab(false);
     }
   }, [isTasteLab, selectedIngredients.length, setIsTasteLab]);
 
-  // Initialize with random ingredients and run intro animation
+  // Seed once on mount. In Taste Lab, start from a single random pair of
+  // distinct tastes (no intro shuffle) so each visit opens on a fresh contrast
+  // rather than always salty + sweet — then find a pairing that fits it.
   useEffect(() => {
-    if (selectedIngredients.length === 0) {
-      const initial = getRandomIngredients(2);
-      setSelectedIngredients(initial);
+    if (selectedIngredients.length !== 0) return;
+    if (isTasteLab) {
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const shuffled = [...TASTE_KEYS].sort(() => Math.random() - 0.5);
+        const t0 = shuffled[0];
+        const t1 = shuffled[1];
+        const slots = [
+          { mode: 'taste' as const, taste: t0, category: slotTastes[0].category },
+          { mode: 'taste' as const, taste: t1, category: slotTastes[1].category },
+        ];
+        const pair = computeTasteLabPair(slots, {});
+        if (pair.length === 2) {
+          setSlotTaste(0, { mode: 'taste', taste: t0 });
+          setSlotTaste(1, { mode: 'taste', taste: t1 });
+          setSelectedIngredients(pair);
+          return;
+        }
+      }
     }
+    // Classic, or no taste combo landed a pairing: fall back to random.
+    setSelectedIngredients(getRandomIngredients(2));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Show the onboarding wizard on a user's first visit (desktop/web only).
@@ -659,32 +681,6 @@ export default function FlavorFinderV2() {
       // Ignore storage access errors
     }
   };
-
-  // Intro animation - a brief shuffle so the app feels alive without delaying interaction
-  useEffect(() => {
-    if (introAnimationComplete || selectedIngredients.length === 0) return;
-
-    let generationCount = 0;
-    const maxGenerations = 3;
-    const intervalMs = 180;
-
-    const intervalId = setInterval(() => {
-      generationCount++;
-
-      // Generate new random ingredients (using current target of 2)
-      const newIngredients = getRandomIngredients(2, []);
-      if (newIngredients.length === 2) {
-        setSelectedIngredients(newIngredients);
-      }
-
-      if (generationCount >= maxGenerations) {
-        clearInterval(intervalId);
-        setIntroAnimationComplete(true);
-      }
-    }, intervalMs);
-
-    return () => clearInterval(intervalId);
-  }, [selectedIngredients.length > 0, introAnimationComplete]);
 
   // Stop pulsing on first interaction
   useEffect(() => {
