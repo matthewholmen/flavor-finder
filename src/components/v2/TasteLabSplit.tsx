@@ -299,9 +299,10 @@ const SplitHalf = ({
   };
 
   const pickIngredient = (value: string) => {
-    // Suggested picks already fit the slot and pair with the others, so swap in
-    // place (like cycling) — keep the slot's taste/category rather than relabel.
-    onPickIngredient(value);
+    // A search pick is a deliberate choice, so relabel the slot to the new
+    // ingredient's actual taste/category (fromSearch=true) — e.g. picking
+    // tabasco from a Sour slot retags it Spicy. (Cycling keeps the slot's note.)
+    onPickIngredient(value, true);
     setSearchOpen(false);
   };
 
