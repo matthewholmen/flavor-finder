@@ -847,8 +847,24 @@ export default function FlavorFinderV2() {
     setLockedIngredients(newLockedSet);
   };
 
-  // Wrap handleIngredientSelect to clear search term
+  // Wrap handleIngredientSelect to clear search term. In Taste Lab, the global
+  // search starts a fresh pairing from scratch: the chosen ingredient becomes
+  // one slot and we generate a random compatible partner for the other (for
+  // now), replacing whatever was there.
   const handleIngredientSelect = (ingredient: string) => {
+    if (isTasteLab) {
+      saveToHistory();
+      const combo = computeTasteLabCombo(slotTastes.slice(0, 2), { 0: ingredient }, new Set([1]));
+      const pair = combo.length === 2 ? combo : [ingredient];
+      setLockedIngredients(new Set());
+      setLockedConstraints(new Set());
+      setTargetIngredientCount(2);
+      setSelectedIngredients(pair);
+      pair.forEach((ing, i) => relabelSlotToIngredient(i, ing));
+      setSearchTerm('');
+      setIsDrawerOpen(false);
+      return;
+    }
     baseHandleIngredientSelect(ingredient);
     setSearchTerm('');
   };
