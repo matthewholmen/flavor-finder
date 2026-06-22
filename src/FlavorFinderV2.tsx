@@ -633,15 +633,24 @@ export default function FlavorFinderV2() {
     }
   };
 
-  // Per-slot search: the user hand-picks any ingredient for one slot — it need
-  // not be a recommended pair. The slot relabels to match the pick. Other slots
-  // it already pairs with (and any pinned ones) stay put; the rest reroll to fit
-  // the new pick (constraint-locked slots stay within their constraint, the
-  // others go free and relabel).
-  const handleSlotIngredientPick = (slotIndex: number, ingredient: string) => {
+  // Picking an ingredient for a slot. Two paths:
+  //  • Cycling (swipe / chevron / wheel) walks the slot's candidate list, which
+  //    is already filtered to this slot's taste/category AND compatible with the
+  //    others — so we keep the slot's label fixed and just swap it in. Cycling
+  //    therefore stays within the same note, regardless of the lock.
+  //  • Search lets you add ANY ingredient, even off-constraint, so the slot
+  //    relabels to match and we reconcile the rest of the combo (below).
+  const handleSlotIngredientPick = (slotIndex: number, ingredient: string, fromSearch = false) => {
     if (!isTasteLab) return;
     if (selectedIngredients[slotIndex] === ingredient) return;
     saveToHistory();
+
+    if (!fromSearch) {
+      const next = [...selectedIngredients];
+      next[slotIndex] = ingredient;
+      setSelectedIngredients(next);
+      return;
+    }
 
     const count = selectedIngredients.length;
     const others = selectedIngredients
@@ -1237,7 +1246,7 @@ export default function FlavorFinderV2() {
       {/* Main content area - scrollable on mobile when drawer is closed */}
       <main className={`
         flex-1 flex flex-col
-        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-24' : 'pb-20') : (isMobile ? 'pb-24' : 'pb-32')}
+        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-24' : 'pb-32')}
         ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
         {/* Taste Lab: full-bleed split view (columns on desktop, rows on mobile) */}

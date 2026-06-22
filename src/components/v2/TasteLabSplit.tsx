@@ -23,7 +23,7 @@ interface TasteLabSplitProps {
   // Per slot: how many partner-compatible matches each taste/category would
   // yield, previewed next to each option in the picker.
   slotOptionCounts?: { taste: Record<string, number>; category: Record<string, number> }[];
-  onSlotIngredientPick: (slotIndex: number, ingredient: string) => void;
+  onSlotIngredientPick: (slotIndex: number, ingredient: string, fromSearch?: boolean) => void;
   // Every selectable ingredient with a dominant-taste border color — the pool
   // the per-slot search browses (not limited to partner-compatible matches).
   searchPool: { name: string; color: string }[];
@@ -131,7 +131,7 @@ const SplitHalf = ({
   isLocked: boolean;
   isConstraintLocked: boolean;
   onChange: (patch: Partial<SlotTaste>) => void;
-  onPickIngredient: (ingredient: string) => void;
+  onPickIngredient: (ingredient: string, fromSearch?: boolean) => void;
   onLockToggle: () => void;
   onConstraintLockToggle: () => void;
   // How many slots are showing (2–4) — drives the ingredient font size so it
@@ -297,7 +297,7 @@ const SplitHalf = ({
   };
 
   const pickIngredient = (value: string) => {
-    onPickIngredient(value);
+    onPickIngredient(value, true);
     setSearchOpen(false);
   };
 
@@ -628,7 +628,7 @@ export const TasteLabSplit = ({
               isLocked={lockedIndices.has(i)}
               isConstraintLocked={constraintLockedIndices.has(i)}
               onChange={(patch) => onSlotTasteChange(i, patch)}
-              onPickIngredient={(ing) => onSlotIngredientPick(i, ing)}
+              onPickIngredient={(ing, fromSearch) => onSlotIngredientPick(i, ing, fromSearch)}
               onLockToggle={() => onLockToggle(i)}
               onConstraintLockToggle={() => onConstraintLockToggle(i)}
               slotCount={count}
