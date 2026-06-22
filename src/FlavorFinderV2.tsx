@@ -1341,6 +1341,9 @@ export default function FlavorFinderV2() {
         onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
         onClose={() => setIsDrawerOpen(false)}
         onOpen={() => setIsDrawerOpen(true)}
+        // In Taste Lab the bottom search stays inline (no drawer takeover) and a
+        // pick starts a fresh pairing.
+        isTasteLab={isTasteLab}
         onUndo={handleUndo}
         canUndo={canUndo}
         searchTerm={searchTerm}
