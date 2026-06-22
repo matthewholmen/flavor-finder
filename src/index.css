@@ -81,6 +81,17 @@ body.modal-open {
   }
 }
 
+/* Taste Lab: a candidate sliding in when you cycle (chevron / wheel). The new
+   name eases in from the side you're moving toward, for a tactile "reel" feel. */
+@keyframes cycleInFromRight {
+  from { opacity: 0; transform: translateX(26px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes cycleInFromLeft {
+  from { opacity: 0; transform: translateX(-26px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 @keyframes toastIn {
   from {
     opacity: 0;

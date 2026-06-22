@@ -59,10 +59,14 @@ export interface SlotTaste {
   category: CategoryKey;
 }
 
-// Default to a classic contrast (salty + sweet → e.g. anchovy + plum).
+// Up to four slots (Taste Lab runs 2–4). The first two default to a classic
+// contrast (salty + sweet → e.g. anchovy + plum); slots 3–4 seed sensible
+// extra notes and are only used when the user adds ingredients.
 const DEFAULT_SLOTS: SlotTaste[] = [
   { mode: 'taste', taste: 'salty', category: 'Proteins' },
   { mode: 'taste', taste: 'sweet', category: 'Fruits' },
+  { mode: 'taste', taste: 'sour', category: 'Vegetables' },
+  { mode: 'taste', taste: 'umami', category: 'Seasonings' },
 ];
 
 interface UseTasteLabReturn {
