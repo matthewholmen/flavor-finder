@@ -166,20 +166,22 @@ const SplitHalf = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [pickerOpen, searchOpen]);
 
-  // Focus the search field as soon as the browser opens.
+  // Reset the query when the panel closes. We intentionally do NOT auto-focus
+  // the field on open — let the user tap it to raise the keyboard.
   useEffect(() => {
-    if (searchOpen) searchInputRef.current?.focus();
-    else setQuery('');
+    if (!searchOpen) setQuery('');
   }, [searchOpen]);
 
   const matchCount = candidates.length;
-  // The search browses every selectable ingredient (not just partner-compatible
-  // ones), so you can add anything; the count badge still reflects true matches.
+  // Suggested only: the search lists the slot's candidates — ingredients that
+  // fit this slot's taste/category AND pair with the others — filtered by query.
   const compatibleSet = useMemo(() => new Set(candidates), [candidates]);
   const filteredPool = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q ? searchPool.filter(item => item.name.toLowerCase().includes(q)) : searchPool;
-  }, [searchPool, query]);
+    return searchPool.filter(
+      item => compatibleSet.has(item.name) && (!q || item.name.toLowerCase().includes(q))
+    );
+  }, [searchPool, compatibleSet, query]);
 
   // Cycle through this slot's candidates — the same list the search browses, so
   // each step lands on a known-good pick that fits the slot AND pairs with the
@@ -297,7 +299,9 @@ const SplitHalf = ({
   };
 
   const pickIngredient = (value: string) => {
-    onPickIngredient(value, true);
+    // Suggested picks already fit the slot and pair with the others, so swap in
+    // place (like cycling) — keep the slot's taste/category rather than relabel.
+    onPickIngredient(value);
     setSearchOpen(false);
   };
 
@@ -534,28 +538,24 @@ const SplitHalf = ({
           <div role="listbox" className="flex-1 overflow-y-auto p-4">
             {filteredPool.length === 0 ? (
               <div className="px-1 py-3 text-base font-medium text-gray-500 dark:text-gray-400">
-                No ingredients found
+                No matches
               </div>
             ) : (
               <div className="flex flex-wrap gap-1.5 md:gap-2">
                 {filteredPool.map(({ name, color }) => {
                   const border = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
                   const selected = name === ingredient;
-                  // Recommended pairings get a solid border; everything else a
-                  // dashed one (same convention as the default tray's partials).
-                  const compatible = compatibleSet.has(name);
                   return (
                     <button
                       key={name}
                       role="option"
                       aria-selected={selected}
-                      title={compatible ? 'Recommended pairing' : 'Not a known pairing — picking rerolls the partner'}
                       onClick={() => pickIngredient(name)}
                       className={`inline-flex items-center px-4 py-2 rounded-full text-base transition-all capitalize ${
                         selected ? 'text-white' : 'text-gray-900 dark:text-white'
                       }`}
                       style={{
-                        border: `3px ${compatible ? 'solid' : 'dashed'} ${border}`,
+                        border: `3px solid ${border}`,
                         backgroundColor: selected ? border : 'transparent',
                       }}
                       onMouseEnter={e => {
