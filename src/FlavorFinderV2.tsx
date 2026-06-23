@@ -1286,7 +1286,7 @@ export default function FlavorFinderV2() {
       {/* Main content area - scrollable on mobile when drawer is closed */}
       <main className={`
         flex-1 flex flex-col
-        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-24' : 'pb-32')}
+        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(7rem_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-24' : 'pb-32')}
         ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
         {/* Taste Lab: full-bleed split view (columns on desktop, rows on mobile) */}

@@ -695,7 +695,10 @@ export const TasteLabSplit = ({
         return (
           <div
             key={i}
-            className="relative min-w-0 min-h-0 overflow-hidden"
+            // No overflow-hidden: the taste/category dropdown must be able to
+            // extend past this cell (over the neighbouring one) instead of being
+            // clipped. The search overlay is inset-0, so it stays within anyway.
+            className="relative min-w-0 min-h-0"
             style={spanFull ? { gridColumn: '1 / -1' } : undefined}
           >
             <SplitHalf
