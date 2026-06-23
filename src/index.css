@@ -6,6 +6,15 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Full-height app shell. Both declarations live in one rule so the dvh value
+   always wins where supported — using Tailwind's min-h-screen + min-h-[100dvh]
+   utilities can't guarantee order, and min-h-screen (100vh) overriding dvh
+   breaks the layout on iOS Safari, where 100vh is the larger viewport. */
+.app-min-h {
+  min-height: 100vh; /* fallback for browsers without dvh */
+  min-height: 100dvh;
+}
+
 /* Custom cursor for the whole app */
 body {
   cursor: default;

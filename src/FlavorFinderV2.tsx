@@ -1207,7 +1207,7 @@ export default function FlavorFinderV2() {
   }, [searchTerm, allIngredients, selectedIngredients, flavorMap, activeCategory, selectedSubcategories, activeSliders, tasteValues, dietaryRestrictions, showPartialMatches]);
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-white dark:bg-gray-900 flex flex-col transition-colors duration-300">
+    <div className="app-min-h bg-white dark:bg-gray-900 flex flex-col transition-colors duration-300">
       {/* "No matching ingredient" toast */}
       {noMatchToast && (
         <div
