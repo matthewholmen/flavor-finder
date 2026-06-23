@@ -14,19 +14,31 @@ import {
   SlotTaste,
 } from '../../hooks/useTasteLab.ts';
 
+// One row in the search pool: an ingredient with its border color, category,
+// and the tastes it clears the threshold on (for tag re-filtering).
+export interface SearchPoolItem {
+  name: string;
+  color: string;
+  category: string;
+  tastes: string[];
+}
+
 interface TasteLabSplitProps {
   slotTastes: SlotTaste[];
   onSlotTasteChange: (slotIndex: number, patch: Partial<SlotTaste>) => void;
   // Per slot: the ingredients that fit the slot AND pair with the other slot's
   // current pick. Length is the meaningful match count; the list is searchable.
   slotCandidates?: string[][];
+  // Per slot: ingredients that pair with the OTHER selections, NOT filtered by
+  // this slot's taste/category — the pool the search shows when its tag is off.
+  slotPartnerCandidates?: string[][];
   // Per slot: how many partner-compatible matches each taste/category would
   // yield, previewed next to each option in the picker.
   slotOptionCounts?: { taste: Record<string, number>; category: Record<string, number> }[];
   onSlotIngredientPick: (slotIndex: number, ingredient: string, fromSearch?: boolean) => void;
-  // Every selectable ingredient with a dominant-taste border color — the pool
-  // the per-slot search browses (not limited to partner-compatible matches).
-  searchPool: { name: string; color: string }[];
+  // Every selectable ingredient with a dominant-taste border color, its category,
+  // and the tastes it clears the threshold on — lets the search re-filter by tag.
+  searchPool: SearchPoolItem[];
   ingredients: string[];
   lockedIndices: Set<number>;
   onLockToggle: (index: number) => void;
@@ -110,6 +122,7 @@ const SplitHalf = ({
   slot,
   ingredient,
   candidates,
+  partnerCandidates,
   searchPool,
   optionCounts,
   isLocked,
@@ -126,7 +139,8 @@ const SplitHalf = ({
   slot: SlotTaste;
   ingredient?: string;
   candidates: string[];
-  searchPool: { name: string; color: string }[];
+  partnerCandidates: string[];
+  searchPool: SearchPoolItem[];
   optionCounts?: { taste: Record<string, number>; category: Record<string, number> };
   isLocked: boolean;
   isConstraintLocked: boolean;
@@ -166,22 +180,50 @@ const SplitHalf = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [pickerOpen, searchOpen]);
 
-  // Reset the query when the panel closes. We intentionally do NOT auto-focus
-  // the field on open — let the user tap it to raise the keyboard.
+  // The search's active tag filter — a taste or category, or null for "All"
+  // (every ingredient that pairs with the others). Defaults to the slot's own
+  // taste/category each time the panel opens; doesn't touch the slot itself.
+  const [searchFilter, setSearchFilter] = useState<{ mode: SlotMode; value: string } | null>(null);
   useEffect(() => {
-    if (!searchOpen) setQuery('');
+    if (searchOpen) {
+      setSearchFilter({ mode: slot.mode, value: slot.mode === 'category' ? slot.category : slot.taste });
+    } else {
+      setQuery('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchOpen]);
 
   const matchCount = candidates.length;
-  // Suggested only: the search lists the slot's candidates — ingredients that
-  // fit this slot's taste/category AND pair with the others — filtered by query.
-  const compatibleSet = useMemo(() => new Set(candidates), [candidates]);
+  // The search browses everything that pairs with the other ingredients; the
+  // active tag (if any) narrows it to a taste/category, and the query narrows by
+  // name. Turn the tag off to see all compatible pairings.
+  const partnerSet = useMemo(() => new Set(partnerCandidates), [partnerCandidates]);
   const filteredPool = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return searchPool.filter(
-      item => compatibleSet.has(item.name) && (!q || item.name.toLowerCase().includes(q))
+    return searchPool.filter(item => {
+      if (!partnerSet.has(item.name)) return false;
+      if (q && !item.name.toLowerCase().includes(q)) return false;
+      if (searchFilter) {
+        if (searchFilter.mode === 'category') return item.category === searchFilter.value;
+        return item.tastes.includes(searchFilter.value);
+      }
+      return true;
+    });
+  }, [searchPool, partnerSet, query, searchFilter]);
+
+  // Tag options shown in the search: the 7 tastes then the 8 categories.
+  const tagOptions = useMemo(
+    () => [
+      ...TASTE_KEYS.map(t => ({ mode: 'taste' as SlotMode, value: t as string, color: TASTE_COLORS[t as TasteKey] })),
+      ...CATEGORY_KEYS.map(c => ({ mode: 'category' as SlotMode, value: c as string, color: CATEGORY_COLORS[c as CategoryKey] })),
+    ],
+    []
+  );
+  const toggleTag = (opt: { mode: SlotMode; value: string }) => {
+    setSearchFilter(prev =>
+      prev && prev.mode === opt.mode && prev.value === opt.value ? null : { mode: opt.mode, value: opt.value }
     );
-  }, [searchPool, compatibleSet, query]);
+  };
 
   // Cycle through this slot's candidates — the same list the search browses, so
   // each step lands on a known-good pick that fits the slot AND pairs with the
@@ -536,6 +578,41 @@ const SplitHalf = ({
             </button>
           </div>
 
+          {/* Filter tags — defaults to the slot's taste/category. Tap the active
+              one (or "All") to drop the filter and see every compatible pairing;
+              tap another to filter by it. Doesn't change the slot itself. */}
+          <div className="flex items-center gap-1.5 px-4 py-2.5 shrink-0 overflow-x-auto scrollbar-hide border-b border-gray-200 dark:border-gray-800">
+            <button
+              onClick={() => setSearchFilter(null)}
+              className="shrink-0 px-3 py-1.5 rounded-full text-sm font-bold capitalize transition-colors border-2"
+              style={
+                !searchFilter
+                  ? { backgroundColor: '#6b7280', borderColor: '#6b7280', color: '#ffffff' }
+                  : { borderColor: 'transparent', color: 'inherit' }
+              }
+            >
+              All
+            </button>
+            {tagOptions.map(opt => {
+              const active = !!searchFilter && searchFilter.mode === opt.mode && searchFilter.value === opt.value;
+              const c = getIngredientColorWithContrast(opt.color, isHighContrast, isDarkMode);
+              return (
+                <button
+                  key={`${opt.mode}-${opt.value}`}
+                  onClick={() => toggleTag(opt)}
+                  className="shrink-0 inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold capitalize transition-colors border-2 text-gray-700 dark:text-gray-200"
+                  style={{
+                    borderColor: c,
+                    backgroundColor: active ? c : 'transparent',
+                    color: active ? '#ffffff' : undefined,
+                  }}
+                >
+                  {opt.value}
+                </button>
+              );
+            })}
+          </div>
+
           <div role="listbox" className="flex-1 overflow-y-auto p-4">
             {filteredPool.length === 0 ? (
               <div className="px-1 py-3 text-base font-medium text-gray-500 dark:text-gray-400">
@@ -586,6 +663,7 @@ export const TasteLabSplit = ({
   slotTastes,
   onSlotTasteChange,
   slotCandidates = [],
+  slotPartnerCandidates = [],
   slotOptionCounts = [],
   onSlotIngredientPick,
   searchPool,
@@ -624,6 +702,7 @@ export const TasteLabSplit = ({
               slot={slotTastes[i]}
               ingredient={ingredients[i]}
               candidates={slotCandidates[i] ?? []}
+              partnerCandidates={slotPartnerCandidates[i] ?? []}
               searchPool={searchPool}
               optionCounts={slotOptionCounts[i]}
               isLocked={lockedIndices.has(i)}

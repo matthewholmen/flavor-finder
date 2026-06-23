@@ -562,26 +562,50 @@ export default function FlavorFinderV2() {
   );
 
   // Every selectable ingredient (dietary-allowed), with a border color keyed to
-  // its dominant taste — the pool the Taste Lab slot search browses. Unlike the
-  // per-slot candidates, this is NOT filtered to partner-compatible: the search
-  // lets you add anything, and an incompatible pick rerolls the partner.
+  // its dominant taste, plus its category and the tastes it clears the threshold
+  // on — enough for the per-slot search to re-filter by any taste/category tag.
   const tasteLabSearchPool = useMemo(() => {
-    const dominantColor = (name: string): string => {
-      const profile = profileByName.get(name.toLowerCase());
-      if (!profile) return '#9ca3af';
-      let dom: string | null = null;
-      let max = -1;
-      Object.entries(profile.flavorProfile as Record<string, number>).forEach(([t, v]) => {
-        if (v > max) { max = v; dom = t; }
-      });
-      return max > 0 && dom ? ((TASTE_COLORS as any)[dom] ?? '#9ca3af') : '#9ca3af';
-    };
     return Array.from(flavorMap.keys())
       .filter(ing => !isIngredientRestricted(ing))
       .sort((a, b) => a.localeCompare(b))
-      .map(name => ({ name, color: dominantColor(name) }));
+      .map(name => {
+        const profile = profileByName.get(name.toLowerCase());
+        const fp = (profile?.flavorProfile ?? {}) as Record<string, number>;
+        let dom: string | null = null;
+        let max = -1;
+        const tastes: string[] = [];
+        TASTE_KEYS.forEach(t => {
+          const v = fp[t] ?? 0;
+          if (v > max) { max = v; dom = t; }
+          if (v >= TASTE_THRESHOLD) tastes.push(t);
+        });
+        const color = max > 0 && dom ? ((TASTE_COLORS as any)[dom] ?? '#9ca3af') : '#9ca3af';
+        return { name, color, category: profile?.category ?? '', tastes };
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flavorMap, dietaryRestrictions, profileByName]);
+
+  // Per slot: every ingredient that pairs with all the OTHER selections, NOT
+  // filtered by this slot's taste/category. The search browses this pool so the
+  // user can drop the taste/category filter and see all compatible pairings.
+  const slotPartnerCandidates = useMemo(
+    () =>
+      slotTastes.slice(0, selectedIngredients.length).map((_slot, slotIndex) => {
+        const others = selectedIngredients.filter((ing, j) => j !== slotIndex && !!ing);
+        if (others.length === 0) {
+          return Array.from(flavorMap.keys()).filter(ing => !isIngredientRestricted(ing));
+        }
+        const sets = others.map(o => flavorMap.get(o) ?? new Set<string>());
+        return Array.from(sets[0]).filter(
+          ing =>
+            !isIngredientRestricted(ing) &&
+            !others.includes(ing) &&
+            sets.slice(1).every(s => s.has(ing))
+        );
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName]
+  );
 
   // Changing a slot's constraint (its mode, taste, or category) rerolls just
   // that side, keeping the other ingredient anchored. Each change is a discrete,
@@ -1271,6 +1295,7 @@ export default function FlavorFinderV2() {
             slotTastes={slotTastes}
             onSlotTasteChange={handleSlotTasteChange}
             slotCandidates={slotCandidates}
+            slotPartnerCandidates={slotPartnerCandidates}
             slotOptionCounts={slotOptionCounts}
             onSlotIngredientPick={handleSlotIngredientPick}
             searchPool={tasteLabSearchPool}
