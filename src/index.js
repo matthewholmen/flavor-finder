@@ -12,6 +12,18 @@ root.render(
 
 // Register service worker for PWA functionality
 if ('serviceWorker' in navigator) {
+  // Was a service worker already controlling this page when it loaded? If so, a
+  // later controllerchange means a NEW worker took over (an update) — reload once
+  // so the page picks up the fresh assets. On a first-ever install there's no
+  // prior controller, so we skip that gratuitous reload.
+  const hadController = !!navigator.serviceWorker.controller;
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing || !hadController) return;
+    refreshing = true;
+    window.location.reload();
+  });
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {

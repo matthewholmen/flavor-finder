@@ -1,1 +1,70 @@
-const CACHE_NAME = 'flavor-finder-v1';\nconst urlsToCache = [\n  '/',\n  '/static/js/bundle.js',\n  '/static/css/main.css',\n  '/manifest.json',\n  '/flavor-finder-1.png'\n];\n\n// Install event\nself.addEventListener('install', (event) => {\n  event.waitUntil(\n    caches.open(CACHE_NAME)\n      .then((cache) => {\n        return cache.addAll(urlsToCache);\n      })\n      .catch((error) => {\n        console.error('Failed to cache during install:', error);\n      })\n  );\n});\n\n// Fetch event\nself.addEventListener('fetch', (event) => {\n  event.respondWith(\n    caches.match(event.request)\n      .then((response) => {\n        // Return cached version or fetch from network\n        return response || fetch(event.request).catch(() => {\n          // If both cache and network fail, return a basic offline page\n          if (event.request.destination === 'document') {\n            return caches.match('/');\n          }\n        });\n      })\n  );\n});\n\n// Activate event\nself.addEventListener('activate', (event) => {\n  event.waitUntil(\n    caches.keys().then((cacheNames) => {\n      return Promise.all(\n        cacheNames.map((cacheName) => {\n          if (cacheName !== CACHE_NAME) {\n            return caches.delete(cacheName);\n          }\n        })\n      );\n    })\n  );\n});\n\n// Background sync for saving combinations\nself.addEventListener('sync', (event) => {\n  if (event.tag === 'save-combination') {\n    event.waitUntil(\n      // Handle offline saving if needed\n      console.log('Background sync: save-combination')\n    );\n  }\n});"
+// Bump this version whenever the caching strategy changes — the activate step
+// deletes every cache that isn't the current name, purging stale assets.
+const CACHE_NAME = 'flavor-finder-v2';
+
+// Only the app shell is precached. Hashed /static/* assets are cached on demand
+// (they're immutable, so their URL changes on every deploy).
+const PRECACHE_URLS = ['/'];
+
+self.addEventListener('install', (event) => {
+  // Take over from the previous service worker right away instead of waiting
+  // for every open tab to close — critical for shipping a fix to stale clients.
+  self.skipWaiting();
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .catch((error) => console.error('Precache failed:', error))
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      const names = await caches.keys();
+      await Promise.all(names.map((name) => (name === CACHE_NAME ? null : caches.delete(name))));
+      // Start controlling already-open pages so the network-first logic below
+      // applies on the next navigation without a manual hard refresh.
+      await self.clients.claim();
+    })()
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  const isNavigation = request.mode === 'navigate' || request.destination === 'document';
+
+  if (isNavigation) {
+    // Network-first for the HTML document: a fresh deploy ships a new index.html
+    // pointing at new hashed bundles, so we must reach the network when online.
+    // Fall back to the cached shell only when offline.
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/')))
+    );
+    return;
+  }
+
+  // Everything else (hashed JS/CSS, images): cache-first for speed, populating
+  // the cache from the network on a miss. Hashed URLs make this safe.
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request).then((response) => {
+        if (response && response.status === 200 && url.origin === self.location.origin) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      });
+    })
+  );
+});
