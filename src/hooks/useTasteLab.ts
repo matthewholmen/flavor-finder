@@ -47,11 +47,12 @@ export const CATEGORY_KEYS: CategoryKey[] = [
 // preference in the solver does the heavy lifting of keeping pairings crisp.
 export const TASTE_THRESHOLD = 5;
 
-// How a Taste Lab slot constrains its ingredient. A slot is either hunting for a
-// dominant `taste` (e.g. salty → anchovy) or for membership in a `category`
-// (e.g. Fruits → plum). `mode` picks which constraint is live; the other value
-// is remembered so toggling back and forth keeps the user's last choice.
-export type SlotMode = 'taste' | 'category';
+// How a Taste Lab slot constrains its ingredient. A slot hunts for a dominant
+// `taste` (e.g. salty → anchovy), for membership in a `category` (e.g. Fruits →
+// plum), or is `wild` — no constraint at all, accepting any compatible
+// ingredient so you can shuffle freely. `mode` picks which is live; the taste
+// and category values are remembered so toggling back keeps the last choice.
+export type SlotMode = 'taste' | 'category' | 'wild';
 
 export interface SlotTaste {
   mode: SlotMode;

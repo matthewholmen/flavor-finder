@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Plus, Trash2, ArrowLeft, Wand2, ChevronDown } from 'lucide-react';
-import { TASTE_COLORS, CATEGORY_COLORS } from '../../utils/colors.ts';
+import { TASTE_COLORS, CATEGORY_COLORS, WILD_COLOR } from '../../utils/colors.ts';
 import {
   TASTE_KEYS,
   CATEGORY_KEYS,
@@ -58,6 +58,7 @@ const mixHex = (hex: string, target: string, amount: number): string => {
 // The color + label a slot contributes — its taste tint in taste mode, its
 // category tint in category mode.
 const slotSwatch = (slot: SlotTaste) => {
+  if (slot.mode === 'wild') return { color: WILD_COLOR, label: 'wild' };
   if (slot.mode === 'category') {
     return { color: CATEGORY_COLORS[slot.category] ?? '#999', label: slot.category };
   }
@@ -146,6 +147,7 @@ const SlotEditor = ({
   const pillBg = mixHex(color, fg, fg === '#ffffff' ? 0.22 : 0.12);
   const strongBg = mixHex(color, fg, fg === '#ffffff' ? 0.34 : 0.22);
   const isCategory = slot.mode === 'category';
+  const isWild = slot.mode === 'wild';
 
   const options: { value: string; color: string }[] = isCategory
     ? CATEGORY_KEYS.map(c => ({ value: c, color: CATEGORY_COLORS[c] }))
@@ -170,31 +172,41 @@ const SlotEditor = ({
       )}
 
       <div className="flex flex-col items-center gap-2.5 px-4 py-5">
-        {/* Value hero — tap to open the picker */}
-        <button
-          onClick={() => setOpen(o => !o)}
-          className="flex items-center gap-1.5"
-          style={{ color: fg }}
-          aria-haspopup="listbox"
-          aria-expanded={open}
-        >
-          <span className="text-2xl font-black capitalize tracking-tight">{label}</span>
-          <ChevronDown
-            size={18}
-            strokeWidth={2.75}
-            style={{ opacity: 0.75, transform: open ? 'rotate(180deg)' : undefined }}
-          />
-        </button>
+        {/* Value hero — tap to open the picker. A wild slot has no value to pick,
+            so it's a plain label, no chevron. */}
+        {isWild ? (
+          <span className="text-2xl font-black capitalize tracking-tight" style={{ color: fg }}>
+            {label}
+          </span>
+        ) : (
+          <button
+            onClick={() => setOpen(o => !o)}
+            className="flex items-center gap-1.5"
+            style={{ color: fg }}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+          >
+            <span className="text-2xl font-black capitalize tracking-tight">{label}</span>
+            <ChevronDown
+              size={18}
+              strokeWidth={2.75}
+              style={{ opacity: 0.75, transform: open ? 'rotate(180deg)' : undefined }}
+            />
+          </button>
+        )}
 
-        {/* Compact Taste | Category toggle */}
+        {/* Compact Taste | Category | Wild toggle */}
         <div className="flex p-0.5 rounded-full" style={{ backgroundColor: strongBg }}>
-          {(['taste', 'category'] as SlotMode[]).map(mode => {
+          {(['taste', 'category', 'wild'] as SlotMode[]).map(mode => {
             const active = slot.mode === mode;
             return (
               <button
                 key={mode}
-                onClick={() => onChange({ mode })}
-                className="px-3.5 py-1 rounded-full text-xs font-bold capitalize transition-all"
+                onClick={() => {
+                  onChange({ mode });
+                  if (mode === 'wild') setOpen(false);
+                }}
+                className="px-3 py-1 rounded-full text-xs font-bold capitalize transition-all"
                 style={{ color: fg, opacity: active ? 1 : 0.6, backgroundColor: active ? pillBg : 'transparent' }}
               >
                 {mode}
@@ -206,7 +218,7 @@ const SlotEditor = ({
 
       {/* Inline value picker — a toned panel within the tile (no clipping, no
           separate surface) listing the options for the active mode. */}
-      {open && (
+      {open && !isWild && (
         <div className="px-2 pb-2">
           <div
             className="rounded-xl p-1.5 max-h-44 overflow-y-auto grid grid-cols-2 gap-0.5"

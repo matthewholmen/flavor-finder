@@ -3,6 +3,7 @@ import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, X } fro
 import {
   TASTE_COLORS,
   CATEGORY_COLORS,
+  WILD_COLOR,
   getIngredientColorWithContrast,
 } from '../../utils/colors.ts';
 import {
@@ -314,7 +315,12 @@ const SplitHalf = ({
   };
 
   const isCategory = slot.mode === 'category';
-  const baseColor = isCategory ? CATEGORY_COLORS[slot.category] : TASTE_COLORS[slot.taste];
+  const isWild = slot.mode === 'wild';
+  const baseColor = isWild
+    ? WILD_COLOR
+    : isCategory
+    ? CATEGORY_COLORS[slot.category]
+    : TASTE_COLORS[slot.taste];
   const bg = getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode);
   const fg = contrastText(bg);
   // Opaque "toned" surfaces: the slot color nudged toward the text color, so
@@ -323,7 +329,7 @@ const SplitHalf = ({
   const strongBg = mixHex(bg, fg, fg === '#ffffff' ? 0.32 : 0.2);
 
   // The picker's current label and the options it offers depend on the mode.
-  const currentLabel = isCategory ? slot.category : slot.taste;
+  const currentLabel = isWild ? 'wild' : isCategory ? slot.category : slot.taste;
   const options: { value: string; color: string; count: number }[] = isCategory
     ? CATEGORY_KEYS.map(c => ({ value: c, color: CATEGORY_COLORS[c], count: optionCounts?.category[c] ?? 0 }))
     : TASTE_KEYS.map(t => ({ value: t, color: TASTE_COLORS[t as TasteKey], count: optionCounts?.taste[t] ?? 0 }));
@@ -477,14 +483,14 @@ const SplitHalf = ({
               }`}
               style={{ backgroundColor: pillBg, maxHeight: pickerPlacement.maxHeight }}
             >
-              {/* Mode toggle: Taste | Category */}
+              {/* Mode toggle: Taste | Category | Wild */}
               <div
                 className="flex p-0.5 mb-1 rounded-full shrink-0"
                 style={{ backgroundColor: strongBg }}
                 role="tablist"
                 aria-label="Constrain by"
               >
-                {(['taste', 'category'] as SlotMode[]).map(mode => {
+                {(['taste', 'category', 'wild'] as SlotMode[]).map(mode => {
                   const active = slot.mode === mode;
                   return (
                     <button
@@ -492,7 +498,7 @@ const SplitHalf = ({
                       role="tab"
                       aria-selected={active}
                       onClick={() => switchMode(mode)}
-                      className="flex-1 px-3 py-1 rounded-full text-xs font-bold capitalize transition-all"
+                      className="flex-1 px-2 py-1 rounded-full text-xs font-bold capitalize transition-all"
                       style={{ color: fg, opacity: active ? 1 : 0.55, backgroundColor: active ? pillBg : 'transparent' }}
                     >
                       {mode}
@@ -501,7 +507,13 @@ const SplitHalf = ({
                 })}
               </div>
 
-              {/* Options — content tracks the active mode */}
+              {/* Options — content tracks the active mode. Wild has none: it
+                  accepts any ingredient, so we just say so. */}
+              {isWild ? (
+                <div className="px-3 py-2 text-xs font-medium" style={{ color: fg, opacity: 0.8 }}>
+                  No constraint — any ingredient that pairs.
+                </div>
+              ) : (
               <div role="listbox" className="flex flex-col gap-0.5 overflow-y-auto">
                 {options.map(({ value, color, count }) => {
                   const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
@@ -525,6 +537,7 @@ const SplitHalf = ({
                   );
                 })}
               </div>
+              )}
             </div>
           )}
         </div>
@@ -676,10 +689,10 @@ export const TasteLabSplit = ({
   isDarkMode = false,
   isHighContrast = false,
 }: TasteLabSplitProps) => {
-  // 2–4 ingredients. Mobile is always a single stacked column. Desktop is a
-  // 2×2 grid: 2 → side-by-side, 3 → two on top and a full-width third below,
+  // 1–4 ingredients. Mobile is always a single stacked column. Desktop: 1 → one
+  // full cell, 2 → side-by-side, 3 → two on top and a full-width third below,
   // 4 → an even 2×2.
-  const count = Math.min(Math.max(ingredients.length, 2), 4);
+  const count = Math.min(Math.max(ingredients.length, 1), 4);
 
   const gridStyle: React.CSSProperties = isMobile
     ? { display: 'grid', gridTemplateColumns: '1fr', gridTemplateRows: `repeat(${count}, 1fr)` }

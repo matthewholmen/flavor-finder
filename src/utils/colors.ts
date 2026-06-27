@@ -8,6 +8,10 @@ export const TASTE_COLORS = {
     aromatic: '#9B8AD6'
   };
 
+// Neutral tint for a "wild" slot — no taste/category constraint. Reads as a
+// quiet gray so it's visibly distinct from any taste or category color.
+export const WILD_COLOR = '#9aa3b2';
+
 // One accent color per top-level category — used by Taste Lab's category mode to
 // tint a slot the way TASTE_COLORS tints a taste. Kept earthier/muted so a
 // category-constrained slot reads distinctly from a taste-constrained one.

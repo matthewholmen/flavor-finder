@@ -76,7 +76,7 @@ export default function FlavorFinderV2() {
   } = useIngredientSelection({ initialTargetCount: 2 });
 
   // Taste Lab supports 2–4 ingredients.
-  const TASTE_LAB_MIN = 2;
+  const TASTE_LAB_MIN = 1;
   const TASTE_LAB_MAX = 4;
 
   const {
@@ -433,6 +433,7 @@ export default function FlavorFinderV2() {
     const qualifies = (ing: string, idx: number) => {
       if (freeSlots.has(idx)) return true;
       const slot = slots[idx];
+      if (slot.mode === 'wild') return true; // no constraint — any ingredient
       return slot.mode === 'category'
         ? categoryFor(ing) === slot.category
         : tasteScore(ing, slot.taste) >= TASTE_THRESHOLD;
@@ -445,7 +446,7 @@ export default function FlavorFinderV2() {
       return Array.from(flavorMap.keys()).filter(ing =>
         !isIngredientRestricted(ing) &&
         qualifies(ing, idx) &&
-        (!requireDominant || freeSlots.has(idx) || slot.mode === 'category' || isDominant(ing, slot.taste))
+        (!requireDominant || freeSlots.has(idx) || slot.mode === 'category' || slot.mode === 'wild' || isDominant(ing, slot.taste))
       );
     };
 
@@ -513,6 +514,7 @@ export default function FlavorFinderV2() {
         const others = selectedIngredients.filter((ing, j) => j !== slotIndex && !!ing);
         const meetsSlot = (ing: string) => {
           if (isIngredientRestricted(ing)) return false;
+          if (slot.mode === 'wild') return true; // no constraint — any ingredient
           const profile = profileByName.get(ing.toLowerCase());
           if (slot.mode === 'category') return profile?.category === slot.category;
           const fp = profile?.flavorProfile as any;
@@ -647,6 +649,8 @@ export default function FlavorFinderV2() {
   // it (its dominant note, or its category in category mode), so labels stay
   // truthful after a free Generate or a manual pick.
   const relabelSlotToIngredient = (index: number, ing: string) => {
+    // A wild slot has no constraint to describe — leave it wild.
+    if (slotTastes[index].mode === 'wild') return;
     const profile = profileByName.get(ing.toLowerCase());
     if (!profile) return;
     if (slotTastes[index].mode === 'category') {
