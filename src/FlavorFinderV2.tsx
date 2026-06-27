@@ -9,6 +9,8 @@ import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.t
 import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
 import { TasteLabSplit } from './components/v2/TasteLabSplit.tsx';
+import { PresetGallery } from './components/v2/PresetGallery.tsx';
+import { FlavorPreset } from './data/flavorPresets.ts';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
@@ -16,6 +18,7 @@ import { useCompatibility } from './hooks/useCompatibility.ts';
 import { useTasteLab, TASTE_KEYS, TASTE_THRESHOLD, TasteKey, CategoryKey, SlotTaste } from './hooks/useTasteLab.ts';
 import { useTheme } from './contexts/ThemeContext.tsx';
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
+import { useCustomPresets } from './hooks/useCustomPresets.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { buildFlavorMap, ALL_SOURCES } from './utils/flavorMap.ts';
 import { PairingSource } from './data/pairingMeta.ts';
@@ -103,6 +106,8 @@ export default function FlavorFinderV2() {
     deleteCombination,
   } = useSavedCombinations();
 
+  const { customPresets, addCustomPreset, deleteCustomPreset } = useCustomPresets();
+
   // Taste Lab: two-slot, taste-driven generation mode
   const {
     isTasteLab,
@@ -129,6 +134,7 @@ export default function FlavorFinderV2() {
   // UI state (not extracted to hooks as they're specific to this component)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isPresetGalleryOpen, setIsPresetGalleryOpen] = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [isIngredientFiltersOpen, setIsIngredientFiltersOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -729,6 +735,45 @@ export default function FlavorFinderV2() {
       const combo = getTasteLabCombo(2, { ignoreLocks: true });
       if (combo.length === 2) setSelectedIngredients(combo);
     }
+  };
+
+  // Load a Flavor Preset: push its slot constraints into Taste Lab, then
+  // generate a fresh combo that fits them. The preset is the DNA (tastes /
+  // categories), not fixed ingredients — Generate keeps producing new combos
+  // for it. "Wide open" by default (no constraint locks) so it stays explorable.
+  const handleLoadPreset = (preset: FlavorPreset) => {
+    const slots = preset.slots;
+    const count = Math.min(Math.max(slots.length, TASTE_LAB_MIN), TASTE_LAB_MAX);
+
+    setIsTasteLab(true);
+    saveToHistory();
+
+    // Push each slot's constraint into the hook (state update is async, so we
+    // also keep `slots` locally for the immediate generate below).
+    slots.forEach((s, i) =>
+      setSlotTaste(i, { mode: s.mode, taste: s.taste, category: s.category })
+    );
+
+    setLockedIngredients(new Set());
+    // Lock every slot's constraint by default so Generate rerolls *within* the
+    // preset's DNA (new sweet+salty pairs, not a drift to all-sweet) — the
+    // palette-generator feel. A preset can opt out with an explicit list.
+    const lockedDefault = Array.from({ length: count }, (_, i) => i);
+    setLockedConstraints(new Set(preset.lockedConstraints ?? lockedDefault));
+    setTargetIngredientCount(count);
+
+    // A few attempts — a tight 4-slot preset can miss on an unlucky shuffle.
+    let combo: string[] = [];
+    for (let attempt = 0; attempt < 12 && combo.length < count; attempt++) {
+      combo = computeTasteLabCombo(slots.slice(0, count), {});
+    }
+
+    if (combo.length === count) {
+      setSelectedIngredients(combo);
+    } else {
+      setNoMatchToast(true);
+    }
+    setIsPresetGalleryOpen(false);
   };
 
   // Taste Lab supports 2–4 slots, each slot's taste governing the ingredient at
@@ -1420,6 +1465,10 @@ export default function FlavorFinderV2() {
         enabledSources={enabledSources}
         onToggleSource={handleToggleSource}
         onOpenIngredientFilters={() => setIsIngredientFiltersOpen(true)}
+        onOpenPresets={() => {
+          setIsSidebarOpen(false);
+          setIsPresetGalleryOpen(true);
+        }}
         onStartTour={() => {
           setIsSidebarOpen(false);
           setIsWizardOpen(true);
@@ -1436,6 +1485,16 @@ export default function FlavorFinderV2() {
         dietaryRestrictions={dietaryRestrictions}
         onDietaryChange={setDietaryRestrictions}
         ingredientProfiles={ingredientProfiles}
+      />
+
+      {/* Flavor Presets gallery */}
+      <PresetGallery
+        isOpen={isPresetGalleryOpen}
+        onClose={() => setIsPresetGalleryOpen(false)}
+        onSelect={handleLoadPreset}
+        customPresets={customPresets}
+        onSaveCustom={addCustomPreset}
+        onDeleteCustom={deleteCustomPreset}
       />
 
       {/* Onboarding Wizard */}

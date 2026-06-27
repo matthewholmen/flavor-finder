@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Compass, Sparkles, Keyboard, Layers } from 'lucide-react';
+import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Compass, Sparkles, Keyboard, Layers, LayoutGrid } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 
@@ -296,6 +296,7 @@ export const Sidebar = ({
   enabledSources = ['flavorbible', 'recipenlg', 'flavordb'],
   onToggleSource = () => {},
   onOpenIngredientFilters = () => {},
+  onOpenPresets = () => {},
   onStartTour = () => {},
   savedCombinations = [],
   onLoadCombination = () => {},
@@ -366,6 +367,18 @@ export const Sidebar = ({
               Mix and match ingredients that taste great together, then jump
               straight to recipes for your combination.
             </p>
+
+            {/* Flavor Presets — the "discover" entry into Taste Lab */}
+            <button
+              onClick={onOpenPresets}
+              className="w-full flex items-center justify-between py-3 px-4 text-left border-y border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold text-base">
+                <LayoutGrid size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />
+                Flavor Presets
+              </span>
+              <ChevronRight size={20} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
+            </button>
 
             {/* Saved Combinations */}
             <CollapsibleSection
