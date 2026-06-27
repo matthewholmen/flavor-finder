@@ -58,6 +58,10 @@ export interface SlotTaste {
   mode: SlotMode;
   taste: TasteKey;
   category: CategoryKey;
+  // Categories to carve OUT of this slot's pool, regardless of mode — e.g. a
+  // `sweet` slot excluding `Fruits` yields caramelized onion, not strawberry.
+  // Empty/undefined means no exclusions.
+  exclude?: CategoryKey[];
 }
 
 // Up to four slots (Taste Lab runs 2–4). The first two default to a classic

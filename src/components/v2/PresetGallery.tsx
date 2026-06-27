@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, ArrowLeft, Wand2, ChevronDown } from 'lucide-react';
 import { TASTE_COLORS, CATEGORY_COLORS, WILD_COLOR } from '../../utils/colors.ts';
 import {
@@ -140,6 +140,7 @@ const SlotEditor = ({
   onRemove: () => void;
 }) => {
   const [open, setOpen] = useState(false);
+  const [excludeOpen, setExcludeOpen] = useState(false);
   const { color, label } = slotSwatch(slot);
   const fg = contrastText(color);
   // Toned surfaces nudged toward the text color, so controls read as a tint of
@@ -157,6 +158,13 @@ const SlotEditor = ({
     onChange(isCategory ? { category: value as CategoryKey } : { taste: value as TasteKey });
     setOpen(false);
   };
+
+  // Exclude carves categories out of the slot's pool. Pointless on a category
+  // slot (already one category), so it's only offered for taste & wild.
+  const excluded = slot.exclude ?? [];
+  const canExclude = !isCategory;
+  const toggleExclude = (c: CategoryKey) =>
+    onChange({ exclude: excluded.includes(c) ? excluded.filter(x => x !== c) : [...excluded, c] });
 
   return (
     <div className="relative rounded-2xl overflow-hidden" style={{ backgroundColor: color }}>
@@ -180,7 +188,7 @@ const SlotEditor = ({
           </span>
         ) : (
           <button
-            onClick={() => setOpen(o => !o)}
+            onClick={() => { setOpen(o => !o); setExcludeOpen(false); }}
             className="flex items-center gap-1.5"
             style={{ color: fg }}
             aria-haspopup="listbox"
@@ -214,6 +222,23 @@ const SlotEditor = ({
             );
           })}
         </div>
+
+        {/* Exclude — carve categories out of this slot's pool */}
+        {canExclude && (
+          <button
+            onClick={() => { setExcludeOpen(o => !o); setOpen(false); }}
+            className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide"
+            style={{ color: fg, opacity: 0.8 }}
+            aria-expanded={excludeOpen}
+          >
+            {excluded.length ? `Excluding ${excluded.length}` : 'Exclude…'}
+            <ChevronDown
+              size={13}
+              strokeWidth={2.75}
+              style={{ transform: excludeOpen ? 'rotate(180deg)' : undefined }}
+            />
+          </button>
+        )}
       </div>
 
       {/* Inline value picker — a toned panel within the tile (no clipping, no
@@ -238,6 +263,32 @@ const SlotEditor = ({
                 >
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dot }} />
                   <span className="capitalize truncate">{value}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Inline exclude panel — tap a category to carve it out of the slot */}
+      {excludeOpen && canExclude && (
+        <div className="px-2 pb-2">
+          <div className="rounded-xl p-1.5 flex flex-wrap gap-1" style={{ backgroundColor: pillBg }}>
+            {CATEGORY_KEYS.map(c => {
+              const on = excluded.includes(c as CategoryKey);
+              return (
+                <button
+                  key={c}
+                  onClick={() => toggleExclude(c as CategoryKey)}
+                  className="px-2.5 py-1 rounded-lg text-xs font-semibold capitalize transition-colors"
+                  style={{
+                    color: fg,
+                    opacity: on ? 1 : 0.7,
+                    backgroundColor: on ? strongBg : 'transparent',
+                    textDecoration: on ? 'line-through' : 'none',
+                  }}
+                >
+                  {c}
                 </button>
               );
             })}
@@ -363,6 +414,11 @@ export const PresetGallery = ({
   onDeleteCustom,
 }: PresetGalleryProps) => {
   const [view, setView] = useState<'gallery' | 'create'>('gallery');
+
+  // Always reopen on the gallery, never mid-build.
+  useEffect(() => {
+    if (!isOpen) setView('gallery');
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

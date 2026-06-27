@@ -16,21 +16,29 @@ export interface FlavorPreset {
   // Slot indices whose constraint is pinned on load (Generate stays within them).
   // Omitted / empty = "wide open", every slot free to reroll its taste/category.
   lockedConstraints?: number[];
+  // Themed presets constrain EVERY slot to a curated whitelist of ingredients
+  // (e.g. a pizza pantry). Slots still apply their own taste/category on top, so
+  // "pizza · cheese" picks within the pizza pool. Omitted = the full library.
+  pool?: string[];
 }
 
 // Slot builders. A slot always carries BOTH a taste and a category so toggling
 // its mode in the UI remembers the other side; `mode` picks which is live. These
 // defaults are just the "other" value a user lands on if they flip the toggle.
-const taste = (taste: TasteKey, category: CategoryKey = 'Pantry'): SlotTaste => ({
+const taste = (taste: TasteKey, category: CategoryKey = 'Pantry', exclude?: CategoryKey[]): SlotTaste => ({
   mode: 'taste',
   taste,
   category,
+  ...(exclude ? { exclude } : {}),
 });
 const cat = (category: CategoryKey, taste: TasteKey = 'umami'): SlotTaste => ({
   mode: 'category',
   taste,
   category,
 });
+// A wild slot — no taste/category constraint. The remembered taste/category are
+// arbitrary defaults for if the user toggles it off wild.
+const wild = (): SlotTaste => ({ mode: 'wild', taste: 'umami', category: 'Vegetables' });
 
 // Human-friendly labels for the tier section headers in the gallery.
 export const TIER_LABELS: Record<PresetTier, string> = {
@@ -39,6 +47,43 @@ export const TIER_LABELS: Record<PresetTier, string> = {
   structural: 'Structural templates',
   themed: 'Themed pools',
 };
+
+// Curated ingredient pools for themed presets. Each is a cross-category whitelist
+// of real library ingredients; the solver finds a mutually-compatible subset.
+const PIZZA_POOL = [
+  'mozzarella', 'parmesan', 'pecorino', 'ricotta', 'gorgonzola', 'fontina', 'provolone',
+  'tomato', 'tomato paste', 'sun-dried tomato', 'basil', 'oregano', 'chili flake',
+  'garlic', 'onion', 'red onion', 'bell pepper', 'mushroom', 'cremini', 'portobello',
+  'prosciutto', 'pancetta', 'sausage', 'salami', 'nduja', 'olive oil', 'black olive',
+  'arugula', 'roasted red pepper', 'anchovy', 'capers',
+];
+const TACO_POOL = [
+  'tomato', 'tomatillo', 'onion', 'red onion', 'cilantro', 'lime', 'avocado', 'guacamole',
+  'jalapeño', 'serrano pepper', 'poblano', 'chipotle', 'ancho chili', 'cumin', 'coriander',
+  'garlic', 'corn', 'black beans', 'pinto beans', 'queso fresco', 'cotija', 'crema',
+  'beef', 'pork', 'chicken', 'chorizo', 'shrimp', 'red cabbage', 'radish', 'scallion',
+  'achiote', 'oregano',
+];
+const CHEESE_BOARD_POOL = [
+  'brie', 'camembert', 'cheddar', 'gruyère', 'manchego', 'gorgonzola', 'blue cheese',
+  'stilton cheese', 'roquefort', 'goat cheese', 'chèvre', 'parmesan', 'fig', 'dried fig',
+  'date', 'honey', 'walnut', 'almond', 'pecan', 'grape', 'quince', 'apricot',
+  'dried apricot', 'prosciutto', 'salami', 'mortadella', 'cornichon', 'mostarda',
+  'sourdough', 'pear', 'apple',
+];
+const STIR_FRY_POOL = [
+  'soy sauce', 'tamari', 'oyster sauce', 'hoisin', 'sesame oil', 'ginger', 'garlic',
+  'scallion', 'chili oil', 'chili crisp', 'shiitake', 'bok choy', 'napa cabbage',
+  'snap pea', 'bell pepper', 'carrot', 'broccoli', 'broccolini', 'tofu', 'tempeh',
+  'beef', 'chicken', 'pork', 'shrimp', 'rice', 'noodles', 'sriracha', 'sambal oelek',
+  'gochujang', 'five-spice', 'shaoxing wine', 'edamame',
+];
+const MEZZE_POOL = [
+  'feta', 'halloumi', 'olive oil', 'black olive', 'green olive', 'lemon', 'garlic',
+  'chickpea', 'hummus', 'tahini', 'cucumber', 'tomato', 'parsley', 'mint', 'dill',
+  'oregano', "za'atar", 'sumac', 'eggplant', 'yogurt', 'labneh', 'pomegranate',
+  'pine nut', 'lamb', 'harissa', 'preserved lemon', 'red onion', 'bell pepper',
+];
 
 export const FLAVOR_PRESETS: FlavorPreset[] = [
   // ── Classic contrasts: two tastes playing off each other ──────────────────
@@ -139,6 +184,55 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
     description: 'Spirit, fruit, and an aromatic twist.',
     tier: 'structural',
     slots: [cat('Alcohol'), cat('Fruits'), cat('Seasonings')],
+  },
+  {
+    id: 'savory-sweet',
+    name: 'Savory Sweet',
+    description: 'Sweetness without the fruit — caramelized onion, roots, squash.',
+    tier: 'structural',
+    slots: [taste('sweet', 'Vegetables', ['Fruits']), taste('salty', 'Proteins')],
+  },
+
+  // ── Themed pools: every slot is drawn from a curated ingredient set ────────
+  {
+    id: 'pizza-night',
+    name: 'Pizza Night',
+    description: 'Cheese, a topping, and a herb — all from the pizza pantry.',
+    tier: 'themed',
+    slots: [cat('Dairy'), wild(), cat('Seasonings')],
+    pool: PIZZA_POOL,
+  },
+  {
+    id: 'taco-bar',
+    name: 'Taco Bar',
+    description: 'Protein, vegetable, and heat from the taqueria.',
+    tier: 'themed',
+    slots: [cat('Proteins'), cat('Vegetables'), taste('spicy', 'Seasonings')],
+    pool: TACO_POOL,
+  },
+  {
+    id: 'cheese-board',
+    name: 'Cheese Board',
+    description: 'A cheese, something sweet, and an accompaniment.',
+    tier: 'themed',
+    slots: [cat('Dairy'), taste('sweet', 'Fruits'), wild()],
+    pool: CHEESE_BOARD_POOL,
+  },
+  {
+    id: 'stir-fry',
+    name: 'Stir-Fry',
+    description: 'Protein, vegetable, and an umami sauce from the wok.',
+    tier: 'themed',
+    slots: [cat('Proteins'), cat('Vegetables'), taste('umami', 'Pantry')],
+    pool: STIR_FRY_POOL,
+  },
+  {
+    id: 'mezze',
+    name: 'Mediterranean Mezze',
+    description: 'A cheese, a vegetable, and a bright herb.',
+    tier: 'themed',
+    slots: [cat('Dairy'), cat('Vegetables'), taste('aromatic', 'Seasonings')],
+    pool: MEZZE_POOL,
   },
 ];
 
