@@ -50,12 +50,24 @@ export const TIER_LABELS: Record<PresetTier, string> = {
 
 // Curated ingredient pools for themed presets. Each is a cross-category whitelist
 // of real library ingredients; the solver finds a mutually-compatible subset.
+
+// Every cheese in the library — a big pool gives the solver more nodes/edges so
+// a themed preset doesn't feel one-note.
+const ALL_CHEESES = [
+  'asiago', 'blue cheese', 'brie', 'burrata', 'cheddar', 'chèvre', 'colby', 'swiss cheese',
+  'feta', 'fontina', 'goat cheese', 'gorgonzola', 'gouda', 'gruyère', 'havarti',
+  'monterey jack', 'manchego', 'mascarpone', 'mozzarella', 'muenster', 'parmesan',
+  'pecorino', 'provolone', 'queso fresco', 'ricotta', 'romano', 'taleggio', 'roquefort',
+  'stilton cheese', 'halloumi', 'paneer', 'cotija', 'ricotta salata', 'cottage cheese',
+  'camembert',
+];
+
 const PIZZA_POOL = [
-  'mozzarella', 'parmesan', 'pecorino', 'ricotta', 'gorgonzola', 'fontina', 'provolone',
-  'tomato', 'tomato paste', 'sun-dried tomato', 'basil', 'oregano', 'chili flake',
+  ...ALL_CHEESES,
+  'tomato', 'tomato paste', 'sun-dried tomato', 'basil', 'oregano', 'chili flake', 'pesto',
   'garlic', 'onion', 'red onion', 'bell pepper', 'mushroom', 'cremini', 'portobello',
-  'prosciutto', 'pancetta', 'sausage', 'salami', 'nduja', 'olive oil', 'black olive',
-  'arugula', 'roasted red pepper', 'anchovy', 'capers',
+  'prosciutto', 'pancetta', 'sausage', 'salami', 'nduja', 'ham', 'olive oil', 'black olive',
+  'arugula', 'roasted red pepper', 'anchovy', 'capers', 'artichoke', 'spinach', 'jalapeño',
 ];
 const TACO_POOL = [
   'tomato', 'tomatillo', 'onion', 'red onion', 'cilantro', 'lime', 'avocado', 'guacamole',

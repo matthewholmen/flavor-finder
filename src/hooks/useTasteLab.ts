@@ -58,11 +58,28 @@ export interface SlotTaste {
   mode: SlotMode;
   taste: TasteKey;
   category: CategoryKey;
+  // In category mode, optionally narrow to a single subcategory (e.g. Dairy →
+  // Cheese). Undefined = the whole category. This narrows the pool; it never
+  // affects the flavor-map pairing requirement.
+  subcategory?: string;
   // Categories to carve OUT of this slot's pool, regardless of mode — e.g. a
   // `sweet` slot excluding `Fruits` yields caramelized onion, not strawberry.
   // Empty/undefined means no exclusions.
   exclude?: CategoryKey[];
 }
+
+// The subcategories available within each top-level category, used to narrow a
+// category-mode slot. Strings must match `ingredientProfiles[].subcategory`.
+export const SUBCATEGORIES: Record<CategoryKey, string[]> = {
+  Proteins: ['Meat', 'Poultry', 'Seafood', 'Plant Proteins'],
+  Vegetables: ['Allium', 'Leafy Greens', 'Roots', 'Squash', 'Brassicas', 'Mushrooms', 'Stalks', 'Fruit Vegetables'],
+  Fruits: ['Citrus', 'Stone Fruit', 'Tropical', 'Berries', 'Pome Fruit', 'Melons'],
+  Dairy: ['Cheese', 'Cultured', 'Milk & Cream'],
+  Seasonings: ['Herbs', 'Spices', 'Chilis'],
+  Pantry: ['Oils & Fats', 'Vinegars', 'Stocks', 'Sauces', 'Sweeteners'],
+  Grains: ['Rice', 'Pasta', 'Bread', 'Ancient Grains'],
+  Alcohol: ['Wine', 'Spirits', 'Liqueurs'],
+};
 
 // Up to four slots (Taste Lab runs 2–4). The first two default to a classic
 // contrast (salty + sweet → e.g. anchovy + plum); slots 3–4 seed sensible

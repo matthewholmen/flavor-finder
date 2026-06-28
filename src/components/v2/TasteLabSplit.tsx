@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, SlidersHorizontal, X } from 'lucide-react';
 import {
   TASTE_COLORS,
   CATEGORY_COLORS,
@@ -9,6 +9,7 @@ import {
 import {
   TASTE_KEYS,
   CATEGORY_KEYS,
+  SUBCATEGORIES,
   TasteKey,
   CategoryKey,
   SlotMode,
@@ -329,13 +330,14 @@ const SplitHalf = ({
   const strongBg = mixHex(bg, fg, fg === '#ffffff' ? 0.32 : 0.2);
 
   // The picker's current label and the options it offers depend on the mode.
-  const currentLabel = isWild ? 'wild' : isCategory ? slot.category : slot.taste;
+  const currentLabel = isWild ? 'wild' : isCategory ? (slot.subcategory || slot.category) : slot.taste;
   const options: { value: string; color: string; count: number }[] = isCategory
     ? CATEGORY_KEYS.map(c => ({ value: c, color: CATEGORY_COLORS[c], count: optionCounts?.category[c] ?? 0 }))
     : TASTE_KEYS.map(t => ({ value: t, color: TASTE_COLORS[t as TasteKey], count: optionCounts?.taste[t] ?? 0 }));
 
   const selectOption = (value: string) => {
-    onChange(isCategory ? { category: value as CategoryKey } : { taste: value as TasteKey });
+    // Changing the category drops any subcategory narrow (subcats are per-category).
+    onChange(isCategory ? { category: value as CategoryKey, subcategory: undefined } : { taste: value as TasteKey });
     setPickerOpen(false);
   };
 
@@ -345,6 +347,19 @@ const SplitHalf = ({
     if (mode === slot.mode) return;
     onChange({ mode });
   };
+
+  // Secondary per-slot filters, editable in the picker: exclude categories
+  // (taste/wild slots) and narrow to a subcategory (category slots). Both only
+  // shrink the pool — the flavor-map pairing is never relaxed.
+  const excluded = slot.exclude ?? [];
+  const subcategories = SUBCATEGORIES[slot.category] ?? [];
+  const toggleExclude = (c: CategoryKey) =>
+    onChange({ exclude: excluded.includes(c) ? excluded.filter(x => x !== c) : [...excluded, c] });
+  const pickSubcategory = (sub?: string) => onChange({ subcategory: sub });
+  // A reminder is shown when a secondary filter is active.
+  const reminder = isCategory
+    ? (slot.subcategory ? `${slot.subcategory} only` : null)
+    : (excluded.length ? `no ${excluded.join(', ')}` : null);
 
   const pickIngredient = (value: string) => {
     // A search pick is a deliberate choice, so relabel the slot to the new
@@ -431,7 +446,23 @@ const SplitHalf = ({
 
       {/* Controls — pinned to the bottom of the cell, one quiet line, so the
           ingredient owns the center. */}
-      <div className="absolute left-0 right-0 bottom-4 flex items-center justify-center gap-2 px-6">
+      <div className="absolute left-0 right-0 bottom-4 flex flex-col items-center gap-1.5 px-6">
+
+        {/* Secondary-filter reminder — visible when this slot excludes a category
+            or is narrowed to a subcategory. Tap to edit it in the picker. */}
+        {reminder && (
+          <button
+            onClick={() => { setPickerOpen(true); setSearchOpen(false); }}
+            className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize max-w-full"
+            style={{ color: fg, backgroundColor: pillBg }}
+            title="Edit this slot's filters"
+          >
+            <SlidersHorizontal size={11} strokeWidth={2.5} style={{ opacity: 0.8 }} className="shrink-0" />
+            <span className="truncate">{reminder}</span>
+          </button>
+        )}
+
+        <div className="flex items-center justify-center gap-2">
 
         {/* Constraint lock — when on, Generate keeps this taste/category and only
             rerolls the ingredient within it; when off, Generate randomizes it. */}
@@ -507,37 +538,95 @@ const SplitHalf = ({
                 })}
               </div>
 
-              {/* Options — content tracks the active mode. Wild has none: it
-                  accepts any ingredient, so we just say so. */}
-              {isWild ? (
-                <div className="px-3 py-2 text-xs font-medium" style={{ color: fg, opacity: 0.8 }}>
-                  No constraint — any ingredient that pairs.
+              {/* Scrollable body: the options for the active mode, then the
+                  secondary-filter editor — narrow (category) or exclude (else).
+                  Both only shrink the pool; pairing is never relaxed. */}
+              <div className="overflow-y-auto">
+                {isWild ? (
+                  <div className="px-3 py-2 text-xs font-medium" style={{ color: fg, opacity: 0.8 }}>
+                    No constraint — any ingredient that pairs.
+                  </div>
+                ) : (
+                <div role="listbox" className="flex flex-col gap-0.5">
+                  {options.map(({ value, color, count }) => {
+                    const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
+                    const selected = value === currentLabel;
+                    const highlighted = selected || hovered === value;
+                    return (
+                      <button
+                        key={value}
+                        role="option"
+                        aria-selected={selected}
+                        onMouseEnter={() => setHovered(value)}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => selectOption(value)}
+                        className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
+                        style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
+                        <span className="flex-1 capitalize">{value}</span>
+                        <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-              ) : (
-              <div role="listbox" className="flex flex-col gap-0.5 overflow-y-auto">
-                {options.map(({ value, color, count }) => {
-                  const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
-                  const selected = value === currentLabel;
-                  const highlighted = selected || hovered === value;
-                  return (
-                    <button
-                      key={value}
-                      role="option"
-                      aria-selected={selected}
-                      onMouseEnter={() => setHovered(value)}
-                      onMouseLeave={() => setHovered(null)}
-                      onClick={() => selectOption(value)}
-                      className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
-                      style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
-                    >
-                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
-                      <span className="flex-1 capitalize">{value}</span>
-                      <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
-                    </button>
-                  );
-                })}
+                )}
+
+                {/* Narrow (category mode) — restrict to one subcategory */}
+                {isCategory && (
+                  <div className="mt-1 pt-1" style={{ borderTop: `1px solid ${strongBg}` }}>
+                    <div className="px-2 pt-0.5 pb-1 text-[10px] font-bold uppercase tracking-wide" style={{ color: fg, opacity: 0.55 }}>
+                      Narrow to
+                    </div>
+                    <div className="flex flex-wrap gap-1 px-1.5 pb-1">
+                      <button
+                        onClick={() => pickSubcategory(undefined)}
+                        className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
+                        style={{ color: fg, backgroundColor: !slot.subcategory ? strongBg : 'transparent', opacity: !slot.subcategory ? 1 : 0.7 }}
+                      >
+                        Any
+                      </button>
+                      {subcategories.map(sub => {
+                        const on = slot.subcategory === sub;
+                        return (
+                          <button
+                            key={sub}
+                            onClick={() => pickSubcategory(sub)}
+                            className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
+                            style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7 }}
+                          >
+                            {sub}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Exclude (taste / wild mode) — carve categories out of the pool */}
+                {!isCategory && (
+                  <div className="mt-1 pt-1" style={{ borderTop: `1px solid ${strongBg}` }}>
+                    <div className="px-2 pt-0.5 pb-1 text-[10px] font-bold uppercase tracking-wide" style={{ color: fg, opacity: 0.55 }}>
+                      Exclude
+                    </div>
+                    <div className="flex flex-wrap gap-1 px-1.5 pb-1">
+                      {CATEGORY_KEYS.map(c => {
+                        const on = excluded.includes(c as CategoryKey);
+                        return (
+                          <button
+                            key={c}
+                            onClick={() => toggleExclude(c as CategoryKey)}
+                            className="px-2 py-0.5 rounded-lg text-xs font-semibold capitalize transition-colors"
+                            style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7, textDecoration: on ? 'line-through' : 'none' }}
+                          >
+                            {c}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
-              )}
             </div>
           )}
         </div>
@@ -560,6 +649,7 @@ const SplitHalf = ({
           <Search size={13} strokeWidth={2.5} style={{ opacity: 0.7 }} />
           {matchCount}
         </button>
+        </div>
       </div>
 
       {/* Search panel — fills this half like the default ingredient tray: a

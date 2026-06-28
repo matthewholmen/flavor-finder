@@ -432,6 +432,7 @@ export default function FlavorFinderV2() {
     const profileFor = (ing: string) => profileByName.get(ing.toLowerCase())?.flavorProfile as any;
     const tasteScore = (ing: string, taste: string) => profileFor(ing)?.[taste] ?? 0;
     const categoryFor = (ing: string) => profileByName.get(ing.toLowerCase())?.category;
+    const subcategoryFor = (ing: string) => profileByName.get(ing.toLowerCase())?.subcategory;
     const poolSet = poolOverride ? new Set(poolOverride.map(s => s.toLowerCase())) : null;
 
     // Is `taste` this ingredient's (tied) strongest note?
@@ -455,9 +456,11 @@ export default function FlavorFinderV2() {
       }
       if (freeSlots.has(idx)) return true;
       if (slot.mode === 'wild') return true; // no constraint — any ingredient
-      return slot.mode === 'category'
-        ? categoryFor(ing) === slot.category
-        : tasteScore(ing, slot.taste) >= TASTE_THRESHOLD;
+      if (slot.mode === 'category') {
+        if (categoryFor(ing) !== slot.category) return false;
+        return !slot.subcategory || subcategoryFor(ing) === slot.subcategory;
+      }
+      return tasteScore(ing, slot.taste) >= TASTE_THRESHOLD;
     };
 
     // Candidates for a slot. `requireDominant` only bites on taste slots — a
@@ -540,7 +543,10 @@ export default function FlavorFinderV2() {
           const profile = profileByName.get(ing.toLowerCase());
           if (slot.exclude?.length && profile?.category && slot.exclude.includes(profile.category as CategoryKey)) return false;
           if (slot.mode === 'wild') return true; // no constraint — any ingredient
-          if (slot.mode === 'category') return profile?.category === slot.category;
+          if (slot.mode === 'category') {
+            if (profile?.category !== slot.category) return false;
+            return !slot.subcategory || profile?.subcategory === slot.subcategory;
+          }
           const fp = profile?.flavorProfile as any;
           return fp && (fp[slot.taste] ?? 0) >= TASTE_THRESHOLD;
         };
@@ -687,7 +693,8 @@ export default function FlavorFinderV2() {
     const profile = profileByName.get(ing.toLowerCase());
     if (!profile) return;
     if (slotTastes[index].mode === 'category') {
-      if (profile.category) setSlotTaste(index, { category: profile.category as CategoryKey });
+      // Describe the new ingredient's category; drop any prior subcategory narrow.
+      if (profile.category) setSlotTaste(index, { category: profile.category as CategoryKey, subcategory: undefined });
     } else {
       const fp = profile.flavorProfile as any;
       if (fp) {
@@ -789,7 +796,7 @@ export default function FlavorFinderV2() {
     // Push each slot's constraint into the hook (state update is async, so we
     // also keep `slots` locally for the immediate generate below).
     slots.forEach((s, i) =>
-      setSlotTaste(i, { mode: s.mode, taste: s.taste, category: s.category, exclude: s.exclude })
+      setSlotTaste(i, { mode: s.mode, taste: s.taste, category: s.category, subcategory: s.subcategory, exclude: s.exclude })
     );
 
     // Themed presets confine generation to a pool; others clear any prior pool.
@@ -833,6 +840,7 @@ export default function FlavorFinderV2() {
           m: s.mode,
           t: s.taste,
           c: s.category,
+          ...(s.subcategory ? { sc: s.subcategory } : {}),
           ...(s.exclude?.length ? { x: s.exclude } : {}),
         })),
         i: selectedIngredients.slice(0, count),
@@ -880,7 +888,7 @@ export default function FlavorFinderV2() {
           const count = Math.min(Math.max(d.s.length, TASTE_LAB_MIN), TASTE_LAB_MAX);
           setIsTasteLab(true);
           d.s.slice(0, count).forEach((s: any, i: number) =>
-            setSlotTaste(i, { mode: s.m, taste: s.t, category: s.c, exclude: s.x })
+            setSlotTaste(i, { mode: s.m, taste: s.t, category: s.c, subcategory: s.sc, exclude: s.x })
           );
           setTargetIngredientCount(count);
           setLockedConstraints(new Set<number>(d.lc ?? []));

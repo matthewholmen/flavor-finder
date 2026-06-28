@@ -2,6 +2,14 @@
 
 A React application for discovering compatible flavor pairings between ingredients.
 
+## ⚠️ Core principle — never relax the pairing algorithm
+
+The flavor-map pairing/compatibility algorithm is the entire point of this app. **Never relax, weaken, sidestep, or bypass it** to make a feature work or feel richer. Every generated combination must stay mutually compatible per the flavor map (the `flavorMap` edges; `fitsPlaced` in `computeTasteLabCombo`).
+
+- To add variety, change the **inputs** — bigger ingredient pools, more nodes, subcategory precision, richer pairing data — never the compatibility check.
+- A `wild` slot is allowed: it drops a slot's taste/category filter but still enforces flavor-map pairing. That is not a relaxation.
+- The pairing data/algorithm itself may be deliberately changed or improved when that is the explicit goal — but never avoided as a shortcut.
+
 ## Tech Stack
 
 - **Framework**: React 18 with Create React App

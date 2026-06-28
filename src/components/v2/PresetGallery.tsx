@@ -4,6 +4,7 @@ import { TASTE_COLORS, CATEGORY_COLORS, WILD_COLOR } from '../../utils/colors.ts
 import {
   TASTE_KEYS,
   CATEGORY_KEYS,
+  SUBCATEGORIES,
   TasteKey,
   CategoryKey,
   SlotMode,
@@ -60,7 +61,8 @@ const mixHex = (hex: string, target: string, amount: number): string => {
 const slotSwatch = (slot: SlotTaste) => {
   if (slot.mode === 'wild') return { color: WILD_COLOR, label: 'wild' };
   if (slot.mode === 'category') {
-    return { color: CATEGORY_COLORS[slot.category] ?? '#999', label: slot.category };
+    // A narrowed slot shows its subcategory (e.g. "Cheese") in the category color.
+    return { color: CATEGORY_COLORS[slot.category] ?? '#999', label: slot.subcategory || slot.category };
   }
   return { color: TASTE_COLORS[slot.taste as TasteKey] ?? '#999', label: slot.taste };
 };
@@ -141,6 +143,7 @@ const SlotEditor = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [excludeOpen, setExcludeOpen] = useState(false);
+  const [narrowOpen, setNarrowOpen] = useState(false);
   const { color, label } = slotSwatch(slot);
   const fg = contrastText(color);
   // Toned surfaces nudged toward the text color, so controls read as a tint of
@@ -155,8 +158,16 @@ const SlotEditor = ({
     : TASTE_KEYS.map(t => ({ value: t, color: TASTE_COLORS[t as TasteKey] }));
 
   const pick = (value: string) => {
-    onChange(isCategory ? { category: value as CategoryKey } : { taste: value as TasteKey });
+    // Changing the category drops any subcategory narrow (subcats are per-category).
+    onChange(isCategory ? { category: value as CategoryKey, subcategory: undefined } : { taste: value as TasteKey });
     setOpen(false);
+  };
+
+  // Narrow a category slot to one of its subcategories (or "Any" to clear).
+  const subcategories = isCategory ? SUBCATEGORIES[slot.category] ?? [] : [];
+  const pickSubcategory = (sub?: string) => {
+    onChange({ subcategory: sub });
+    setNarrowOpen(false);
   };
 
   // Exclude carves categories out of the slot's pool. Pointless on a category
@@ -223,6 +234,23 @@ const SlotEditor = ({
           })}
         </div>
 
+        {/* Narrow — restrict a category slot to one subcategory (e.g. Cheese) */}
+        {isCategory && (
+          <button
+            onClick={() => { setNarrowOpen(o => !o); setOpen(false); }}
+            className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide"
+            style={{ color: fg, opacity: 0.8 }}
+            aria-expanded={narrowOpen}
+          >
+            {slot.subcategory ? `Only ${slot.subcategory}` : 'Narrow…'}
+            <ChevronDown
+              size={13}
+              strokeWidth={2.75}
+              style={{ transform: narrowOpen ? 'rotate(180deg)' : undefined }}
+            />
+          </button>
+        )}
+
         {/* Exclude — carve categories out of this slot's pool */}
         {canExclude && (
           <button
@@ -263,6 +291,34 @@ const SlotEditor = ({
                 >
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dot }} />
                   <span className="capitalize truncate">{value}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Inline narrow panel — restrict a category slot to one subcategory */}
+      {narrowOpen && isCategory && (
+        <div className="px-2 pb-2">
+          <div className="rounded-xl p-1.5 flex flex-wrap gap-1" style={{ backgroundColor: pillBg }}>
+            <button
+              onClick={() => pickSubcategory(undefined)}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
+              style={{ color: fg, backgroundColor: !slot.subcategory ? strongBg : 'transparent', opacity: !slot.subcategory ? 1 : 0.7 }}
+            >
+              {`Any ${slot.category}`}
+            </button>
+            {subcategories.map(sub => {
+              const on = slot.subcategory === sub;
+              return (
+                <button
+                  key={sub}
+                  onClick={() => pickSubcategory(sub)}
+                  className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
+                  style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7 }}
+                >
+                  {sub}
                 </button>
               );
             })}
