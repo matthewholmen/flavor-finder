@@ -25,3 +25,37 @@ export const decodeUrlToIngredients = (urlString) => {
     .map(part => decodeURIComponent(part))
     .filter(Boolean); // Remove any empty strings
 };
+
+/**
+ * Encode an arbitrary object to a compact, URL-safe (base64url) string. Used to
+ * deep-link the whole Taste Lab state (slots, picks, locks, pool) in `?lab=`.
+ * Query-param based so it works on any static host (e.g. Vercel) with no
+ * server-side routing.
+ * @param {object} state
+ * @returns {string} base64url string, or '' on failure
+ */
+export const encodeTasteLabState = (state) => {
+  try {
+    const json = JSON.stringify(state);
+    // encodeURIComponent → unescape handles unicode (e.g. "jalapeño") before btoa.
+    const b64 = btoa(unescape(encodeURIComponent(json)));
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * Inverse of encodeTasteLabState.
+ * @param {string} str base64url string from a `?lab=` param
+ * @returns {object|null} the decoded state, or null if malformed
+ */
+export const decodeTasteLabState = (str) => {
+  try {
+    const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(escape(atob(b64)));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+};

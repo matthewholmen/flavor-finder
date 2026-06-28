@@ -1,5 +1,5 @@
-import React from 'react';
-import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles, Share2, Check } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
 export const MinimalHeader = ({
@@ -14,6 +14,7 @@ export const MinimalHeader = ({
   onDecrementTarget,
   onRecipesClick,
   onSaveClick,
+  onShareClick,
   isSaved = false,
   onLogoClick,
   isGeneratePulsing = false,
@@ -21,6 +22,14 @@ export const MinimalHeader = ({
 }) => {
   const { isMobile: isMobileHook, width } = useScreenSize();
   const isMobile = isMobileProp !== undefined ? isMobileProp : isMobileHook;
+
+  // Brief "Copied" confirmation after sharing the deep-link.
+  const [shareCopied, setShareCopied] = useState(false);
+  const handleShare = () => {
+    onShareClick?.();
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  };
 
   // Compact mode for very small screens (< 375px)
   const isCompact = width < 375;
@@ -58,6 +67,26 @@ export const MinimalHeader = ({
 
         {/* Right-side actions */}
         <div className="flex items-center gap-2">
+          {/* Share deep-link */}
+          <button
+            onClick={handleShare}
+            className={`
+              flex items-center justify-center
+              w-10 h-10 rounded-full border-2
+              transition-all duration-200 active:opacity-80
+              ${shareCopied
+                ? 'border-transparent text-green-600 dark:text-green-400'
+                : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
+              }
+            `}
+            title="Copy a shareable link"
+            aria-label={shareCopied ? 'Link copied' : 'Share'}
+          >
+            {shareCopied
+              ? <Check size={18} strokeWidth={2.5} />
+              : <Share2 size={18} strokeWidth={2.5} />}
+          </button>
+
           {/* Save combination */}
           <button
             onClick={onSaveClick}
@@ -213,6 +242,26 @@ export const MinimalHeader = ({
 
       {/* Right-side actions */}
       <div className="flex-1 flex justify-end items-center gap-3">
+        {/* Share deep-link */}
+        <button
+          onClick={handleShare}
+          className={`
+            flex items-center justify-center
+            w-12 h-12 rounded-full border-2
+            transition-all duration-200
+            ${shareCopied
+              ? 'border-transparent text-green-600 dark:text-green-400'
+              : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
+            }
+          `}
+          title="Copy a shareable link"
+          aria-label={shareCopied ? 'Link copied' : 'Share'}
+        >
+          {shareCopied
+            ? <Check size={20} strokeWidth={2.5} />
+            : <Share2 size={20} strokeWidth={2.5} />}
+        </button>
+
         {/* Save combination */}
         <button
           onClick={onSaveClick}

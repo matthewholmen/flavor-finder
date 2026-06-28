@@ -23,6 +23,12 @@ import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { buildFlavorMap, ALL_SOURCES } from './utils/flavorMap.ts';
 import { PairingSource } from './data/pairingMeta.ts';
 import { filterIngredients } from './utils/searchUtils.ts';
+import {
+  encodeTasteLabState,
+  decodeTasteLabState,
+  encodeIngredientsToUrl,
+  decodeUrlToIngredients,
+} from './utils/urlEncoding.js';
 import { TASTE_COLORS } from './utils/colors.ts';
 import {
   NUT_INGREDIENTS_SET,
@@ -812,6 +818,40 @@ export default function FlavorFinderV2() {
     setIsPresetGalleryOpen(false);
   };
 
+  // Build a shareable deep-link for the current state and copy it to the
+  // clipboard. Taste Lab encodes the full DNA (slots + picks + locks + pool) in
+  // `?lab=`; Classic encodes just the ingredients in `?ing=`. Both are query
+  // params, so the link restores on any static host without server routing.
+  const handleShare = () => {
+    const base = `${window.location.origin}${window.location.pathname}`;
+    let url: string;
+    if (isTasteLab) {
+      const count = slotCount;
+      const state = {
+        v: 1,
+        s: slotTastes.slice(0, count).map(s => ({
+          m: s.mode,
+          t: s.taste,
+          c: s.category,
+          ...(s.exclude?.length ? { x: s.exclude } : {}),
+        })),
+        i: selectedIngredients.slice(0, count),
+        lc: Array.from(lockedConstraints),
+        li: Array.from(lockedIngredients),
+        ...(tasteLabPool ? { p: { n: tasteLabPool.name, g: tasteLabPool.ingredients } } : {}),
+      };
+      url = `${base}?lab=${encodeTasteLabState(state)}`;
+    } else {
+      url = `${base}?ing=${encodeIngredientsToUrl(selectedIngredients)}`;
+    }
+    try {
+      navigator.clipboard?.writeText(url);
+    } catch {
+      // Clipboard may be unavailable (e.g. insecure context) — the button's
+      // own "Copied" affordance still fires; sharing just needs HTTPS.
+    }
+  };
+
   // Taste Lab supports 2–4 slots, each slot's taste governing the ingredient at
   // that index. Anything outside that range (e.g. an external edit) drops back
   // to Classic. length === 0 is the pre-init state — ignore it so defaulting to
@@ -828,6 +868,47 @@ export default function FlavorFinderV2() {
   // rather than always salty + sweet — then find a pairing that fits it.
   useEffect(() => {
     if (selectedIngredients.length !== 0) return;
+
+    // Deep-link restore: a `?lab=` or `?ing=` param recreates a shared state and
+    // skips the random seed.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const labParam = params.get('lab');
+      if (labParam) {
+        const d: any = decodeTasteLabState(labParam);
+        if (d?.s?.length) {
+          const count = Math.min(Math.max(d.s.length, TASTE_LAB_MIN), TASTE_LAB_MAX);
+          setIsTasteLab(true);
+          d.s.slice(0, count).forEach((s: any, i: number) =>
+            setSlotTaste(i, { mode: s.m, taste: s.t, category: s.c, exclude: s.x })
+          );
+          setTargetIngredientCount(count);
+          setLockedConstraints(new Set<number>(d.lc ?? []));
+          setLockedIngredients(new Set<number>(d.li ?? []));
+          setTasteLabPool(d.p ? { name: d.p.n, ingredients: d.p.g } : null);
+          if (Array.isArray(d.i) && d.i.length) {
+            setSelectedIngredients(d.i.slice(0, count));
+          } else {
+            const combo = computeTasteLabCombo(d.s.slice(0, count), {}, new Set(), d.p?.g ?? null);
+            if (combo.length === count) setSelectedIngredients(combo);
+          }
+          return;
+        }
+      }
+      const ingParam = params.get('ing');
+      if (ingParam) {
+        const ings = decodeUrlToIngredients(ingParam);
+        if (ings.length) {
+          setIsTasteLab(false);
+          setTargetIngredientCount(ings.length);
+          setSelectedIngredients(ings);
+          return;
+        }
+      }
+    } catch {
+      // Malformed link — fall through to the normal seed.
+    }
+
     if (isTasteLab) {
       for (let attempt = 0; attempt < 12; attempt++) {
         const shuffled = [...TASTE_KEYS].sort(() => Math.random() - 0.5);
@@ -1367,6 +1448,7 @@ export default function FlavorFinderV2() {
         onDecrementTarget={handleDecrementTarget}
         onRecipesClick={handleRecipeSearch}
         onSaveClick={handleSaveToggle}
+        onShareClick={handleShare}
         isSaved={currentSavedId !== null}
         onLogoClick={() => setIsSidebarOpen(true)}
         isGeneratePulsing={isFirstLoad}
