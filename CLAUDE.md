@@ -30,95 +30,59 @@ npm test     # Run tests
 
 ```
 src/
-├── App.tsx                   # Main app with v1/v2 version switching
-├── FlavorFinder.js           # Legacy v1 component
-├── FlavorFinderV2.tsx        # Current main component (default)
+├── App.tsx                   # App shell — renders FlavorFinderV2 inside ThemeProvider
+├── FlavorFinderV2.tsx        # Main component (Classic + Taste Lab modes, generation)
 ├── types.ts                  # Shared TypeScript types
 ├── contexts/
-│   └── ThemeContext.tsx      # Dark mode theme context
+│   └── ThemeContext.tsx      # Dark mode + high-contrast theme context
 ├── components/
-│   ├── v2/                   # V2 UI components
-│   │   ├── MinimalHeader.tsx
-│   │   ├── IngredientDisplay.tsx   # Unified ingredient display (hero + compact)
-│   │   ├── IngredientDrawer.tsx
-│   │   ├── Sidebar.tsx             # Search/filter sidebar panel
-│   │   ├── DietaryFilterPills.tsx
+│   ├── v2/                   # All live UI components
+│   │   ├── MinimalHeader.tsx       # Top header: logo, ±/Generate cluster, Save/Share/Recipes
+│   │   ├── IngredientDisplay.tsx   # Unified ingredient display (hero + compact, mobile swipe rows)
+│   │   ├── IngredientDrawer.tsx    # Search/filter drawer (desktop 3-col, mobile bottom sheet)
+│   │   ├── IngredientFiltersModal.tsx # Dietary/category include-exclude modal
+│   │   ├── Sidebar.tsx             # Mode toggle, generation options, pairing sources, saved combos
+│   │   ├── DietaryFilterPills.tsx  # Active dietary-filter chips
 │   │   ├── RecipeFinderModal.tsx   # "Find recipes" modal (web + curated site search)
-│   │   └── MobileBottomBar.tsx
-│   ├── icons/
-│   │   └── LockIcons.tsx           # Custom lock/unlock SVG icons
-│   ├── mobile/               # Mobile-specific components
-│   │   ├── MobileApp.tsx           # Main mobile app container
-│   │   ├── MobileSearchScreen.tsx
-│   │   ├── MobileDiscoverScreen.tsx
-│   │   ├── MobileSettingsScreen.tsx
-│   │   ├── SavedCombinationsScreen.tsx
-│   │   └── BottomNavigation.tsx
-│   ├── MenuPlanner/          # Menu planning wizard
-│   │   ├── index.tsx               # Main MenuPlanner component
-│   │   ├── WizardInterface.tsx     # Step-by-step wizard UI
-│   │   ├── ProgressSteps.tsx
-│   │   ├── ModeSelector.tsx
-│   │   ├── KeyIngredientSelector.tsx
-│   │   ├── DishConfigSelector.tsx
-│   │   ├── DietaryRestrictions.tsx
-│   │   ├── ReviewAndGenerate.tsx
-│   │   ├── MenuOverview.tsx
-│   │   ├── DishEditor.tsx
-│   │   └── InteractiveBuilder.tsx
-│   ├── filters/
-│   │   └── UnifiedFilterPanel/     # Unified filter panel
-│   │       ├── index.tsx
-│   │       ├── FilterPanel.tsx
-│   │       ├── FilterPanelTrigger.tsx
-│   │       ├── CategorySection.tsx
-│   │       ├── DietarySection.tsx
-│   │       ├── TasteSection.tsx
-│   │       └── types.ts
-│   ├── Alert.tsx
-│   ├── SearchBar.tsx
-│   ├── SearchIngredientsButton.tsx
-│   ├── IngredientSlot.tsx
-│   ├── IngredientEditDialog.tsx
-│   ├── SelectedIngredients.tsx
-│   ├── SuggestedIngredients.tsx
-│   ├── EnhancedTasteAnalysis.tsx
-│   ├── TasteAnalysisModal.tsx
-│   ├── CompactTasteSliders.tsx
-│   ├── SortingFilter.tsx
-│   ├── SettingsModal.tsx
-│   ├── ShareButton.jsx
-│   ├── Notification.jsx
-│   ├── ModeToggle.jsx
-│   ├── InfoTooltip.js
-│   └── categoryFilter.tsx
+│   │   ├── TasteLabSplit.tsx       # Taste Lab split-slot view
+│   │   ├── PresetGallery.tsx       # Flavor preset gallery
+│   │   ├── OnboardingWizard.tsx    # First-run tour
+│   │   ├── MobileBottomBar.tsx     # Mobile 5-button action bar
+│   │   └── ui/                     # Shared design-system primitives
+│   │       ├── Pill.tsx            # Toggle pill (neutral + data-driven accent)
+│   │       ├── IconButton.tsx      # Icon-only button: 44px hit area + required aria-label
+│   │       ├── Slider.tsx          # Taste range slider (accent thumb + value-fill track)
+│   │       └── index.ts
+│   └── icons/
+│       └── LockIcons.tsx           # Custom lock/unlock SVG icons
 ├── data/
 │   ├── flavorPairings.ts     # Core ingredient pairing data
 │   ├── ingredientProfiles.ts # Ingredient metadata (category, taste profiles)
+│   ├── flavorPresets.ts      # Curated flavor presets (e.g. "Pizza Night")
+│   ├── pairingMeta.ts        # Pairing source/provenance metadata
 │   └── dietaryRestrictions.ts
 ├── hooks/
 │   ├── useScreenSize.ts      # Responsive breakpoint hook
 │   ├── useSavedCombinations.ts # Saved ingredient combinations
+│   ├── useCustomPresets.ts   # User-created presets
 │   ├── useFavorites.tsx      # Favorite ingredients management
 │   ├── useIngredientSelection.ts
 │   ├── useFilters.ts
+│   ├── useTasteLab.ts        # Taste Lab slot state + constants
 │   └── useCompatibility.ts
 └── utils/
     ├── searchUtils.ts        # Ingredient filtering/search
     ├── categorySearch.ts     # Category-based search
-    ├── compatibility.ts      # Pairing compatibility logic
-    ├── colors.ts             # Color utilities (includes TASTE_COLORS)
+    ├── categoryLabels.ts     # Category key → display label
+    ├── flavorMap.ts          # Builds the bidirectional flavor map (ALL_SOURCES)
+    ├── dietaryPresets.ts     # Dietary preset definitions + toggling
+    ├── colors.ts             # TASTE_COLORS, CATEGORY_COLORS, ICON_SIZES, contrast helpers
     ├── ingredientColors.ts   # Ingredient-specific color utilities
-    ├── sorting.ts            # Sorting utilities
-    ├── tasteAnalysis.ts      # Taste profile analysis
-    ├── tasteSuggestions.ts   # Taste-based suggestions
-    ├── urlEncoding.js        # URL state encoding/decoding
-    └── menuPlanner/          # Menu planning utilities
-        ├── index.ts
-        ├── tasteBalance.ts
-        ├── dishSuggestion.ts
-        └── menuGeneration.ts
+    └── urlEncoding.js        # URL state encoding/decoding
 ```
+
+> Note: V1 (`FlavorFinder.js`) and the orphaned `MenuPlanner/`, `mobile/`, and
+> `filters/UnifiedFilterPanel/` subsystems were removed; V2 is the only app.
 
 ## Key Concepts
 
@@ -172,8 +136,16 @@ Dietary filters use a flat key format: `'Category:Subcategory' = false` (false m
 ### Theme Support
 Dark mode is supported via `ThemeContext.tsx`. Toggle available in settings.
 
-## Version Switching
+## Shared UI Primitives
 
-- Default: V2 (`FlavorFinderV2.tsx`)
-- Access V1: Add `?v1=true` to URL
-- Keyboard: `Ctrl+Shift+V` toggles versions
+`src/components/v2/ui/` holds the design-system primitives — prefer these over
+hand-rolled markup so styling stays consistent:
+- **`Pill`** — toggle pill/chip. Neutral by default; pass `accent` (hex) for
+  data-driven taste/category coloring. Use for filter/dietary/tag pills.
+- **`IconButton`** — icon-only button that enforces a 44px touch target and a
+  required `label` (aria-label). Use for any icon-only control.
+- **`Slider`** — taste range slider with an accent thumb (white-ringed for
+  contrast) and a value-fill track. Use for taste-threshold inputs.
+
+Icon sizing comes from `ICON_SIZES` / `iconSize(step, isMobile)` in
+`utils/colors.ts` — avoid hardcoded `size={isMobile ? 24 : 30}` literals.
