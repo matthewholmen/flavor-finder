@@ -155,34 +155,28 @@ export const DietaryFilterPills = ({
   );
 };
 
+// An applied dietary filter, shown as a removable chip (click anywhere to drop
+// it). Styled to match the shared Pill's inactive/bordered treatment so it reads
+// the same as the rest of the app's pills, but it's a remove action rather than
+// a toggle — so it keeps its own element with an explicit remove label instead
+// of going through the Pill toggle component.
 const FilterPill = ({ label, onRemove }) => {
   return (
     <button
       onClick={onRemove}
+      aria-label={`Remove ${label} filter`}
       className="
         group flex items-center gap-1.5
         pl-3 pr-2.5 py-2
         rounded-full
         font-medium text-sm
         bg-white dark:bg-black
-        border-2
+        border-2 border-gray-300 dark:border-gray-600
+        text-gray-800 dark:text-white
+        hover:border-gray-400 dark:hover:border-gray-500
         transition-colors duration-200
       "
-      style={{
-        borderColor: 'var(--pill-border)',
-        color: 'var(--pill-text)',
-      }}
     >
-      <style>{`
-        :root {
-          --pill-border: #d2d5db;
-          --pill-text: #121826;
-        }
-        .dark {
-          --pill-border: #4d5562;
-          --pill-text: #ffffff;
-        }
-      `}</style>
       <span>{label}</span>
       <span className="flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity duration-200">
         <X size={14} strokeWidth={2.5} />

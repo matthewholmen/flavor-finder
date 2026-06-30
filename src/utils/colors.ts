@@ -12,6 +12,26 @@ export const TASTE_COLORS = {
 // quiet gray so it's visibly distinct from any taste or category color.
 export const WILD_COLOR = '#9aa3b2';
 
+// One icon-size scale for the whole app, so we stop sprinkling
+// `size={isMobile ? 24 : 30}` literals across components. Each step gives a
+// mobile + desktop value; pick the step by role, not by eyeballing pixels.
+//   xs — inline affordances (chevrons inside pills, count carets)
+//   sm — secondary controls (lock toggles, close buttons)
+//   md — primary controls (cycle chevrons, generate icon)
+//   lg — hero / focal glyphs
+export const ICON_SIZES = {
+  xs: { mobile: 14, desktop: 16 },
+  sm: { mobile: 18, desktop: 20 },
+  md: { mobile: 24, desktop: 30 },
+  lg: { mobile: 30, desktop: 36 },
+} as const;
+
+export type IconSizeStep = keyof typeof ICON_SIZES;
+
+// Resolve an icon-size step to a pixel value for the current breakpoint.
+export const iconSize = (step: IconSizeStep, isMobile: boolean): number =>
+  isMobile ? ICON_SIZES[step].mobile : ICON_SIZES[step].desktop;
+
 // One accent color per top-level category — used by Taste Lab's category mode to
 // tint a slot the way TASTE_COLORS tints a taste. Kept earthier/muted so a
 // category-constrained slot reads distinctly from a taste-constrained one.

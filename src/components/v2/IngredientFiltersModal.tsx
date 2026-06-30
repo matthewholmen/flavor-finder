@@ -6,6 +6,7 @@ import {
   togglePreset,
 } from '../../utils/dietaryPresets.ts';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
+import { Pill } from './ui/index.ts';
 
 const CATEGORY_ORDER = [
   'Proteins',
@@ -171,23 +172,14 @@ export const IngredientFiltersModal: React.FC<IngredientFiltersModalProps> = ({
             {DIETARY_PRESETS.map(preset => {
               const active = isPresetActive(dietaryRestrictions, preset);
               return (
-                <button
+                <Pill
                   key={preset.key}
+                  active={active}
                   onClick={() => onDietaryChange(togglePreset(dietaryRestrictions, preset))}
-                  aria-pressed={active}
-                  className={`
-                    flex items-center gap-1.5
-                    px-3 py-1.5 rounded-full text-sm font-medium
-                    border-2 transition-all duration-150
-                    ${active
-                      ? 'border-gray-900 dark:border-white bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
-                    }
-                  `}
+                  leading={active ? <Check size={14} strokeWidth={2.5} /> : undefined}
                 >
-                  {active && <Check size={14} strokeWidth={2.5} />}
                   {preset.label}
-                </button>
+                </Pill>
               );
             })}
           </div>
