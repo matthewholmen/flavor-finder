@@ -1,15 +1,16 @@
 import React, { useRef } from 'react';
 import { X } from 'lucide-react';
+import { categoryLabel } from '../utils/categoryLabels.ts';
 
 const SUBCATEGORIES: Record<string, string[]> = {
-  Proteins: ["Meat", "Poultry", "Seafood", "Plant Proteins"],
-  Vegetables: ["Allium", "Leafy Greens", "Roots", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
+  Proteins: ["Meat", "Poultry", "Seafood", "Eggs", "Beans & Legumes", "Nuts & Seeds", "Soy & Plant-Based"],
+  Vegetables: ["Allium", "Leafy Greens", "Roots & Tubers", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
   Fruits: ["Citrus", "Stone Fruit", "Tropical", "Berries", "Pome Fruit", "Melons"],
-  Dairy: ["Cheese", "Cultured", "Milk & Cream"],
-  Seasonings: ["Herbs", "Spices", "Chilis"],
-  Pantry: ["Oils & Fats", "Vinegars", "Stocks", "Sauces", "Sweeteners"],
-  Grains: ["Rice", "Pasta", "Bread", "Ancient Grains"],
-  Alcohol: ["Wine", "Spirits", "Liqueurs"]
+  Dairy: ["Cheese", "Cultured", "Milk & Cream", "Custards & Frozen"],
+  Seasonings: ["Herbs", "Spices", "Spice Blends", "Chilis", "Salts"],
+  Pantry: ["Fats & Oils", "Vinegars", "Sweeteners", "Sauces & Condiments", "Stocks & Bases"],
+  Grains: ["Rice", "Pasta", "Bread", "Whole Grains", "Corn", "Starches"],
+  Alcohol: ["Wine", "Beer & Cider", "Spirits", "Liqueurs"]
 };
 
 export const CATEGORIES = [
@@ -115,7 +116,7 @@ export default function CategoryFilter({
                 hover:border-gray-600 text-gray-600 hover:text-gray-900
               `}
             >
-              {category}
+              {categoryLabel(category)}
             </button>
           ))}
         </div>
@@ -146,7 +147,7 @@ export default function CategoryFilter({
               onClick={() => handleCategoryChange(activeCategory)}
               className={`${compact ? 'py-1 px-3 text-sm' : 'py-2 px-6 text-md'} whitespace-nowrap rounded-full border-2 border-gray-800 bg-gray-800 text-white font-medium`}
             >
-              {activeCategory}
+              {categoryLabel(activeCategory)}
             </button>
   
             {subcategories.length > 0 && (

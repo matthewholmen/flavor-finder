@@ -58,7 +58,7 @@ const getActiveDietaryFilters = (dietaryRestrictions) => {
 
   // Check keto (grains and sweeteners restricted)
   if (dietaryRestrictions['Grains:Rice'] === false &&
-      dietaryRestrictions['Grains:Ancient Grains'] === false &&
+      dietaryRestrictions['Grains:Whole Grains'] === false &&
       dietaryRestrictions['Grains:Bread'] === false &&
       dietaryRestrictions['Grains:Pasta'] === false &&
       dietaryRestrictions['Pantry:Sweeteners'] === false) {
@@ -90,9 +90,11 @@ const removeDietaryFilter = (key, dietaryRestrictions, onDietaryChange) => {
       delete newRestrictions['Dairy:Cheese'];
       delete newRestrictions['Dairy:Cultured'];
       delete newRestrictions['Dairy:Milk & Cream'];
+      delete newRestrictions['Dairy:Custards & Frozen'];
       break;
     case 'alcohol-free':
       delete newRestrictions['Alcohol:Wine'];
+      delete newRestrictions['Alcohol:Beer & Cider'];
       delete newRestrictions['Alcohol:Spirits'];
       delete newRestrictions['Alcohol:Liqueurs'];
       break;
@@ -101,7 +103,7 @@ const removeDietaryFilter = (key, dietaryRestrictions, onDietaryChange) => {
       break;
     case 'keto':
       delete newRestrictions['Grains:Rice'];
-      delete newRestrictions['Grains:Ancient Grains'];
+      delete newRestrictions['Grains:Whole Grains'];
       delete newRestrictions['Grains:Bread'];
       delete newRestrictions['Grains:Pasta'];
       delete newRestrictions['Pantry:Sweeteners'];

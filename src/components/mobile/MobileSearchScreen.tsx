@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, ArrowLeft, Mic, Filter, ChevronDown, Check } from 'lucide-react';
 import { CATEGORIES } from '../categoryFilter';
+import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { TasteProperty, TASTE_PROPERTIES } from '../../types';
 
 interface FilterState {
@@ -56,14 +57,14 @@ export default function MobileSearchScreen({
 
   // Subcategory mapping from categoryFilter.tsx
   const SUBCATEGORIES: Record<string, string[]> = {
-    Proteins: ["Meat", "Poultry", "Seafood", "Plant Proteins"],
-    Vegetables: ["Allium", "Leafy Greens", "Roots", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
+    Proteins: ["Meat", "Poultry", "Seafood", "Eggs", "Beans & Legumes", "Nuts & Seeds", "Soy & Plant-Based"],
+    Vegetables: ["Allium", "Leafy Greens", "Roots & Tubers", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
     Fruits: ["Citrus", "Stone Fruit", "Tropical", "Berries", "Pome Fruit", "Melons"],
-    Dairy: ["Cheese", "Cultured", "Milk & Cream"],
-    Seasonings: ["Herbs", "Spices", "Chilis"],
-    Pantry: ["Oils & Fats", "Vinegars", "Stocks", "Sauces", "Sweeteners"],
-    Grains: ["Rice", "Pasta", "Bread", "Ancient Grains"],
-    Alcohol: ["Wine", "Spirits", "Liqueurs"]
+    Dairy: ["Cheese", "Cultured", "Milk & Cream", "Custards & Frozen"],
+    Seasonings: ["Herbs", "Spices", "Spice Blends", "Chilis", "Salts"],
+    Pantry: ["Fats & Oils", "Vinegars", "Sweeteners", "Sauces & Condiments", "Stocks & Bases"],
+    Grains: ["Rice", "Pasta", "Bread", "Whole Grains", "Corn", "Starches"],
+    Alcohol: ["Wine", "Beer & Cider", "Spirits", "Liqueurs"]
   };
 
   // Calculate active filter count
@@ -388,7 +389,7 @@ export default function MobileSearchScreen({
                           : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
                       }`}
                     >
-                      {category}
+                      {categoryLabel(category)}
                     </button>
                   ))}
                 </div>

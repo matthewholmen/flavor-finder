@@ -1,16 +1,17 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { CategorySectionProps } from './types.ts';
+import { categoryLabel } from '../../../utils/categoryLabels.ts';
 
 const SUBCATEGORIES: Record<string, string[]> = {
-  Proteins: ["Meat", "Poultry", "Seafood", "Plant Proteins"],
-  Vegetables: ["Allium", "Leafy Greens", "Roots", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
+  Proteins: ["Meat", "Poultry", "Seafood", "Eggs", "Beans & Legumes", "Nuts & Seeds", "Soy & Plant-Based"],
+  Vegetables: ["Allium", "Leafy Greens", "Roots & Tubers", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
   Fruits: ["Citrus", "Stone Fruit", "Tropical", "Berries", "Pome Fruit", "Melons"],
-  Dairy: ["Cheese", "Cultured", "Milk & Cream"],
-  Seasonings: ["Herbs", "Spices", "Chilis"],
-  Pantry: ["Oils & Fats", "Vinegars", "Stocks", "Sauces", "Sweeteners"],
-  Grains: ["Rice", "Pasta", "Bread", "Ancient Grains"],
-  Alcohol: ["Wine", "Spirits", "Liqueurs"]
+  Dairy: ["Cheese", "Cultured", "Milk & Cream", "Custards & Frozen"],
+  Seasonings: ["Herbs", "Spices", "Spice Blends", "Chilis", "Salts"],
+  Pantry: ["Fats & Oils", "Vinegars", "Sweeteners", "Sauces & Condiments", "Stocks & Bases"],
+  Grains: ["Rice", "Pasta", "Bread", "Whole Grains", "Corn", "Starches"],
+  Alcohol: ["Wine", "Beer & Cider", "Spirits", "Liqueurs"]
 };
 
 export const CATEGORIES = [
@@ -100,7 +101,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                 hover:border-gray-500 hover:bg-gray-50
               `}
             >
-              {category}
+              {categoryLabel(category)}
             </button>
           ))}
         </div>
@@ -119,7 +120,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
               <X size={16} className="text-gray-600" />
             </button>
             <div className="py-2 px-4 rounded-full border-2 border-[#6AAFE8] bg-[#6AAFE8] text-white font-medium text-base">
-              {activeCategory}
+              {categoryLabel(activeCategory)}
             </div>
           </div>
 

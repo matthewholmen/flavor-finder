@@ -54,7 +54,7 @@ export const TIER_LABELS: Record<PresetTier, string> = {
 // Every cheese in the library — a big pool gives the solver more nodes/edges so
 // a themed preset doesn't feel one-note.
 const ALL_CHEESES = [
-  'asiago', 'blue cheese', 'brie', 'burrata', 'cheddar', 'chèvre', 'colby', 'swiss cheese',
+  'asiago', 'blue cheese', 'brie', 'burrata', 'cheddar', 'colby', 'swiss cheese',
   'feta', 'fontina', 'goat cheese', 'gorgonzola', 'gouda', 'gruyère', 'havarti',
   'monterey jack', 'manchego', 'mascarpone', 'mozzarella', 'muenster', 'parmesan',
   'pecorino', 'provolone', 'queso fresco', 'ricotta', 'romano', 'taleggio', 'roquefort',
@@ -78,14 +78,14 @@ const PIZZA_POOL = [
 ];
 const TACO_POOL = [
   'tomato', 'tomatillo', 'onion', 'red onion', 'cilantro', 'lime', 'avocado', 'guacamole',
-  'jalapeño', 'serrano pepper', 'poblano', 'chipotle', 'ancho chili', 'cumin', 'coriander',
+  'jalapeño', 'serrano chili', 'poblano', 'chipotle', 'ancho chili', 'cumin', 'coriander',
   'garlic', 'corn', 'black beans', 'pinto beans', 'queso fresco', 'cotija', 'crema',
   'beef', 'pork', 'chicken', 'chorizo', 'shrimp', 'red cabbage', 'radish', 'scallion',
   'achiote', 'oregano',
 ];
 const CHEESE_BOARD_POOL = [
   'brie', 'camembert', 'cheddar', 'gruyère', 'manchego', 'gorgonzola', 'blue cheese',
-  'stilton cheese', 'roquefort', 'goat cheese', 'chèvre', 'parmesan', 'fig', 'dried fig',
+  'stilton cheese', 'roquefort', 'goat cheese', 'parmesan', 'fig', 'dried fig',
   'date', 'honey', 'walnut', 'almond', 'pecan', 'grape', 'quince', 'apricot',
   'dried apricot', 'prosciutto', 'salami', 'mortadella', 'cornichon', 'mostarda',
   'sourdough', 'pear', 'apple',

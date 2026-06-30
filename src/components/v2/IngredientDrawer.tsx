@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap, Undo2 } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
+import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 
@@ -11,14 +12,14 @@ const CATEGORIES = [
 ];
 
 const SUBCATEGORIES = {
-  Proteins: ["Meat", "Poultry", "Seafood", "Plant Proteins"],
-  Vegetables: ["Allium", "Leafy Greens", "Roots", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
+  Proteins: ["Meat", "Poultry", "Seafood", "Eggs", "Beans & Legumes", "Nuts & Seeds", "Soy & Plant-Based"],
+  Vegetables: ["Allium", "Leafy Greens", "Roots & Tubers", "Squash", "Brassicas", "Mushrooms", "Stalks", "Fruit Vegetables"],
   Fruits: ["Citrus", "Stone Fruit", "Tropical", "Berries", "Pome Fruit", "Melons"],
-  Dairy: ["Cheese", "Cultured", "Milk & Cream"],
-  Seasonings: ["Herbs", "Spices", "Chilis"],
-  Pantry: ["Oils & Fats", "Vinegars", "Stocks", "Sauces", "Sweeteners"],
-  Grains: ["Rice", "Pasta", "Bread", "Ancient Grains"],
-  Alcohol: ["Wine", "Spirits", "Liqueurs"]
+  Dairy: ["Cheese", "Cultured", "Milk & Cream", "Custards & Frozen"],
+  Seasonings: ["Herbs", "Spices", "Spice Blends", "Chilis", "Salts"],
+  Pantry: ["Fats & Oils", "Vinegars", "Sweeteners", "Sauces & Condiments", "Stocks & Bases"],
+  Grains: ["Rice", "Pasta", "Bread", "Whole Grains", "Corn", "Starches"],
+  Alcohol: ["Wine", "Beer & Cider", "Spirits", "Liqueurs"]
 };
 
 const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'umami', 'fat', 'spicy', 'aromatic'];
@@ -319,7 +320,7 @@ export const IngredientDrawer = ({
           for (const ing of list) {
             const category = getCategory(ing);
             if (category !== lastCategory) {
-              result.push({ type: 'divider', value: `category-${isPartial ? 'partial-' : ''}${category}`, label: category });
+              result.push({ type: 'divider', value: `category-${isPartial ? 'partial-' : ''}${category}`, label: categoryLabel(category) });
               lastCategory = category;
             }
             result.push({ type: 'ingredient', value: ing });
@@ -606,7 +607,7 @@ export const IngredientDrawer = ({
                               }
                             `}
                           >
-                            {cat}
+                            {categoryLabel(cat)}
                           </button>
                         );
                       })
@@ -910,7 +911,7 @@ export const IngredientDrawer = ({
                                 transition-all
                               "
                             >
-                              {cat}
+                              {categoryLabel(cat)}
                             </button>
                           ))}
                         </div>
@@ -924,7 +925,7 @@ export const IngredientDrawer = ({
                               <X size={16} className="text-gray-600 dark:text-gray-300" />
                             </button>
                             <span className="py-2 px-4 rounded-full border-2 border-[#6AAFE8] bg-[#6AAFE8] text-white font-medium text-sm">
-                              {activeCategory}
+                              {categoryLabel(activeCategory)}
                             </span>
                           </div>
                           {subcategories.length > 0 && (

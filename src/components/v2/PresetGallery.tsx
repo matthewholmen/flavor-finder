@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, ArrowLeft, Wand2, ChevronDown } from 'lucide-react';
 import { TASTE_COLORS, CATEGORY_COLORS, WILD_COLOR } from '../../utils/colors.ts';
+import { categoryLabel } from '../../utils/categoryLabels.ts';
 import {
   TASTE_KEYS,
   CATEGORY_KEYS,
@@ -344,7 +345,7 @@ const SlotEditor = ({
                     textDecoration: on ? 'line-through' : 'none',
                   }}
                 >
-                  {c}
+                  {categoryLabel(c)}
                 </button>
               );
             })}

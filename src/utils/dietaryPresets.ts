@@ -23,9 +23,11 @@ export const DIETARY_PRESETS: DietaryPreset[] = [
       'Proteins:Meat',
       'Proteins:Poultry',
       'Proteins:Seafood',
+      'Proteins:Eggs',
       'Dairy:Cheese',
       'Dairy:Cultured',
       'Dairy:Milk & Cream',
+      'Dairy:Custards & Frozen',
     ],
   },
   {
@@ -41,12 +43,12 @@ export const DIETARY_PRESETS: DietaryPreset[] = [
   {
     key: 'dairy-free',
     label: 'Dairy-free',
-    restrictionKeys: ['Dairy:Cheese', 'Dairy:Cultured', 'Dairy:Milk & Cream'],
+    restrictionKeys: ['Dairy:Cheese', 'Dairy:Cultured', 'Dairy:Milk & Cream', 'Dairy:Custards & Frozen'],
   },
   {
     key: 'alcohol-free',
     label: 'Alcohol-free',
-    restrictionKeys: ['Alcohol:Wine', 'Alcohol:Spirits', 'Alcohol:Liqueurs'],
+    restrictionKeys: ['Alcohol:Wine', 'Alcohol:Beer & Cider', 'Alcohol:Spirits', 'Alcohol:Liqueurs'],
   },
   {
     key: 'nut-free',

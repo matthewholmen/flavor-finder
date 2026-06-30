@@ -26,7 +26,7 @@ const UnifiedFilterPanelTest: React.FC = () => {
   
   // Dietary state (simplified for testing)
   const [dietaryRestrictions, setDietaryRestrictions] = useState<Record<string, boolean>>({
-    'Proteins:Plant Proteins': true,
+    'Proteins:Beans & Legumes': true,
     'Proteins:Seafood': true,
     'Grains:Bread': true,
     'Dairy:Cheese': true

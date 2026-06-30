@@ -21,7 +21,7 @@ export const NIGHTSHADE_INGREDIENTS = [
   'cayenne', 'cayenne pepper',
   'paprika', 'smoked paprika',
   'chili', 'chili pepper', 'chili powder', 'chipotle', 'chipotle pepper',
-  'jalapeño', 'jalapeno', 'serrano', 'serrano pepper',
+  'jalapeño', 'jalapeno', 'serrano', 'serrano pepper', 'serrano chili',
   'habanero', 'ancho chili', 'poblano', 'guajillo',
   'red pepper flakes', 'crushed red pepper',
   'pimento', 'pimientos', 'goji berry', 'goji berries',

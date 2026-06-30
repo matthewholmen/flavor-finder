@@ -34,7 +34,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "aioli",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: {
       sweet: 0,
       salty: 4,
@@ -64,7 +64,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "almond",
     category: "Proteins",
-    subcategory: "Plant Proteins",
+    subcategory: "Nuts & Seeds",
     flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -77,24 +77,9 @@ export const ingredientProfiles: IngredientProfile[] = [
     description: "Versatile tree nut with a sweet, buttery flavor and subtle tannic notes, widely used in both sweet and savory dishes"
   },
   {
-    name: "almond liqueur",
-    category: "Alcohol",
-    subcategory: "Liqueurs",
-    flavorProfile: {
-      sweet: 8,
-      salty: 0,
-      sour: 0,
-      umami: 0,
-      fat: 0,
-      spicy: 0,
-      aromatic: 5
-    },
-    description: "Sweet, almond-flavored spirit with intense marzipan notes, commonly used in cocktails and desserts"
-  },
-  {
     name: "almond oil",
     category: "Pantry",
-    subcategory: "Oils & Fats",
+    subcategory: "Fats & Oils",
     flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -364,7 +349,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "avocado oil",
     category: "Pantry",
-    subcategory: "Oils & Fats",
+    subcategory: "Fats & Oils",
     flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -439,7 +424,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "bbq",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: {
       sweet: 6,
       salty: 4,
@@ -454,7 +439,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "barley",
     category: "Grains",
-    subcategory: "Ancient Grains",
+    subcategory: "Whole Grains",
     flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -619,7 +604,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beef stock",
     category: "Pantry",
-    subcategory: "Stocks",
+    subcategory: "Stocks & Bases",
     flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -634,7 +619,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beer",
     category: "Alcohol",
-    subcategory: "Spirits",
+    subcategory: "Beer & Cider",
     flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -649,7 +634,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "beet",
     category: "Vegetables",
-    subcategory: "Roots",
+    subcategory: "Roots & Tubers",
     flavorProfile: {
       sweet: 7,
       salty: 0,
@@ -724,7 +709,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "black beans",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -829,7 +814,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "black-eyed peas",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -1084,7 +1069,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "brown butter",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -1129,7 +1114,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "bulgur",
       category: "Grains",
-      subcategory: "Ancient Grains",
+      subcategory: "Whole Grains",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -1159,7 +1144,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "butter",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 2,
       salty: 1,
@@ -1219,7 +1204,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "béarnaise",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 0,
       salty: 2,
@@ -1234,7 +1219,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "béchamel",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 2,
       salty: 2,
@@ -1294,7 +1279,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "campari",
       category: "Alcohol",
-      subcategory: "Spirits",
+      subcategory: "Liqueurs",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -1309,7 +1294,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "cannellini beans",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -1324,7 +1309,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "canola oil",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -1339,7 +1324,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "cantaloupe",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Melons",
       flavorProfile: {
       sweet: 8,
       salty: 0,
@@ -1353,8 +1338,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
   {
       name: "capers",
-      category: "Vegetables",
-      subcategory: "Fruit Vegetables",
+      category: "Pantry",
+      subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 0,
       salty: 8,
@@ -1414,7 +1399,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "carrot",
       category: "Vegetables",
-      subcategory: "Roots",
+      subcategory: "Roots & Tubers",
       flavorProfile: {
       sweet: 6,
       salty: 0,
@@ -1429,7 +1414,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "cashew",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Nuts & Seeds",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -1504,7 +1489,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "celeriac",
       category: "Vegetables",
-      subcategory: "Roots",
+      subcategory: "Roots & Tubers",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -1534,7 +1519,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "celery salt",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Salts",
       flavorProfile: {
       sweet: 0,
       salty: 8,
@@ -1564,7 +1549,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "ceviche",
       category: "Proteins",
-      subcategory: "Meat",
+      subcategory: "Seafood",
       flavorProfile: {
       sweet: 1,
       salty: 4,
@@ -1714,7 +1699,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chestnut",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Nuts & Seeds",
       flavorProfile: {
       sweet: 5,
       salty: 0,
@@ -1744,7 +1729,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chicken fat",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -1774,7 +1759,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chicken stock",
       category: "Pantry",
-      subcategory: "Stocks",
+      subcategory: "Stocks & Bases",
       flavorProfile: {
       sweet: 2,
       salty: 3,
@@ -1789,7 +1774,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chickpea",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -1819,7 +1804,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chili oil",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -1834,7 +1819,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chili paste",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 2,
       salty: 4,
@@ -1864,7 +1849,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chili powder",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Spice Blends",
       flavorProfile: {
       sweet: 2,
       salty: 1,
@@ -1878,8 +1863,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
   {
       name: "chipotle",
-      category: "Vegetables",
-      subcategory: "Fruit Vegetables",
+      category: "Seasonings",
+      subcategory: "Chilis",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -1939,7 +1924,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "chutney",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 6,
       salty: 2,
@@ -1952,24 +1937,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       description: "Indian condiment combining fruits or vegetables with spices, sweet and tangy"
     },
   {
-      name: "chèvre",
-      category: "Dairy",
-      subcategory: "Cheese",
-      flavorProfile: {
-      sweet: 1,
-      salty: 3,
-      sour: 5,
-      umami: 3,
-      fat: 6,
-      spicy: 0,
-      aromatic: 1
-    },
-      description: "Fresh goat cheese with tangy flavor and creamy texture, becomes stronger with age"
-    },
-  {
       name: "cider",
       category: "Alcohol",
-      subcategory: "Spirits",
+      subcategory: "Beer & Cider",
       flavorProfile: {
       sweet: 5,
       salty: 0,
@@ -2074,7 +2044,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "coconut milk",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 4,
       salty: 1,
@@ -2193,8 +2163,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
   {
       name: "cornichon",
-      category: "Vegetables",
-      subcategory: "Fruit Vegetables",
+      category: "Pantry",
+      subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 7,
@@ -2224,7 +2194,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "cornmeal",
       category: "Grains",
-      subcategory: "Ancient Grains",
+      subcategory: "Corn",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -2269,7 +2239,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "cranberry",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -2344,7 +2314,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "crème anglaise",
       category: "Dairy",
-      subcategory: "Cultured",
+      subcategory: "Custards & Frozen",
       flavorProfile: {
       sweet: 7,
       salty: 0,
@@ -2419,7 +2389,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "currant",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
       sweet: 4,
       salty: 0,
@@ -2434,7 +2404,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "curry",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Spice Blends",
       flavorProfile: {
       sweet: 2,
       salty: 1,
@@ -2464,7 +2434,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "curry paste",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 5,
@@ -2479,7 +2449,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "custard",
       category: "Dairy",
-      subcategory: "Cultured",
+      subcategory: "Custards & Frozen",
       flavorProfile: {
       sweet: 6,
       salty: 1,
@@ -2494,7 +2464,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "daikon",
       category: "Vegetables",
-      subcategory: "Roots",
+      subcategory: "Roots & Tubers",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -2524,7 +2494,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "dashi",
       category: "Pantry",
-      subcategory: "Stocks",
+      subcategory: "Stocks & Bases",
       flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -2554,7 +2524,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "dijon",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -2629,7 +2599,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "egg",
       category: "Proteins",
-      subcategory: "Meat",
+      subcategory: "Eggs",
       flavorProfile: {
       sweet: 1,
       salty: 1,
@@ -2734,7 +2704,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "escolar",
       category: "Proteins",
-      subcategory: "Meat",
+      subcategory: "Seafood",
       flavorProfile: {
       sweet: 2,
       salty: 2,
@@ -2764,7 +2734,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "fava beans",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -2914,7 +2884,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "fish sauce",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 9,
@@ -2929,7 +2899,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "fish stock",
       category: "Pantry",
-      subcategory: "Stocks",
+      subcategory: "Stocks & Bases",
       flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -2944,7 +2914,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "five-spice",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Spice Blends",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -2959,7 +2929,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "flageolet beans",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -3079,7 +3049,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "game bird",
       category: "Proteins",
-      subcategory: "Meat",
+      subcategory: "Poultry",
       flavorProfile: {
       sweet: 1,
       salty: 1,
@@ -3094,7 +3064,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "garam masala",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Spice Blends",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -3199,7 +3169,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "gooseberry",
       category: "Fruits",
-      subcategory: "Stone Fruit",
+      subcategory: "Berries",
       flavorProfile: {
       sweet: 4,
       salty: 0,
@@ -3274,7 +3244,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "grapeseed oil",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -3319,7 +3289,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "grits",
       category: "Grains",
-      subcategory: "Ancient Grains",
+      subcategory: "Corn",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -3334,7 +3304,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "grouper",
       category: "Proteins",
-      subcategory: "Meat",
+      subcategory: "Seafood",
       flavorProfile: {
       sweet: 3,
       salty: 2,
@@ -3364,7 +3334,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "guacamole",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -3469,7 +3439,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "hazelnut",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Nuts & Seeds",
       flavorProfile: {
       sweet: 4,
       salty: 0,
@@ -3484,7 +3454,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "hazelnut oil",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -3514,7 +3484,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "hoisin",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 7,
       salty: 5,
@@ -3529,7 +3499,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "hollandaise",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -3573,8 +3543,8 @@ export const ingredientProfiles: IngredientProfile[] = [
     },
   {
       name: "horseradish",
-      category: "Vegetables",
-      subcategory: "Roots",
+      category: "Seasonings",
+      subcategory: "Spices",
       flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -3604,7 +3574,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "hummus",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -3634,7 +3604,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "ice cream",
       category: "Dairy",
-      subcategory: "Cultured",
+      subcategory: "Custards & Frozen",
       flavorProfile: {
       sweet: 8,
       salty: 1,
@@ -3679,7 +3649,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "jicama",
       category: "Vegetables",
-      subcategory: "Roots",
+      subcategory: "Roots & Tubers",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -3904,7 +3874,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "lentils",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -3979,7 +3949,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "lotus root",
       category: "Vegetables",
-      subcategory: "Roots",
+      subcategory: "Roots & Tubers",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -4024,7 +3994,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "macadamia nut",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Nuts & Seeds",
       flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -4099,7 +4069,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "maldon salt",
       category: "Seasonings",
-      subcategory: "Spices",
+      subcategory: "Salts",
       flavorProfile: {
       sweet: 0,
       salty: 10,
@@ -4114,7 +4084,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "malt",
       category: "Grains",
-      subcategory: "Ancient Grains",
+      subcategory: "Whole Grains",
       flavorProfile: {
       sweet: 5,
       salty: 0,
@@ -4294,7 +4264,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "miso",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 2,
       salty: 7,
@@ -4324,7 +4294,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "mole",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 4,
       salty: 3,
@@ -4369,7 +4339,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "mostarda",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 5,
       salty: 0,
@@ -4444,7 +4414,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "mustard",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 1,
       salty: 3,
@@ -4519,7 +4489,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "oats",
       category: "Grains",
-      subcategory: "Ancient Grains",
+      subcategory: "Whole Grains",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -4579,7 +4549,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "olive oil",
       category: "Pantry",
-      subcategory: "Oils & Fats",
+      subcategory: "Fats & Oils",
       flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -4624,7 +4594,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "orange blossom water",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -4699,7 +4669,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "oyster sauce",
       category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
       flavorProfile: {
       sweet: 4,
       salty: 7,
@@ -4804,7 +4774,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "parsnip",
       category: "Vegetables",
-      subcategory: "Roots",
+      subcategory: "Roots & Tubers",
       flavorProfile: {
       sweet: 6,
       salty: 0,
@@ -4849,7 +4819,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
       name: "peas",
       category: "Proteins",
-      subcategory: "Plant Proteins",
+      subcategory: "Beans & Legumes",
       flavorProfile: {
       sweet: 5,
       salty: 0,
@@ -4879,7 +4849,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "peanut",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Nuts & Seeds",
         flavorProfile: {
       sweet: 2,
       salty: 1,
@@ -4894,7 +4864,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "peanut oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -4924,7 +4894,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pecan",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Nuts & Seeds",
         flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -4939,7 +4909,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pecan oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -4999,7 +4969,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pesto",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 0,
       salty: 6,
@@ -5014,7 +4984,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pine nut",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Nuts & Seeds",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -5044,7 +5014,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pistachio",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Nuts & Seeds",
         flavorProfile: {
       sweet: 2,
       salty: 1,
@@ -5104,7 +5074,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "ponzu",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 0,
       salty: 6,
@@ -5149,7 +5119,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "porcini oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -5224,7 +5194,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "potato",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -5254,7 +5224,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "preserved lemon",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 0,
       salty: 8,
@@ -5314,7 +5284,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pudding",
         category: "Dairy",
-        subcategory: "Cultured",
+        subcategory: "Custards & Frozen",
         flavorProfile: {
       sweet: 7,
       salty: 1,
@@ -5344,7 +5314,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pumpkin seed",
         category: "Proteins",
-        subcategory: "Meat",
+        subcategory: "Nuts & Seeds",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -5359,7 +5329,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pumpkin seed oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -5464,7 +5434,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "radish",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -5524,7 +5494,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "rice pudding",
         category: "Dairy",
-        subcategory: "Cultured",
+        subcategory: "Custards & Frozen",
         flavorProfile: {
       sweet: 7,
       salty: 1,
@@ -5644,7 +5614,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "rutabaga",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -5689,7 +5659,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "sake",
         category: "Alcohol",
-        subcategory: "Spirits",
+        subcategory: "Wine",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -5867,21 +5837,6 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "Sea vegetable with intense umami and mineral-rich flavor"
       },
   {
-        name: "serrano pepper",
-        category: "Seasonings",
-        subcategory: "Chilis",
-        flavorProfile: {
-      sweet: 0,
-      salty: 0,
-      sour: 0,
-      umami: 0,
-      fat: 0,
-      spicy: 8,
-      aromatic: 4
-    },
-        description: "Hot chili with bright, crisp heat and grassy notes"
-      },
-  {
         name: "serrano ham",
         category: "Proteins",
         subcategory: "Meat",
@@ -5899,7 +5854,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "sesame oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -6019,7 +5974,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "smoked salt",
         category: "Seasonings",
-        subcategory: "Spices",
+        subcategory: "Salts",
         flavorProfile: {
       sweet: 0,
       salty: 8,
@@ -6049,7 +6004,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "snap pea",
         category: "Vegetables",
-        subcategory: "Leafy Greens",
+        subcategory: "Stalks",
         flavorProfile: {
       sweet: 4,
       salty: 0,
@@ -6109,7 +6064,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "sorbet",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sweeteners",
         flavorProfile: {
       sweet: 7,
       salty: 0,
@@ -6154,7 +6109,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "soy sauce",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 1,
       salty: 9,
@@ -6259,7 +6214,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "sunchoke",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 4,
       salty: 0,
@@ -6274,7 +6229,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "sweet potato",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 7,
       salty: 0,
@@ -6319,7 +6274,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "tabasco",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 0,
       salty: 3,
@@ -6334,7 +6289,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "tahini",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -6364,7 +6319,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "tamari",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 1,
       salty: 8,
@@ -6439,7 +6394,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "teriyaki",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 6,
       salty: 7,
@@ -6484,7 +6439,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "tofu",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Soy & Plant-Based",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -6544,7 +6499,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "truffle oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -6604,7 +6559,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "vegetable stock",
         category: "Pantry",
-        subcategory: "Stocks",
+        subcategory: "Stocks & Bases",
         flavorProfile: {
       sweet: 2,
       salty: 3,
@@ -6724,7 +6679,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "walnut",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Nuts & Seeds",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -6739,7 +6694,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "walnut oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -6889,7 +6844,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "worcestershire",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 2,
       salty: 7,
@@ -6994,7 +6949,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "lima beans",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Beans & Legumes",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -7009,7 +6964,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "mayonnaise",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 0,
       salty: 2,
@@ -7129,7 +7084,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "polenta",
         category: "Grains",
-        subcategory: "Ancient Grains",
+        subcategory: "Corn",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -7309,7 +7264,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "salsify",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -7339,7 +7294,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "sauerkraut",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 0,
       salty: 4,
@@ -7414,7 +7369,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "skate",
         category: "Proteins",
-        subcategory: "Meat",
+        subcategory: "Seafood",
         flavorProfile: {
       sweet: 1,
       salty: 1,
@@ -7504,7 +7459,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "turnip",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -7564,7 +7519,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "vegetable oil",
         category: "Pantry",
-        subcategory: "Oils & Fats",
+        subcategory: "Fats & Oils",
         flavorProfile: {
       sweet: 0,
       salty: 0,
@@ -7684,7 +7639,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "hard-boiled egg",
         category: "Proteins",
-        subcategory: "Meat",
+        subcategory: "Eggs",
         flavorProfile: {
       sweet: 0,
       salty: 1,
@@ -7714,7 +7669,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "red beans",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Beans & Legumes",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -7744,7 +7699,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "green tea",
         category: "Pantry",
-        subcategory: "Stocks",
+        subcategory: "Stocks & Bases",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -7774,7 +7729,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "pinto beans",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Beans & Legumes",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -7954,7 +7909,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "vinaigrette",
         category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 0,
       salty: 2,
@@ -7984,7 +7939,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "kidney beans",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Beans & Legumes",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -8104,7 +8059,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "white beans",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Beans & Legumes",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -8208,8 +8163,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       },
   {
         name: "pickles",
-        category: "Vegetables",
-        subcategory: "Fruit Vegetables",
+        category: "Pantry",
+        subcategory: "Sauces & Condiments",
         flavorProfile: {
       sweet: 1,
       salty: 7,
@@ -8224,7 +8179,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "turbot",
         category: "Proteins",
-        subcategory: "Meat",
+        subcategory: "Seafood",
         flavorProfile: {
       sweet: 2,
       salty: 2,
@@ -8254,7 +8209,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "tapioca",
         category: "Grains",
-        subcategory: "Ancient Grains",
+        subcategory: "Starches",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -8284,7 +8239,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "new potato",
         category: "Vegetables",
-        subcategory: "Roots",
+        subcategory: "Roots & Tubers",
         flavorProfile: {
       sweet: 3,
       salty: 0,
@@ -8312,24 +8267,9 @@ export const ingredientProfiles: IngredientProfile[] = [
         description: "French anise-flavored spirit with strong licorice notes, often used in cooking"
       },
   {
-        name: "white sugar",
-        category: "Pantry",
-    subcategory: "Sweeteners",
-        flavorProfile: {
-      sweet: 10,
-      salty: 0,
-      sour: 0,
-      umami: 0,
-      fat: 0,
-      spicy: 0,
-      aromatic: 1
-    },
-        description: "Refined sugar with pure sweetness and no additional flavor notes"
-      },
-  {
         name: "navy beans",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Beans & Legumes",
         flavorProfile: {
       sweet: 2,
       salty: 0,
@@ -8419,7 +8359,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
         name: "legumes",
         category: "Proteins",
-        subcategory: "Plant Proteins",
+        subcategory: "Beans & Legumes",
         flavorProfile: {
       sweet: 1,
       salty: 0,
@@ -8449,7 +8389,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "old bay",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: {
       sweet: 1,
       salty: 6,
@@ -8524,70 +8464,70 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "gochujang",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 4, salty: 7, sour: 1, umami: 8, fat: 1, spicy: 6, aromatic: 5 },
     description: "Korean fermented chili paste with deep savory-sweet heat and rich umami, foundational to dishes like bibimbap, tteokbokki, and ssamjang"
   },
   {
     name: "doenjang",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 8, sour: 1, umami: 9, fat: 1, spicy: 0, aromatic: 5 },
     description: "Korean fermented soybean paste with intense earthy, salty umami, used in stews (jjigae) and as a robust seasoning base"
   },
   {
     name: "ssamjang",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 3, salty: 7, sour: 1, umami: 8, fat: 2, spicy: 5, aromatic: 5 },
     description: "Thick, savory Korean dipping sauce blending doenjang and gochujang, served with grilled meats and lettuce wraps"
   },
   {
     name: "harissa",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 5, sour: 2, umami: 3, fat: 3, spicy: 8, aromatic: 7 },
     description: "North African chili paste with smoky roasted-pepper heat layered with garlic, caraway, and coriander, central to Tunisian and Maghrebi cooking"
   },
   {
     name: "sambal oelek",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 5, sour: 3, umami: 3, fat: 0, spicy: 9, aromatic: 4 },
     description: "Indonesian raw chili paste with clean, fiery heat and bright acidity, a versatile Southeast Asian condiment and cooking base"
   },
   {
     name: "chili crisp",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 6, sour: 0, umami: 6, fat: 6, spicy: 7, aromatic: 6 },
     description: "Crunchy chili-in-oil condiment with savory, fatty heat and toasted aromatics from garlic, shallot, and Sichuan pepper"
   },
   {
     name: "shrimp paste",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 0, salty: 9, sour: 0, umami: 9, fat: 1, spicy: 0, aromatic: 7 },
     description: "Intensely pungent fermented seafood paste delivering deep salty umami, a backbone of Southeast Asian curries, sambals, and dips"
   },
   {
     name: "yuzu kosho",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 0, salty: 7, sour: 4, umami: 2, fat: 0, spicy: 7, aromatic: 8 },
     description: "Japanese paste of fermented chili, salt, and fragrant yuzu zest, lending bright citrus heat to soups, grilled foods, and dressings"
   },
   {
     name: "XO sauce",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 2, salty: 8, sour: 0, umami: 9, fat: 5, spicy: 4, aromatic: 6 },
     description: "Luxe Hong Kong condiment of dried scallop and shrimp, chili, and garlic, packed with concentrated seafood umami and gentle heat"
   },
   {
     name: "fermented black beans",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 0, salty: 9, sour: 1, umami: 8, fat: 0, spicy: 0, aromatic: 6 },
     description: "Salty, pungent fermented soybeans (douchi) prized in Cantonese cooking for deep savory umami in stir-fries and steamed dishes"
   },
@@ -8629,49 +8569,49 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "za'atar",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: { sweet: 0, salty: 3, sour: 3, umami: 1, fat: 1, spicy: 0, aromatic: 8 },
     description: "Levantine herb-and-seed blend of wild thyme, toasted sesame, and tangy sumac, scattered over breads, dips, and roasted vegetables"
   },
   {
     name: "ras el hanout",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: { sweet: 2, salty: 0, sour: 0, umami: 1, fat: 0, spicy: 3, aromatic: 9 },
     description: "Complex North African spice blend of warm, floral, and pungent notes, used in tagines, couscous, and grilled meats"
   },
   {
     name: "berbere",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 1, sour: 0, umami: 2, fat: 0, spicy: 6, aromatic: 8 },
     description: "Fiery, aromatic Ethiopian spice blend built on chili, fenugreek, and warm spices, central to stews like doro wat"
   },
   {
     name: "dukkah",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 2, sour: 0, umami: 3, fat: 4, spicy: 1, aromatic: 7 },
     description: "Egyptian blend of toasted nuts, sesame, and spices with a nutty, crunchy texture, used as a dip with bread and oil"
   },
   {
     name: "shichimi togarashi",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: { sweet: 0, salty: 1, sour: 1, umami: 2, fat: 1, spicy: 5, aromatic: 7 },
     description: "Japanese seven-spice blend of chili, citrus peel, sesame, and seaweed, sprinkled over noodles, rice, and grilled dishes"
   },
   {
     name: "furikake",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 6, sour: 0, umami: 7, fat: 1, spicy: 0, aromatic: 6 },
     description: "Japanese rice seasoning of nori, sesame, and dried fish flakes, adding savory, oceanic crunch to rice and vegetables"
   },
   {
     name: "curry powder",
     category: "Seasonings",
-    subcategory: "Spices",
+    subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 2, fat: 0, spicy: 3, aromatic: 9 },
     description: "Warm, golden blend of turmeric, cumin, coriander, and fenugreek, an Anglo-Indian pantry staple for curries and braises"
   },
@@ -8685,14 +8625,14 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "kombu",
     category: "Pantry",
-    subcategory: "Stocks",
+    subcategory: "Stocks & Bases",
     flavorProfile: { sweet: 1, salty: 4, sour: 0, umami: 9, fat: 0, spicy: 0, aromatic: 3 },
     description: "Dried kelp rich in natural glutamates, used to build deep oceanic umami in dashi and simmered Japanese dishes"
   },
   {
     name: "bonito flakes",
     category: "Pantry",
-    subcategory: "Stocks",
+    subcategory: "Stocks & Bases",
     flavorProfile: { sweet: 0, salty: 4, sour: 0, umami: 9, fat: 1, spicy: 0, aromatic: 5 },
     description: "Smoky shavings of dried, fermented skipjack tuna (katsuobushi) lending intense savory umami to dashi and toppings"
   },
@@ -8776,7 +8716,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "coconut cream",
     category: "Pantry",
-    subcategory: "Oils & Fats",
+    subcategory: "Fats & Oils",
     flavorProfile: { sweet: 4, salty: 1, sour: 0, umami: 1, fat: 9, spicy: 0, aromatic: 3 },
     description: "Thick, rich extraction of coconut with luscious fat and gentle sweetness, used in curries, desserts, and dairy-free sauces"
   },
@@ -8797,7 +8737,7 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "cassava",
     category: "Vegetables",
-    subcategory: "Roots",
+    subcategory: "Roots & Tubers",
     flavorProfile: { sweet: 3, salty: 0, sour: 0, umami: 1, fat: 0, spicy: 0, aromatic: 1 },
     description: "Starchy tropical root (yuca) with a mild, nutty flavor, boiled, fried, or ground into flour across Africa, Latin America, and Asia"
   },
@@ -8827,35 +8767,35 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "quinoa",
     category: "Grains",
-    subcategory: "Ancient Grains",
+    subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 2, fat: 1, spicy: 0, aromatic: 2 },
     description: "Nutty, protein-rich seed cooked like a grain, with a light fluffy texture and faintly grassy flavor"
   },
   {
     name: "farro",
     category: "Grains",
-    subcategory: "Ancient Grains",
+    subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 3, fat: 1, spicy: 0, aromatic: 2 },
     description: "Chewy ancient wheat grain with a hearty, nutty flavor, popular in Italian salads and soups"
   },
   {
     name: "buckwheat",
     category: "Grains",
-    subcategory: "Ancient Grains",
+    subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 3, fat: 1, spicy: 0, aromatic: 3 },
     description: "Earthy, robust gluten-free seed milled into flour or made into soba noodles and kasha"
   },
   {
     name: "millet",
     category: "Grains",
-    subcategory: "Ancient Grains",
+    subcategory: "Whole Grains",
     flavorProfile: { sweet: 2, salty: 0, sour: 0, umami: 1, fat: 1, spicy: 0, aromatic: 1 },
     description: "Tiny, mildly sweet gluten-free grain with a fluffy or creamy texture depending on cooking"
   },
   {
     name: "rye",
     category: "Grains",
-    subcategory: "Ancient Grains",
+    subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 2, umami: 2, fat: 0, spicy: 0, aromatic: 3 },
     description: "Dark, tangy grain with a distinctive earthy depth, central to dense breads and crispbreads"
   },
@@ -8869,49 +8809,49 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "ketchup",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 5, salty: 4, sour: 4, umami: 5, fat: 0, spicy: 1, aromatic: 2 },
     description: "Sweet-tangy tomato condiment balancing sugar, vinegar, and savory tomato umami"
   },
   {
     name: "sriracha",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 3, salty: 5, sour: 3, umami: 3, fat: 0, spicy: 7, aromatic: 3 },
     description: "Garlicky, tangy chili sauce with bright, building heat, used as an all-purpose hot condiment"
   },
   {
     name: "tomato paste",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 3, salty: 1, sour: 2, umami: 8, fat: 0, spicy: 0, aromatic: 2 },
     description: "Concentrated tomato with deep, sweet-savory umami, used to build the base of sauces and braises"
   },
   {
     name: "sweet chili sauce",
     category: "Pantry",
-    subcategory: "Sauces",
+    subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 7, salty: 2, sour: 2, umami: 1, fat: 0, spicy: 4, aromatic: 2 },
     description: "Sticky Thai-style dipping sauce balancing sugar and mild chili heat with a hint of garlic"
   },
   {
     name: "ghee",
     category: "Pantry",
-    subcategory: "Oils & Fats",
+    subcategory: "Fats & Oils",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 2, fat: 9, spicy: 0, aromatic: 3 },
     description: "Clarified butter with a rich, nutty aroma and high smoke point, foundational to Indian cooking"
   },
   {
     name: "duck fat",
     category: "Pantry",
-    subcategory: "Oils & Fats",
+    subcategory: "Fats & Oils",
     flavorProfile: { sweet: 0, salty: 1, sour: 0, umami: 4, fat: 9, spicy: 0, aromatic: 2 },
     description: "Luxurious rendered fat with deep savory flavor, prized for roasting potatoes and confit"
   },
   {
     name: "lard",
     category: "Pantry",
-    subcategory: "Oils & Fats",
+    subcategory: "Fats & Oils",
     flavorProfile: { sweet: 0, salty: 0, sour: 0, umami: 2, fat: 9, spicy: 0, aromatic: 1 },
     description: "Rendered pork fat that yields flaky pastry and rich savory depth in traditional cooking"
   },
@@ -8946,21 +8886,21 @@ export const ingredientProfiles: IngredientProfile[] = [
   {
     name: "edamame",
     category: "Proteins",
-    subcategory: "Plant Proteins",
+    subcategory: "Soy & Plant-Based",
     flavorProfile: { sweet: 2, salty: 1, sour: 0, umami: 3, fat: 1, spicy: 0, aromatic: 2 },
     description: "Young green soybeans with a fresh, buttery, mildly sweet flavor, served steamed and salted or shelled in dishes"
   },
   {
     name: "tempeh",
     category: "Proteins",
-    subcategory: "Plant Proteins",
+    subcategory: "Soy & Plant-Based",
     flavorProfile: { sweet: 1, salty: 0, sour: 1, umami: 5, fat: 2, spicy: 0, aromatic: 3 },
     description: "Firm fermented soybean cake with a nutty, savory flavor and meaty bite, a high-protein meat alternative"
   },
   {
     name: "seitan",
     category: "Proteins",
-    subcategory: "Plant Proteins",
+    subcategory: "Soy & Plant-Based",
     flavorProfile: { sweet: 0, salty: 1, sour: 0, umami: 5, fat: 0, spicy: 0, aromatic: 1 },
     description: "Chewy wheat-gluten protein with a savory, neutral flavor that absorbs seasonings like a meat substitute"
   },

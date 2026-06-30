@@ -5,6 +5,7 @@ import {
   isPresetActive,
   togglePreset,
 } from '../../utils/dietaryPresets.ts';
+import { categoryLabel } from '../../utils/categoryLabels.ts';
 
 const CATEGORY_ORDER = [
   'Proteins',
@@ -210,7 +211,7 @@ export const IngredientFiltersModal: React.FC<IngredientFiltersModalProps> = ({
                       ? 'text-gray-300 dark:text-gray-600 line-through'
                       : 'text-gray-700 dark:text-gray-200'}
                   `}>
-                    {category}
+                    {categoryLabel(category)}
                   </h3>
                   <button
                     onClick={() => toggleCategory(category)}

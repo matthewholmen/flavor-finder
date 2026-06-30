@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Heart, Settings, Plus, X, RotateCcw, Globe, Save, ArrowLeft, Mic, Lock, LockOpen, Filter, ChevronDown } from 'lucide-react';
 import Notification from '../Notification';
+import { categoryLabel } from '../../utils/categoryLabels.ts';
 import CompactTasteSliders from '../CompactTasteSliders.tsx';
 import MobileDiscoverScreen from './MobileDiscoverScreen.tsx';
 import { TasteProperty } from '../../types';
@@ -602,7 +603,7 @@ export default function MobileApp({
                               : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
                           }`}
                         >
-                          {category}
+                          {categoryLabel(category)}
                         </button>
                       ))}
                     </div>

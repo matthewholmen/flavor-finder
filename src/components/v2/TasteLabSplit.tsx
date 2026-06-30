@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, SlidersHorizontal, X } from 'lucide-react';
+import { categoryLabel } from '../../utils/categoryLabels.ts';
 import {
   TASTE_COLORS,
   CATEGORY_COLORS,
@@ -660,7 +661,7 @@ const SplitHalf = ({
                             className="px-2 py-0.5 rounded-lg text-xs font-semibold capitalize transition-colors"
                             style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7, textDecoration: on ? 'line-through' : 'none' }}
                           >
-                            {c}
+                            {categoryLabel(c)}
                           </button>
                         );
                       })}
