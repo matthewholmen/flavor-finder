@@ -19,6 +19,7 @@ export const MinimalHeader = ({
   onLogoClick,
   isGeneratePulsing = false,
   isMobile: isMobileProp,
+  isTasteLab = false,
 }) => {
   const { isMobile: isMobileHook, width } = useScreenSize();
   const isMobile = isMobileProp !== undefined ? isMobileProp : isMobileHook;
@@ -201,6 +202,10 @@ export const MinimalHeader = ({
         {/* Generate Button */}
         <button
           onClick={onGenerate}
+          title={isTasteLab
+            ? 'Reroll each slot — locked tastes/categories and pinned ingredients stay put'
+            : 'Find a new compatible combination — locked ingredients stay put'}
+          aria-label={isTasteLab ? 'Reroll within locks' : 'Generate a new combination'}
           className={`
             inline-flex items-center gap-2
             rounded-full

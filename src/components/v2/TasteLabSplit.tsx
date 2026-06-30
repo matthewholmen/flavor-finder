@@ -6,6 +6,7 @@ import {
   CATEGORY_COLORS,
   WILD_COLOR,
   getIngredientColorWithContrast,
+  iconSize,
 } from '../../utils/colors.ts';
 import {
   TASTE_KEYS,
@@ -425,21 +426,21 @@ const SplitHalf = ({
             onClick={() => cycleCandidate(-1)}
             aria-label="Previous match"
             className="absolute left-1 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full transition-all hover:scale-110 active:scale-95"
-            style={{ color: fg, opacity: 0.3 }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '0.3')}
+            style={{ color: fg, opacity: 0.5 }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}
           >
-            <ChevronLeft size={isMobile ? 24 : 30} strokeWidth={2.5} />
+            <ChevronLeft size={iconSize('md', isMobile)} strokeWidth={2.5} />
           </button>
           <button
             onClick={() => cycleCandidate(1)}
             aria-label="Next match"
             className="absolute right-1 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full transition-all hover:scale-110 active:scale-95"
-            style={{ color: fg, opacity: 0.3 }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '0.3')}
+            style={{ color: fg, opacity: 0.5 }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}
           >
-            <ChevronRight size={isMobile ? 24 : 30} strokeWidth={2.5} />
+            <ChevronRight size={iconSize('md', isMobile)} strokeWidth={2.5} />
           </button>
         </>
       )}

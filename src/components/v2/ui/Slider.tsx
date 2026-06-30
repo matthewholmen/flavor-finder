@@ -38,6 +38,12 @@ export const Slider: React.FC<SliderProps> = ({
   const reactId = useId();
   const cls = `ff-slider-${reactId.replace(/[:]/g, '')}`;
 
+  // Filled portion of the track reads in the accent color, the remainder in a
+  // faint tint of the same accent — so the slider shows its value at a glance
+  // and reads cohesively with the taste it represents, on any background.
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
+  const trackFill = `linear-gradient(to right, ${accent} 0%, ${accent} ${pct}%, ${accent}29 ${pct}%, ${accent}29 100%)`;
+
   const thumb = `
     .${cls}::-webkit-slider-thumb {
       appearance: none;
@@ -73,7 +79,8 @@ export const Slider: React.FC<SliderProps> = ({
         disabled={disabled}
         aria-label={ariaLabel}
         onChange={(e) => onChange(Number(e.target.value))}
-        className={`h-1.5 rounded-full appearance-none cursor-pointer bg-gray-200 dark:bg-gray-700 ${cls} ${className}`}
+        style={{ background: trackFill }}
+        className={`h-1.5 rounded-full appearance-none cursor-pointer ${cls} ${className}`}
       />
     </>
   );

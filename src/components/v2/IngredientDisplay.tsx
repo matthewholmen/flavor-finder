@@ -86,6 +86,10 @@ const SwipeableRow = ({ children, onDelete, enabled = true, isLocked = false }) 
         position: 'relative',
         // Allow overflow on left (for backgrounds extending to edge), clip on right only
         overflow: 'visible',
+        // Slots never scroll vertically — every touch is horizontal-swipe intent,
+        // so pan-x stops the browser starting a vertical scroll that would fight
+        // the swipe-to-delete gesture.
+        touchAction: 'pan-x',
       }}
       {...handlers}
     >
@@ -952,6 +956,7 @@ export const IngredientDisplay = ({
                                 e.stopPropagation();
                                 onLockToggle(actualIndex);
                               }}
+                              lang="en"
                               style={{
                                 // Lighter weight + muted color = not a suggested pairing
                                 // with the other selected ingredients (underline stays
@@ -962,6 +967,10 @@ export const IngredientDisplay = ({
                                 cursor: 'pointer',
                                 display: 'inline',
                                 transition: 'color 250ms ease-out',
+                                // Long names break across (up to two) lines with
+                                // hyphenation instead of truncating or overflowing.
+                                hyphens: 'auto',
+                                overflowWrap: 'break-word',
                               }}
                             >
                               {/* Split ingredient: allow wrapping but keep last word + comma/lock together */}
@@ -1007,8 +1016,10 @@ export const IngredientDisplay = ({
                                   </span>
                                 );
                                 if (words.length === 1) {
+                                  // Single word: allow it to break (with hyphenation
+                                  // from the parent) so very long names don't overflow.
                                   return (
-                                    <span className="whitespace-nowrap">
+                                    <span style={{ overflowWrap: 'break-word' }}>
                                       {ingredient}
                                       {trailingElement}
                                     </span>

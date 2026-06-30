@@ -1438,9 +1438,22 @@ export default function FlavorFinderV2() {
             text-sm font-medium shadow-lg
           `}
         >
-          {isTasteLab
-            ? 'No pairing fits those slots — try a different taste or category'
-            : 'No other ingredient pairs with all of these'}
+          {(() => {
+            // Explain *why* nothing was found, using the current constraints, so
+            // the suggestion is actionable rather than a dead end.
+            if (!isTasteLab) {
+              return lockedIngredients.size > 0
+                ? 'No other ingredient pairs with your locked picks — unlock one to free it up'
+                : 'No other ingredient pairs with all of these';
+            }
+            if (tasteLabPool) {
+              return `Too few ingredients in "${tasteLabPool.name}" pair up — remove the preset for more options`;
+            }
+            if (lockedConstraints.size > 0 || lockedIngredients.size > 0) {
+              return 'No pairing fits your locked slots — unlock one or change its taste/category';
+            }
+            return 'No mutually-compatible pairing for those tastes — try different ones';
+          })()}
         </div>
       )}
 
@@ -1552,6 +1565,7 @@ export default function FlavorFinderV2() {
         onLogoClick={() => setIsSidebarOpen(true)}
         isGeneratePulsing={isFirstLoad}
         isMobile={isMobile}
+        isTasteLab={isTasteLab}
       />
 
       {/* Mobile Bottom Bar */}

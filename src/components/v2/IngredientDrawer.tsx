@@ -4,6 +4,7 @@ import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors
 import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
+import { Slider } from './ui/index.ts';
 
 // Filter constants
 const CATEGORIES = [
@@ -23,19 +24,6 @@ const SUBCATEGORIES = {
 };
 
 const TASTE_PROPERTIES = ['sweet', 'salty', 'sour', 'umami', 'fat', 'spicy', 'aromatic'];
-
-const getDesaturatedColor = (hexColor) => {
-  const r = parseInt(hexColor.slice(1, 3), 16);
-  const g = parseInt(hexColor.slice(3, 5), 16);
-  const b = parseInt(hexColor.slice(5, 7), 16);
-
-  const mix = 0.7;
-  const desatR = Math.round(r * (1 - mix) + 255 * mix);
-  const desatG = Math.round(g * (1 - mix) + 255 * mix);
-  const desatB = Math.round(b * (1 - mix) + 255 * mix);
-
-  return `rgb(${desatR}, ${desatG}, ${desatB})`;
-};
 
 export const IngredientDrawer = ({
   isOpen,
@@ -435,27 +423,6 @@ export const IngredientDrawer = ({
 
   const subcategories = SUBCATEGORIES[activeCategory] || [];
 
-  // Generate slider thumb styles
-  const sliderStyles = TASTE_PROPERTIES.map(taste => `
-    .taste-slider-${taste}::-webkit-slider-thumb {
-      appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: ${TASTE_COLORS[taste]};
-      border: 1px solid black;
-      cursor: pointer;
-    }
-    .taste-slider-${taste}::-moz-range-thumb {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: ${TASTE_COLORS[taste]};
-      border: 1px solid black;
-      cursor: pointer;
-    }
-  `).join('\n');
-
   // Hide scrollbar CSS for webkit browsers
   const scrollbarHideStyles = `
     .scrollbar-hide::-webkit-scrollbar {
@@ -467,12 +434,12 @@ export const IngredientDrawer = ({
   if (isMobile) {
     return (
       <>
-        <style>{sliderStyles}{scrollbarHideStyles}</style>
+        <style>{scrollbarHideStyles}</style>
         {/* Backdrop - closes drawer when tapped (only covers drawer area, not ingredient display) */}
         {isOpen && (
           <div
             className="fixed left-0 right-0 z-[54]"
-            style={{ top: '140px', bottom: '68px' }}
+            style={{ top: '140px', bottom: 'calc(68px + env(safe-area-inset-bottom))' }}
             onClick={onClose}
             aria-hidden="true"
           />
@@ -487,7 +454,9 @@ export const IngredientDrawer = ({
             transition-colors duration-300
           `}
           style={{
-            bottom: '68px', // Height of bottom bar (py-3 = 24px + h-12 button = 48px + border)
+            // Sit above the bottom bar, including its safe-area padding so the
+            // drawer never tucks behind the home indicator on notched phones.
+            bottom: 'calc(68px + env(safe-area-inset-bottom))',
             top: isOpen ? '140px' : '100%', // Below header (56px) + ingredient strip (~84px)
             transition: isDragging ? 'none' : 'top 300ms ease-out, transform 300ms ease-out',
             transform: touchStart && touchEnd && touchEnd > touchStart
@@ -677,17 +646,15 @@ export const IngredientDrawer = ({
                             style={{ backgroundColor: color }}
                           />
                           <span className="text-xs font-medium capitalize w-10">{taste}</span>
-                          <input
-                            type="range"
-                            min="1"
-                            max="10"
-                            step="1"
+                          <Slider
+                            min={1}
+                            max={10}
+                            step={1}
+                            accent={color}
                             value={tasteValues[taste] || 1}
-                            onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
-                            className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
-                            style={{
-                              background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
-                            }}
+                            onChange={(v) => onTasteChange({ ...tasteValues, [taste]: v })}
+                            aria-label={`${taste} minimum`}
+                            className="flex-1"
                           />
                           <span className="text-xs text-gray-500 w-4">{tasteValues[taste] || 1}</span>
                         </div>
@@ -827,7 +794,6 @@ export const IngredientDrawer = ({
   // Desktop layout
   return (
     <>
-      <style>{sliderStyles}</style>
       {/* Backdrop */}
       {isOpen && (
         <div
@@ -995,17 +961,15 @@ export const IngredientDrawer = ({
                                   style={{ backgroundColor: color }}
                                 />
                                 <span className="text-xs font-medium capitalize w-12 text-gray-700 dark:text-gray-300">{taste}</span>
-                                <input
-                                  type="range"
-                                  min="1"
-                                  max="10"
-                                  step="1"
+                                <Slider
+                                  min={1}
+                                  max={10}
+                                  step={1}
+                                  accent={color}
                                   value={tasteValues[taste] || 1}
-                                  onChange={(e) => onTasteChange({ ...tasteValues, [taste]: parseInt(e.target.value, 10) })}
-                                  className={`flex-1 h-1.5 rounded-full appearance-none cursor-pointer taste-slider-${taste}`}
-                                  style={{
-                                    background: `linear-gradient(to right, ${color} 0%, ${color} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} ${((tasteValues[taste] || 1) - 1) * 11.11}%, ${getDesaturatedColor(color)} 100%)`
-                                  }}
+                                  onChange={(v) => onTasteChange({ ...tasteValues, [taste]: v })}
+                                  aria-label={`${taste} minimum`}
+                                  className="flex-1"
                                 />
                                 <span className="text-xs text-gray-500 dark:text-gray-400 w-6">{tasteValues[taste] || 1}</span>
                               </div>
@@ -1019,20 +983,22 @@ export const IngredientDrawer = ({
               )}
             </div>
 
-            {/* Filter Panel Toggle Button */}
+            {/* Filter Panel Toggle Button — a full-height divider strip, so the
+                hit area is already tall; widened from w-6 to w-9 and the chevron
+                darkened so it's an obvious affordance rather than a faint hairline. */}
             <button
               onClick={() => setIsFiltersPanelCollapsed(!isFiltersPanelCollapsed)}
               className="
-                flex-shrink-0 w-6
+                flex-shrink-0 w-9
                 flex items-center justify-center
                 border-r border-gray-200 dark:border-gray-700
                 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors
-                text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300
+                text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100
               "
               aria-label={isFiltersPanelCollapsed ? "Show filters" : "Hide filters"}
             >
               <ChevronLeft
-                size={18}
+                size={20}
                 className={`transition-transform duration-300 ${isFiltersPanelCollapsed ? 'rotate-180' : ''}`}
               />
             </button>
