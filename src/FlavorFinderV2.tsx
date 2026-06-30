@@ -678,6 +678,11 @@ export default function FlavorFinderV2() {
     patch: Partial<SlotTaste>
   ) => {
     setSlotTaste(slotIndex, patch);
+    // Touching a slot's constraint from the picker is a deliberate "this is what I
+    // want to see" choice, so pin it: a subsequent Generate rerolls the ingredient
+    // *within* this taste/category/wild instead of randomizing the constraint away.
+    // (Free shuffling stays free — only opening the menu and picking locks it.)
+    setLockedConstraints(prev => (prev.has(slotIndex) ? prev : new Set(prev).add(slotIndex)));
     if (!isTasteLab) return;
 
     const count = selectedIngredients.length;
