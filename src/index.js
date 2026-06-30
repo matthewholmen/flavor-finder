@@ -10,8 +10,15 @@ root.render(
   </React.StrictMode>
 );
 
-// Register service worker for PWA functionality
-if ('serviceWorker' in navigator) {
+// Register the service worker for PWA functionality — but only in a real
+// production deployment. On localhost the dev server serves UN-hashed bundles
+// (e.g. /static/js/bundle.js) that the SW's cache-first strategy would pin,
+// which is what made a long-removed "intro shuffle" keep replaying on
+// localhost. So we keep the worker off there; public/sw.js also self-unregisters
+// on localhost to clean up any worker a past production build left behind.
+const isLocalhost = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+
+if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production' && !isLocalhost) {
   // Was a service worker already controlling this page when it loaded? If so, a
   // later controllerchange means a NEW worker took over (an update) — reload once
   // so the page picks up the fresh assets. On a first-ever install there's no
@@ -33,6 +40,15 @@ if ('serviceWorker' in navigator) {
         console.log('SW registration failed: ', registrationError);
       });
   });
+} else if ('serviceWorker' in navigator) {
+  // Dev / localhost: proactively tear down any stale worker and its caches so
+  // `npm start` always serves fresh code. (Registering the new sw.js above isn't
+  // possible here, but the browser's update check still picks it up and it
+  // self-unregisters; this is a belt-and-suspenders cleanup.)
+  navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister()));
+  if (window.caches) {
+    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+  }
 }
 
 // Add to home screen prompt
