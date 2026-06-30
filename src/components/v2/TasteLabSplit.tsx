@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, SlidersHorizontal, X } from 'lucide-react';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
+import { Pill } from './ui/index.ts';
 import {
   TASTE_COLORS,
   CATEGORY_COLORS,
@@ -728,33 +729,26 @@ const SplitHalf = ({
               one (or "All") to drop the filter and see every compatible pairing;
               tap another to filter by it. Doesn't change the slot itself. */}
           <div className="flex items-center gap-1.5 px-4 py-2.5 shrink-0 overflow-x-auto scrollbar-hide border-b border-gray-200 dark:border-gray-800">
-            <button
+            <Pill
+              active={!searchFilter}
               onClick={() => setSearchFilter(null)}
-              className="shrink-0 px-3 py-1.5 rounded-full text-sm font-bold capitalize transition-colors border-2"
-              style={
-                !searchFilter
-                  ? { backgroundColor: '#6b7280', borderColor: '#6b7280', color: '#ffffff' }
-                  : { borderColor: 'transparent', color: 'inherit' }
-              }
+              className="shrink-0 capitalize"
             >
               All
-            </button>
+            </Pill>
             {tagOptions.map(opt => {
               const active = !!searchFilter && searchFilter.mode === opt.mode && searchFilter.value === opt.value;
               const c = getIngredientColorWithContrast(opt.color, isHighContrast, isDarkMode);
               return (
-                <button
+                <Pill
                   key={`${opt.mode}-${opt.value}`}
+                  active={active}
+                  accent={c}
                   onClick={() => toggleTag(opt)}
-                  className="shrink-0 inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold capitalize transition-colors border-2 text-gray-700 dark:text-gray-200"
-                  style={{
-                    borderColor: c,
-                    backgroundColor: active ? c : 'transparent',
-                    color: active ? '#ffffff' : undefined,
-                  }}
+                  className="shrink-0 capitalize"
                 >
                   {opt.value}
-                </button>
+                </Pill>
               );
             })}
           </div>
