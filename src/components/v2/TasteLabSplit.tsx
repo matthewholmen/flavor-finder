@@ -164,17 +164,23 @@ const SplitHalf = ({
   const halfRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pickerBtnRef = useRef<HTMLButtonElement>(null);
+  const pickerWrapRef = useRef<HTMLDivElement>(null);
   const searchBtnRef = useRef<HTMLButtonElement>(null);
 
   // The picker dropdown opens up or down and is height-capped to fit the viewport.
   const pickerPlacement = useMenuPlacement(pickerOpen, pickerBtnRef, isMobile);
 
-  // A click anywhere outside this half closes whichever menu is open.
+  // Click-outside closes whichever menu is open. The picker is a small popover,
+  // so any click outside it (even elsewhere in this same half) dismisses it; the
+  // search panel fills the half, so it only closes when the click leaves the half.
   useEffect(() => {
     if (!pickerOpen && !searchOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (halfRef.current && !halfRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (pickerOpen && pickerWrapRef.current && !pickerWrapRef.current.contains(target)) {
         setPickerOpen(false);
+      }
+      if (searchOpen && halfRef.current && !halfRef.current.contains(target)) {
         setSearchOpen(false);
       }
     };
@@ -487,7 +493,7 @@ const SplitHalf = ({
         </button>
 
         {/* Value picker — the Taste ⇄ Category toggle lives inside its dropdown */}
-        <div className="relative">
+        <div className="relative" ref={pickerWrapRef}>
           <button
             ref={pickerBtnRef}
             onClick={() => {

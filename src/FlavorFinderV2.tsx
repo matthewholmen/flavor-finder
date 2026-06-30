@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useRef } from 'react';
 import { MinimalHeader } from './components/v2/MinimalHeader.tsx';
 import { MobileBottomBar } from './components/v2/MobileBottomBar.tsx';
 import { IngredientDisplay } from './components/v2/IngredientDisplay.tsx';
@@ -29,7 +29,8 @@ import {
   encodeIngredientsToUrl,
   decodeUrlToIngredients,
 } from './utils/urlEncoding.js';
-import { TASTE_COLORS } from './utils/colors.ts';
+import { TASTE_COLORS, CATEGORY_COLORS } from './utils/colors.ts';
+import { ChevronDown } from 'lucide-react';
 import {
   NUT_INGREDIENTS_SET,
   NIGHTSHADE_INGREDIENTS_SET,
@@ -117,6 +118,21 @@ export default function FlavorFinderV2() {
   // Active themed pool (e.g. "Pizza Night"): when set, every Taste Lab slot is
   // confined to this whitelist of ingredients. null = the full library.
   const [tasteLabPool, setTasteLabPool] = useState<{ name: string; ingredients: string[] } | null>(null);
+  // Whether the themed-pool banner is expanded to reveal its full ingredient list.
+  const [isPoolExpanded, setIsPoolExpanded] = useState(false);
+  const poolBannerRef = useRef<HTMLDivElement>(null);
+
+  // Collapse the expanded pool list when the user clicks anywhere outside it.
+  useEffect(() => {
+    if (!isPoolExpanded) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (poolBannerRef.current && !poolBannerRef.current.contains(e.target as Node)) {
+        setIsPoolExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isPoolExpanded]);
 
   // Taste Lab: two-slot, taste-driven generation mode
   const {
@@ -669,13 +685,29 @@ export default function FlavorFinderV2() {
       i === slotIndex ? { ...s, ...patch } : s
     );
 
+    // Hand-picking a slot's taste or category departs from the themed pool — the
+    // "Pizza Night" label no longer fits — so drop the pool and reroll against the
+    // full library. (Subcategory narrows / excludes stay within the pool.) Pass
+    // the override explicitly since setTasteLabPool hasn't flushed yet.
+    const breaksPool =
+      tasteLabPool && (patch.taste !== undefined || patch.category !== undefined);
+    if (breaksPool) {
+      setTasteLabPool(null);
+      setIsPoolExpanded(false);
+    }
+
     // Keep every other ingredient anchored; reroll just this slot to fit the new
     // constraint and stay compatible with the rest.
     const anchors: Record<number, string> = {};
     selectedIngredients.forEach((ing, j) => {
       if (j !== slotIndex && ing) anchors[j] = ing;
     });
-    const combo = computeTasteLabCombo(newSlots, anchors);
+    const combo = computeTasteLabCombo(
+      newSlots,
+      anchors,
+      new Set(),
+      breaksPool ? null : undefined
+    );
     if (combo.length < count) {
       setNoMatchToast(true);
       return;
@@ -1419,27 +1451,74 @@ export default function FlavorFinderV2() {
         </div>
       )}
 
-      {/* Themed pool banner — shows the active pool and offers an escape hatch */}
+      {/* Themed pool banner — shows the active pool, reveals its ingredients on
+          click, and offers an escape hatch */}
       {isTasteLab && tasteLabPool && !isDrawerOpen && (
         <div
+          ref={poolBannerRef}
           className={`
-            fixed left-1/2 -translate-x-1/2 z-40
+            fixed left-1/2 -translate-x-1/2 z-40 w-max max-w-[min(92vw,28rem)]
             ${isMobile ? 'top-[72px]' : 'top-[100px]'}
-            flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full
+            rounded-2xl
             bg-gray-900/90 dark:bg-white/90 backdrop-blur
-            text-white dark:text-gray-900 text-xs font-semibold shadow-lg
+            text-white dark:text-gray-900 shadow-lg
           `}
         >
-          <span className="opacity-90">
-            {tasteLabPool.name} pool · {tasteLabPool.ingredients.length} ingredients
-          </span>
-          <button
-            onClick={() => setTasteLabPool(null)}
-            aria-label="Clear themed pool"
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 dark:bg-gray-900/15 hover:bg-white/30 dark:hover:bg-gray-900/25 transition-colors"
-          >
-            Clear
-          </button>
+          <div className="flex items-center gap-2 pl-3.5 pr-2 py-1.5">
+            <button
+              onClick={() => setIsPoolExpanded(v => !v)}
+              aria-expanded={isPoolExpanded}
+              aria-label={isPoolExpanded ? 'Hide pool ingredients' : 'Show pool ingredients'}
+              className="flex items-center gap-1.5 text-xs font-semibold opacity-90 hover:opacity-100 transition-opacity"
+            >
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform ${isPoolExpanded ? 'rotate-180' : ''}`}
+              />
+              {tasteLabPool.name} pool · {tasteLabPool.ingredients.length} ingredients
+            </button>
+            <button
+              onClick={() => { setIsPoolExpanded(false); setTasteLabPool(null); }}
+              aria-label="Clear themed pool"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-white/20 dark:bg-gray-900/15 hover:bg-white/30 dark:hover:bg-gray-900/25 transition-colors"
+            >
+              Clear
+            </button>
+          </div>
+          {isPoolExpanded && (
+            <div className="max-h-[50vh] overflow-y-auto px-3.5 pb-3 pt-0.5 border-t border-white/15 dark:border-gray-900/10">
+              {Object.entries(
+                tasteLabPool.ingredients.reduce<Record<string, string[]>>((acc, name) => {
+                  const cat = profileByName.get(name.toLowerCase())?.category ?? 'Other';
+                  (acc[cat] ??= []).push(name);
+                  return acc;
+                }, {})
+              )
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([category, names]) => (
+                  <div key={category} className="mt-2.5 first:mt-1.5">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: CATEGORY_COLORS[category] ?? '#9CA3AF' }}
+                      />
+                      <span className="text-[10px] font-bold uppercase tracking-wide opacity-60">
+                        {category} · {names.length}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {names.slice().sort((a, b) => a.localeCompare(b)).map(name => (
+                        <span
+                          key={name}
+                          className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-white/15 dark:bg-gray-900/10"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
       )}
 
