@@ -335,15 +335,32 @@ const SplitHalf = ({
   const pillBg = mixHex(bg, fg, fg === '#ffffff' ? 0.2 : 0.1);
   const strongBg = mixHex(bg, fg, fg === '#ffffff' ? 0.32 : 0.2);
 
-  // The picker's current label and the options it offers depend on the mode.
-  const currentLabel = isWild ? 'wild' : isCategory ? (slot.subcategory || slot.category) : slot.taste;
+  // Active subcategory narrow (category mode). Empty = the whole category.
+  const subs = slot.subcategories ?? [];
+  // The picker's current label and the options it offers depend on the mode. A
+  // single narrowed subcategory shows by name; several show as "Category · N".
+  const currentLabel = isWild
+    ? 'wild'
+    : isCategory
+    ? (subs.length === 1 ? subs[0] : subs.length > 1 ? `${slot.category} · ${subs.length}` : slot.category)
+    : slot.taste;
   const options: { value: string; color: string; count: number }[] = isCategory
     ? CATEGORY_KEYS.map(c => ({ value: c, color: CATEGORY_COLORS[c], count: optionCounts?.category[c] ?? 0 }))
     : TASTE_KEYS.map(t => ({ value: t, color: TASTE_COLORS[t as TasteKey], count: optionCounts?.taste[t] ?? 0 }));
+  // The live category/taste, for highlighting the active option row. (currentLabel
+  // can read "Meat" or "Proteins · 2" when narrowed, so don't compare against it.)
+  const selectedValue = isCategory ? slot.category : slot.taste;
 
   const selectOption = (value: string) => {
-    // Changing the category drops any subcategory narrow (subcats are per-category).
-    onChange(isCategory ? { category: value as CategoryKey, subcategory: undefined } : { taste: value as TasteKey });
+    if (isCategory) {
+      // Changing the category drops any subcategory narrow (subcats are per-category)
+      // and reshuffles the slot. Keep the picker OPEN so this category's "Narrow to"
+      // chips reveal inline beneath it — narrowing is one tap away, not a hidden
+      // scroll. Tapping away accepts the whole category.
+      onChange({ category: value as CategoryKey, subcategories: undefined });
+      return;
+    }
+    onChange({ taste: value as TasteKey });
     setPickerOpen(false);
   };
 
@@ -361,10 +378,24 @@ const SplitHalf = ({
   const subcategories = SUBCATEGORIES[slot.category] ?? [];
   const toggleExclude = (c: CategoryKey) =>
     onChange({ exclude: excluded.includes(c) ? excluded.filter(x => x !== c) : [...excluded, c] });
-  const pickSubcategory = (sub?: string) => onChange({ subcategory: sub });
+  // Multi-select subcategory narrowing. Empty (the default) means the whole
+  // category, shown with every chip "on". The first tap narrows to just that
+  // subcategory (de-selecting the rest); further taps add or remove chips, and
+  // removing the last reverts to the whole category. Only shrinks the pool.
+  const toggleSubcategory = (sub: string) => {
+    if (subs.length === 0) {
+      onChange({ subcategories: [sub] });
+    } else if (subs.includes(sub)) {
+      const next = subs.filter(s => s !== sub);
+      onChange({ subcategories: next.length ? next : undefined });
+    } else {
+      onChange({ subcategories: [...subs, sub] });
+    }
+  };
+  const selectAllSubcategories = () => onChange({ subcategories: undefined });
   // A reminder is shown when a secondary filter is active.
   const reminder = isCategory
-    ? (slot.subcategory ? `${slot.subcategory} only` : null)
+    ? (subs.length === 1 ? `${subs[0]} only` : subs.length > 1 ? `${subs.length} subcategories` : null)
     : (excluded.length ? `no ${excluded.join(', ')}` : null);
 
   const pickIngredient = (value: string) => {
@@ -515,7 +546,7 @@ const SplitHalf = ({
 
           {pickerOpen && (
             <div
-              className={`absolute left-1/2 -translate-x-1/2 z-[70] w-[220px] flex flex-col p-1.5 rounded-2xl shadow-xl ${
+              className={`absolute left-1/2 -translate-x-1/2 z-[70] w-[244px] flex flex-col p-1.5 rounded-2xl shadow-xl ${
                 pickerPlacement.up ? 'bottom-full mb-2' : 'top-full mt-2'
               }`}
               style={{ backgroundColor: pillBg, maxHeight: pickerPlacement.maxHeight }}
@@ -544,9 +575,12 @@ const SplitHalf = ({
                 })}
               </div>
 
-              {/* Scrollable body: the options for the active mode, then the
-                  secondary-filter editor — narrow (category) or exclude (else).
-                  Both only shrink the pool; pairing is never relaxed. */}
+              {/* Scrollable body: the options for the active mode. In category
+                  mode the selected category expands inline to its "Narrow to"
+                  chips, so subcategory filtering is right under the row you picked
+                  rather than buried at the bottom. Taste/wild mode shows the
+                  exclude editor below. All of this only shrinks the pool; the
+                  flavor-map pairing is never relaxed. */}
               <div className="overflow-y-auto">
                 {isWild ? (
                   <div className="px-3 py-2 text-xs font-medium" style={{ color: fg, opacity: 0.8 }}>
@@ -556,57 +590,58 @@ const SplitHalf = ({
                 <div role="listbox" className="flex flex-col gap-0.5">
                   {options.map(({ value, color, count }) => {
                     const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
-                    const selected = value === currentLabel;
+                    const selected = value === selectedValue;
                     const highlighted = selected || hovered === value;
+                    const showSubs = isCategory && selected && subcategories.length > 0;
                     return (
-                      <button
-                        key={value}
-                        role="option"
-                        aria-selected={selected}
-                        onMouseEnter={() => setHovered(value)}
-                        onMouseLeave={() => setHovered(null)}
-                        onClick={() => selectOption(value)}
-                        className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
-                        style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
-                      >
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
-                        <span className="flex-1 capitalize">{value}</span>
-                        <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
-                      </button>
+                      <React.Fragment key={value}>
+                        <button
+                          role="option"
+                          aria-selected={selected}
+                          onMouseEnter={() => setHovered(value)}
+                          onMouseLeave={() => setHovered(null)}
+                          onClick={() => selectOption(value)}
+                          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
+                          style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
+                        >
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
+                          <span className="flex-1 capitalize">{value}</span>
+                          <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
+                        </button>
+
+                        {/* Inline "Narrow to" — the selected category's subcategory
+                            chips, indented to read as children of the row above.
+                            "All" (default) = the whole category; tap a chip to
+                            narrow, tap more to add, tap again to remove. */}
+                        {showSubs && (
+                          <div className="flex flex-wrap gap-1 pl-7 pr-1.5 pt-0.5 pb-1.5">
+                            <button
+                              onClick={selectAllSubcategories}
+                              className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
+                              style={{ color: fg, backgroundColor: subs.length === 0 ? strongBg : 'transparent', opacity: subs.length === 0 ? 1 : 0.7 }}
+                            >
+                              All
+                            </button>
+                            {subcategories.map(sub => {
+                              // Empty selection = the whole category, so every chip reads as on.
+                              const on = subs.length === 0 || subs.includes(sub);
+                              return (
+                                <button
+                                  key={sub}
+                                  onClick={() => toggleSubcategory(sub)}
+                                  className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
+                                  style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7 }}
+                                >
+                                  {sub}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </React.Fragment>
                     );
                   })}
                 </div>
-                )}
-
-                {/* Narrow (category mode) — restrict to one subcategory */}
-                {isCategory && (
-                  <div className="mt-1 pt-1" style={{ borderTop: `1px solid ${strongBg}` }}>
-                    <div className="px-2 pt-0.5 pb-1 text-[10px] font-bold uppercase tracking-wide" style={{ color: fg, opacity: 0.55 }}>
-                      Narrow to
-                    </div>
-                    <div className="flex flex-wrap gap-1 px-1.5 pb-1">
-                      <button
-                        onClick={() => pickSubcategory(undefined)}
-                        className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
-                        style={{ color: fg, backgroundColor: !slot.subcategory ? strongBg : 'transparent', opacity: !slot.subcategory ? 1 : 0.7 }}
-                      >
-                        Any
-                      </button>
-                      {subcategories.map(sub => {
-                        const on = slot.subcategory === sub;
-                        return (
-                          <button
-                            key={sub}
-                            onClick={() => pickSubcategory(sub)}
-                            className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
-                            style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7 }}
-                          >
-                            {sub}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
                 )}
 
                 {/* Exclude (taste / wild mode) — carve categories out of the pool */}

@@ -474,7 +474,7 @@ export default function FlavorFinderV2() {
       if (slot.mode === 'wild') return true; // no constraint — any ingredient
       if (slot.mode === 'category') {
         if (categoryFor(ing) !== slot.category) return false;
-        return !slot.subcategory || subcategoryFor(ing) === slot.subcategory;
+        return !slot.subcategories?.length || slot.subcategories.includes(subcategoryFor(ing) as string);
       }
       return tasteScore(ing, slot.taste) >= TASTE_THRESHOLD;
     };
@@ -561,7 +561,7 @@ export default function FlavorFinderV2() {
           if (slot.mode === 'wild') return true; // no constraint — any ingredient
           if (slot.mode === 'category') {
             if (profile?.category !== slot.category) return false;
-            return !slot.subcategory || profile?.subcategory === slot.subcategory;
+            return !slot.subcategories?.length || slot.subcategories.includes(profile?.subcategory as string);
           }
           const fp = profile?.flavorProfile as any;
           return fp && (fp[slot.taste] ?? 0) >= TASTE_THRESHOLD;
@@ -726,7 +726,7 @@ export default function FlavorFinderV2() {
     if (!profile) return;
     if (slotTastes[index].mode === 'category') {
       // Describe the new ingredient's category; drop any prior subcategory narrow.
-      if (profile.category) setSlotTaste(index, { category: profile.category as CategoryKey, subcategory: undefined });
+      if (profile.category) setSlotTaste(index, { category: profile.category as CategoryKey, subcategories: undefined });
     } else {
       const fp = profile.flavorProfile as any;
       if (fp) {
@@ -828,7 +828,7 @@ export default function FlavorFinderV2() {
     // Push each slot's constraint into the hook (state update is async, so we
     // also keep `slots` locally for the immediate generate below).
     slots.forEach((s, i) =>
-      setSlotTaste(i, { mode: s.mode, taste: s.taste, category: s.category, subcategory: s.subcategory, exclude: s.exclude })
+      setSlotTaste(i, { mode: s.mode, taste: s.taste, category: s.category, subcategories: s.subcategories, exclude: s.exclude })
     );
 
     // Themed presets confine generation to a pool; others clear any prior pool.
@@ -872,7 +872,7 @@ export default function FlavorFinderV2() {
           m: s.mode,
           t: s.taste,
           c: s.category,
-          ...(s.subcategory ? { sc: s.subcategory } : {}),
+          ...(s.subcategories?.length ? { sc: s.subcategories } : {}),
           ...(s.exclude?.length ? { x: s.exclude } : {}),
         })),
         i: selectedIngredients.slice(0, count),
@@ -920,7 +920,14 @@ export default function FlavorFinderV2() {
           const count = Math.min(Math.max(d.s.length, TASTE_LAB_MIN), TASTE_LAB_MAX);
           setIsTasteLab(true);
           d.s.slice(0, count).forEach((s: any, i: number) =>
-            setSlotTaste(i, { mode: s.m, taste: s.t, category: s.c, subcategory: s.sc, exclude: s.x })
+            // `sc` was a single subcategory string in older links; normalize to an array.
+            setSlotTaste(i, {
+              mode: s.m,
+              taste: s.t,
+              category: s.c,
+              subcategories: s.sc ? (Array.isArray(s.sc) ? s.sc : [s.sc]) : undefined,
+              exclude: s.x,
+            })
           );
           setTargetIngredientCount(count);
           setLockedConstraints(new Set<number>(d.lc ?? []));

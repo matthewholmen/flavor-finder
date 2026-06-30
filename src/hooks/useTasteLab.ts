@@ -58,10 +58,11 @@ export interface SlotTaste {
   mode: SlotMode;
   taste: TasteKey;
   category: CategoryKey;
-  // In category mode, optionally narrow to a single subcategory (e.g. Dairy →
-  // Cheese). Undefined = the whole category. This narrows the pool; it never
-  // affects the flavor-map pairing requirement.
-  subcategory?: string;
+  // In category mode, optionally narrow to one or more subcategories (e.g. Dairy
+  // → [Cheese], or Proteins → [Meat, Poultry]). Undefined/empty = the whole
+  // category. This narrows the pool; it never affects the flavor-map pairing
+  // requirement.
+  subcategories?: string[];
   // Categories to carve OUT of this slot's pool, regardless of mode — e.g. a
   // `sweet` slot excluding `Fruits` yields caramelized onion, not strawberry.
   // Empty/undefined means no exclusions.

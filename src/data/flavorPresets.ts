@@ -64,10 +64,17 @@ const ALL_CHEESES = [
 
 const PIZZA_POOL = [
   ...ALL_CHEESES,
-  'tomato', 'tomato paste', 'sun-dried tomato', 'basil', 'oregano', 'chili flake', 'pesto',
-  'garlic', 'onion', 'red onion', 'bell pepper', 'mushroom', 'cremini', 'portobello',
-  'prosciutto', 'pancetta', 'sausage', 'salami', 'nduja', 'ham', 'olive oil', 'black olive',
-  'arugula', 'roasted red pepper', 'anchovy', 'capers', 'artichoke', 'spinach', 'jalapeño',
+  // Tomato base + aromatics/oil (kept in the pool so they pair well even though
+  // the slots draw cheese, vegetable, and protein).
+  'tomato', 'tomato paste', 'sun-dried tomato', 'roasted red pepper', 'basil', 'oregano',
+  'chili flake', 'pesto', 'olive oil',
+  // Vegetable toppings — a wide spread so the veg slot rerolls broadly.
+  'garlic', 'onion', 'red onion', 'shallot', 'leek', 'scallion', 'bell pepper', 'mushroom',
+  'cremini', 'portobello', 'arugula', 'spinach', 'kale', 'radicchio', 'artichoke', 'eggplant',
+  'zucchini', 'broccolini', 'fennel', 'jalapeño', 'black olive', 'capers',
+  // Cured meats + a couple of fresh proteins for the protein slot.
+  'prosciutto', 'pancetta', 'guanciale', 'sausage', 'salami', 'nduja', 'mortadella', 'ham',
+  'bacon', 'anchovy', 'chicken',
 ];
 const TACO_POOL = [
   'tomato', 'tomatillo', 'onion', 'red onion', 'cilantro', 'lime', 'avocado', 'guacamole',
@@ -209,9 +216,9 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
   {
     id: 'pizza-night',
     name: 'Pizza Night',
-    description: 'Cheese, a topping, and a herb — all from the pizza pantry.',
+    description: 'Cheese, a vegetable, and a meaty topping — all from the pizza pantry.',
     tier: 'themed',
-    slots: [cat('Dairy'), wild(), cat('Seasonings')],
+    slots: [cat('Dairy'), cat('Vegetables'), cat('Proteins')],
     pool: PIZZA_POOL,
   },
   {
