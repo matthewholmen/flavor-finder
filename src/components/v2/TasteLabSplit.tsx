@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, SlidersHorizontal, X, Zap } from 'lucide-react';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { Pill, IngredientTile } from './ui/index.ts';
 import {
@@ -174,13 +174,22 @@ const SplitHalf = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [pickerOpen, searchOpen]);
 
-  // The search's active tag filter — a taste or category, or null for "All"
-  // (every ingredient that pairs with the others). Defaults to the slot's own
-  // taste/category each time the panel opens; doesn't touch the slot itself.
+  // The search's active tag filter — a taste or category, or null for "All".
+  // The taste/category pill row is collapsed by default (it's rarely needed and
+  // eats vertical space); `tagsOpen` reveals it. `showNonPairing` is the
+  // Classic-style "show everything" toggle: it surfaces ingredients that DON'T
+  // pair with the other selections (marked with a dashed border) so you can
+  // still build a fresh pairing off one.
   const [searchFilter, setSearchFilter] = useState<{ mode: SlotMode; value: string } | null>(null);
+  const [tagsOpen, setTagsOpen] = useState(false);
+  const [showNonPairing, setShowNonPairing] = useState(false);
   useEffect(() => {
     if (searchOpen) {
-      setSearchFilter({ mode: slot.mode, value: slot.mode === 'category' ? slot.category : slot.taste });
+      // Open with no tag filter so the full set of pairings is visible; the pill
+      // row and non-pairing toggle stay collapsed/off until the user asks.
+      setSearchFilter(null);
+      setTagsOpen(false);
+      setShowNonPairing(false);
     } else {
       setQuery('');
     }
@@ -188,22 +197,33 @@ const SplitHalf = ({
   }, [searchOpen]);
 
   const matchCount = candidates.length;
-  // The search browses everything that pairs with the other ingredients; the
-  // active tag (if any) narrows it to a taste/category, and the query narrows by
-  // name. Turn the tag off to see all compatible pairings.
+  // The search browses everything that pairs with the other ingredients (the
+  // "pairing" list); an active tag narrows by taste/category and the query
+  // narrows by name. Non-pairing ingredients are normally hidden, but appear
+  // (dashed) whenever there's a name query — so searching "chicken" always
+  // reveals chicken — or when `showNonPairing` is on.
   const partnerSet = useMemo(() => new Set(partnerCandidates), [partnerCandidates]);
-  const filteredPool = useMemo(() => {
+  const { pairing, nonPairing } = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return searchPool.filter(item => {
-      if (!partnerSet.has(item.name)) return false;
-      if (q && !item.name.toLowerCase().includes(q)) return false;
-      if (searchFilter) {
-        if (searchFilter.mode === 'category') return item.category === searchFilter.value;
-        return item.tastes.includes(searchFilter.value);
-      }
-      return true;
-    });
-  }, [searchPool, partnerSet, query, searchFilter]);
+    const matchesTag = (item: SearchPoolItem) => {
+      if (!searchFilter) return true;
+      if (searchFilter.mode === 'category') return item.category === searchFilter.value;
+      return item.tastes.includes(searchFilter.value);
+    };
+    const pairing: SearchPoolItem[] = [];
+    const nonPairing: SearchPoolItem[] = [];
+    for (const item of searchPool) {
+      if (q && !item.name.toLowerCase().includes(q)) continue;
+      if (!matchesTag(item)) continue;
+      if (partnerSet.has(item.name)) pairing.push(item);
+      else nonPairing.push(item);
+    }
+    // Non-pairing results only surface on an explicit name search or when the
+    // "show all" toggle is on; otherwise the search stays to true pairings.
+    const revealNonPairing = q.length > 0 || showNonPairing;
+    return { pairing, nonPairing: revealNonPairing ? nonPairing : [] };
+  }, [searchPool, partnerSet, query, searchFilter, showNonPairing]);
+  const totalResults = pairing.length + nonPairing.length;
 
   // Tag options shown in the search: the 7 tastes then the 8 categories.
   const tagOptions = useMemo(
@@ -708,44 +728,80 @@ const SplitHalf = ({
             </button>
           </div>
 
-          {/* Filter tags — defaults to the slot's taste/category. Tap the active
-              one (or "All") to drop the filter and see every compatible pairing;
-              tap another to filter by it. Doesn't change the slot itself. */}
-          <div className="flex items-center gap-1.5 px-4 py-2.5 shrink-0 overflow-x-auto scrollbar-hide border-b border-gray-200 dark:border-gray-800">
-            <Pill
-              active={!searchFilter}
-              onClick={() => setSearchFilter(null)}
-              className="shrink-0 capitalize"
+          {/* Compact controls — the taste/category pill row is collapsed by
+              default behind "Filter" (it's rarely needed); "Show all" reveals
+              ingredients that don't pair with the other selections. */}
+          <div className="flex items-center gap-2 px-4 py-2 shrink-0 border-b border-gray-200 dark:border-gray-800">
+            <button
+              onClick={() => setTagsOpen(o => !o)}
+              aria-pressed={tagsOpen}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border-2 transition-all ${
+                tagsOpen || searchFilter
+                  ? 'text-gray-800 dark:text-gray-100 border-gray-800 dark:border-gray-100 bg-gray-100 dark:bg-gray-800'
+                  : 'text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+              }`}
             >
-              All
-            </Pill>
-            {tagOptions.map(opt => {
-              const active = !!searchFilter && searchFilter.mode === opt.mode && searchFilter.value === opt.value;
-              const c = getIngredientColorWithContrast(opt.color, isHighContrast, isDarkMode);
-              return (
-                <Pill
-                  key={`${opt.mode}-${opt.value}`}
-                  active={active}
-                  accent={c}
-                  onClick={() => toggleTag(opt)}
-                  className="shrink-0 capitalize"
-                >
-                  {opt.value}
-                </Pill>
-              );
-            })}
+              <SlidersHorizontal size={15} strokeWidth={2.5} />
+              <span>Filter{searchFilter ? `: ${searchFilter.value}` : ''}</span>
+            </button>
+            <button
+              onClick={() => setShowNonPairing(v => !v)}
+              aria-pressed={showNonPairing}
+              title={showNonPairing ? 'Showing non-pairing ingredients' : 'Show ingredients that don’t pair'}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border-2 border-dashed transition-all ${
+                showNonPairing
+                  ? 'text-gray-800 dark:text-amber-200 border-[#FFC233] bg-amber-50 dark:bg-amber-900/30'
+                  : 'text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-[#FFC233] hover:text-gray-600 dark:hover:text-gray-300'
+              }`}
+            >
+              <Zap size={15} strokeWidth={2.5} />
+              <span>Show all</span>
+            </button>
           </div>
 
+          {/* Collapsible taste/category pills — only when Filter is open. Tap
+              "All" (or the active one) to drop the filter; tap another to narrow.
+              Doesn't change the slot itself. */}
+          {tagsOpen && (
+            <div className="flex items-center gap-1.5 px-4 py-2.5 shrink-0 overflow-x-auto scrollbar-hide border-b border-gray-200 dark:border-gray-800">
+              <Pill
+                active={!searchFilter}
+                onClick={() => setSearchFilter(null)}
+                className="shrink-0 capitalize"
+              >
+                All
+              </Pill>
+              {tagOptions.map(opt => {
+                const active = !!searchFilter && searchFilter.mode === opt.mode && searchFilter.value === opt.value;
+                const c = getIngredientColorWithContrast(opt.color, isHighContrast, isDarkMode);
+                return (
+                  <Pill
+                    key={`${opt.mode}-${opt.value}`}
+                    active={active}
+                    accent={c}
+                    onClick={() => toggleTag(opt)}
+                    className="shrink-0 capitalize"
+                  >
+                    {opt.value}
+                  </Pill>
+                );
+              })}
+            </div>
+          )}
+
           <div role="listbox" className="flex-1 overflow-y-auto p-4">
-            {filteredPool.length === 0 ? (
+            {totalResults === 0 ? (
               <div className="px-1 py-3 text-base font-medium text-gray-500 dark:text-gray-400">
                 No matches
               </div>
             ) : (
               <div className="flex flex-wrap gap-1.5 md:gap-2">
-                {filteredPool.map(({ name, color }) => {
+                {/* Pairings first, then non-pairing ingredients (dashed) so the
+                    recommended picks stay up top. */}
+                {[...pairing, ...nonPairing].map(({ name, color }) => {
                   const border = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
                   const selected = name === ingredient;
+                  const isPairing = partnerSet.has(name);
                   return (
                     <IngredientTile
                       key={name}
@@ -754,9 +810,11 @@ const SplitHalf = ({
                       name={name}
                       accent={border}
                       filled={selected}
+                      dashed={!isPairing && !selected}
                       hoverFill
                       isDarkMode={isDarkMode}
                       onClick={() => pickIngredient(name)}
+                      title={!isPairing && !selected ? 'Not a suggested pairing — picking it rerolls the rest' : undefined}
                       className="capitalize"
                     />
                   );
@@ -792,14 +850,22 @@ export const TasteLabSplit = ({
   // 4 → an even 2×2.
   const count = Math.min(Math.max(ingredients.length, 1), 4);
 
+  // A hairline gutter between cells so two same-taste slots (identical fill)
+  // don't bleed into one another — white in light mode, black in dark. The grid
+  // gap reveals the container's background as the line.
+  const dividerColor = isDarkMode ? '#000000' : '#ffffff';
+
   const gridStyle: React.CSSProperties = isMobile
-    ? { display: 'grid', gridTemplateColumns: '1fr', gridTemplateRows: `repeat(${count}, 1fr)` }
+    ? { display: 'grid', gridTemplateColumns: '1fr', gridTemplateRows: `repeat(${count}, 1fr)`, gap: '2px' }
     : count <= 2
-    ? { display: 'grid', gridTemplateColumns: `repeat(${count}, 1fr)`, gridTemplateRows: '1fr' }
-    : { display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' };
+    ? { display: 'grid', gridTemplateColumns: `repeat(${count}, 1fr)`, gridTemplateRows: '1fr', gap: '2px' }
+    : { display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '2px' };
 
   return (
-    <div className="relative w-full flex-1 min-h-0" style={gridStyle}>
+    <div
+      className="relative w-full flex-1 min-h-0"
+      style={{ ...gridStyle, backgroundColor: dividerColor }}
+    >
       {Array.from({ length: count }).map((_, i) => {
         // 3 ingredients on desktop: the third spans the full bottom row.
         const spanFull = !isMobile && count === 3 && i === 2;
