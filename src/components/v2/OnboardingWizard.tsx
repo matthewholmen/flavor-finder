@@ -144,7 +144,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
                 alt="Flavor Finder"
                 className="w-14 h-14 rounded-2xl mx-auto mb-5"
               />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 font-display tracking-tight">
                 Welcome to Flavor Finder
               </h2>
               <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed max-w-[320px] mx-auto">

@@ -959,8 +959,14 @@ export const TasteLabSplit = ({
         // 3 ingredients on desktop: the third spans the full bottom row.
         const spanFull = !isMobile && count === 3 && i === 2;
         return (
-          <div
+          <motion.div
             key={i}
+            // Cells glide to their new position/size when a slot is added or
+            // removed, instead of the grid snapping.
+            layout
+            transition={{ type: 'spring', stiffness: 420, damping: 40 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             // No overflow-hidden: the taste/category dropdown must be able to
             // extend past this cell (over the neighbouring one) instead of being
             // clipped. The search overlay is inset-0, so it stays within anyway.
@@ -986,7 +992,7 @@ export const TasteLabSplit = ({
               isDarkMode={isDarkMode}
               isHighContrast={isHighContrast}
             />
-          </div>
+          </motion.div>
         );
       })}
     </div>
