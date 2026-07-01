@@ -7,10 +7,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        // Add your custom font families here
+        // UI voice — controls, labels, body copy.
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        heading: ['Poppins', 'sans-serif'],
-        // Add more custom fonts as needed
+        // Display voice — hero ingredient names, wordmark, modal headings.
+        display: ['Fraunces', 'Georgia', 'serif'],
       },
     },
   },

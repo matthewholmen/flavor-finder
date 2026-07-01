@@ -101,7 +101,7 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-overlay-in"
         onClick={onClose}
       />
 
@@ -114,6 +114,7 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
           rounded-t-3xl sm:rounded-3xl
           shadow-2xl
           p-6 sm:p-8
+          animate-modal-in
         "
       >
         {/* Close */}
@@ -132,7 +133,7 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
           <X size={20} strokeWidth={2} />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1 font-display tracking-tight">
           Find recipes
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">

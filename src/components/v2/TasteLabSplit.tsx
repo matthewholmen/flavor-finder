@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, SlidersHorizontal, X, Zap } from 'lucide-react';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { Pill, IngredientTile } from './ui/index.ts';
@@ -8,7 +9,9 @@ import {
   WILD_COLOR,
   getIngredientColorWithContrast,
   iconSize,
-  contrastText,
+  mixHex,
+  tasteInk,
+  panelTone,
 } from '../../utils/colors.ts';
 import {
   TASTE_KEYS,
@@ -56,18 +59,40 @@ interface TasteLabSplitProps {
   isHighContrast?: boolean;
 }
 
-// Blend `hex` toward `target` by `amount` (0-1) — used to make opaque "toned"
-// surfaces that read as a tint of the panel rather than a separate card.
-const mixHex = (hex: string, target: string, amount: number): string => {
-  const c = hex.replace('#', '');
-  const t = target.replace('#', '');
-  if (c.length < 6 || t.length < 6) return hex;
-  const mix = (i: number) =>
-    Math.round(parseInt(c.slice(i, i + 2), 16) * (1 - amount) + parseInt(t.slice(i, i + 2), 16) * amount);
-  return `rgb(${mix(0)}, ${mix(2)}, ${mix(4)})`;
-};
+const MENU_CAP = 300; // tallest a dropdown gets on a roomy screen (px)
 
-const MENU_CAP = 260; // tallest a dropdown gets on a roomy screen (px)
+// Hero-name transition. Two kinds of change, two shapes of motion:
+//  • Generate / reroll (dir = 0): the old name lifts away and the new one rises
+//    into place — a vertical "deal" that reads as replacement. Slots stagger by
+//    index so a full Generate cascades across the board; locked slots don't
+//    change ingredients, so they visibly hold still.
+//  • Cycling (dir = ±1): a horizontal reel step toward the direction of travel.
+const heroVariants = {
+  enter: (c: { dir: number; index: number }) =>
+    c.dir !== 0
+      ? { x: c.dir * 48, y: 0, opacity: 0, scale: 1 }
+      : { x: 0, y: 34, opacity: 0, scale: 0.98 },
+  center: (c: { dir: number; index: number }) => ({
+    x: 0,
+    y: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 520,
+      damping: 38,
+      delay: c.dir !== 0 ? 0 : c.index * 0.055,
+    },
+  }),
+  exit: (c: { dir: number; index: number }) =>
+    c.dir !== 0
+      ? { x: -c.dir * 48, opacity: 0, transition: { duration: 0.16, ease: 'easeIn' } }
+      : {
+          y: -30,
+          opacity: 0,
+          transition: { duration: 0.18, ease: 'easeIn', delay: c.index * 0.055 },
+        },
+};
 
 // Decide whether a menu anchored to `triggerRef` opens up or down, and how tall
 // it may be, so it always fits the viewport — important on short windows, where
@@ -108,6 +133,7 @@ const useMenuPlacement = (
 // with a Taste/Category mode toggle and a matching picker underneath.
 const SplitHalf = ({
   slot,
+  index,
   ingredient,
   candidates,
   partnerCandidates,
@@ -125,6 +151,8 @@ const SplitHalf = ({
   isHighContrast,
 }: {
   slot: SlotTaste;
+  // This slot's position — staggers the Generate cascade across the board.
+  index: number;
   ingredient?: string;
   candidates: string[];
   partnerCandidates: string[];
@@ -250,9 +278,14 @@ const SplitHalf = ({
   // Mirror the live offset in a ref so the release decision doesn't depend on a
   // re-render landing between the last touchmove and touchend.
   const dragXRef = useRef(0);
-  // A nonce + direction that replays the slide-in animation each cycle (the span
-  // remounts on nonce change). Skipped for swipes, where the drag is the motion.
-  const [cycle, setCycle] = useState<{ nonce: number; dir: 1 | -1 } | null>(null);
+  // Direction of the change now in flight: ±1 for a cycle step (horizontal
+  // reel), 0 for everything else (Generate / search pick — vertical deal).
+  // Read by the hero's enter/exit variants, reset once the change lands.
+  const changeDir = useRef<0 | 1 | -1>(0);
+  const prefersReducedMotion = useReducedMotion();
+  useEffect(() => {
+    changeDir.current = 0;
+  }, [ingredient]);
   const wheelAccum = useRef(0);
   const wheelAt = useRef(0);
   const canSwipe = !!isMobile && candidates.length > 1;
@@ -270,7 +303,8 @@ const SplitHalf = ({
         : (cur + dir + candidates.length) % candidates.length;
     const next = candidates[nextIndex];
     if (!next || next === ingredient) return;
-    if (animate) setCycle(c => ({ nonce: (c?.nonce ?? 0) + 1, dir }));
+    // Swipes carry their own motion (the drag), so they skip the reel step.
+    changeDir.current = animate ? dir : 0;
     onPickIngredient(next);
   };
 
@@ -334,12 +368,14 @@ const SplitHalf = ({
     : isCategory
     ? CATEGORY_COLORS[slot.category]
     : TASTE_COLORS[slot.taste];
-  const bg = getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode);
-  const fg = contrastText(bg);
-  // Opaque "toned" surfaces: the slot color nudged toward the text color, so
-  // controls read as a tint of the panel without bleed-through.
-  const pillBg = mixHex(bg, fg, fg === '#ffffff' ? 0.2 : 0.1);
-  const strongBg = mixHex(bg, fg, fg === '#ffffff' ? 0.32 : 0.2);
+  const bg = panelTone(getIngredientColorWithContrast(baseColor, isHighContrast, isDarkMode), isDarkMode);
+  // Ink, not black/white: a deep (or pale) mix of the panel's own hue, so the
+  // type reads as pigment on pigment rather than a sticker on a color chip.
+  const fg = tasteInk(bg);
+  // Opaque "toned" surfaces: the slot color nudged toward the ink, so controls
+  // read as a tint of the panel without bleed-through.
+  const pillBg = mixHex(bg, fg, 0.12);
+  const strongBg = mixHex(bg, fg, 0.24);
 
   // Active subcategory narrow (category mode). Empty = the whole category.
   const subs = slot.subcategories ?? [];
@@ -462,21 +498,29 @@ const SplitHalf = ({
         }}
         title={isLocked ? 'Click to unlock' : 'Click to lock'}
       >
-        <span
-          key={cycle?.nonce ?? 'static'}
-          className="font-black tracking-tight text-center leading-[1.02]"
-          style={{
-            fontSize: isMobile
-              ? (slotCount >= 4 ? '1.6rem' : slotCount === 3 ? '2.1rem' : '3rem')
-              : (slotCount >= 3 ? 'clamp(1.5rem, 3vw, 3.25rem)' : 'clamp(2.25rem, 6vw, 6rem)'),
-            wordBreak: 'break-word',
-            animation: cycle
-              ? `${cycle.dir === 1 ? 'cycleInFromRight' : 'cycleInFromLeft'} 0.32s cubic-bezier(0.2, 0.8, 0.2, 1)`
-              : undefined,
-          }}
+        <AnimatePresence
+          mode="popLayout"
+          initial={false}
+          custom={{ dir: changeDir.current, index }}
         >
-          {ingredient || '—'}
-        </span>
+          <motion.span
+            key={ingredient || '—'}
+            custom={{ dir: changeDir.current, index }}
+            variants={prefersReducedMotion ? undefined : heroVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="font-display font-black tracking-tight text-center leading-[1.04]"
+            style={{
+              fontSize: isMobile
+                ? (slotCount >= 4 ? '1.6rem' : slotCount === 3 ? '2.1rem' : '3rem')
+                : (slotCount >= 3 ? 'clamp(1.5rem, 3vw, 3.25rem)' : 'clamp(2.25rem, 6vw, 6rem)'),
+              wordBreak: 'break-word',
+            }}
+          >
+            {ingredient || '—'}
+          </motion.span>
+        </AnimatePresence>
         {isLocked && (
           <Lock
             size={isMobile ? 22 : 30}
@@ -505,7 +549,12 @@ const SplitHalf = ({
           </button>
         )}
 
-        <div className="flex items-center justify-center gap-2">
+        {/* One dock for the slot's controls, so lock + constraint + pairings
+            read as a single instrument instead of three stray icons. */}
+        <div
+          className="flex items-center justify-center gap-0.5 rounded-full p-1"
+          style={{ backgroundColor: pillBg }}
+        >
 
         {/* Constraint lock — when on, Generate keeps this taste/category and only
             rerolls the ingredient within it; when off, Generate randomizes it. */}
@@ -517,11 +566,11 @@ const SplitHalf = ({
               : 'Lock this taste/category so Generate stays within it'
           }
           title={isConstraintLocked ? 'Constraint locked' : 'Lock constraint'}
-          className="p-1.5 rounded-full transition-all active:scale-90"
+          className="p-2 rounded-full transition-all active:scale-90"
           style={{
             color: fg,
-            opacity: isConstraintLocked ? 1 : 0.4,
-            backgroundColor: isConstraintLocked ? pillBg : 'transparent',
+            opacity: isConstraintLocked ? 1 : 0.45,
+            backgroundColor: isConstraintLocked ? strongBg : 'transparent',
           }}
         >
           {isConstraintLocked
@@ -537,8 +586,8 @@ const SplitHalf = ({
               setPickerOpen(o => !o);
               setSearchOpen(false);
             }}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold capitalize transition-colors"
-            style={{ color: fg, opacity: pickerOpen ? 1 : 0.85, backgroundColor: pickerOpen ? pillBg : 'transparent' }}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold capitalize transition-colors"
+            style={{ color: fg, backgroundColor: pickerOpen ? strongBg : 'transparent' }}
             aria-haspopup="listbox"
             aria-expanded={pickerOpen}
           >
@@ -550,17 +599,27 @@ const SplitHalf = ({
             />
           </button>
 
+          <AnimatePresence>
           {pickerOpen && (
             <div
-              className={`absolute left-1/2 -translate-x-1/2 z-[70] w-[244px] flex flex-col p-1.5 rounded-2xl shadow-xl ${
+              className={`absolute left-1/2 -translate-x-1/2 z-[70] w-[264px] ${
                 pickerPlacement.up ? 'bottom-full mb-2' : 'top-full mt-2'
               }`}
-              style={{ backgroundColor: pillBg, maxHeight: pickerPlacement.maxHeight }}
+            >
+            <motion.div
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: pickerPlacement.up ? 8 : -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: pickerPlacement.up ? 6 : -6 }}
+              transition={{ duration: 0.16, ease: [0.2, 0.8, 0.2, 1] }}
+              className="flex flex-col p-1.5 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+              style={{
+                maxHeight: pickerPlacement.maxHeight,
+                transformOrigin: pickerPlacement.up ? 'bottom center' : 'top center',
+              }}
             >
               {/* Mode toggle: Taste | Category | Wild */}
               <div
-                className="flex p-0.5 mb-1 rounded-full shrink-0"
-                style={{ backgroundColor: strongBg }}
+                className="flex p-0.5 mb-1 rounded-full shrink-0 bg-gray-100 dark:bg-gray-800"
                 role="tablist"
                 aria-label="Constrain by"
               >
@@ -572,8 +631,11 @@ const SplitHalf = ({
                       role="tab"
                       aria-selected={active}
                       onClick={() => switchMode(mode)}
-                      className="flex-1 px-2 py-1 rounded-full text-xs font-bold capitalize transition-all"
-                      style={{ color: fg, opacity: active ? 1 : 0.55, backgroundColor: active ? pillBg : 'transparent' }}
+                      className={`flex-1 px-2 py-1 rounded-full text-xs font-bold capitalize transition-all ${
+                        active
+                          ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                      }`}
                     >
                       {mode}
                     </button>
@@ -589,7 +651,7 @@ const SplitHalf = ({
                   flavor-map pairing is never relaxed. */}
               <div className="overflow-y-auto">
                 {isWild ? (
-                  <div className="px-3 py-2 text-xs font-medium" style={{ color: fg, opacity: 0.8 }}>
+                  <div className="px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400">
                     No constraint — any ingredient that pairs.
                   </div>
                 ) : (
@@ -607,12 +669,17 @@ const SplitHalf = ({
                           onMouseEnter={() => setHovered(value)}
                           onMouseLeave={() => setHovered(null)}
                           onClick={() => selectOption(value)}
-                          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-sm font-medium w-full text-left transition-colors"
-                          style={{ color: fg, backgroundColor: highlighted ? strongBg : 'transparent', opacity: count === 0 ? 0.45 : 1 }}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium w-full text-left transition-colors text-gray-800 dark:text-gray-100"
+                          style={{
+                            // Selected/hovered rows tint with the option's own
+                            // color, so the menu previews the panel it would paint.
+                            backgroundColor: highlighted ? `${dotColor}${isDarkMode ? '3d' : '2e'}` : 'transparent',
+                            opacity: count === 0 ? 0.45 : 1,
+                          }}
                         >
                           <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
                           <span className="flex-1 capitalize">{value}</span>
-                          <span className="text-xs tabular-nums shrink-0" style={{ opacity: 0.6 }}>{count}</span>
+                          <span className="text-xs tabular-nums shrink-0 text-gray-400 dark:text-gray-500">{count}</span>
                         </button>
 
                         {/* Inline "Narrow to" — the selected category's subcategory
@@ -623,8 +690,11 @@ const SplitHalf = ({
                           <div className="flex flex-wrap gap-1 pl-7 pr-1.5 pt-0.5 pb-1.5">
                             <button
                               onClick={selectAllSubcategories}
-                              className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
-                              style={{ color: fg, backgroundColor: subs.length === 0 ? strongBg : 'transparent', opacity: subs.length === 0 ? 1 : 0.7 }}
+                              className={`px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors ${
+                                subs.length === 0
+                                  ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                              }`}
                             >
                               All
                             </button>
@@ -635,8 +705,11 @@ const SplitHalf = ({
                                 <button
                                   key={sub}
                                   onClick={() => toggleSubcategory(sub)}
-                                  className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors"
-                                  style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7 }}
+                                  className={`px-2 py-0.5 rounded-lg text-xs font-semibold transition-colors ${
+                                    on
+                                      ? 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white'
+                                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                  }`}
                                 >
                                   {sub}
                                 </button>
@@ -652,8 +725,8 @@ const SplitHalf = ({
 
                 {/* Exclude (taste / wild mode) — carve categories out of the pool */}
                 {!isCategory && (
-                  <div className="mt-1 pt-1" style={{ borderTop: `1px solid ${strongBg}` }}>
-                    <div className="px-2 pt-0.5 pb-1 text-[10px] font-bold uppercase tracking-wide" style={{ color: fg, opacity: 0.55 }}>
+                  <div className="mt-1 pt-1 border-t border-gray-200 dark:border-gray-700">
+                    <div className="px-2 pt-0.5 pb-1 text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                       Exclude
                     </div>
                     <div className="flex flex-wrap gap-1 px-1.5 pb-1">
@@ -663,8 +736,11 @@ const SplitHalf = ({
                           <button
                             key={c}
                             onClick={() => toggleExclude(c as CategoryKey)}
-                            className="px-2 py-0.5 rounded-lg text-xs font-semibold capitalize transition-colors"
-                            style={{ color: fg, backgroundColor: on ? strongBg : 'transparent', opacity: on ? 1 : 0.7, textDecoration: on ? 'line-through' : 'none' }}
+                            className={`px-2 py-0.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
+                              on
+                                ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 line-through'
+                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
                           >
                             {categoryLabel(c)}
                           </button>
@@ -674,8 +750,10 @@ const SplitHalf = ({
                   </div>
                 )}
               </div>
+            </motion.div>
             </div>
           )}
+          </AnimatePresence>
         </div>
 
         {/* Match count → opens a search panel filling this half. The count is
@@ -687,14 +765,18 @@ const SplitHalf = ({
             setSearchOpen(true);
             setPickerOpen(false);
           }}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium tabular-nums transition-colors"
-          style={{ color: fg, opacity: searchOpen ? 1 : 0.7, backgroundColor: searchOpen ? pillBg : 'transparent' }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium tabular-nums transition-colors"
+          style={{ color: fg, opacity: searchOpen ? 1 : 0.8, backgroundColor: searchOpen ? strongBg : 'transparent' }}
           aria-haspopup="dialog"
           aria-expanded={searchOpen}
           aria-label={`${matchCount} matching ingredient${matchCount === 1 ? '' : 's'} — search this slot`}
         >
           <Search size={13} strokeWidth={2.5} style={{ opacity: 0.7 }} />
           {matchCount}
+          {/* Name the number on roomy layouts — "46" alone reads as noise. */}
+          {!isMobile && slotCount <= 2 && (
+            <span style={{ opacity: 0.75 }}>{matchCount === 1 ? 'pairing' : 'pairings'}</span>
+          )}
         </button>
         </div>
       </div>
@@ -702,8 +784,13 @@ const SplitHalf = ({
       {/* Search panel — fills this half like the default ingredient tray: a
           field on top, then every selectable ingredient as a taste-colored pill.
           You can add anything; an incompatible pick rerolls the partner. */}
+      <AnimatePresence>
       {searchOpen && (
-        <div
+        <motion.div
+          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+          transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
           className="absolute inset-0 z-40 flex flex-col bg-white dark:bg-gray-900"
           role="dialog"
           aria-label="Search ingredients"
@@ -713,6 +800,7 @@ const SplitHalf = ({
               <Search size={18} strokeWidth={2.5} className="shrink-0 text-gray-400 dark:text-gray-500" />
               <input
                 ref={searchInputRef}
+                autoFocus={!isMobile}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search ingredients…"
@@ -822,8 +910,9 @@ const SplitHalf = ({
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -880,6 +969,7 @@ export const TasteLabSplit = ({
           >
             <SplitHalf
               slot={slotTastes[i]}
+              index={i}
               ingredient={ingredients[i]}
               candidates={slotCandidates[i] ?? []}
               partnerCandidates={slotPartnerCandidates[i] ?? []}

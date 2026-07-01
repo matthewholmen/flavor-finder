@@ -46,6 +46,19 @@ export const CATEGORY_COLORS: Record<string, string> = {
     Alcohol: '#7E9BD4',
   };
 
+// Blend `hex` toward `target` by `amount` (0–1), returning hex. The basis for
+// the "ink" and "tone" helpers below: every derived surface/text color is a
+// mix of the taste color itself, so panels read as one pigment, not layers.
+export const mixHex = (hex: string, target: string, amount: number): string => {
+  const c = hex.replace('#', '');
+  const t = target.replace('#', '');
+  if (c.length < 6 || t.length < 6) return hex;
+  const mix = (i: number) =>
+    Math.round(parseInt(c.slice(i, i + 2), 16) * (1 - amount) + parseInt(t.slice(i, i + 2), 16) * amount);
+  const h = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${h(mix(0))}${h(mix(2))}${h(mix(4))}`;
+};
+
 // Relative luminance of a #rrggbb color, for choosing black vs white text.
 export const hexLuminance = (hex: string): number => {
   const c = hex.replace('#', '');
@@ -64,6 +77,41 @@ export const hexLuminance = (hex: string): number => {
 // dark (e.g. spicy red), where white reads better.
 export const contrastText = (hex: string): string =>
   hexLuminance(hex) > 0.32 ? '#131823' : '#ffffff';
+
+// WCAG contrast ratio between two colors.
+export const contrastRatio = (a: string, b: string): number => {
+  const la = hexLuminance(a);
+  const lb = hexLuminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+};
+
+// "Ink" for a taste-colored panel: a deep (or pale) mix of the panel's own hue
+// rather than flat black/white, so type reads as pigment on pigment — think
+// dark plum on pink, cream on chili red. Contrast-aware: it starts from the
+// hue-rich mix, picks whichever side (dark/light) has more headroom, and
+// deepens the mix stepwise until it clears WCAG AA (4.5:1) or bottoms out at
+// the near-black / near-cream base.
+export const tasteInk = (bg: string): string => {
+  const darkBase = '#160f0c';
+  const lightBase = '#fffcf5';
+  const darkStart = mixHex(bg, darkBase, 0.82);
+  const lightStart = mixHex(bg, lightBase, 0.92);
+  const useDark = contrastRatio(bg, darkStart) >= contrastRatio(bg, lightStart);
+  const base = useDark ? darkBase : lightBase;
+  let amount = useDark ? 0.82 : 0.92;
+  let ink = mixHex(bg, base, amount);
+  while (contrastRatio(bg, ink) < 4.5 && amount < 1) {
+    amount = Math.min(1, amount + 0.05);
+    ink = mixHex(bg, base, amount);
+  }
+  return ink;
+};
+
+// The panel fill itself, tuned per theme: nudged toward paper in light mode so
+// full-bleed color isn't shrill, and deepened in dark mode so panels sit richly
+// against the dark chrome instead of glowing.
+export const panelTone = (color: string, isDarkMode?: boolean): string =>
+  isDarkMode ? mixHex(color, '#101216', 0.16) : mixHex(color, '#fffdf8', 0.08);
 
 // Get ingredient color with high-contrast mode support
 export const getIngredientColorWithContrast = (color: string, isHighContrast?: boolean, isDarkMode?: boolean): string => {

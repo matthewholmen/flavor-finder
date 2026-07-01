@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles, Share2, Check } from 'lucide-react';
+import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles, Share2, Check, Menu } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
+
+// Theme-aware text wordmark (replaces the fixed-color PNG): the display face
+// carries the brand, with the sweet-pink accent on "Finder".
+export const Wordmark = ({ compact = false }: { compact?: boolean }) => (
+  <span
+    className={`font-display font-black tracking-tight leading-none text-gray-900 dark:text-white ${
+      compact ? 'text-lg' : 'text-2xl'
+    }`}
+  >
+    Flavor<span style={{ color: '#F86A8A' }}>Finder</span>
+  </span>
+);
 
 export const MinimalHeader = ({
   targetCount,
@@ -50,20 +62,14 @@ export const MinimalHeader = ({
           transition-colors duration-300
         `}
       >
-        {/* Logo */}
+        {/* Menu + wordmark */}
         <button
           onClick={onLogoClick}
-          className="relative group cursor-pointer bg-transparent border-none p-0"
+          className="flex items-center gap-2.5 cursor-pointer bg-transparent border-none p-0 active:opacity-70 transition-opacity"
           aria-label="Open menu"
         >
-          <img
-            src="/mobile-logo.png"
-            alt="Flavor Finder"
-            className="w-auto h-6 transition-opacity duration-200 group-active:opacity-70"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          <Menu size={20} strokeWidth={2.5} className="text-gray-500 dark:text-gray-400 shrink-0" />
+          <Wordmark compact />
         </button>
 
         {/* Right-side actions */}
@@ -123,7 +129,7 @@ export const MinimalHeader = ({
             title="Find recipes with these ingredients"
             aria-label="Find recipes"
           >
-            Find recipes
+            <span className="whitespace-nowrap">Recipes</span>
             <ArrowUpRight size={16} strokeWidth={2.5} />
           </button>
         </div>
@@ -143,37 +149,21 @@ export const MinimalHeader = ({
         transition-colors duration-300
       "
     >
-      {/* Logo */}
+      {/* Menu + wordmark */}
       <div className="flex-1">
         <button
           onClick={onLogoClick}
-          className="relative group cursor-pointer bg-transparent border-none p-0"
+          className="group flex items-center gap-3 cursor-pointer bg-transparent border-none p-0"
           aria-label="Open menu"
+          title="Menu — modes, presets, saved combinations"
         >
-          <img
-            src="/flavor-finder-HORIZONTAL-512.png"
-            alt="ff"
-            className="w-auto h-6 transition-opacity duration-200 group-hover:opacity-0"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              const sibling = e.currentTarget.parentElement?.querySelector('.logo-hover');
-              if (sibling) sibling.classList.add('hidden');
-              const textFallback = e.currentTarget.parentElement?.nextElementSibling;
-              if (textFallback) textFallback.classList.remove('hidden');
-            }}
+          <Menu
+            size={22}
+            strokeWidth={2.5}
+            className="text-gray-400 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors shrink-0"
           />
-          <img
-            src="/flavor-finder-HORIZONTAL-512.png"
-            alt="ff"
-            className="logo-hover absolute top-0 left-0 w-auto h-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-          />
+          <Wordmark />
         </button>
-        <span
-          className="hidden font-bold text-2xl"
-          style={{ color: '#F86A8A' }}
-        >
-          ff
-        </span>
       </div>
 
       {/* Center Controls: -, Generate, + */}
@@ -221,6 +211,11 @@ export const MinimalHeader = ({
         >
           <Sparkles size={18} strokeWidth={2} />
           Generate
+          {/* Quiet shortcut hint — border-current keeps it legible when the
+              button inverts on hover. */}
+          <kbd className="hidden xl:inline-block ml-1 px-1.5 py-0.5 rounded-md border border-current text-[10px] font-sans font-semibold uppercase tracking-wider opacity-40">
+            space
+          </kbd>
         </button>
 
         {/* Increment Target Button */}

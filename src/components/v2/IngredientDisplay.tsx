@@ -132,6 +132,7 @@ const SwipeableRow = ({ children, onDelete, enabled = true, isLocked = false }) 
 const Ingredient = ({
   ingredient,
   color,
+  stagger = 0, // slot position — staggers the rise-in when a generate lands
   isLocked,
   isHovered,
   isFocused,
@@ -219,12 +220,12 @@ const Ingredient = ({
     return (
       <span
         data-ingredient
-        className="relative inline items-baseline"
-        style={{ display: 'inline-flex', alignItems: 'center' }}
+        className="relative inline items-baseline hero-rise"
+        style={{ display: 'inline-flex', alignItems: 'center', animationDelay: `${stagger * 55}ms` }}
       >
         {showAmpersand && (
           <span
-            className="font-serif italic transition-all duration-200 text-gray-900 dark:text-white"
+            className="font-display italic transition-all duration-200 text-gray-900 dark:text-white"
             style={{
               fontWeight: 400,
               marginLeft: '0.08em',
@@ -284,13 +285,14 @@ const Ingredient = ({
   return (
     <span
       data-ingredient
-      className="relative inline items-baseline"
+      className="relative inline items-baseline hero-rise"
+      style={{ animationDelay: `${stagger * 55}ms` }}
       onMouseEnter={!isMobile ? onHover : undefined}
       onMouseLeave={!isMobile ? onHoverEnd : undefined}
     >
       {showAmpersand && (
         <span
-          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
+          className={`font-display italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
           style={{
             color: isFaded ? fadedColor : undefined,
             fontWeight: 400,
@@ -350,7 +352,7 @@ const Ingredient = ({
                     className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                     style={{
                       color: isFaded ? fadedColor : undefined,
-                      fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                      fontFamily: "'Fraunces', Georgia, serif",
                       fontStyle: 'italic',
                       fontWeight: 400,
                     }}
@@ -365,7 +367,7 @@ const Ingredient = ({
                         className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                         style={{
                           color: isFaded ? fadedColor : undefined,
-                          fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                          fontFamily: "'Fraunces', Georgia, serif",
                           fontStyle: 'italic',
                           fontWeight: 400,
                           position: 'absolute',
@@ -399,7 +401,7 @@ const Ingredient = ({
                     className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                     style={{
                       color: isFaded ? fadedColor : undefined,
-                      fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                      fontFamily: "'Fraunces', Georgia, serif",
                       fontStyle: 'italic',
                       fontWeight: 400,
                     }}
@@ -414,7 +416,7 @@ const Ingredient = ({
                         className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                         style={{
                           color: isFaded ? fadedColor : undefined,
-                          fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                          fontFamily: "'Fraunces', Georgia, serif",
                           fontStyle: 'italic',
                           fontWeight: 400,
                           position: 'absolute',
@@ -459,7 +461,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
     >
       {showAmpersand && (
         <span
-          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
+          className={`font-display italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
           style={{ color: isFaded ? fadedColor : undefined, fontWeight: 400 }}
         >
           {' '}&amp;{' '}
@@ -479,7 +481,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 
       {showComma && (
         <span
-          className={`font-serif italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
+          className={`font-display italic transition-all duration-200 ${isFaded ? '' : 'text-gray-900 dark:text-white'}`}
           style={{ color: isFaded ? fadedColor : undefined, fontWeight: 400 }}
         >
           ,{' '}
@@ -843,7 +845,7 @@ export const IngredientDisplay = ({
             pointer-events-auto
           `}
           style={{
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            fontFamily: "'Fraunces', Georgia, serif",
             fontSize: getFontSize(),
             lineHeight: usesFlowLayout ? 1.04 : (isMobile ? 1.3 : 1.15),
             textAlign: usesFlowLayout ? 'left' : 'center',
@@ -875,6 +877,7 @@ export const IngredientDisplay = ({
                 key={`${ingredient}-${displayIndex}`}
                 ingredient={ingredient}
                 color={color}
+                stagger={displayIndex}
                 isLocked={lockedIngredients.has(actualIndex)}
                 isHovered={hoveredIndex === displayIndex}
                 isFocused={isMobile && focusedIngredientIndex === displayIndex}
@@ -911,12 +914,13 @@ export const IngredientDisplay = ({
               return (
                 <React.Fragment key={`${ingredient}-${displayIndex}`}>
                   <SwipeableRow onDelete={() => onRemove(actualIndex)} isLocked={isLocked}>
-                    <div style={{
+                    <div className="hero-rise" style={{
                       paddingLeft: '0.1em',
                       marginTop: displayIndex > 0 ? '0.08em' : 0, // Small vertical gap between ingredients
                       position: 'relative',
                       width: '100%',
                       zIndex: 10 - displayIndex, // Higher z-index for earlier ingredients (first = 10, second = 9, etc.)
+                      animationDelay: `${displayIndex * 55}ms`,
                     }}>
                       {/* Background rectangle - aligns with text, extends left when swiping */}
                       <div
@@ -1003,7 +1007,7 @@ export const IngredientDisplay = ({
                                           left: '-.0em',
                                           top: '-.45em',
                                           color: isDarkMode ? 'white' : '#1a1a1a',
-                                          fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                                          fontFamily: "'Fraunces', Georgia, serif",
                                           fontStyle: 'italic',
                                           fontWeight: 400,
                                           opacity: isLocked ? 0 : 1,
@@ -1096,7 +1100,7 @@ export const IngredientDisplay = ({
                   {shouldShowAmpersandAfter && (
                     <div style={{ width: '100%', paddingLeft: '0.1em', marginTop: '0.08em', marginBottom: '-0.05em' }}>
                       <span
-                        className="font-serif italic text-gray-900 dark:text-white"
+                        className="font-display italic text-gray-900 dark:text-white"
                         style={{
                           fontWeight: 400,
                         }}

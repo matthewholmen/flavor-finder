@@ -102,11 +102,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 animate-overlay-in"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-[460px] rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl p-6 sm:p-7"
+        className="relative w-full max-w-[460px] rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl p-6 sm:p-7 animate-modal-in"
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -155,7 +155,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
 
           {step === 1 && (
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5 font-display tracking-tight">
                 Start with a little magic
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -193,7 +193,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
 
           {step === 2 && (
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5 font-display tracking-tight">
                 Lock what you like
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -224,7 +224,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
 
           {step === 3 && (
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5 font-display tracking-tight">
                 Build your own
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">

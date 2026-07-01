@@ -399,7 +399,7 @@ const PairingBuilder = ({
           <ArrowLeft size={18} strokeWidth={2.5} />
         </button>
         <div>
-          <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+          <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight font-display">
             Create a pairing
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -509,7 +509,7 @@ export const PresetGallery = ({
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-overlay-in"
         onClick={() => {
           setView('gallery');
           onClose();
@@ -520,7 +520,7 @@ export const PresetGallery = ({
       <div
         role="dialog"
         aria-label="Flavor presets"
-        className={`relative w-full max-h-[85vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 shadow-2xl overflow-hidden transition-[max-width] duration-200 ${
+        className={`relative w-full max-h-[85vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 shadow-2xl overflow-hidden transition-[max-width] duration-200 animate-modal-in ${
           view === 'create' ? 'max-w-xl' : 'max-w-4xl'
         }`}
       >
@@ -535,7 +535,7 @@ export const PresetGallery = ({
             {/* Header */}
             <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 shrink-0">
               <div>
-                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight font-display">
                   Flavor Presets
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">

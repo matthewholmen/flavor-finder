@@ -99,15 +99,43 @@ body.modal-open {
   }
 }
 
-/* Taste Lab: a candidate sliding in when you cycle (chevron / wheel). The new
-   name eases in from the side you're moving toward, for a tactile "reel" feel. */
-@keyframes cycleInFromRight {
-  from { opacity: 0; transform: translateX(26px); }
-  to { opacity: 1; transform: translateX(0); }
+/* Classic mode: a freshly generated ingredient name rising into place. Applied
+   to a keyed span, so it replays only when the ingredient actually changes —
+   locked names keep their key and visibly hold still. Staggered per slot via
+   inline animation-delay. */
+@keyframes heroRiseIn {
+  from { opacity: 0; transform: translateY(0.35em); }
+  to { opacity: 1; transform: translateY(0); }
 }
-@keyframes cycleInFromLeft {
-  from { opacity: 0; transform: translateX(-26px); }
-  to { opacity: 1; transform: translateX(0); }
+.hero-rise {
+  display: inline-block;
+  animation: heroRiseIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise { animation: none; }
+}
+
+/* Shared overlay motion: backdrops fade, panels pop up into place. Applied
+   across every modal so opening feels like one system. */
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-overlay-in {
+  animation: overlayFadeIn 0.18s ease-out both;
+}
+@keyframes modalPopIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-modal-in {
+  animation: modalPopIn 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-overlay-in,
+  .animate-modal-in {
+    animation: none;
+  }
 }
 
 @keyframes toastIn {

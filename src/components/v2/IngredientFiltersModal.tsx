@@ -127,7 +127,7 @@ export const IngredientFiltersModal: React.FC<IngredientFiltersModalProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-overlay-in"
         onClick={onClose}
       />
 
@@ -141,6 +141,7 @@ export const IngredientFiltersModal: React.FC<IngredientFiltersModalProps> = ({
           rounded-t-3xl sm:rounded-3xl
           shadow-2xl
           overflow-hidden
+          animate-modal-in
         "
       >
         {/* Header */}
@@ -160,7 +161,7 @@ export const IngredientFiltersModal: React.FC<IngredientFiltersModalProps> = ({
             <X size={20} strokeWidth={2} />
           </button>
 
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1 font-display tracking-tight">
             Ingredient filters
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
