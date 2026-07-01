@@ -1,4 +1,5 @@
 import React from 'react';
+import { contrastText } from '../../../utils/colors.ts';
 
 /**
  * The single pill/chip button used across filters, dietary presets, and Taste
@@ -44,18 +45,18 @@ export const Pill: React.FC<PillProps> = ({
   const inactive =
     'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500';
 
-  // Accent pills drive their border/fill via inline style, but still need a
-  // theme-aware *text* color when inactive — otherwise the label falls back to
-  // the browser default (black) and disappears on a dark surface.
-  const accentInactiveText = 'text-gray-700 dark:text-gray-200';
+  // Accent pills mirror the ingredient tiles: a full-opacity accent outline, the
+  // base foreground text when inactive (white in dark / near-black in light),
+  // and — when active — the accent as fill with contrast text on top.
+  const accentInactiveText = 'text-gray-900 dark:text-white';
   const stateClass = active
     ? accent ? '' : neutralActive
     : accent ? accentInactiveText : inactive;
 
   const accentStyle: React.CSSProperties | undefined = accent
     ? active
-      ? { borderColor: accent, backgroundColor: accent, color: '#fff' }
-      : { borderColor: `${accent}66` }
+      ? { borderColor: accent, backgroundColor: accent, color: contrastText(accent) }
+      : { borderColor: accent }
     : undefined;
 
   return (
