@@ -46,6 +46,25 @@ export const CATEGORY_COLORS: Record<string, string> = {
     Alcohol: '#7E9BD4',
   };
 
+// Relative luminance of a #rrggbb color, for choosing black vs white text.
+export const hexLuminance = (hex: string): number => {
+  const c = hex.replace('#', '');
+  if (c.length < 6) return 1;
+  const channel = (h: string) => {
+    const x = parseInt(h, 16) / 255;
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+  };
+  const r = channel(c.slice(0, 2));
+  const g = channel(c.slice(2, 4));
+  const b = channel(c.slice(4, 6));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+// Text color to sit on a colored fill: black on the color unless it's genuinely
+// dark (e.g. spicy red), where white reads better.
+export const contrastText = (hex: string): string =>
+  hexLuminance(hex) > 0.32 ? '#131823' : '#ffffff';
+
 // Get ingredient color with high-contrast mode support
 export const getIngredientColorWithContrast = (color: string, isHighContrast?: boolean, isDarkMode?: boolean): string => {
   // Use passed parameters if available (for React components), otherwise check DOM

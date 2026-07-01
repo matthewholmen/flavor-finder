@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, Lock, LockOpen, Search, SlidersHorizontal, X } from 'lucide-react';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
-import { Pill } from './ui/index.ts';
+import { Pill, IngredientTile } from './ui/index.ts';
 import {
   TASTE_COLORS,
   CATEGORY_COLORS,
   WILD_COLOR,
   getIngredientColorWithContrast,
   iconSize,
+  contrastText,
 } from '../../utils/colors.ts';
 import {
   TASTE_KEYS,
@@ -54,24 +55,6 @@ interface TasteLabSplitProps {
   isDarkMode?: boolean;
   isHighContrast?: boolean;
 }
-
-// Relative luminance of a #rrggbb color, for choosing black vs white text.
-const hexLuminance = (hex: string): number => {
-  const c = hex.replace('#', '');
-  if (c.length < 6) return 1;
-  const channel = (h: string) => {
-    const x = parseInt(h, 16) / 255;
-    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
-  };
-  const r = channel(c.slice(0, 2));
-  const g = channel(c.slice(2, 4));
-  const b = channel(c.slice(4, 6));
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-
-// Black on the taste color unless the color is genuinely dark (e.g. spicy red),
-// where white reads better.
-const contrastText = (hex: string): string => (hexLuminance(hex) > 0.32 ? '#131823' : '#ffffff');
 
 // Blend `hex` toward `target` by `amount` (0-1) — used to make opaque "toned"
 // surfaces that read as a tint of the panel rather than a separate card.
@@ -764,31 +747,18 @@ const SplitHalf = ({
                   const border = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
                   const selected = name === ingredient;
                   return (
-                    <button
+                    <IngredientTile
                       key={name}
                       role="option"
                       aria-selected={selected}
+                      name={name}
+                      accent={border}
+                      filled={selected}
+                      hoverFill
+                      isDarkMode={isDarkMode}
                       onClick={() => pickIngredient(name)}
-                      className={`inline-flex items-center px-4 py-2 rounded-full text-base transition-all capitalize ${
-                        selected ? 'text-white' : 'text-gray-900 dark:text-white'
-                      }`}
-                      style={{
-                        // 2px to match the Classic drawer's ingredient tiles.
-                        border: `2px solid ${border}`,
-                        backgroundColor: selected ? border : 'transparent',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.backgroundColor = border;
-                        e.currentTarget.style.color = '#ffffff';
-                      }}
-                      onMouseLeave={e => {
-                        if (selected) return;
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                        e.currentTarget.style.color = '';
-                      }}
-                    >
-                      {name}
-                    </button>
+                      className="capitalize"
+                    />
                   );
                 })}
               </div>

@@ -4,7 +4,7 @@ import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors
 import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
-import { Slider } from './ui/index.ts';
+import { Slider, IngredientTile } from './ui/index.ts';
 
 // Filter constants
 const CATEGORIES = [
@@ -741,33 +741,20 @@ export const IngredientDrawer = ({
                     const partial = isPartialMatch(ingredient);
 
                     return (
-                      <button
+                      <IngredientTile
                         key={ingredient}
+                        name={ingredient}
+                        accent={borderColor}
+                        muted={isSelected}
+                        dashed={partial}
+                        disabled={isSelected}
+                        isDarkMode={isDarkMode}
                         onClick={() => {
                           if (!isSelected) {
                             onIngredientSelect(ingredient);
                           }
                         }}
-                        disabled={isSelected}
-                        className={`
-                          px-5 py-3
-                          rounded-full font-semibold text-base
-                          transition-all duration-150
-                          min-h-[48px]
-                          bg-white dark:bg-gray-800
-                          ${!isSelected ? 'text-gray-800 dark:text-gray-100' : ''}
-                          ${isSelected
-                            ? 'opacity-30 cursor-not-allowed'
-                            : 'active:scale-95'
-                          }
-                        `}
-                        style={{
-                          color: isSelected ? '#d1d5db' : undefined,
-                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? '#e5e7eb' : borderColor}`,
-                        }}
-                      >
-                        {ingredient}
-                      </button>
+                      />
                     );
                   })}
                 </div>
@@ -1062,7 +1049,6 @@ export const IngredientDrawer = ({
                     const isPairingHighlight = pairsWithHovered(ingredient);
                     const isHovered = hoveredIngredient === ingredient;
 
-                    // Convert hex to rgba for fill
                     const hexToRgba = (hex, alpha) => {
                       const r = parseInt(hex.slice(1, 3), 16);
                       const g = parseInt(hex.slice(3, 5), 16);
@@ -1070,44 +1056,24 @@ export const IngredientDrawer = ({
                       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
                     };
 
-                    // Determine background color based on state
-                    const baseBg = isDarkMode ? '#111827' : 'white';
-                    const baseText = isDarkMode ? '#f3f4f6' : '#1f2937';
-                    let bgColor = baseBg;
-                    let textColor = baseText;
-                    if (isSelected) {
-                      bgColor = baseBg;
-                      textColor = isDarkMode ? '#4b5563' : '#d1d5db';
-                    } else if (isHovered) {
-                      bgColor = borderColor;
-                      textColor = isDarkMode ? '#111827' : 'white';
-                    } else if (isPairingHighlight) {
-                      bgColor = hexToRgba(borderColor, 0.15);
-                      textColor = baseText;
-                    }
-
                     return (
-                      <button
+                      <IngredientTile
                         key={ingredient}
+                        name={ingredient}
+                        accent={borderColor}
+                        muted={isSelected}
+                        // Hover is parent-driven here so hovering one tile can also
+                        // tint the tiles it pairs with (not just self-fill).
+                        filled={!isSelected && isHovered}
+                        tintBg={!isSelected && !isHovered && isPairingHighlight ? hexToRgba(borderColor, 0.15) : undefined}
+                        dashed={partial}
+                        disabled={isSelected}
+                        isDarkMode={isDarkMode}
+                        title={partial ? 'Not a suggested pairing with everything you’ve selected' : undefined}
                         onClick={() => {
                           if (!isSelected) {
                             handleIngredientAdd(ingredient);
                           }
-                        }}
-                        disabled={isSelected}
-                        className={`
-                          px-5 py-2.5
-                          rounded-full font-semibold text-base
-                          transition-all duration-150
-                          ${isSelected
-                            ? 'opacity-30 cursor-not-allowed'
-                            : ''
-                          }
-                        `}
-                        style={{
-                          color: textColor,
-                          border: `2px ${partial ? 'dashed' : 'solid'} ${isSelected ? (isDarkMode ? '#374151' : '#e5e7eb') : borderColor}`,
-                          backgroundColor: bgColor,
                         }}
                         onMouseEnter={() => {
                           if (!isSelected) {
@@ -1117,10 +1083,7 @@ export const IngredientDrawer = ({
                         onMouseLeave={() => {
                           setHoveredIngredient(null);
                         }}
-                        title={partial ? 'Not a suggested pairing with everything you’ve selected' : undefined}
-                      >
-                        {ingredient}
-                      </button>
+                      />
                     );
                   })}
                 </div>

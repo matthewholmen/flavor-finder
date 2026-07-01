@@ -48,6 +48,15 @@ select,
   color: white;
 }
 
+/* Shared IngredientTile self-hover fill: tiles that opt in (data-hover-fill)
+   fill with their accent color on hover. The accent + contrast text are passed
+   as inline CSS vars per tile, so one rule covers every taste color. */
+.ingredient-tile[data-hover-fill]:hover {
+  background-color: var(--tile-accent) !important;
+  border-color: var(--tile-accent) !important;
+  color: var(--tile-contrast) !important;
+}
+
 /* Modal overlay styling - using body.modal-open class to raise toolbar z-index */
 body.modal-open .header-toolbar,
 body.modal-open .footer-toolbar {
