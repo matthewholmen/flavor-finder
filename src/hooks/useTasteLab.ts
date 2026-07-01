@@ -97,6 +97,8 @@ interface UseTasteLabReturn {
   setIsTasteLab: React.Dispatch<React.SetStateAction<boolean>>;
   slotTastes: SlotTaste[];
   setSlotTaste: (slotIndex: number, patch: Partial<SlotTaste>) => void;
+  // Replace the whole slot array at once — used by undo to restore a snapshot.
+  setSlotTastes: React.Dispatch<React.SetStateAction<SlotTaste[]>>;
 }
 
 /**
@@ -116,7 +118,7 @@ export const useTasteLab = (): UseTasteLabReturn => {
     );
   }, []);
 
-  return { isTasteLab, setIsTasteLab, slotTastes, setSlotTaste };
+  return { isTasteLab, setIsTasteLab, slotTastes, setSlotTaste, setSlotTastes };
 };
 
 export default useTasteLab;

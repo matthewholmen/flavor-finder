@@ -80,7 +80,27 @@ export default function FlavorFinderV2() {
     handleIngredientSelect: baseHandleIngredientSelect,
     handleIncrementTarget: baseHandleIncrementTarget,
     handleDecrementTarget: baseHandleDecrementTarget,
-  } = useIngredientSelection({ initialTargetCount: 2 });
+  } = useIngredientSelection({
+    initialTargetCount: 2,
+    // Taste Lab picks mutate the slot constraints (a slot relabels to describe
+    // the new ingredient, which drives its color + match count). Snapshot that
+    // state alongside the ingredients so undo reverts the whole pairing — color,
+    // constraint, and match results — not just the ingredient names.
+    captureExtra: () => ({
+      slotTastes,
+      lockedConstraints: new Set(lockedConstraints),
+      tasteLabPool,
+    }),
+    restoreExtra: (extra) => {
+      const e = extra as
+        | { slotTastes: SlotTaste[]; lockedConstraints: Set<number>; tasteLabPool: typeof tasteLabPool }
+        | undefined;
+      if (!e) return;
+      setSlotTastes(e.slotTastes);
+      setLockedConstraints(new Set(e.lockedConstraints));
+      setTasteLabPool(e.tasteLabPool);
+    },
+  });
 
   // Taste Lab supports 2–4 ingredients.
   const TASTE_LAB_MIN = 1;
@@ -140,6 +160,7 @@ export default function FlavorFinderV2() {
     setIsTasteLab,
     slotTastes,
     setSlotTaste,
+    setSlotTastes,
   } = useTasteLab();
 
   // Slot indices whose taste/category constraint is pinned. Generate randomizes

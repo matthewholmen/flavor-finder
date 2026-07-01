@@ -4,11 +4,19 @@ interface HistoryEntry {
   ingredients: string[];
   locked: Set<number>;
   targetCount: number;
+  // Opaque snapshot of any external state that must be restored together with
+  // the ingredients (e.g. Taste Lab slot constraints). Captured by `captureExtra`
+  // at save time and handed back to `restoreExtra` on undo.
+  extra?: unknown;
 }
 
 interface UseIngredientSelectionProps {
   initialTargetCount?: number;
   maxIngredients?: number;
+  // Optional hooks to snapshot/restore external state alongside the selection,
+  // so undo reverts it in lockstep (Taste Lab uses this for slot constraints).
+  captureExtra?: () => unknown;
+  restoreExtra?: (extra: unknown) => void;
 }
 
 interface UseIngredientSelectionReturn {
@@ -44,6 +52,8 @@ interface UseIngredientSelectionReturn {
 export const useIngredientSelection = ({
   initialTargetCount = 2,
   maxIngredients = 5,
+  captureExtra,
+  restoreExtra,
 }: UseIngredientSelectionProps = {}): UseIngredientSelectionReturn => {
   // Core state
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
@@ -53,6 +63,14 @@ export const useIngredientSelection = ({
   // History state for undo functionality
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const isUndoing = useRef(false);
+
+  // Keep the latest capture/restore callbacks in refs so saveToHistory/handleUndo
+  // can call them without being recreated (and without stale closures) on every
+  // change to the external state they snapshot.
+  const captureExtraRef = useRef(captureExtra);
+  const restoreExtraRef = useRef(restoreExtra);
+  captureExtraRef.current = captureExtra;
+  restoreExtraRef.current = restoreExtra;
 
   // Computed values
   const lockedCount = lockedIngredients.size;
@@ -77,10 +95,17 @@ export const useIngredientSelection = ({
   // Save current state to history (call before making changes)
   const saveToHistory = useCallback(() => {
     if (isUndoing.current) return; // Don't save while undoing
+    // Snapshot the external state EAGERLY, at call time — not lazily inside the
+    // setHistory updater. React runs that updater in a later render pass, by which
+    // point captureExtraRef points at a newer closure, so a lazy read would store
+    // a slotTastes snapshot one step ahead of the ingredients (undo would lag a
+    // step behind on color/constraint). Reading it here pins it to this instant.
+    const extra = captureExtraRef.current?.();
     setHistory(prev => [...prev, {
       ingredients: [...selectedIngredients],
       locked: new Set(lockedIngredients),
-      targetCount: targetIngredientCount
+      targetCount: targetIngredientCount,
+      extra,
     }]);
   }, [selectedIngredients, lockedIngredients, targetIngredientCount]);
 
@@ -94,6 +119,7 @@ export const useIngredientSelection = ({
     setSelectedIngredients(prevState.ingredients);
     setLockedIngredients(prevState.locked);
     setTargetIngredientCount(prevState.targetCount);
+    restoreExtraRef.current?.(prevState.extra);
     setHistory(prev => prev.slice(0, -1));
 
     // Reset flag after state updates
