@@ -44,14 +44,18 @@ export const Pill: React.FC<PillProps> = ({
   const inactive =
     'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500';
 
-  // Accent pills drive their active colors via inline style, so the Tailwind
-  // active classes only apply in the neutral case.
-  const stateClass = active ? (accent ? '' : neutralActive) : accent ? '' : inactive;
+  // Accent pills drive their border/fill via inline style, but still need a
+  // theme-aware *text* color when inactive — otherwise the label falls back to
+  // the browser default (black) and disappears on a dark surface.
+  const accentInactiveText = 'text-gray-700 dark:text-gray-200';
+  const stateClass = active
+    ? accent ? '' : neutralActive
+    : accent ? accentInactiveText : inactive;
 
   const accentStyle: React.CSSProperties | undefined = accent
     ? active
       ? { borderColor: accent, backgroundColor: accent, color: '#fff' }
-      : { borderColor: `${accent}66`, color: 'inherit' }
+      : { borderColor: `${accent}66` }
     : undefined;
 
   return (

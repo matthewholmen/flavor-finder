@@ -773,7 +773,8 @@ const SplitHalf = ({
                         selected ? 'text-white' : 'text-gray-900 dark:text-white'
                       }`}
                       style={{
-                        border: `3px solid ${border}`,
+                        // 2px to match the Classic drawer's ingredient tiles.
+                        border: `2px solid ${border}`,
                         backgroundColor: selected ? border : 'transparent',
                       }}
                       onMouseEnter={e => {
