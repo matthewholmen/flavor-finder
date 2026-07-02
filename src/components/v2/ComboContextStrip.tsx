@@ -52,7 +52,7 @@ export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
   return (
     <div className={`flex justify-center px-4 ${isMobile ? 'pb-3' : 'pb-4'}`}>
       <AnimatePresence mode="wait">
-        <motion.p
+        <motion.div
           key={comboKey}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
@@ -60,10 +60,9 @@ export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
           transition={{ duration: 0.25, ease: 'easeOut' }}
           className="text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400 max-w-2xl"
         >
-          {tags.join(' · ')}
-          {tags.length > 0 && titles.length > 0 && <span className="mx-2 opacity-60">—</span>}
+          {tags.length > 0 && <p>{tags.join(' · ')}</p>}
           {titles.length > 0 && (
-            <>
+            <p>
               <span className="opacity-75">seen in </span>
               {titles.map((t, i) => (
                 <React.Fragment key={t}>
@@ -78,9 +77,9 @@ export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
                   </a>
                 </React.Fragment>
               ))}
-            </>
+            </p>
           )}
-        </motion.p>
+        </motion.div>
       </AnimatePresence>
     </div>
   );
