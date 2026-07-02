@@ -32,7 +32,7 @@ const MIN_EDGE = Number(getArg('min-edge', '5'));
 const MIN_TAG_COUNT = Number(getArg('min-tag-count', '3'));
 const MIN_TAG_SHARE = Number(getArg('min-tag-share', '0.15'));
 const MIN_CUISINE_SHARE = Number(getArg('min-cuisine-share', '0.1'));
-const MAX_TITLES = Number(getArg('max-titles', '3'));
+const MAX_TITLES = Number(getArg('max-titles', '2'));
 const DRY = args.includes('--dry-run');
 
 const { edges, recipesRead } = JSON.parse(
@@ -73,11 +73,33 @@ for (const key of Object.keys(edges).sort()) {
   const method = keepTags(e.method, e.n, methodI, 3, MIN_TAG_SHARE);
   const cuisine = keepTags(e.cuisine, e.n, cuisineI, 2, MIN_CUISINE_SHARE);
 
-  // Titles: exact-counted popular titles first (repeat sightings with this pair); when
-  // an edge has none, fall back to its top one-off title — rare edges are exactly where
-  // a concrete receipt matters most.
-  let titles = e.titles.filter(([, c]) => c >= 2).slice(0, MAX_TITLES);
-  if (titles.length === 0) titles = (e.titles[0] ? [e.titles[0]] : (e.rare || []).slice(0, 1));
+  // Titles: rank for *prototypicality* — the receipt should read like a known dish
+  // ("Tom Kha Gai", "Beef Stew"), not an 8-word blog flourish. Score = repeat sightings,
+  // with a curated-domain bonus (editorial sites beat recipe mills) and a length penalty.
+  // Eligible = seen twice with this pair, or seen once on a curated site. When an edge
+  // has no eligible receipt, fall back to its top one-off title — rare edges are exactly
+  // where a concrete receipt matters most.
+  const lengthFactor = (t) => {
+    const words = t.split(' ').length;
+    return words <= 4 ? 1 : words <= 6 ? 0.6 : 0.3;
+  };
+  // Last-line title hygiene: some corpus titles are truncated mid-list ("Beef Chili
+  // With Ancho,") — strip dangling punctuation/conjunctions before shipping.
+  const tidyTitle = (t) => {
+    const tidied = t.replace(/[\s,;:&+-]+$/, '').replace(/\s+(with|and|or|in|for)$/i, '');
+    return tidied.length >= 3 ? tidied : null;
+  };
+  let titles = (e.titles || [])
+    .filter(([, c, cur]) => c >= 2 || cur >= 1)
+    .map(([t, c, cur]) => [tidyTitle(t), (c + 2 * cur) * lengthFactor(t)])
+    .filter(([t]) => t)
+    .sort((x, y) => y[1] - x[1])
+    .slice(0, MAX_TITLES);
+  if (titles.length === 0) {
+    const fallback = e.titles?.[0]?.[0] ?? e.rare?.[0]?.[0];
+    const tidied = fallback ? tidyTitle(fallback) : null;
+    if (tidied) titles = [[tidied, 0]];
+  }
   const titleIdxs = titles.map(([t]) => titleI.intern(t));
 
   if (dish.length + method.length + cuisine.length + titleIdxs.length === 0) continue;

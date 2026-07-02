@@ -78,6 +78,11 @@ node merge-context.mjs                                             # → src/dat
 Review `output/context-report.md` before merging. Display policy (tag share/count floors,
 title requirements, bundle-size levers) lives in `merge-context.mjs` flags.
 
+Title quality: joke/diet-mill names are dropped by `TITLE_STOPLIST` in `context.mjs`;
+titles from `CURATED_DOMAINS` (Epicurious, NYT Cooking, Serious Eats, …) outrank
+recipe-mill receipts; merge scoring favors short prototypical dish names over long
+blog flourishes.
+
 ## Merging into the app (next step to build)
 
 After review, a `merge.mjs` step will fold `proposed-pairings.json` into

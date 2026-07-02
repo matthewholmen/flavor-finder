@@ -67,15 +67,33 @@ const tagsFor = (compiled, text) => {
 };
 
 // ---- title normalization (these strings ship to the UI) ----
+//
+// Joke/gimmick names and diet-mill titles are real recipes but terrible receipts — the
+// strip exists to say "this combo is a known thing," and "Montezuma's Revenge" says the
+// opposite. Filtered at normalize time so they never enter any count.
+const TITLE_STOPLIST =
+  /\b(revenge|roadkill|garbage|kitchen sink|crack|to die for|better than sex|died and went|sludge|surprise|diabetic|weight watchers|low[- ]fat|fat[- ]free|guilt[- ]free|skinny)\b/i;
 const normalizeTitle = (raw) => {
   let t = raw.replace(/\s+/g, ' ').trim();
   t = t.replace(/\s*\([^)]*\)\s*$/, '');           // trailing parenthetical (serving notes etc.)
   t = t.replace(/\s+[Rr]ecipe\s+[a-z0-9]+$/, '');  // scraper site-slug suffix ("Recipe kanosis")
   t = t.replace(/\s*\(?recipe\)?\s*$/i, '').replace(/^["'\s]+|["'\s]+$/g, '');
+  t = t.replace(/(\w)'S\b/g, "$1's");              // title-caser artifact ("Montezuma'S")
   if (t.length < 3 || t.length > 60) return null;
   if (!/[a-z]/i.test(t)) return null;
+  if (TITLE_STOPLIST.test(t)) return null;
   return t;
 };
+
+// Editorial/curated recipe sites in the corpus (~250k of the 2.2M recipes). A title from
+// one of these passed a test kitchen or an editor — it outranks recipe-mill receipts.
+const CURATED_DOMAINS = new Set([
+  'epicurious.com', 'cooking.nytimes.com', 'seriouseats.com', 'food52.com',
+  'foodnetwork.com', 'foodandwine.com', 'myrecipes.com', 'tasteofhome.com',
+  'cookstr.com', 'chowhound.com', 'vegetariantimes.com', 'delish.com', 'foodrepublic.com',
+]);
+const domainOf = (link) =>
+  (link || '').replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
 
 // ---- ingredient matcher + tracked edge set ----
 const { matchPhrase } = buildMatcher();
@@ -113,8 +131,9 @@ for (const [t, c] of globalTitles) if (c >= POPULAR_MIN) popularTitles.add(t);
 globalTitles.clear();
 console.error(`  ${popularTitles.size} titles appear >=${POPULAR_MIN} times.`);
 
-// Per-edge accumulator. `pop` = exact counts of globally-popular titles; `titles` = a
-// capped sketch (space-saving eviction) as fallback for edges with no popular receipts.
+// Per-edge accumulator. `pop` = exact counts of qualifying titles (globally popular OR
+// from a curated domain), stored as [count, curatedCount]; `titles` = a capped sketch
+// (space-saving eviction) as fallback for edges with no qualifying receipts.
 const TITLE_CAP = 24;
 const POP_CAP = 1500;
 const makeAcc = () => ({ n: 0, dish: new Map(), method: new Map(), cuisine: new Map(), titles: new Map(), pop: new Map() });
@@ -134,7 +153,7 @@ const bumpTitle = (map, title) => {
 // ---- pass 2: per-edge context ----
 console.error(`Pass 2/2: mining context from ${INPUT} (min-count=${MIN_COUNT})...`);
 let header = null;
-let titleIdx = -1; let dirIdx = -1; let nerIdx = -1;
+let titleIdx = -1; let dirIdx = -1; let nerIdx = -1; let linkIdx = -1;
 let processed = 0;
 let matched = 0;
 
@@ -144,6 +163,7 @@ for await (const row of parseCsv(INPUT)) {
     titleIdx = header.indexOf('title');
     dirIdx = header.indexOf('directions');
     nerIdx = header.indexOf('NER');
+    linkIdx = header.indexOf('link');
     if (titleIdx < 0 || nerIdx < 0) {
       console.error(`Error: need "title" and "NER" columns. Columns: ${header.join(', ')}`);
       process.exit(1);
@@ -185,7 +205,8 @@ for await (const row of parseCsv(INPUT)) {
   }
   const title = normalizeTitle(titleRaw);
 
-  const isPopular = title && popularTitles.has(title);
+  const isCurated = linkIdx >= 0 && CURATED_DOMAINS.has(domainOf(row[linkIdx]));
+  const qualifies = title && (popularTitles.has(title) || isCurated);
   for (const k of hitKeys) {
     let a = acc.get(k);
     if (!a) { a = makeAcc(); acc.set(k, a); }
@@ -195,9 +216,12 @@ for await (const row of parseCsv(INPUT)) {
     bumpAll(a.cuisine, cuisineTags);
     // POP_CAP bounds hub-edge memory; once full, only already-seen titles keep counting.
     // High-frequency titles enter early, so the top ranks are unaffected in practice.
-    if (isPopular && (a.pop.has(title) || a.pop.size < POP_CAP)) {
-      a.pop.set(title, (a.pop.get(title) || 0) + 1);
-    } else if (title && !isPopular) bumpTitle(a.titles, title);
+    if (qualifies && (a.pop.has(title) || a.pop.size < POP_CAP)) {
+      const e = a.pop.get(title) || [0, 0];
+      e[0] += 1;
+      if (isCurated) e[1] += 1;
+      a.pop.set(title, e);
+    } else if (title && !qualifies) bumpTitle(a.titles, title);
   }
 }
 
@@ -216,9 +240,13 @@ for (const [k, a] of acc) {
     dish: topEntries(a.dish, 6),
     method: topEntries(a.method, 6),
     cuisine: topEntries(a.cuisine, 4),
-    // Exact counts of globally-popular titles; `rare` is the sketch fallback for edges
-    // whose receipts are one-off titles (counts there are approximate).
-    titles: topEntries(a.pop, 5),
+    // Qualifying titles as [title, count, curatedCount], pre-ranked with a curated bonus;
+    // final scoring/selection is merge policy. `rare` is the sketch fallback (approximate
+    // counts) for edges whose receipts are one-off titles.
+    titles: [...a.pop.entries()]
+      .sort((x, y) => (y[1][0] + 2 * y[1][1]) - (x[1][0] + 2 * x[1][1]))
+      .slice(0, 8)
+      .map(([t, [c, cur]]) => [t, c, cur]),
     rare: topEntries(a.titles, 3),
   };
   emitted++;
@@ -258,7 +286,7 @@ for (const k of SAMPLE_EDGES) {
   report += `- dish: ${e.dish.map(([t, c]) => `${t} (${c})`).join(', ') || '—'}\n`;
   report += `- method: ${e.method.map(([t, c]) => `${t} (${c})`).join(', ') || '—'}\n`;
   report += `- cuisine: ${e.cuisine.map(([t, c]) => `${t} (${c})`).join(', ') || '—'}\n`;
-  report += `- titles: ${e.titles.map(([t, c]) => `"${t}" (${c})`).join(', ') || '—'}\n`;
+  report += `- titles: ${e.titles.map(([t, c, cur]) => `"${t}" (${c}${cur ? `, ${cur} curated` : ''})`).join(', ') || '—'}\n`;
   report += `- rare titles: ${e.rare.map(([t, c]) => `"${t}" (~${c})`).join(', ') || '—'}\n\n`;
 }
 fs.writeFileSync(path.join(outDir, 'context-report.md'), report);

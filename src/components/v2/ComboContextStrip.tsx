@@ -5,7 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 // first paint rather than riding in the main bundle. The strip renders nothing until
 // the module arrives — indistinguishable from a combo that has no context.
 let contextModule = null;
-const loadContextModule = () => import('../../utils/pairingContext.ts');
+let contextPromise = null;
+const loadContextModule = () => {
+  if (!contextPromise) {
+    contextPromise = import('../../utils/pairingContext.ts').then(m => { contextModule = m; return m; });
+  }
+  return contextPromise;
+};
 
 // A quiet one-liner beneath the hero combo answering "what am I looking at?" —
 // dish-type/cuisine/method tags plus a couple of concrete recipe titles, all mined
@@ -17,18 +23,18 @@ const loadContextModule = () => import('../../utils/pairingContext.ts');
 export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
   const valid = ingredients.filter(Boolean);
   const comboKey = valid.join('|');
-  const [, setLoaded] = useState(!!contextModule);
+  // The module lives in state (not just the module-level cache) so a mount that races
+  // the async load re-renders when it lands, and hot reloads recover cleanly.
+  const [mod, setMod] = useState(() => contextModule);
 
   useEffect(() => {
-    if (!contextModule) {
-      loadContextModule().then(m => { contextModule = m; setLoaded(true); });
-    }
-  }, []);
+    if (!mod) loadContextModule().then(setMod);
+  }, [mod]);
 
   const ctx = useMemo(
-    () => (contextModule && valid.length >= 2 ? contextModule.getComboContext(valid) : null),
+    () => (mod && valid.length >= 2 ? mod.getComboContext(valid) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [comboKey, contextModule]
+    [comboKey, mod]
   );
 
   if (!ctx) return null;
@@ -62,9 +68,14 @@ export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
               {titles.map((t, i) => (
                 <React.Fragment key={t}>
                   {i > 0 && ', '}
-                  <span className="font-display italic text-gray-600 dark:text-gray-300">
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(`${t} recipe`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-display italic text-gray-600 dark:text-gray-300 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color] duration-200"
+                  >
                     “{t}”
-                  </span>
+                  </a>
                 </React.Fragment>
               ))}
             </>
