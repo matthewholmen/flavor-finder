@@ -498,8 +498,12 @@ const SplitHalf = ({
         }}
         title={isLocked ? 'Click to unlock' : 'Click to lock'}
       >
+        {/* mode="wait": the old name fully lifts away before the new one rises
+            in. popLayout would absolutely-position the exiting name to overlap
+            the entering one — but popped out of the flex layout it re-measures
+            at the wrong width and re-wraps mid-word ("polent / a"). */}
         <AnimatePresence
-          mode="popLayout"
+          mode="wait"
           initial={false}
           custom={{ dir: changeDir.current, index }}
         >
