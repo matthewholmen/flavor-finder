@@ -1,34 +1,34 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
+import { Pill } from './ui/Pill.tsx';
+import { getLoadedContext, loadContext } from '../../utils/contextLoader.ts';
 
-// The mined context data is ~250 KB gzipped, so it's loaded as an async chunk after
-// first paint rather than riding in the main bundle. The strip renders nothing until
-// the module arrives — indistinguishable from a combo that has no context.
-let contextModule = null;
-let contextPromise = null;
-const loadContextModule = () => {
-  if (!contextPromise) {
-    contextPromise = import('../../utils/pairingContext.ts').then(m => { contextModule = m; return m; });
-  }
-  return contextPromise;
-};
-
-// A quiet one-liner beneath the hero combo answering "what am I looking at?" —
-// dish-type/cuisine/method tags plus a couple of concrete recipe titles, all mined
-// offline from the recipe corpus (see utils/pairingContext.ts). Pure annotation:
-// it reads the combo, never influences generation.
+// A quiet two-liner beneath the hero combo answering "what am I looking at?" —
+// dish-type/cuisine/method tags plus concrete recipe receipts, all mined offline
+// from the recipe corpus (see utils/pairingContext.ts).
 //
-// Renders nothing for combos with <2 ingredients or no mined context, so it is
-// safe to mount unconditionally.
-export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
+// Cuisine and dish-type tags are clickable: clicking one STEERS generation — the
+// parent restricts the flavor graph to edges carrying that tag, so Generate
+// shuffles ingredients while staying inside (say) Mexican or desserts. The active
+// steer renders as a pinned pill with an ✕ to clear. Method tags are display-only.
+//
+// Renders nothing for combos with <2 ingredients or no mined context (unless a
+// steer is active, which must stay clearable), so it is safe to mount always.
+export const ComboContextStrip = ({
+  ingredients,
+  isMobile = false,
+  steer = null,
+  onSteerChange = null,
+}) => {
   const valid = ingredients.filter(Boolean);
   const comboKey = valid.join('|');
-  // The module lives in state (not just the module-level cache) so a mount that races
-  // the async load re-renders when it lands, and hot reloads recover cleanly.
-  const [mod, setMod] = useState(() => contextModule);
+  // The context data is ~250 KB gzipped and rides in an async chunk; the module
+  // lives in state so a mount that races the load re-renders when it lands.
+  const [mod, setMod] = useState(() => getLoadedContext());
 
   useEffect(() => {
-    if (!mod) loadContextModule().then(setMod);
+    if (!mod) loadContext().then(setMod);
   }, [mod]);
 
   const ctx = useMemo(
@@ -37,31 +37,66 @@ export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
     [comboKey, mod]
   );
 
-  if (!ctx) return null;
+  if (!ctx && !steer) return null;
 
-  // Keep it to a glance: a few tags, cuisine first (it orients fastest), then a
-  // couple of receipts. Method tags only get a slot when dish types are scarce.
-  const tags = [
-    ...ctx.cuisines.slice(0, 1),
-    ...ctx.dishTypes.slice(0, 2),
-    ...(ctx.dishTypes.length < 2 ? ctx.methods.slice(0, 1) : []),
-  ];
-  const titles = ctx.titles.slice(0, isMobile ? 1 : 2);
-  if (tags.length === 0 && titles.length === 0) return null;
+  // Keep it to a glance: cuisine first (it orients fastest), then dish types.
+  // Method tags only get a slot when dish types are scarce.
+  const tagItems: Array<{ tag: string; group: 'cuisine' | 'dish' | 'method' }> = [];
+  if (ctx) {
+    ctx.cuisines.slice(0, 1).forEach(t => tagItems.push({ tag: t, group: 'cuisine' }));
+    ctx.dishTypes.slice(0, 2).forEach(t => tagItems.push({ tag: t, group: 'dish' }));
+    if (ctx.dishTypes.length < 2) {
+      ctx.methods.slice(0, 1).forEach(t => tagItems.push({ tag: t, group: 'method' }));
+    }
+  }
+  // The active steer is pinned as its own pill — don't repeat it in the tag list.
+  const visibleTags = tagItems.filter(
+    it => !(steer && it.group === steer.group && it.tag === steer.tag)
+  );
+  const titles = ctx ? ctx.titles.slice(0, isMobile ? 1 : 2) : [];
+  if (!steer && visibleTags.length === 0 && titles.length === 0) return null;
 
   return (
-    // Mobile: left-aligned and flush with the hero's 1rem inset; desktop: centered.
-    <div className={`flex ${isMobile ? 'justify-start px-4 pb-4' : 'justify-center px-4 pb-4'}`}>
+    <div className={`flex ${isMobile ? 'justify-start' : 'justify-center'} px-4 pb-4`}>
       <AnimatePresence mode="wait">
         <motion.div
-          key={comboKey}
+          key={comboKey + (steer ? `|${steer.group}:${steer.tag}` : '')}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
           className={`${isMobile ? 'text-left' : 'text-center'} text-sm leading-relaxed text-gray-500 dark:text-gray-400 max-w-2xl`}
         >
-          {tags.length > 0 && <p>{tags.join(' · ')}</p>}
+          <div className={`flex flex-wrap items-center gap-x-2 gap-y-1.5 ${isMobile ? 'justify-start' : 'justify-center'}`}>
+            {steer && (
+              <Pill
+                size="sm"
+                active
+                onClick={() => onSteerChange?.(null)}
+                className="!px-2.5 !py-0.5 !text-xs"
+                aria-label={`Stop steering toward ${steer.tag}`}
+              >
+                {steer.tag}
+                <X size={12} strokeWidth={2.5} />
+              </Pill>
+            )}
+            {visibleTags.map((it, i) => (
+              <React.Fragment key={`${it.group}:${it.tag}`}>
+                {(i > 0 || steer) && <span className="opacity-50" aria-hidden="true">·</span>}
+                {it.group !== 'method' && onSteerChange ? (
+                  <button
+                    onClick={() => onSteerChange({ group: it.group, tag: it.tag })}
+                    className="underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color] duration-200"
+                    title={`Steer Generate toward ${it.tag}`}
+                  >
+                    {it.tag}
+                  </button>
+                ) : (
+                  <span>{it.tag}</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
           {titles.length > 0 && (
             <p>
               <span className="opacity-75">seen in </span>

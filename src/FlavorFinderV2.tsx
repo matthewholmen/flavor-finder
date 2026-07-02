@@ -3,6 +3,7 @@ import { MinimalHeader } from './components/v2/MinimalHeader.tsx';
 import { MobileBottomBar } from './components/v2/MobileBottomBar.tsx';
 import { IngredientDisplay } from './components/v2/IngredientDisplay.tsx';
 import { ComboContextStrip } from './components/v2/ComboContextStrip.tsx';
+import { getLoadedContext, loadContext } from './utils/contextLoader.ts';
 import { IngredientDrawer } from './components/v2/IngredientDrawer.tsx';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
 import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
@@ -204,7 +205,7 @@ export default function FlavorFinderV2() {
   };
 
   // Create flavor map
-  const { flavorMap } = useMemo(
+  const { flavorMap: baseFlavorMap } = useMemo(
     // Drop weak recipe-mined edges (strength <= 2) whose ingredients share fewer than 2
     // common chef-canon neighbors. These are co-occurrence artifacts (e.g. butterscotch +
     // noodles) that can't surface in multi-ingredient generation and only pollute pairs.
@@ -215,6 +216,25 @@ export default function FlavorFinderV2() {
     }),
     [enabledSources]
   );
+
+  // Tag-click steering: lock generation into a cuisine or dish type from the context
+  // strip. Active steering restricts the flavor map to edges whose mined context
+  // carries the tag — a strict SUBSET of the graph, so every steered combination is
+  // still fully mutually compatible (the pairing check itself is never relaxed; see
+  // CLAUDE.md). All downstream machinery — generation in every compatibility mode,
+  // slot candidates, drawer counts — reads the steered map transparently.
+  const [contextSteer, setContextSteer] = useState<{ group: 'dish' | 'cuisine'; tag: string } | null>(null);
+  // The filter lives in the lazily-loaded context chunk. Activation always comes from
+  // the strip (which loads it), but a defensive load keeps this self-sufficient.
+  const [steerModule, setSteerModule] = useState(() => getLoadedContext());
+  useEffect(() => {
+    if (contextSteer && !steerModule) loadContext().then(setSteerModule);
+  }, [contextSteer, steerModule]);
+
+  const flavorMap = useMemo(() => {
+    if (!contextSteer || !steerModule || isTasteLab) return baseFlavorMap;
+    return steerModule.filterFlavorMapByTag(baseFlavorMap, contextSteer.group, contextSteer.tag);
+  }, [baseFlavorMap, contextSteer, steerModule, isTasteLab]);
 
   // All ingredients: union of the flavor map (pairing-connected) and every profiled
   // ingredient. Sourcing from profiles too means newly-added ingredients are browsable
@@ -1094,6 +1114,9 @@ export default function FlavorFinderV2() {
 
     // Only update if we got the exact number of ingredients requested
     if (newRandomIngredients.length < slotsToFill) {
+      // Under steering the graph can be too sparse for the slot count (e.g. a niche
+      // cuisine at 5 slots) — say so instead of silently doing nothing.
+      if (contextSteer) setNoMatchToast(true);
       return;
     }
 
@@ -1106,6 +1129,16 @@ export default function FlavorFinderV2() {
     lockedIngredientsList.forEach((_, index) => newLockedSet.add(index));
     setLockedIngredients(newLockedSet);
   };
+
+  // Entering (or switching) a steer regenerates immediately so the combo actually
+  // reflects the chosen tag — this runs after render, when the steered flavorMap is
+  // already in place. Clearing a steer (null) keeps the current combo: it remains
+  // valid in the full graph by construction.
+  useEffect(() => {
+    if (!contextSteer || !steerModule || isTasteLab) return;
+    handleRandomize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contextSteer, steerModule]);
 
   // Wrap handleIngredientSelect to clear search term. In Taste Lab, the global
   // search starts a fresh pairing from scratch: the chosen ingredient becomes
@@ -1650,7 +1683,12 @@ export default function FlavorFinderV2() {
             </div>
 
             {/* Mined dish context for the current combo ("seen in: …") */}
-            <ComboContextStrip ingredients={selectedIngredients} isMobile />
+            <ComboContextStrip
+              ingredients={selectedIngredients}
+              isMobile
+              steer={contextSteer}
+              onSteerChange={setContextSteer}
+            />
 
             {/* Dietary Filter Pills - fixed above bottom bar on mobile (bar grows by
                 the home-indicator inset in standalone mode, so the offset must too) */}
@@ -1681,7 +1719,13 @@ export default function FlavorFinderV2() {
             </div>
             {/* Mined dish context for the current combo — hero view only, so the
                 compact (drawer-open) layout stays uncluttered */}
-            {!isDrawerOpen && <ComboContextStrip ingredients={selectedIngredients} />}
+            {!isDrawerOpen && (
+              <ComboContextStrip
+                ingredients={selectedIngredients}
+                steer={contextSteer}
+                onSteerChange={setContextSteer}
+              />
+            )}
             <DietaryFilterPills
               dietaryRestrictions={dietaryRestrictions}
               onDietaryChange={setDietaryRestrictions}

@@ -58,6 +58,45 @@ export const getEdgeContext = (a: string, b: string): EdgeContext | null => {
   };
 }
 
+/** Tag groups that can steer generation. Methods are display-only. */
+export type SteerGroup = 'dish' | 'cuisine';
+
+/**
+ * Restrict a flavor map to edges whose mined context carries the given tag — the
+ * engine behind tag-click steering ("lock into Mexican / desserts and shuffle").
+ *
+ * This SUBSETS the graph, never widens it: every steered edge is a real flavor-map
+ * edge, so any combination generated from the result is exactly as mutually
+ * compatible as before. The pairing algorithm itself is untouched (see CLAUDE.md —
+ * steering changes the inputs, not the check).
+ */
+export const filterFlavorMapByTag = (
+  flavorMap: Map<string, Set<string>>,
+  group: SteerGroup,
+  tag: string
+): Map<string, Set<string>> => {
+  const table = group === 'dish' ? CONTEXT_DISH_TYPES : CONTEXT_CUISINES;
+  const pos = group === 'dish' ? 1 : 3; // tuple slot in PairingContextEntry
+  const idx = table.indexOf(tag);
+  const out = new Map<string, Set<string>>();
+  if (idx < 0) return out;
+  const link = (a: string, b: string) => {
+    if (!out.has(a)) out.set(a, new Set());
+    out.get(a)!.add(b);
+  };
+  flavorMap.forEach((neighbors, a) => {
+    neighbors.forEach(b => {
+      if (a >= b) return; // visit each undirected edge once
+      const entry = pairingContext[pairKey(a, b)];
+      if (entry && (entry[pos] as number[]).includes(idx)) {
+        link(a, b);
+        link(b, a);
+      }
+    });
+  });
+  return out;
+};
+
 export interface ComboContext {
   /** Top dish-type tags across the combo's edges, most-supported first. */
   dishTypes: string[];
