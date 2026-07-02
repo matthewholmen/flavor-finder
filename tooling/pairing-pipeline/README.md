@@ -10,10 +10,15 @@ for the provenance schema this feeds.
 
 - `vocab.json` — synonym map (alias → canonical). Canonical vocabulary is read at runtime
   from `src/data/ingredientProfiles.ts`.
+- `lib.mjs` — shared plumbing: CSV streaming, the phrase→canonical matcher, edge-set loader.
 - `mine.mjs` — recipe-mining pass: normalize ingredients → PMI co-occurrence → propose
   `recipenlg` edges with 0–10 strength.
-- `sample/sample.csv` — tiny fixture for smoke-testing the miner.
-- `output/` — generated `proposed-pairings.json` + `report.md` (gitignored-worthy).
+- `context.mjs` — dish-context pass: for edges already in the graph, mine dish-type /
+  method / cuisine tags + top recipe titles ("seen in: …"). Never adds or scores edges.
+- `context-vocab.json` — keyword vocabulary for the context pass (tag names ship to the UI).
+- `merge-context.mjs` — applies display thresholds and writes `src/data/pairingContext.ts`.
+- `sample/sample.csv` — tiny fixture for smoke-testing the miners.
+- `output/` — generated `proposed-pairings.json`, `edge-context.json` + reports (gitignored-worthy).
 
 ## Status
 
@@ -22,6 +27,8 @@ for the provenance schema this feeds.
 - ✅ Phase 4: mined RecipeNLG (2.2M recipes) → 7,084 `recipenlg` edges merged.
 - ✅ Analog inheritance: `analog.json` siblings → 181 `analog` edges for ingredients
   RecipeNLG can't cover (chili crisp, ssamjang, …). Run via `merge.mjs`.
+- ✅ Dish context: `context.mjs` + `merge-context.mjs` → `src/data/pairingContext.ts`
+  (dish/method/cuisine tags + "seen in" titles per edge, from the same RecipeNLG corpus).
 - ⬜ Phase 5: FlavorDB (molecular `flavordb` edges — single whole-foods only).
 
 ## Data hygiene (`normalize.mjs`)
@@ -57,6 +64,19 @@ each sibling's top neighbors as `analog`-tagged edges (separate, toggleable sour
 
 4. **Review** `output/report.md` — especially the per-ingredient coverage for the new and
    starved ingredients.
+
+## Running the context miner
+
+Same dataset as the pairing miner (needs `title`, `directions`, `NER` columns). Two
+streaming passes: global title counts, then per-edge tag/title accumulation.
+
+```bash
+node context.mjs --input /path/to/full_dataset.csv --min-count 5   # → output/edge-context.json
+node merge-context.mjs                                             # → src/data/pairingContext.ts
+```
+
+Review `output/context-report.md` before merging. Display policy (tag share/count floors,
+title requirements, bundle-size levers) lives in `merge-context.mjs` flags.
 
 ## Merging into the app (next step to build)
 

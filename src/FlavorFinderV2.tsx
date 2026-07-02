@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useState, useRef } from 'react';
 import { MinimalHeader } from './components/v2/MinimalHeader.tsx';
 import { MobileBottomBar } from './components/v2/MobileBottomBar.tsx';
 import { IngredientDisplay } from './components/v2/IngredientDisplay.tsx';
+import { ComboContextStrip } from './components/v2/ComboContextStrip.tsx';
 import { IngredientDrawer } from './components/v2/IngredientDrawer.tsx';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
 import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
@@ -1648,6 +1649,9 @@ export default function FlavorFinderV2() {
               />
             </div>
 
+            {/* Mined dish context for the current combo ("seen in: …") */}
+            <ComboContextStrip ingredients={selectedIngredients} isMobile />
+
             {/* Dietary Filter Pills - fixed above bottom bar on mobile */}
             <div className="fixed left-0 right-0 bottom-[92px] z-[55] px-4 overflow-x-auto scrollbar-hide">
               <DietaryFilterPills
@@ -1674,6 +1678,9 @@ export default function FlavorFinderV2() {
                 flavorMap={flavorMap}
               />
             </div>
+            {/* Mined dish context for the current combo — hero view only, so the
+                compact (drawer-open) layout stays uncluttered */}
+            {!isDrawerOpen && <ComboContextStrip ingredients={selectedIngredients} />}
             <DietaryFilterPills
               dietaryRestrictions={dietaryRestrictions}
               onDietaryChange={setDietaryRestrictions}

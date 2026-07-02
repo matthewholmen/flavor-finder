@@ -29,16 +29,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { REPO_ROOT, makeGetArg, parseCsv, parseIngredientCell, buildMatcher } from './lib.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, '..', '..');
 
 // ---- args ----
 const args = process.argv.slice(2);
-const getArg = (name, def) => {
-  const i = args.indexOf(`--${name}`);
-  return i >= 0 && args[i + 1] ? args[i + 1] : def;
-};
+const getArg = makeGetArg(args);
 const INPUT = getArg('input');
 const COL = getArg('col', 'NER');
 const MIN_COUNT = Number(getArg('min-count', '20'));
@@ -50,111 +47,8 @@ if (!INPUT) {
   process.exit(1);
 }
 
-// ---- load canonical vocabulary from the app's profiles ----
-const profilesSrc = fs.readFileSync(
-  path.join(REPO_ROOT, 'src', 'data', 'ingredientProfiles.ts'),
-  'utf8',
-);
-const canonical = [...profilesSrc.matchAll(/name:\s*"([^"]+)"/g)].map((m) => m[1]);
-const canonicalSet = new Set(canonical);
-
-// ---- load synonym map ----
-const { synonyms } = JSON.parse(fs.readFileSync(path.join(__dirname, 'vocab.json'), 'utf8'));
-for (const [alias, target] of Object.entries(synonyms)) {
-  if (!canonicalSet.has(target)) {
-    console.warn(`Warning: synonym "${alias}" -> "${target}" but "${target}" is not a canonical profile name.`);
-  }
-}
-
-// ---- build matcher: term -> canonical, longest term first to prefer multi-word matches ----
-const termToCanonical = new Map();
-for (const name of canonical) termToCanonical.set(name.toLowerCase(), name);
-for (const [alias, target] of Object.entries(synonyms)) termToCanonical.set(alias.toLowerCase(), target);
-
-const terms = [...termToCanonical.keys()].sort(
-  (a, b) => b.split(' ').length - a.split(' ').length || b.length - a.length,
-);
-// Precompile word-boundary regexes once.
-const termRegex = new Map(
-  terms.map((t) => [t, new RegExp(`(?:^|[^a-z])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:[^a-z]|$)`)]),
-);
-
-// Word index: word -> terms containing it. Lets each phrase test only the terms that
-// share a word with it, instead of all ~700 (a matching term must share every one of its
-// words with the phrase, so it's always in the candidate set — recall is preserved).
-const wordIndex = new Map();
-for (const t of terms) {
-  for (const w of t.split(' ')) {
-    if (!wordIndex.has(w)) wordIndex.set(w, []);
-    wordIndex.get(w).push(t);
-  }
-}
-
-// Map one recipe-ingredient phrase to a single canonical name (longest match wins), or null.
-const matchPhrase = (phraseRaw) => {
-  const lower = phraseRaw.toLowerCase();
-  // Fast path: exact phrase (RecipeNLG's NER column is already cleaned to short names).
-  const exact = termToCanonical.get(lower);
-  if (exact) return exact;
-  // Candidate terms = those sharing any word with the phrase.
-  const words = lower.split(/[^a-z]+/).filter(Boolean);
-  const candidates = new Set();
-  for (const w of words) {
-    const ts = wordIndex.get(w);
-    if (ts) for (const t of ts) candidates.add(t);
-  }
-  if (candidates.size === 0) return null;
-  const sorted = [...candidates].sort(
-    (a, b) => b.split(' ').length - a.split(' ').length || b.length - a.length,
-  );
-  const padded = ` ${lower} `;
-  for (const t of sorted) {
-    if (termRegex.get(t).test(padded)) return termToCanonical.get(t);
-  }
-  return null;
-};
-
-// ---- minimal streaming RFC4180-ish CSV parser (handles quotes + embedded newlines) ----
-async function* parseCsv(filePath) {
-  const stream = fs.createReadStream(filePath, { encoding: 'utf8', highWaterMark: 1 << 20 });
-  let field = '';
-  let row = [];
-  let inQuotes = false;
-  let prevChar = '';
-  for await (const chunk of stream) {
-    for (let i = 0; i < chunk.length; i++) {
-      const c = chunk[i];
-      if (inQuotes) {
-        if (c === '"') {
-          if (chunk[i + 1] === '"') { field += '"'; i++; }
-          else inQuotes = false;
-        } else field += c;
-      } else if (c === '"') {
-        inQuotes = true;
-      } else if (c === ',') {
-        row.push(field); field = '';
-      } else if (c === '\n') {
-        if (prevChar === '\r') field = field.slice(0, -1);
-        row.push(field); field = '';
-        yield row; row = [];
-      } else {
-        field += c;
-      }
-      prevChar = c;
-    }
-  }
-  if (field.length > 0 || row.length > 0) { row.push(field); yield row; }
-}
-
-// Parse a NER/ingredients cell into a list of phrases. Supports JSON arrays and plain text.
-const parseIngredientCell = (cell) => {
-  if (!cell) return [];
-  const trimmed = cell.trim();
-  if (trimmed.startsWith('[')) {
-    try { return JSON.parse(trimmed).map(String); } catch { /* fall through */ }
-  }
-  return trimmed.split(/[;,\n]/).map((s) => s.trim()).filter(Boolean);
-};
+// ---- canonical vocabulary + phrase matcher (shared with context.mjs) ----
+const { canonical, synonyms, matchPhrase } = buildMatcher();
 
 // ---- mine ----
 const single = new Map();          // canonical -> # recipes containing it
