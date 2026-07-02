@@ -67,6 +67,22 @@ const MENU_CAP = 300; // tallest a dropdown gets on a roomy screen (px)
 //    index so a full Generate cascades across the board; locked slots don't
 //    change ingredients, so they visibly hold still.
 //  • Cycling (dir = ±1): a horizontal reel step toward the direction of travel.
+// The live name only ever animates IN (it renders keyed on the ingredient, so
+// it can never lag behind the data — see the "ghost" note in SplitHalf). The
+// outgoing name is a separate self-managed ghost overlay using `ghostExit`.
+// The two are SEQUENCED, not simultaneous: the enter delay below equals the
+// ghost's delay + duration, recreating mode="wait"'s two-beat rhythm (old
+// name lifts away, a breath of empty panel, new name rises) without its
+// wedge-under-spam failure mode.
+const ghostExit = (dir: number, index: number) =>
+  dir !== 0
+    ? { x: -dir * 48, opacity: 0, transition: { duration: 0.13, ease: 'easeIn' } }
+    : {
+        y: -30,
+        opacity: 0,
+        transition: { duration: 0.15, ease: 'easeIn', delay: index * 0.055 },
+      };
+
 const heroVariants = {
   enter: (c: { dir: number; index: number }) =>
     c.dir !== 0
@@ -81,17 +97,11 @@ const heroVariants = {
       type: 'spring',
       stiffness: 520,
       damping: 38,
-      delay: c.dir !== 0 ? 0 : c.index * 0.055,
+      // Start once the ghost is gone (its delay + duration, minus a hair of
+      // overlap so the handoff has momentum rather than a dead stop).
+      delay: c.dir !== 0 ? 0.11 : c.index * 0.055 + 0.13,
     },
   }),
-  exit: (c: { dir: number; index: number }) =>
-    c.dir !== 0
-      ? { x: -c.dir * 48, opacity: 0, transition: { duration: 0.16, ease: 'easeIn' } }
-      : {
-          y: -30,
-          opacity: 0,
-          transition: { duration: 0.18, ease: 'easeIn', delay: c.index * 0.055 },
-        },
 };
 
 // Decide whether a menu anchored to `triggerRef` opens up or down, and how tall
@@ -280,12 +290,37 @@ const SplitHalf = ({
   const dragXRef = useRef(0);
   // Direction of the change now in flight: ±1 for a cycle step (horizontal
   // reel), 0 for everything else (Generate / search pick — vertical deal).
-  // Read by the hero's enter/exit variants, reset once the change lands.
+  // Read by the hero's enter variants and the exit ghost, reset once the
+  // change lands.
   const changeDir = useRef<0 | 1 | -1>(0);
   const prefersReducedMotion = useReducedMotion();
+
+  // Exit "ghost": the outgoing name, animated out as a decorative overlay. We
+  // manage it ourselves instead of AnimatePresence because mode="wait" gates
+  // the incoming name on the outgoing one finishing — hold Space (generates
+  // arriving faster than the staggered exits complete) and the tracker wedges,
+  // leaving a slot's name frozen while its panel keeps changing. Here the live
+  // name renders keyed on the ingredient (it can't lag the data), and a new
+  // change simply replaces the ghost mid-flight.
+  const [ghost, setGhost] = useState<{ name: string; dir: 0 | 1 | -1; key: number } | null>(null);
+  const prevNameRef = useRef(ingredient);
+  const ghostKeyRef = useRef(0);
   useEffect(() => {
+    const prev = prevNameRef.current;
+    // Snapshot the direction before resetting it. The live name's enter
+    // variant already consumed it during this render (effects run after).
+    const dir = changeDir.current;
+    prevNameRef.current = ingredient;
     changeDir.current = 0;
-  }, [ingredient]);
+    if (!prev || prev === ingredient || prefersReducedMotion) return;
+    const key = ++ghostKeyRef.current;
+    setGhost({ name: prev, dir, key });
+    // Failsafe removal past the longest exit (max stagger 165ms + 180ms run).
+    // Normal removal is the ghost's own onAnimationComplete; a fresh change
+    // replaces the ghost outright, so a held-down Space can never wedge it.
+    const t = setTimeout(() => setGhost(g => (g && g.key === key ? null : g)), 600);
+    return () => clearTimeout(t);
+  }, [ingredient, prefersReducedMotion]);
   const wheelAccum = useRef(0);
   const wheelAt = useRef(0);
   const canSwipe = !!isMobile && candidates.length > 1;
@@ -376,6 +411,12 @@ const SplitHalf = ({
   // read as a tint of the panel without bleed-through.
   const pillBg = mixHex(bg, fg, 0.12);
   const strongBg = mixHex(bg, fg, 0.24);
+
+  // Hero type scale, shared by the live name and its exit ghost so the two
+  // render (and wrap) identically.
+  const heroFontSize = isMobile
+    ? (slotCount >= 4 ? '1.6rem' : slotCount === 3 ? '2.1rem' : '3rem')
+    : (slotCount >= 3 ? 'clamp(1.5rem, 3vw, 3.25rem)' : 'clamp(2.25rem, 6vw, 6rem)');
 
   // Active subcategory narrow (category mode). Empty = the whole category.
   const subs = slot.subcategories ?? [];
@@ -485,8 +526,33 @@ const SplitHalf = ({
         </>
       )}
 
+      {/* Outgoing name — a decorative ghost lifted out over the panel. Sized
+          by the same rules as the live name, and padded to the same effective
+          width (panel px-6 + button px-8), so it wraps identically in place. */}
+      {ghost && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-0 flex items-center justify-center px-14 pointer-events-none"
+        >
+          <motion.span
+            key={ghost.key}
+            initial={{ x: 0, y: 0, opacity: 1 }}
+            animate={ghostExit(ghost.dir, index)}
+            onAnimationComplete={() =>
+              setGhost(g => (g && g.key === ghost.key ? null : g))
+            }
+            className="font-display font-black tracking-tight text-center leading-[1.04]"
+            style={{ color: fg, fontSize: heroFontSize, wordBreak: 'break-word' }}
+          >
+            {ghost.name}
+          </motion.span>
+        </div>
+      )}
+
       {/* Ingredient — click toggles lock; swipe/scroll/chevron cycles. Sized to
-          match Classic mode so the name reads as the hero of the half. */}
+          match Classic mode so the name reads as the hero of the half. Keyed on
+          the ingredient and animated enter-only: the displayed name is always
+          the live data, no matter how fast Generate fires. */}
       <button
         onClick={onLockToggle}
         className="group flex items-center gap-2 max-w-full px-8"
@@ -498,33 +564,17 @@ const SplitHalf = ({
         }}
         title={isLocked ? 'Click to unlock' : 'Click to lock'}
       >
-        {/* mode="wait": the old name fully lifts away before the new one rises
-            in. popLayout would absolutely-position the exiting name to overlap
-            the entering one — but popped out of the flex layout it re-measures
-            at the wrong width and re-wraps mid-word ("polent / a"). */}
-        <AnimatePresence
-          mode="wait"
-          initial={false}
+        <motion.span
+          key={ingredient || '—'}
           custom={{ dir: changeDir.current, index }}
+          variants={prefersReducedMotion ? undefined : heroVariants}
+          initial="enter"
+          animate="center"
+          className="font-display font-black tracking-tight text-center leading-[1.04]"
+          style={{ fontSize: heroFontSize, wordBreak: 'break-word' }}
         >
-          <motion.span
-            key={ingredient || '—'}
-            custom={{ dir: changeDir.current, index }}
-            variants={prefersReducedMotion ? undefined : heroVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="font-display font-black tracking-tight text-center leading-[1.04]"
-            style={{
-              fontSize: isMobile
-                ? (slotCount >= 4 ? '1.6rem' : slotCount === 3 ? '2.1rem' : '3rem')
-                : (slotCount >= 3 ? 'clamp(1.5rem, 3vw, 3.25rem)' : 'clamp(2.25rem, 6vw, 6rem)'),
-              wordBreak: 'break-word',
-            }}
-          >
-            {ingredient || '—'}
-          </motion.span>
-        </AnimatePresence>
+          {ingredient || '—'}
+        </motion.span>
         {isLocked && (
           <Lock
             size={isMobile ? 22 : 30}
