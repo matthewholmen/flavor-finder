@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles, Share2, Check, Menu } from 'lucide-react';
+import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles, Share2, Check } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
 export const MinimalHeader = ({
@@ -50,13 +50,12 @@ export const MinimalHeader = ({
           transition-colors duration-300
         `}
       >
-        {/* Menu + logo */}
+        {/* Logo — opens the menu */}
         <button
           onClick={onLogoClick}
-          className="flex items-center gap-2.5 cursor-pointer bg-transparent border-none p-0 active:opacity-70 transition-opacity"
+          className="flex items-center cursor-pointer bg-transparent border-none p-0 active:opacity-70 transition-opacity"
           aria-label="Open menu"
         >
-          <Menu size={20} strokeWidth={2.5} className="text-gray-500 dark:text-gray-400 shrink-0" />
           <img
             src="/mobile-logo.png"
             alt="Flavor Finder"
@@ -144,19 +143,14 @@ export const MinimalHeader = ({
         transition-colors duration-300
       "
     >
-      {/* Menu + logo */}
+      {/* Logo — opens the menu */}
       <div className="flex-1">
         <button
           onClick={onLogoClick}
-          className="group flex items-center gap-3 cursor-pointer bg-transparent border-none p-0"
+          className="group flex items-center cursor-pointer bg-transparent border-none p-0"
           aria-label="Open menu"
           title="Menu — modes, presets, saved combinations"
         >
-          <Menu
-            size={22}
-            strokeWidth={2.5}
-            className="text-gray-400 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors shrink-0"
-          />
           <img
             src="/flavor-finder-HORIZONTAL-512.png"
             alt="Flavor Finder"
