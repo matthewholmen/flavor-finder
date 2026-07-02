@@ -1214,7 +1214,9 @@ export const IngredientDrawer = ({
             <div
               className={`
                 fixed left-1/2 -translate-x-1/2 z-[60]
-                px-6 py-3 bg-gray-900 text-white text-sm font-medium
+                w-max max-w-[min(92vw,26rem)]
+                px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900
+                text-sm font-medium text-center leading-snug
                 rounded-2xl shadow-lg
                 transition-all duration-300 ease-out
                 ${showMaxMessage

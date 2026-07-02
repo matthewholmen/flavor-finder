@@ -70,6 +70,8 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
     // Anchor-click helper (not window.open) — iOS standalone opens a blank sheet
     // for window.open with 'noopener'.
     openExternal(`https://www.google.com/search?q=${encodeURIComponent(q)}`);
+    // Close so returning from the external search lands on the app, not this modal.
+    onClose();
   };
 
   const toggleIngredient = (ing: string) => {

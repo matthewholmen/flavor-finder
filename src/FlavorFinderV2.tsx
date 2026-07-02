@@ -1481,23 +1481,29 @@ export default function FlavorFinderV2() {
           className={`
             fixed left-1/2 -translate-x-1/2 z-50
             ${isMobile ? 'bottom-28 animate-toast-in-bottom' : 'top-32 animate-toast-in'}
-            flex items-center gap-2
-            px-4 py-2.5 rounded-full
+            w-max max-w-[min(92vw,26rem)]
+            px-5 py-2.5 rounded-2xl
             bg-gray-900 dark:bg-white
             text-white dark:text-gray-900
-            text-sm font-medium shadow-lg
+            text-sm font-medium text-center leading-snug shadow-lg
           `}
         >
           {(() => {
             // Explain *why* nothing was found, using the current constraints, so
             // the suggestion is actionable rather than a dead end.
             if (!isTasteLab) {
-              return lockedIngredients.size > 0
-                ? 'No other ingredient pairs with your locked picks — unlock one to free it up'
+              const within = contextSteer ? ` within “${contextSteer.tag}”` : '';
+              if (lockedIngredients.size > 0) {
+                return contextSteer
+                  ? `Nothing pairs with your locked picks${within} — unlock one or clear the tag`
+                  : 'No other ingredient pairs with your locked picks — unlock one to free it up';
+              }
+              return contextSteer
+                ? `Nothing pairs with all of these${within} — clear the tag for more options`
                 : 'No other ingredient pairs with all of these';
             }
             if (tasteLabPool) {
-              return `Too few ingredients in "${tasteLabPool.name}" pair up — remove the preset for more options`;
+              return `Too few ingredients in “${tasteLabPool.name}” pair up — remove the preset for more options`;
             }
             if (lockedConstraints.size > 0 || lockedIngredients.size > 0) {
               return 'No pairing fits your locked slots — unlock one or change its taste/category';
@@ -1515,11 +1521,11 @@ export default function FlavorFinderV2() {
           className={`
             fixed left-1/2 -translate-x-1/2 z-50
             ${isMobile ? 'bottom-28 animate-toast-in-bottom' : 'top-32 animate-toast-in'}
-            flex items-center gap-2
-            px-4 py-2.5 rounded-full
+            w-max max-w-[min(92vw,26rem)]
+            px-5 py-2.5 rounded-2xl
             bg-gray-900 dark:bg-white
             text-white dark:text-gray-900
-            text-sm font-medium shadow-lg
+            text-sm font-medium text-center leading-snug shadow-lg
           `}
         >
           {saveToast === 'saved' ? 'Saved to your combinations' : 'Removed from saved'}
