@@ -100,40 +100,54 @@ const { matchPhrase } = buildMatcher();
 const edgeSet = loadEdgeSet();
 console.error(`Tracking ${edgeSet.size} graph edges.`);
 
-// ---- pass 1: global title frequency ----
+// ---- pass 1: global title frequency + cross-site check ----
 //
 // Exact per-edge title counting is memory-prohibitive (a hub edge like basil+tomato sees
 // ~10k distinct titles), and a small capped sketch degrades into eviction noise at that
-// scale. So: count titles globally first, then in pass 2 exact-count only the *globally
-// popular* titles per edge (a bounded set), keeping a small sketch as fallback for rare
-// edges whose receipts are one-off titles.
-const POPULAR_MIN = 10;
-const globalTitles = new Map();
-console.error(`Pass 1/2: global title counts from ${INPUT}...`);
+// scale. So: survey titles globally first, then in pass 2 exact-count only the
+// *qualifying* titles per edge (a bounded set).
+//
+// Qualifying = the title appears on >=2 DISTINCT domains. That's the canonicality test:
+// a cross-site name ("Cochinita Pibil", "Wassail") is a recognized dish a web search
+// will find; a single-site name ("Wisconsin Whammer" — one editorial page in the 2019
+// crawl, unfindable today) is not a receipt we can stand behind, however charming.
+// Raw repetition doesn't qualify on its own — cookbooks.com duplicates the same
+// user-submitted card dozens of times on one domain.
+const globalTitles = new Map(); // title -> [count, firstDomain, seenOnSecondDomain]
+console.error(`Pass 1/2: global title survey from ${INPUT}...`);
 {
   let hdr = null;
   let tIdx = -1;
+  let lIdx = -1;
   let read = 0;
   for await (const row of parseCsv(INPUT)) {
     if (!hdr) {
       hdr = row.map((h) => h.trim());
       tIdx = hdr.indexOf('title');
+      lIdx = hdr.indexOf('link');
       continue;
     }
     if (read >= LIMIT) break;
     read++;
     const t = normalizeTitle(row[tIdx] || '');
-    if (t) globalTitles.set(t, (globalTitles.get(t) || 0) + 1);
+    if (!t) continue;
+    const d = lIdx >= 0 ? domainOf(row[lIdx]) : '';
+    const g = globalTitles.get(t);
+    if (!g) globalTitles.set(t, [1, d, false]);
+    else {
+      g[0]++;
+      if (!g[2] && d !== g[1]) g[2] = true;
+    }
   }
 }
-const popularTitles = new Set();
-for (const [t, c] of globalTitles) if (c >= POPULAR_MIN) popularTitles.add(t);
+const crossSiteTitles = new Set();
+for (const [t, g] of globalTitles) if (g[2]) crossSiteTitles.add(t);
 globalTitles.clear();
-console.error(`  ${popularTitles.size} titles appear >=${POPULAR_MIN} times.`);
+console.error(`  ${crossSiteTitles.size} titles appear on >=2 distinct domains.`);
 
-// Per-edge accumulator. `pop` = exact counts of qualifying titles (globally popular OR
-// from a curated domain), stored as [count, curatedCount]; `titles` = a capped sketch
-// (space-saving eviction) as fallback for edges with no qualifying receipts.
+// Per-edge accumulator. `pop` = exact counts of qualifying (cross-site) titles, stored
+// as [count, curatedCount]; `titles` = a capped sketch (space-saving eviction) of
+// non-qualifying titles, emitted for report/debugging only — merge never ships them.
 const TITLE_CAP = 24;
 const POP_CAP = 1500;
 const makeAcc = () => ({ n: 0, dish: new Map(), method: new Map(), cuisine: new Map(), titles: new Map(), pop: new Map() });
@@ -205,8 +219,10 @@ for await (const row of parseCsv(INPUT)) {
   }
   const title = normalizeTitle(titleRaw);
 
+  // Cross-site presence is the eligibility bar; a curated-domain sighting only boosts
+  // ranking. (A single curated page can still be a one-off with an unfindable name.)
   const isCurated = linkIdx >= 0 && CURATED_DOMAINS.has(domainOf(row[linkIdx]));
-  const qualifies = title && (popularTitles.has(title) || isCurated);
+  const qualifies = title && crossSiteTitles.has(title);
   for (const k of hitKeys) {
     let a = acc.get(k);
     if (!a) { a = makeAcc(); acc.set(k, a); }

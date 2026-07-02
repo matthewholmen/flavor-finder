@@ -74,11 +74,12 @@ for (const key of Object.keys(edges).sort()) {
   const cuisine = keepTags(e.cuisine, e.n, cuisineI, 2, MIN_CUISINE_SHARE);
 
   // Titles: rank for *prototypicality* — the receipt should read like a known dish
-  // ("Tom Kha Gai", "Beef Stew"), not an 8-word blog flourish. Score = repeat sightings,
-  // with a curated-domain bonus (editorial sites beat recipe mills) and a length penalty.
-  // Eligible = seen twice with this pair, or seen once on a curated site. When an edge
-  // has no eligible receipt, fall back to its top one-off title — rare edges are exactly
-  // where a concrete receipt matters most.
+  // ("Tom Kha Gai", "Beef Stew"), not an 8-word blog flourish. Every candidate here is
+  // already cross-site (>=2 distinct domains — see context.mjs), so it's a findable,
+  // recognized name. Score = repeat sightings with this pair, a curated-domain bonus
+  // (editorial sites beat recipe mills), and a length penalty. Prefer titles seen twice
+  // with the pair (or once on a curated site); otherwise take the top cross-site title.
+  // One-off single-site titles (`rare`) never ship.
   const lengthFactor = (t) => {
     const words = t.split(' ').length;
     return words <= 4 ? 1 : words <= 6 ? 0.6 : 0.3;
@@ -98,9 +99,8 @@ for (const key of Object.keys(edges).sort()) {
     .filter(([t]) => t)
     .sort((x, y) => y[1] - x[1])
     .slice(0, MAX_TITLES);
-  if (titles.length === 0) {
-    const fallback = e.titles?.[0]?.[0] ?? e.rare?.[0]?.[0];
-    const tidied = fallback ? tidyTitle(fallback) : null;
+  if (titles.length === 0 && e.titles?.[0]) {
+    const tidied = tidyTitle(e.titles[0][0]);
     if (tidied) titles = [[tidied, 0]];
   }
   const titleIdxs = titles.map(([t]) => titleI.intern(t));
