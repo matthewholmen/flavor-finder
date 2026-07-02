@@ -1130,15 +1130,10 @@ export default function FlavorFinderV2() {
     setLockedIngredients(newLockedSet);
   };
 
-  // Entering (or switching) a steer regenerates immediately so the combo actually
-  // reflects the chosen tag — this runs after render, when the steered flavorMap is
-  // already in place. Clearing a steer (null) keeps the current combo: it remains
-  // valid in the full graph by construction.
-  useEffect(() => {
-    if (!contextSteer || !steerModule || isTasteLab) return;
-    handleRandomize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contextSteer, steerModule]);
+  // Note: activating a steer deliberately does NOT regenerate. The combo stays put so
+  // you can lock "salads" and then add/swap single ingredients within it; hitting
+  // Generate rerolls inside the steer. Clearing a steer also keeps the combo (it
+  // remains valid in the full graph by construction).
 
   // Wrap handleIngredientSelect to clear search term. In Taste Lab, the global
   // search starts a fresh pairing from scratch: the chosen ingredient becomes
