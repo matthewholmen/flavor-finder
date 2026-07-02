@@ -706,8 +706,10 @@ export const IngredientDisplay = ({
     // On mobile with drawer closed, show commas but ampersand will be on separate line
     if (isMobile && layoutMode === 'full') {
       const isSecondToLast = displayIndex === validIngredients.length - 2;
-      // Show comma on all except last ingredient and second-to-last (which gets ampersand instead)
-      const showComma = !isLastIngredient && !isSecondToLast;
+      // Comma on all except the last — including the Oxford comma before the standalone
+      // ampersand (which renders when the set is complete), but never in a two-item set.
+      const ampersandFollows = validIngredients.length > 2 && emptySlotCount === 0;
+      const showComma = !isLastIngredient && (!isSecondToLast || ampersandFollows);
 
       return {
         showComma,
