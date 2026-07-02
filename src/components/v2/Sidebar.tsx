@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Compass, Sparkles, Keyboard, Layers, LayoutGrid } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
-import { Wordmark } from './MinimalHeader.tsx';
 
 const shortcuts = [
   { key: 'space', action: 'generate' },
@@ -347,7 +346,19 @@ export const Sidebar = ({
           {/* Header */}
           <div className={`flex items-center justify-between ${isMobile ? 'px-4 py-3' : 'px-6 py-5'}`}>
             <div className="relative group cursor-pointer transition-opacity hover:opacity-70" onClick={onClose}>
-              <Wordmark compact />
+              {isMobile ? (
+                <img
+                  src="/flavor-finder-HORIZONTAL-512.png"
+                  alt="Flavor Finder"
+                  className="w-auto h-[18px]"
+                />
+              ) : (
+                <img
+                  src="/mobile-logo.png"
+                  alt="Flavor Finder"
+                  className="w-auto h-8"
+                />
+              )}
             </div>
             <button
               onClick={onClose}

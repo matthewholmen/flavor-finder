@@ -2,18 +2,6 @@ import React, { useState } from 'react';
 import { Minus, Plus, ArrowUpRight, Bookmark, Sparkles, Share2, Check, Menu } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 
-// Theme-aware text wordmark (replaces the fixed-color PNG): the display face
-// carries the brand, with the sweet-pink accent on "Finder".
-export const Wordmark = ({ compact = false }: { compact?: boolean }) => (
-  <span
-    className={`font-display font-black tracking-tight leading-none text-gray-900 dark:text-white ${
-      compact ? 'text-lg' : 'text-2xl'
-    }`}
-  >
-    Flavor<span style={{ color: '#F86A8A' }}>Finder</span>
-  </span>
-);
-
 export const MinimalHeader = ({
   targetCount,
   currentCount,
@@ -62,14 +50,21 @@ export const MinimalHeader = ({
           transition-colors duration-300
         `}
       >
-        {/* Menu + wordmark */}
+        {/* Menu + logo */}
         <button
           onClick={onLogoClick}
           className="flex items-center gap-2.5 cursor-pointer bg-transparent border-none p-0 active:opacity-70 transition-opacity"
           aria-label="Open menu"
         >
           <Menu size={20} strokeWidth={2.5} className="text-gray-500 dark:text-gray-400 shrink-0" />
-          <Wordmark compact />
+          <img
+            src="/mobile-logo.png"
+            alt="Flavor Finder"
+            className="w-auto h-6"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
         </button>
 
         {/* Right-side actions */}
@@ -149,7 +144,7 @@ export const MinimalHeader = ({
         transition-colors duration-300
       "
     >
-      {/* Menu + wordmark */}
+      {/* Menu + logo */}
       <div className="flex-1">
         <button
           onClick={onLogoClick}
@@ -162,7 +157,14 @@ export const MinimalHeader = ({
             strokeWidth={2.5}
             className="text-gray-400 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors shrink-0"
           />
-          <Wordmark />
+          <img
+            src="/flavor-finder-HORIZONTAL-512.png"
+            alt="Flavor Finder"
+            className="w-auto h-6 transition-opacity duration-200 group-hover:opacity-80"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
         </button>
       </div>
 
