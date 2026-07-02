@@ -63,15 +63,35 @@ const keepTags = (counts, n, interner, maxKeep, minShare) =>
     .slice(0, maxKeep)
     .map(([t]) => interner.intern(t));
 
+// Two-tier tags for steerable groups (dish, cuisine). Display stays precision-tuned
+// (the strict floors above), but *steering membership* uses a looser bar — count >= 2
+// and >= 5% share — because "salads ranked 4th for this edge" is still a salad edge.
+// Encoding: one array, display-qualifying tags first (count order), loose-only tags
+// after (count order), plus the display count so the decoder can slice. This roughly
+// doubles steerable subgraphs and halves false "doesn't fit this tag" on kept combos.
+const LOOSE_COUNT = 2;
+const LOOSE_SHARE = 0.05;
+const tieredTags = (counts, n, interner, maxDisplay, minShareDisplay) => {
+  const loose = counts.filter(([, c]) => c >= LOOSE_COUNT && c / n >= LOOSE_SHARE);
+  const display = loose
+    .filter(([, c]) => c >= MIN_TAG_COUNT && c / n >= minShareDisplay)
+    .slice(0, maxDisplay);
+  const rest = loose.filter(x => !display.includes(x));
+  return {
+    idxs: [...display, ...rest].map(([t]) => interner.intern(t)),
+    displayCount: display.length,
+  };
+};
+
 const out = {};
 let kept = 0;
 for (const key of Object.keys(edges).sort()) {
   const e = edges[key];
   if (e.n < MIN_EDGE) continue;
 
-  const dish = keepTags(e.dish, e.n, dishI, 3, MIN_TAG_SHARE);
-  const method = keepTags(e.method, e.n, methodI, 3, MIN_TAG_SHARE);
-  const cuisine = keepTags(e.cuisine, e.n, cuisineI, 2, MIN_CUISINE_SHARE);
+  const dish = tieredTags(e.dish, e.n, dishI, 3, MIN_TAG_SHARE);
+  const method = keepTags(e.method, e.n, methodI, 3, MIN_TAG_SHARE); // display-only, strict
+  const cuisine = tieredTags(e.cuisine, e.n, cuisineI, 2, MIN_CUISINE_SHARE);
 
   // Titles: rank for *prototypicality* — the receipt should read like a known dish
   // ("Tom Kha Gai", "Beef Stew"), not an 8-word blog flourish. Every candidate here is
@@ -105,8 +125,8 @@ for (const key of Object.keys(edges).sort()) {
   }
   const titleIdxs = titles.map(([t]) => titleI.intern(t));
 
-  if (dish.length + method.length + cuisine.length + titleIdxs.length === 0) continue;
-  out[key] = [e.n, dish, method, cuisine, titleIdxs];
+  if (dish.idxs.length + method.length + cuisine.idxs.length + titleIdxs.length === 0) continue;
+  out[key] = [e.n, dish.idxs, method, cuisine.idxs, titleIdxs, dish.displayCount, cuisine.displayCount];
   kept++;
 }
 
@@ -125,15 +145,22 @@ const file = `// data/pairingContext.ts
 // cuisines claim it, and a few concrete recipe titles as receipts.
 //
 // Encoding: per edge (key = pairKey(a, b)) a tuple
-//   [recipeCount, dishTypeIdxs, methodIdxs, cuisineIdxs, titleIdxs]
-// with indices into the string tables below. Decode via src/utils/pairingContext.ts.
+//   [recipeCount, dishTypeIdxs, methodIdxs, cuisineIdxs, titleIdxs,
+//    dishDisplayCount, cuisineDisplayCount]
+// with indices into the string tables below. Dish/cuisine arrays are TWO-TIER:
+// the first dishDisplayCount/cuisineDisplayCount entries passed the strict display
+// floors (what the strip shows); the remainder passed only the looser steering bar
+// (>=2 recipes, >=5% share) and exist so tag steering doesn't overstate mismatch.
+// Decode via src/utils/pairingContext.ts.
 
 export type PairingContextEntry = [
   /** recipes containing both ingredients */ number,
-  /** indices into CONTEXT_DISH_TYPES */ number[],
-  /** indices into CONTEXT_METHODS */ number[],
-  /** indices into CONTEXT_CUISINES */ number[],
+  /** indices into CONTEXT_DISH_TYPES (display tier first, then loose tier) */ number[],
+  /** indices into CONTEXT_METHODS (display tier only) */ number[],
+  /** indices into CONTEXT_CUISINES (display tier first, then loose tier) */ number[],
   /** indices into CONTEXT_TITLES */ number[],
+  /** how many leading dish idxs are display-tier */ number,
+  /** how many leading cuisine idxs are display-tier */ number,
 ];
 
 export const CONTEXT_DISH_TYPES: string[] = ${JSON.stringify(dishI.list)};

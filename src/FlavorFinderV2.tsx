@@ -1673,7 +1673,9 @@ export default function FlavorFinderV2() {
                 onEmptySlotClick={() => setIsDrawerOpen(true)}
                 onCloseDrawer={() => setIsDrawerOpen(false)}
                 isDrawerOpen={isDrawerOpen}
-                flavorMap={flavorMap}
+                // Base map, not the steered one: the hero's warning means "these don't
+                // PAIR" — steer fit is a different fact and must not hijack it.
+                flavorMap={baseFlavorMap}
               />
             </div>
 
@@ -1709,7 +1711,8 @@ export default function FlavorFinderV2() {
                 onEmptySlotClick={() => setIsDrawerOpen(true)}
                 onCloseDrawer={() => setIsDrawerOpen(false)}
                 isDrawerOpen={isDrawerOpen}
-                flavorMap={flavorMap}
+                // Base map — same reason as the mobile mount above.
+                flavorMap={baseFlavorMap}
               />
             </div>
             {/* Mined dish context for the current combo — hero view only, so the

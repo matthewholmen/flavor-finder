@@ -39,6 +39,7 @@ const contradictsProteins = (title: string, comboLower: string[]): boolean => {
 export interface EdgeContext {
   /** Recipes in the mined corpus containing both ingredients. */
   recipeCount: number;
+  /** Display-tier tags (strict floors) — what the strip shows. */
   dishTypes: string[];
   methods: string[];
   cuisines: string[];
@@ -48,12 +49,14 @@ export interface EdgeContext {
 export const getEdgeContext = (a: string, b: string): EdgeContext | null => {
   const entry = pairingContext[pairKey(a.toLowerCase(), b.toLowerCase())];
   if (!entry) return null;
-  const [recipeCount, dish, method, cuisine, titles] = entry;
+  const [recipeCount, dish, method, cuisine, titles, dishDisplay, cuisineDisplay] = entry;
   return {
     recipeCount,
-    dishTypes: dish.map(i => CONTEXT_DISH_TYPES[i]),
+    // Dish/cuisine arrays carry a loose steering tier after the display tier —
+    // slice so display (and combo aggregation) keeps its precision.
+    dishTypes: dish.slice(0, dishDisplay).map(i => CONTEXT_DISH_TYPES[i]),
     methods: method.map(i => CONTEXT_METHODS[i]),
-    cuisines: cuisine.map(i => CONTEXT_CUISINES[i]),
+    cuisines: cuisine.slice(0, cuisineDisplay).map(i => CONTEXT_CUISINES[i]),
     titles: titles.map(i => CONTEXT_TITLES[i]),
   };
 }
@@ -76,6 +79,8 @@ export const filterFlavorMapByTag = (
   tag: string
 ): Map<string, Set<string>> => {
   const table = group === 'dish' ? CONTEXT_DISH_TYPES : CONTEXT_CUISINES;
+  // Full tuple arrays — display tier plus the loose steering tier — so membership is
+  // deliberately more generous than what the strip displays.
   const pos = group === 'dish' ? 1 : 3; // tuple slot in PairingContextEntry
   const idx = table.indexOf(tag);
   const out = new Map<string, Set<string>>();
