@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { X, Search, Copy, Check, ArrowUpRight } from 'lucide-react';
+import { openExternal } from '../../utils/openExternal.ts';
 
 // Curated, home-chef-friendly recipe sites searched via Google's site: filter
 const RECIPE_SITES = [
@@ -66,11 +67,9 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
   const openSearch = (siteDomain?: string) => {
     if (activeIngredients.length === 0) return;
     const q = siteDomain ? `${query} site:${siteDomain}` : query;
-    window.open(
-      `https://www.google.com/search?q=${encodeURIComponent(q)}`,
-      '_blank',
-      'noopener'
-    );
+    // Anchor-click helper (not window.open) — iOS standalone opens a blank sheet
+    // for window.open with 'noopener'.
+    openExternal(`https://www.google.com/search?q=${encodeURIComponent(q)}`);
   };
 
   const toggleIngredient = (ing: string) => {

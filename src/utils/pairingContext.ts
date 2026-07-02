@@ -13,6 +13,28 @@ import {
   CONTEXT_TITLES,
 } from '../data/pairingContext.ts';
 import { pairKey } from '../data/pairingMeta.ts';
+import { ingredientProfiles } from '../data/ingredientProfiles.ts';
+
+// A receipt that names a protein the combo doesn't contain is actively misleading —
+// "Grilled Chicken Sandwiches" for a monkfish combo reads as a wrong answer, where a
+// protein-free title ("Romesco Sauce") stays honest. Precompile a word-boundary regex
+// per protein name for title screening.
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const PROTEIN_TERMS: Array<[string, RegExp]> = (ingredientProfiles as any[])
+  .filter(p => p.category === 'Proteins')
+  .map(p => {
+    const name = p.name.toLowerCase();
+    return [name, new RegExp(`(?:^|[^a-z])${escapeRe(name)}(?:[^a-z]|$)`)] as [string, RegExp];
+  });
+
+/** Does this title name a protein that isn't among the combo's ingredients? */
+const contradictsProteins = (title: string, comboLower: string[]): boolean => {
+  const t = ` ${title.toLowerCase()} `;
+  for (const [name, re] of PROTEIN_TERMS) {
+    if (re.test(t) && !comboLower.some(ing => ing.includes(name))) return true;
+  }
+  return false;
+};
 
 export interface EdgeContext {
   /** Recipes in the mined corpus containing both ingredients. */
@@ -82,10 +104,14 @@ export const getComboContext = (ingredients: string[]): ComboContext | null => {
       .map(([tag]) => tag);
   };
 
+  const comboLower = ingredients.map(i => i.toLowerCase());
   const minCount = Math.min(...edges.map(e => e.recipeCount));
   const titleScore = new Map<string, number>();
   edges.forEach(e =>
     e.titles.forEach((title, pos) => {
+      // Per-edge receipts only know two ingredients; screen them against the whole
+      // combo so a title naming an absent protein never represents the set.
+      if (contradictsProteins(title, comboLower)) return;
       const rarityBonus = e.recipeCount === minCount ? 0.5 : 0;
       titleScore.set(title, (titleScore.get(title) ?? 0) + 1 - pos * 0.01 + rarityBonus);
     })

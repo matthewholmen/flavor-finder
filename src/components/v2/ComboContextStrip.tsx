@@ -50,7 +50,8 @@ export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
   if (tags.length === 0 && titles.length === 0) return null;
 
   return (
-    <div className={`flex justify-center px-4 ${isMobile ? 'pb-3' : 'pb-4'}`}>
+    // Mobile: left-aligned and flush with the hero's 1rem inset; desktop: centered.
+    <div className={`flex ${isMobile ? 'justify-start px-4 pb-4' : 'justify-center px-4 pb-4'}`}>
       <AnimatePresence mode="wait">
         <motion.div
           key={comboKey}
@@ -58,7 +59,7 @@ export const ComboContextStrip = ({ ingredients, isMobile = false }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="text-center text-sm leading-relaxed text-gray-500 dark:text-gray-400 max-w-2xl"
+          className={`${isMobile ? 'text-left' : 'text-center'} text-sm leading-relaxed text-gray-500 dark:text-gray-400 max-w-2xl`}
         >
           {tags.length > 0 && <p>{tags.join(' · ')}</p>}
           {titles.length > 0 && (

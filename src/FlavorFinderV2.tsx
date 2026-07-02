@@ -1609,7 +1609,7 @@ export default function FlavorFinderV2() {
       {/* Main content area - scrollable on mobile when drawer is closed */}
       <main className={`
         flex-1 flex flex-col
-        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-24' : 'pb-32')}
+        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}
         ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
         {/* Taste Lab: full-bleed split view (columns on desktop, rows on mobile) */}
@@ -1652,8 +1652,9 @@ export default function FlavorFinderV2() {
             {/* Mined dish context for the current combo ("seen in: …") */}
             <ComboContextStrip ingredients={selectedIngredients} isMobile />
 
-            {/* Dietary Filter Pills - fixed above bottom bar on mobile */}
-            <div className="fixed left-0 right-0 bottom-[92px] z-[55] px-4 overflow-x-auto scrollbar-hide">
+            {/* Dietary Filter Pills - fixed above bottom bar on mobile (bar grows by
+                the home-indicator inset in standalone mode, so the offset must too) */}
+            <div className="fixed left-0 right-0 bottom-[calc(92px_+_env(safe-area-inset-bottom))] z-[55] px-4 overflow-x-auto scrollbar-hide">
               <DietaryFilterPills
                 dietaryRestrictions={dietaryRestrictions}
                 onDietaryChange={setDietaryRestrictions}

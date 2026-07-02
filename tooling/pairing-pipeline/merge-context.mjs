@@ -86,7 +86,10 @@ for (const key of Object.keys(edges).sort()) {
   // Last-line title hygiene: some corpus titles are truncated mid-list ("Beef Chili
   // With Ancho,") — strip dangling punctuation/conjunctions before shipping.
   const tidyTitle = (t) => {
-    const tidied = t.replace(/[\s,;:&+-]+$/, '').replace(/\s+(with|and|or|in|for)$/i, '');
+    const tidied = t
+      .replace(/[\s,;:&+-]+$/, '')
+      .replace(/\s+(with|and|or|in|for)$/i, '')
+      .replace(/(['’])S\b/g, '$1s'); // title-caser artifact ("José'S", "J.P.'S"), straight or curly quote
     return tidied.length >= 3 ? tidied : null;
   };
   let titles = (e.titles || [])
