@@ -1210,9 +1210,9 @@ export default function FlavorFinderV2() {
     setSelectedIngredients(getRandomIngredients(2));
   };
 
-  // Landing "Surprise me": seed a fresh combo (Classic by default). Filling the
+  // Landing "Generate": seed a fresh combo (Classic by default). Filling the
   // combo hides the landing on its own — it's the empty state.
-  const handleLandingSurprise = () => {
+  const handleLandingGenerate = () => {
     seedFreshCombo();
   };
 
@@ -1684,7 +1684,8 @@ export default function FlavorFinderV2() {
         </div>
       )}
 
-      {/* Minimal Header */}
+      {/* Minimal Header — hidden on the landing, which is chrome-free. */}
+      {!showLanding && (
       <MinimalHeader
         targetCount={targetIngredientCount}
         currentCount={selectedIngredients.length}
@@ -1704,9 +1705,10 @@ export default function FlavorFinderV2() {
         isMobile={isMobile}
         isTasteLab={isTasteLab}
       />
+      )}
 
-      {/* Mobile Bottom Bar */}
-      {isMobile && (
+      {/* Mobile Bottom Bar — also hidden on the chrome-free landing. */}
+      {isMobile && !showLanding && (
         <MobileBottomBar
           canIncrement={isTasteLab ? tasteLabCanIncrement : canIncrementTarget}
           canDecrement={isTasteLab ? tasteLabCanDecrement : canDecrementTarget}
@@ -1721,11 +1723,15 @@ export default function FlavorFinderV2() {
         />
       )}
 
-      {/* Main content area - scrollable on mobile when drawer is closed */}
+      {/* Main content area - scrollable on mobile when drawer is closed. On the
+          landing there's no fixed header/bottom bar, so drop their padding and
+          let the surface own the full viewport (it centers itself). */}
       <main className={`
         flex-1 flex flex-col
-        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}
-        ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
+        ${showLanding
+          ? 'min-h-0'
+          : `pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}`}
+        ${isMobile && !isDrawerOpen && !showLanding ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
         {/* Landing entry surface — the front door on a fresh open. Yields to the
             drawer (its search is another valid way in). */}
@@ -1735,7 +1741,7 @@ export default function FlavorFinderV2() {
             allIngredients={allIngredients}
             onPickTag={handleLandingTag}
             onPickIngredient={handleIngredientSelect}
-            onSurprise={handleLandingSurprise}
+            onGenerate={handleLandingGenerate}
           />
         ) : isTasteLab && !isDrawerOpen ? (
           <TasteLabSplit
@@ -1828,7 +1834,10 @@ export default function FlavorFinderV2() {
         )}
       </main>
 
-      {/* Ingredient Drawer (desktop undo lives in the drawer's bottom bar) */}
+      {/* Ingredient Drawer (desktop undo lives in the drawer's bottom bar).
+          Hidden on the landing so its persistent bottom search bar — the app's
+          "real" ingredient search — doesn't compete with the landing search. */}
+      {!showLanding && (
       <IngredientDrawer
         isOpen={isDrawerOpen}
         onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
@@ -1867,6 +1876,7 @@ export default function FlavorFinderV2() {
         selectedInfoIndex={selectedInfoIndex}
         onInfoIndexChange={setSelectedInfoIndex}
       />
+      )}
 
       {/* Recipe Finder Modal */}
       <RecipeFinderModal
