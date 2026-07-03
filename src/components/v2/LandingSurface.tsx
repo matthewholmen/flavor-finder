@@ -153,17 +153,21 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
   );
 
   return (
-    // This is the scroll container (fills the bounded, chrome-free <main>). The
-    // inner block's my-auto centers it when content is short and collapses to
-    // let it scroll when "Browse all" makes it taller than the viewport.
-    // overscroll-none stops the scroll chaining to the window (no white
-    // rubber-band past the page bounds).
-    <div className="flex-1 min-h-0 w-full overflow-y-auto overscroll-none flex flex-col items-center px-4">
+    // Scroll container (fills the bounded <main>). `align-content: safe center`
+    // vertically centers the content when it fits, but falls back to top-
+    // alignment when "Browse all" makes it taller than the viewport — so the
+    // overflow stays fully scrollable instead of being clipped (the trap with
+    // plain centering / margin:auto). overscroll-none stops the scroll chaining
+    // to the window (no white rubber-band past the page bounds).
+    <div
+      className="flex-1 min-h-0 w-full overflow-y-auto overscroll-none grid px-4"
+      style={{ alignContent: 'safe center' }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="my-auto w-full max-w-xl flex flex-col items-center py-10"
+        className="mx-auto w-full max-w-xl flex flex-col items-center py-6"
       >
         <h2 className={`font-display font-black tracking-tight text-gray-900 dark:text-white text-center ${isMobile ? 'text-3xl' : 'text-4xl'}`}>
           What do you want to cook?

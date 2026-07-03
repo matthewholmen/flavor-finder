@@ -1729,9 +1729,13 @@ export default function FlavorFinderV2() {
           landing the chrome is present (dimmed), so keep its padding; min-h-0
           lets the centered landing surface scroll internally when expanded. */}
       <main className={`
-        flex-1 flex flex-col
-        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}
-        ${showLanding ? 'min-h-0' : ''}
+        flex flex-col
+        ${showLanding
+          // Definite viewport height so the landing's scroll container is bounded
+          // (the desktop app shell has no height cap, unlike mobile). Symmetric
+          // padding clears the fixed header/bottom bar and centers optically.
+          ? `h-[100dvh] min-h-0 ${isMobile ? 'py-24' : 'py-28'}`
+          : `flex-1 pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}`}
         ${isMobile && !isDrawerOpen && !showLanding ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
         {/* Landing entry surface — the front door on a fresh open. Yields to the
