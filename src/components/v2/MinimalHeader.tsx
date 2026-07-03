@@ -20,9 +20,14 @@ export const MinimalHeader = ({
   isGeneratePulsing = false,
   isMobile: isMobileProp,
   isTasteLab = false,
+  // Landing state: grey out the controls (they act on a combo that doesn't
+  // exist yet) while keeping the logo bright, so the frame stays visible but
+  // reads as inactive.
+  dimmed = false,
 }) => {
   const { isMobile: isMobileHook, width } = useScreenSize();
   const isMobile = isMobileProp !== undefined ? isMobileProp : isMobileHook;
+  const dimClass = dimmed ? 'opacity-40 pointer-events-none' : '';
 
   // Brief "Copied" confirmation after sharing the deep-link.
   const [shareCopied, setShareCopied] = useState(false);
@@ -67,7 +72,7 @@ export const MinimalHeader = ({
         </button>
 
         {/* Right-side actions */}
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${dimClass}`}>
           {/* Share deep-link */}
           <button
             onClick={handleShare}
@@ -163,7 +168,7 @@ export const MinimalHeader = ({
       </div>
 
       {/* Center Controls: -, Generate, + */}
-      <div className="flex items-center gap-3">
+      <div className={`flex items-center gap-3 ${dimClass}`}>
         {/* Decrement Target Button */}
         <button
           onClick={onDecrementTarget}
@@ -237,7 +242,7 @@ export const MinimalHeader = ({
       </div>
 
       {/* Right-side actions */}
-      <div className="flex-1 flex justify-end items-center gap-3">
+      <div className={`flex-1 flex justify-end items-center gap-3 ${dimClass}`}>
         {/* Share deep-link */}
         <button
           onClick={handleShare}

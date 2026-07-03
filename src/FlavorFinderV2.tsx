@@ -1684,8 +1684,8 @@ export default function FlavorFinderV2() {
         </div>
       )}
 
-      {/* Minimal Header — hidden on the landing, which is chrome-free. */}
-      {!showLanding && (
+      {/* Minimal Header — stays visible on the landing but dimmed (logo
+          excepted) so the frame reads as present-but-inactive. */}
       <MinimalHeader
         targetCount={targetIngredientCount}
         currentCount={selectedIngredients.length}
@@ -1704,33 +1704,34 @@ export default function FlavorFinderV2() {
         isGeneratePulsing={isFirstLoad}
         isMobile={isMobile}
         isTasteLab={isTasteLab}
+        dimmed={showLanding}
       />
-      )}
 
-      {/* Mobile Bottom Bar — also hidden on the chrome-free landing. */}
-      {isMobile && !showLanding && (
-        <MobileBottomBar
-          canIncrement={isTasteLab ? tasteLabCanIncrement : canIncrementTarget}
-          canDecrement={isTasteLab ? tasteLabCanDecrement : canDecrementTarget}
-          canUndo={canUndo}
-          onGenerate={handleRandomize}
-          onIncrementTarget={handleIncrementTarget}
-          onDecrementTarget={handleDecrementTarget}
-          onDrawerToggle={() => setIsDrawerOpen(!isDrawerOpen)}
-          onUndo={handleUndo}
-          isDrawerOpen={isDrawerOpen}
-          isGeneratePulsing={isFirstLoad}
-        />
+      {/* Mobile Bottom Bar — dimmed on the landing (see header note). */}
+      {isMobile && (
+        <div className={showLanding ? 'opacity-40 pointer-events-none' : ''}>
+          <MobileBottomBar
+            canIncrement={isTasteLab ? tasteLabCanIncrement : canIncrementTarget}
+            canDecrement={isTasteLab ? tasteLabCanDecrement : canDecrementTarget}
+            canUndo={canUndo}
+            onGenerate={handleRandomize}
+            onIncrementTarget={handleIncrementTarget}
+            onDecrementTarget={handleDecrementTarget}
+            onDrawerToggle={() => setIsDrawerOpen(!isDrawerOpen)}
+            onUndo={handleUndo}
+            isDrawerOpen={isDrawerOpen}
+            isGeneratePulsing={isFirstLoad}
+          />
+        </div>
       )}
 
       {/* Main content area - scrollable on mobile when drawer is closed. On the
-          landing there's no fixed header/bottom bar, so drop their padding and
-          let the surface own the full viewport (it centers itself). */}
+          landing the chrome is present (dimmed), so keep its padding; min-h-0
+          lets the centered landing surface scroll internally when expanded. */}
       <main className={`
         flex-1 flex flex-col
-        ${showLanding
-          ? 'min-h-0'
-          : `pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}`}
+        pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}
+        ${showLanding ? 'min-h-0' : ''}
         ${isMobile && !isDrawerOpen && !showLanding ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
         {/* Landing entry surface — the front door on a fresh open. Yields to the
@@ -1835,9 +1836,9 @@ export default function FlavorFinderV2() {
       </main>
 
       {/* Ingredient Drawer (desktop undo lives in the drawer's bottom bar).
-          Hidden on the landing so its persistent bottom search bar — the app's
-          "real" ingredient search — doesn't compete with the landing search. */}
-      {!showLanding && (
+          Dimmed on the landing so its persistent bottom search bar reads as
+          inactive rather than competing with the landing search. */}
+      <div className={showLanding ? 'opacity-40 pointer-events-none' : ''}>
       <IngredientDrawer
         isOpen={isDrawerOpen}
         onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
@@ -1876,7 +1877,7 @@ export default function FlavorFinderV2() {
         selectedInfoIndex={selectedInfoIndex}
         onInfoIndexChange={setSelectedInfoIndex}
       />
-      )}
+      </div>
 
       {/* Recipe Finder Modal */}
       <RecipeFinderModal
