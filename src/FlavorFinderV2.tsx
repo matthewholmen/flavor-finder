@@ -225,12 +225,19 @@ export default function FlavorFinderV2() {
   // CLAUDE.md). All downstream machinery — generation in every compatibility mode,
   // slot candidates, drawer counts — reads the steered map transparently.
   const [contextSteer, setContextSteer] = useState<{ group: 'dish' | 'cuisine'; tag: string } | null>(null);
+  // Hovering a "seen in" receipt lights only the ingredients that recipe uses and dims
+  // the rest, so you can see how much of your combo it actually covers. Desktop only.
+  const [recipeHighlight, setRecipeHighlight] = useState<string[] | null>(null);
   // The filter lives in the lazily-loaded context chunk. Activation always comes from
   // the strip (which loads it), but a defensive load keeps this self-sufficient.
   const [steerModule, setSteerModule] = useState(() => getLoadedContext());
   useEffect(() => {
     if (contextSteer && !steerModule) loadContext().then(setSteerModule);
   }, [contextSteer, steerModule]);
+
+  // Drop a stale receipt-hover highlight when the combo changes or the drawer opens (the
+  // strip can unmount mid-hover before its mouse-leave fires).
+  useEffect(() => { setRecipeHighlight(null); }, [selectedIngredients, isDrawerOpen]);
 
   const flavorMap = useMemo(() => {
     if (!contextSteer || !steerModule || isTasteLab) return baseFlavorMap;
@@ -1820,6 +1827,7 @@ export default function FlavorFinderV2() {
                 isDrawerOpen={isDrawerOpen}
                 // Base map — same reason as the mobile mount above.
                 flavorMap={baseFlavorMap}
+                highlightIngredients={recipeHighlight}
               />
             </div>
             {/* Mined dish context for the current combo — hero view only, so the
@@ -1829,6 +1837,7 @@ export default function FlavorFinderV2() {
                 ingredients={selectedIngredients}
                 steer={contextSteer}
                 onSteerChange={setContextSteer}
+                onRecipeHover={setRecipeHighlight}
               />
             )}
             <DietaryFilterPills

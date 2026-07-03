@@ -28,6 +28,11 @@ const PROTEIN_TERMS: Array<[string, RegExp]> = (ingredientProfiles as any[])
     return [name, new RegExp(`(?:^|[^a-z])${escapeRe(name)}(?:[^a-z]|$)`)] as [string, RegExp];
   });
 
+// A protein is the anchor of a dish, so a receipt that covers it is worth more than one
+// covering an interchangeable seasoning — see the combo-coverage weighting below.
+const PROTEIN_NAMES = new Set(PROTEIN_TERMS.map(([name]) => name));
+const isProteinIngredient = (name: string): boolean => PROTEIN_NAMES.has(name.toLowerCase());
+
 /** Does this title name a protein that isn't among the combo's ingredients? */
 const contradictsProteins = (title: string, comboLower: string[]): boolean => {
   const t = ` ${title.toLowerCase()} `;
@@ -178,6 +183,14 @@ export interface ComboContext {
    * receipt for this steer" and the UI must hide the line rather than fall back.
    */
   steerFiltered: boolean;
+  /**
+   * For each title in `titles`, which of the combo's ingredients that recipe is known to
+   * contain (original casing, combo order). Powers the hover-to-dim affordance: the UI
+   * fades the ingredients NOT listed here. Coverage is inferred from which of the combo's
+   * pairs attest the title, so it's a lower bound — but the titles that survive the
+   * coverage gate are exactly the ones this is reliable for.
+   */
+  titleCoverage: Record<string, string[]>;
 }
 
 /**
@@ -193,13 +206,16 @@ export const getComboContext = (
   ingredients: string[],
   steer?: { group: SteerGroup; tag: string } | null,
 ): ComboContext | null => {
-  const edges: EdgeContext[] = [];
+  // Track each edge's endpoints, not just its context: a per-pair receipt provably
+  // contains those two ingredients, so the union of endpoints across the pairs that
+  // attest a title is exactly the set of combo ingredients that title is known to cover.
+  const edges: Array<{ ctx: EdgeContext; a: string; b: string }> = [];
   let totalEdges = 0;
   for (let i = 0; i < ingredients.length; i++) {
     for (let j = i + 1; j < ingredients.length; j++) {
       totalEdges++;
       const ctx = getEdgeContext(ingredients[i], ingredients[j]);
-      if (ctx) edges.push(ctx);
+      if (ctx) edges.push({ ctx, a: ingredients[i], b: ingredients[j] });
     }
   }
   if (edges.length === 0) return null;
@@ -218,34 +234,62 @@ export const getComboContext = (
   };
 
   const comboLower = ingredients.map(i => i.toLowerCase());
-  const minCount = Math.min(...edges.map(e => e.recipeCount));
+  const minCount = Math.min(...edges.map(e => e.ctx.recipeCount));
+  // Per title: a running vote (edge attestations + rarity, as before) AND the set of
+  // combo ingredients it covers.
   const titleScore = new Map<string, number>();
-  edges.forEach(e => {
+  const titleCovered = new Map<string, Set<string>>();
+  edges.forEach(({ ctx, a, b }) => {
     // Unsteered: vote over the primary "seen in" titles (display-identical to always).
     // Steered: vote over the full receipt pool, but only titles that themselves carry the
     // steered tag — so the "seen in" line can never contradict the active steer.
     const pool = steer
-      ? e.allTitles.filter(t => titleCarriesTag(t, steer.group, steer.tag))
-      : e.titles;
+      ? ctx.allTitles.filter(t => titleCarriesTag(t, steer.group, steer.tag))
+      : ctx.titles;
     pool.forEach((title, pos) => {
       // Per-edge receipts only know two ingredients; screen them against the whole
       // combo so a title naming an absent protein never represents the set.
       if (contradictsProteins(title, comboLower)) return;
-      const rarityBonus = e.recipeCount === minCount ? 0.5 : 0;
+      const rarityBonus = ctx.recipeCount === minCount ? 0.5 : 0;
       titleScore.set(title, (titleScore.get(title) ?? 0) + 1 - pos * 0.01 + rarityBonus);
+      let cov = titleCovered.get(title);
+      if (!cov) { cov = new Set(); titleCovered.set(title, cov); }
+      cov.add(a);
+      cov.add(b);
     });
   });
-  const titles = Array.from(titleScore.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([t]) => t);
+
+  // Coverage gate + ranking. A receipt should describe most of what you picked: require
+  // it to cover strictly more than half the combo (2-ingredient combos always pass, since
+  // a single pair IS the whole set). Rank survivors by coverage — a protein counts double,
+  // since it anchors the dish — then by the edge-vote as a tiebreak.
+  const comboSize = ingredients.length;
+  const coverageWeight = (cov: Set<string>): number => {
+    let w = 0;
+    cov.forEach(ing => { w += isProteinIngredient(ing) ? 2 : 1; });
+    return w;
+  };
+  const scored = Array.from(titleScore.entries())
+    .map(([title, vote]) => {
+      const cov = titleCovered.get(title)!;
+      return { title, cov, count: cov.size, weight: coverageWeight(cov), vote };
+    })
+    .filter(x => x.count * 2 > comboSize)
+    .sort((a, b) => (b.weight - a.weight) || (b.vote - a.vote));
+
+  const titles = scored.map(x => x.title);
+  const titleCoverage: Record<string, string[]> = {};
+  // Preserve combo order in the covered list so the UI dims consistently.
+  scored.forEach(x => { titleCoverage[x.title] = ingredients.filter(ing => x.cov.has(ing)); });
 
   return {
-    dishTypes: rank(edges.map(e => e.dishTypes)),
-    methods: rank(edges.map(e => e.methods)),
-    cuisines: rank(edges.map(e => e.cuisines)),
+    dishTypes: rank(edges.map(e => e.ctx.dishTypes)),
+    methods: rank(edges.map(e => e.ctx.methods)),
+    cuisines: rank(edges.map(e => e.ctx.cuisines)),
     titles,
     coveredEdges: edges.length,
     totalEdges,
     steerFiltered: !!steer,
+    titleCoverage,
   };
 };

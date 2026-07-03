@@ -20,6 +20,9 @@ export const ComboContextStrip = ({
   isMobile = false,
   steer = null,
   onSteerChange = null,
+  // Hovering a "seen in" receipt reports which combo ingredients it covers, so the hero
+  // can dim the rest (desktop only — no hover on touch). Null on leave/unmount.
+  onRecipeHover = null,
 }) => {
   const valid = ingredients.filter(Boolean);
   const comboKey = valid.join('|');
@@ -30,6 +33,9 @@ export const ComboContextStrip = ({
   useEffect(() => {
     if (!mod) loadContext().then(setMod);
   }, [mod]);
+
+  // Clear any lingering hero dim if we unmount mid-hover (e.g. the drawer opens).
+  useEffect(() => () => onRecipeHover?.(null), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const ctx = useMemo(
     // Pass the active steer so the "seen in" receipts are filtered to titles that
@@ -111,6 +117,10 @@ export const ComboContextStrip = ({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-display italic text-gray-600 dark:text-gray-300 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color] duration-200"
+                    onMouseEnter={() => onRecipeHover?.(ctx?.titleCoverage[t] ?? [])}
+                    onMouseLeave={() => onRecipeHover?.(null)}
+                    onFocus={() => onRecipeHover?.(ctx?.titleCoverage[t] ?? [])}
+                    onBlur={() => onRecipeHover?.(null)}
                   >
                     “{t}”
                   </a>
