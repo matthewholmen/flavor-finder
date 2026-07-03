@@ -575,10 +575,6 @@ export const IngredientDisplay = ({
   onCloseDrawer,
   isDrawerOpen = false,
   flavorMap = null, // Optional: for showing which ingredients don't pair perfectly
-  // Optional: when a "seen in" receipt is hovered, the ingredients it covers. Everything
-  // NOT in this list is dimmed, so you can see at a glance how much of your combo the
-  // recipe actually uses. Null = no receipt hovered (normal display).
-  highlightIngredients = null,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
@@ -887,13 +883,7 @@ export const IngredientDisplay = ({
                 isLocked={lockedIngredients.has(actualIndex)}
                 isHovered={hoveredIndex === displayIndex}
                 isFocused={isMobile && focusedIngredientIndex === displayIndex}
-                isFaded={
-                  // A hovered receipt dims the ingredients it doesn't cover; otherwise the
-                  // usual "fade the others when one ingredient is hovered" behavior.
-                  highlightIngredients
-                    ? !highlightIngredients.includes(ingredient)
-                    : (hasHoveredIngredient && hoveredIndex !== displayIndex)
-                }
+                isFaded={hasHoveredIngredient && hoveredIndex !== displayIndex}
                 isPerfectMatch={isPerfectMatch(ingredient)}
                 onHover={() => setHoveredIndex(displayIndex)}
                 onHoverEnd={() => setHoveredIndex(null)}

@@ -28,11 +28,6 @@ const PROTEIN_TERMS: Array<[string, RegExp]> = (ingredientProfiles as any[])
     return [name, new RegExp(`(?:^|[^a-z])${escapeRe(name)}(?:[^a-z]|$)`)] as [string, RegExp];
   });
 
-// A protein is the anchor of a dish, so a receipt that covers it is worth more than one
-// covering an interchangeable seasoning — see the combo-coverage weighting below.
-const PROTEIN_NAMES = new Set(PROTEIN_TERMS.map(([name]) => name));
-const isProteinIngredient = (name: string): boolean => PROTEIN_NAMES.has(name.toLowerCase());
-
 /** Does this title name a protein that isn't among the combo's ingredients? */
 const contradictsProteins = (title: string, comboLower: string[]): boolean => {
   const t = ` ${title.toLowerCase()} `;
@@ -183,14 +178,6 @@ export interface ComboContext {
    * receipt for this steer" and the UI must hide the line rather than fall back.
    */
   steerFiltered: boolean;
-  /**
-   * For each title in `titles`, which of the combo's ingredients that recipe is known to
-   * contain (original casing, combo order). Powers the hover-to-dim affordance: the UI
-   * fades the ingredients NOT listed here. Coverage is inferred from which of the combo's
-   * pairs attest the title, so it's a lower bound — but the titles that survive the
-   * coverage gate are exactly the ones this is reliable for.
-   */
-  titleCoverage: Record<string, string[]>;
 }
 
 /**
@@ -198,9 +185,9 @@ export interface ComboContext {
  *
  * Tags are ranked by how many of the combo's edges attest them (position within an
  * edge's list breaks ties), so a tag shared by garlic+lime AND lime+chicken outranks
- * one seen on a single edge. Titles get the same vote — a title listed by several of
- * the combo's edges almost certainly contains 3+ of its ingredients — with a bonus for
- * coming from the combo's *rarest* edge, whose context is the most specific.
+ * one seen on a single edge. Titles are held to a stricter bar: a "seen in" receipt only
+ * ships if the recipe contains EVERY selected ingredient (full coverage — see the gate),
+ * so it's never a title that quietly drops your protein or is a mining artifact.
  */
 export const getComboContext = (
   ingredients: string[],
@@ -259,28 +246,18 @@ export const getComboContext = (
     });
   });
 
-  // Coverage gate + ranking. A receipt should describe most of what you picked: require
-  // it to cover strictly more than half the combo (2-ingredient combos always pass, since
-  // a single pair IS the whole set). Rank survivors by coverage — a protein counts double,
-  // since it anchors the dish — then by the edge-vote as a tiebreak.
+  // Coverage gate. "Seen in X" is only honest if X actually contains the whole combo, so
+  // require FULL coverage — every selected ingredient must appear in the receipt's recipe
+  // (a title covers an ingredient when one of the combo's pairs attests it). This is
+  // strict on purpose: a partial receipt that skips your protein — or is a mining artifact
+  // like "Lasagna" for a pear/basil combo — reads as flat wrong, so we'd rather show the
+  // dish/cuisine tags and no "seen in" line than a title that doesn't fit. Protein-anchoring
+  // falls out for free: full coverage always includes any protein. Rank by the edge-vote.
   const comboSize = ingredients.length;
-  const coverageWeight = (cov: Set<string>): number => {
-    let w = 0;
-    cov.forEach(ing => { w += isProteinIngredient(ing) ? 2 : 1; });
-    return w;
-  };
-  const scored = Array.from(titleScore.entries())
-    .map(([title, vote]) => {
-      const cov = titleCovered.get(title)!;
-      return { title, cov, count: cov.size, weight: coverageWeight(cov), vote };
-    })
-    .filter(x => x.count * 2 > comboSize)
-    .sort((a, b) => (b.weight - a.weight) || (b.vote - a.vote));
-
-  const titles = scored.map(x => x.title);
-  const titleCoverage: Record<string, string[]> = {};
-  // Preserve combo order in the covered list so the UI dims consistently.
-  scored.forEach(x => { titleCoverage[x.title] = ingredients.filter(ing => x.cov.has(ing)); });
+  const titles = Array.from(titleScore.entries())
+    .filter(([title]) => titleCovered.get(title)!.size === comboSize)
+    .sort((a, b) => b[1] - a[1])
+    .map(([title]) => title);
 
   return {
     dishTypes: rank(edges.map(e => e.ctx.dishTypes)),
@@ -290,6 +267,5 @@ export const getComboContext = (
     coveredEdges: edges.length,
     totalEdges,
     steerFiltered: !!steer,
-    titleCoverage,
   };
 };
