@@ -11,6 +11,7 @@ import {
   CONTEXT_METHODS,
   CONTEXT_CUISINES,
   CONTEXT_TITLES,
+  CONTEXT_TAG_KEYWORDS,
 } from '../data/pairingContext.ts';
 import { pairKey } from '../data/pairingMeta.ts';
 import { ingredientProfiles } from '../data/ingredientProfiles.ts';
@@ -43,13 +44,16 @@ export interface EdgeContext {
   dishTypes: string[];
   methods: string[];
   cuisines: string[];
+  /** Unsteered "seen in" receipts (the primary slice — display-identical to always). */
   titles: string[];
+  /** Primaries + steer-backing extras; the pool a steered lookup filters by tag. */
+  allTitles: string[];
 }
 
 export const getEdgeContext = (a: string, b: string): EdgeContext | null => {
   const entry = pairingContext[pairKey(a.toLowerCase(), b.toLowerCase())];
   if (!entry) return null;
-  const [recipeCount, dish, method, cuisine, titles, dishDisplay, cuisineDisplay] = entry;
+  const [recipeCount, dish, method, cuisine, titles, dishDisplay, cuisineDisplay, primaryCount] = entry;
   return {
     recipeCount,
     // Dish/cuisine arrays carry a loose steering tier after the display tier —
@@ -57,12 +61,43 @@ export const getEdgeContext = (a: string, b: string): EdgeContext | null => {
     dishTypes: dish.slice(0, dishDisplay).map(i => CONTEXT_DISH_TYPES[i]),
     methods: method.map(i => CONTEXT_METHODS[i]),
     cuisines: cuisine.slice(0, cuisineDisplay).map(i => CONTEXT_CUISINES[i]),
-    titles: titles.map(i => CONTEXT_TITLES[i]),
+    // Primaries first (the unsteered display), then steer-backing extras.
+    titles: titles.slice(0, primaryCount).map(i => CONTEXT_TITLES[i]),
+    allTitles: titles.map(i => CONTEXT_TITLES[i]),
   };
 }
 
 /** Tag groups that can steer generation. Methods are display-only. */
 export type SteerGroup = 'dish' | 'cuisine';
+
+// Runtime title classifier, rebuilt from CONTEXT_TAG_KEYWORDS with the IDENTICAL regex
+// construction the pipeline uses (lib.mjs loadTitleClassifier): `(?:^|[^a-z])`…`(?:e?s)?`
+// plural, `(?=[^a-z]|$)` boundary. Because merge-time pruning and this filter share the
+// same keywords + construction, they can never disagree about which tag a title carries.
+// Lazily compiled + memoized — the keyword tables ride in the lazy context chunk.
+let compiledTagRes: Record<SteerGroup, Map<string, RegExp>> | null = null;
+const getTagClassifier = (): Record<SteerGroup, Map<string, RegExp>> => {
+  if (compiledTagRes) return compiledTagRes;
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const compile = (group: Record<string, string[]>) => {
+    const m = new Map<string, RegExp>();
+    for (const [tag, keywords] of Object.entries(group)) {
+      m.set(tag, new RegExp(`(?:^|[^a-z])(?:${keywords.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`));
+    }
+    return m;
+  };
+  compiledTagRes = {
+    dish: compile(CONTEXT_TAG_KEYWORDS.dish),
+    cuisine: compile(CONTEXT_TAG_KEYWORDS.cuisine),
+  };
+  return compiledTagRes;
+};
+
+/** Does this receipt title itself carry the steered tag? (Same test the pipeline pruned by.) */
+export const titleCarriesTag = (title: string, group: SteerGroup, tag: string): boolean => {
+  const re = getTagClassifier()[group].get(tag);
+  return re ? re.test(title.toLowerCase()) : false;
+};
 
 /**
  * Restrict a flavor map to edges whose mined context carries the given tag — the
@@ -137,6 +172,12 @@ export interface ComboContext {
   /** How many of the combo's pairs had any mined context. */
   coveredEdges: number;
   totalEdges: number;
+  /**
+   * True when a steer was applied to title selection. With a steer, `titles` holds only
+   * receipts that themselves carry the steered tag — so an EMPTY list means "no honest
+   * receipt for this steer" and the UI must hide the line rather than fall back.
+   */
+  steerFiltered: boolean;
 }
 
 /**
@@ -148,7 +189,10 @@ export interface ComboContext {
  * the combo's edges almost certainly contains 3+ of its ingredients — with a bonus for
  * coming from the combo's *rarest* edge, whose context is the most specific.
  */
-export const getComboContext = (ingredients: string[]): ComboContext | null => {
+export const getComboContext = (
+  ingredients: string[],
+  steer?: { group: SteerGroup; tag: string } | null,
+): ComboContext | null => {
   const edges: EdgeContext[] = [];
   let totalEdges = 0;
   for (let i = 0; i < ingredients.length; i++) {
@@ -176,15 +220,21 @@ export const getComboContext = (ingredients: string[]): ComboContext | null => {
   const comboLower = ingredients.map(i => i.toLowerCase());
   const minCount = Math.min(...edges.map(e => e.recipeCount));
   const titleScore = new Map<string, number>();
-  edges.forEach(e =>
-    e.titles.forEach((title, pos) => {
+  edges.forEach(e => {
+    // Unsteered: vote over the primary "seen in" titles (display-identical to always).
+    // Steered: vote over the full receipt pool, but only titles that themselves carry the
+    // steered tag — so the "seen in" line can never contradict the active steer.
+    const pool = steer
+      ? e.allTitles.filter(t => titleCarriesTag(t, steer.group, steer.tag))
+      : e.titles;
+    pool.forEach((title, pos) => {
       // Per-edge receipts only know two ingredients; screen them against the whole
       // combo so a title naming an absent protein never represents the set.
       if (contradictsProteins(title, comboLower)) return;
       const rarityBonus = e.recipeCount === minCount ? 0.5 : 0;
       titleScore.set(title, (titleScore.get(title) ?? 0) + 1 - pos * 0.01 + rarityBonus);
-    })
-  );
+    });
+  });
   const titles = Array.from(titleScore.entries())
     .sort((a, b) => b[1] - a[1])
     .map(([t]) => t);
@@ -196,5 +246,6 @@ export const getComboContext = (ingredients: string[]): ComboContext | null => {
     titles,
     coveredEdges: edges.length,
     totalEdges,
+    steerFiltered: !!steer,
   };
 };

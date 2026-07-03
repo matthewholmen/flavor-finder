@@ -31,6 +31,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   makeGetArg, pairKey, parseCsv, parseIngredientCell, buildMatcher, loadEdgeSet,
+  loadTitleClassifier,
 } from './lib.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -46,25 +47,8 @@ if (!INPUT) {
   process.exit(1);
 }
 
-// ---- tag vocabulary → one alternation regex per tag ----
-const vocab = JSON.parse(fs.readFileSync(path.join(__dirname, 'context-vocab.json'), 'utf8'));
-const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-// Word-boundary match with optional plural; [^a-z] boundaries like the ingredient matcher
-// so "salad" doesn't fire inside "saladillo" but does before punctuation.
-const compileGroup = (group) =>
-  Object.entries(group).map(([tag, keywords]) => [
-    tag,
-    new RegExp(`(?:^|[^a-z])(?:${keywords.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`),
-  ]);
-const DISH = compileGroup(vocab.dishTypes);
-const METHOD = compileGroup(vocab.methods);
-const CUISINE = compileGroup(vocab.cuisines);
-
-const tagsFor = (compiled, text) => {
-  const out = [];
-  for (const [tag, re] of compiled) if (re.test(text)) out.push(tag);
-  return out;
-};
+// ---- tag vocabulary → one alternation regex per tag (shared with merge-context.mjs) ----
+const { DISH, METHOD, CUISINE, tagsFor } = loadTitleClassifier();
 
 // ---- title normalization (these strings ship to the UI) ----
 //
@@ -150,10 +134,33 @@ console.error(`  ${crossSiteTitles.size} titles appear on >=2 distinct domains.`
 // non-qualifying titles, emitted for report/debugging only — merge never ships them.
 const TITLE_CAP = 24;
 const POP_CAP = 1500;
-const makeAcc = () => ({ n: 0, dish: new Map(), method: new Map(), cuisine: new Map(), titles: new Map(), pop: new Map() });
+// Per-tag receipt candidates: for each dish/cuisine tag an edge claims, keep a few
+// qualifying titles that themselves carry the tag. merge-context.mjs draws on these to
+// back a steering claim that the prototypicality-ranked primaries don't cover, so every
+// steerable tag ships with a title the user can actually verify (steer-receipt alignment).
+const TAG_TITLE_CAP = 4;
+const makeAcc = () => ({
+  n: 0, dish: new Map(), method: new Map(), cuisine: new Map(), titles: new Map(), pop: new Map(),
+  dishTitles: new Map(), cuisineTitles: new Map(), // tag -> Map(title -> [count, curatedCount])
+});
 const acc = new Map(); // pairKey -> accumulator
 
 const bumpAll = (map, tags) => { for (const t of tags) map.set(t, (map.get(t) || 0) + 1); };
+// Bump a title into each of its tags' capped per-tag maps (space-saving eviction by
+// score = count + 2*curated, mirroring the ranking merge will apply).
+const bumpTagTitles = (tagMap, tags, title, isCurated) => {
+  for (const tag of tags) {
+    let inner = tagMap.get(tag);
+    if (!inner) { inner = new Map(); tagMap.set(tag, inner); }
+    const e = inner.get(title);
+    if (e) { e[0] += 1; if (isCurated) e[1] += 1; continue; }
+    if (inner.size < TAG_TITLE_CAP) { inner.set(title, [1, isCurated ? 1 : 0]); continue; }
+    let minK = null; let minV = Infinity;
+    for (const [k, v] of inner) { const s = v[0] + 2 * v[1]; if (s < minV) { minV = s; minK = k; } }
+    inner.delete(minK);
+    inner.set(title, [minV + 1, isCurated ? 1 : 0]);
+  }
+};
 const bumpTitle = (map, title) => {
   if (map.has(title)) { map.set(title, map.get(title) + 1); return; }
   if (map.size < TITLE_CAP) { map.set(title, 1); return; }
@@ -238,6 +245,13 @@ for await (const row of parseCsv(INPUT)) {
       if (isCurated) e[1] += 1;
       a.pop.set(title, e);
     } else if (title && !qualifies) bumpTitle(a.titles, title);
+    // Track qualifying titles per steerable tag they carry, so merge can back each
+    // steering claim with a findable receipt. Only cross-site titles qualify — an
+    // unfindable one-off is no better as a per-tag receipt than as a primary.
+    if (qualifies) {
+      bumpTagTitles(a.dishTitles, dishTags, title, isCurated);
+      bumpTagTitles(a.cuisineTitles, cuisineTags, title, isCurated);
+    }
   }
 }
 
@@ -246,6 +260,19 @@ console.error(`Read ${processed} recipes; ${matched} contained >=1 tracked edge.
 // ---- emit raw per-edge context (merge-context.mjs applies display policy) ----
 const topEntries = (map, k) =>
   [...map.entries()].sort((x, y) => y[1] - x[1]).slice(0, k);
+
+// Per-tag receipt candidates → { tag: top-2 [title, count, curatedCount] }, ranked by the
+// same score merge uses so its first pick is the strongest findable receipt for that tag.
+const tagTitlesOut = (tagMap) => {
+  const out = {};
+  for (const [tag, inner] of tagMap) {
+    out[tag] = [...inner.entries()]
+      .sort((x, y) => (y[1][0] + 2 * y[1][1]) - (x[1][0] + 2 * x[1][1]))
+      .slice(0, 2)
+      .map(([t, [c, cur]]) => [t, c, cur]);
+  }
+  return out;
+};
 
 const edgesOut = {};
 let emitted = 0;
@@ -264,6 +291,9 @@ for (const [k, a] of acc) {
       .slice(0, 8)
       .map(([t, [c, cur]]) => [t, c, cur]),
     rare: topEntries(a.titles, 3),
+    // Per-tag receipt candidates (merge uses these to back otherwise-uncovered claims).
+    dishTitles: tagTitlesOut(a.dishTitles),
+    cuisineTitles: tagTitlesOut(a.cuisineTitles),
   };
   emitted++;
 }

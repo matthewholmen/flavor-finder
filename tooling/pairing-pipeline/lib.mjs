@@ -21,6 +21,37 @@ export const makeGetArg = (args) => (name, def) => {
 // ---- canonical, order-independent pair key (matches src/data/pairingMeta.ts) ----
 export const pairKey = (a, b) => (a <= b ? `${a},${b}` : `${b},${a}`);
 
+// ---- shared title classifier (context-vocab.json → compiled tag regexes) ----
+//
+// The single source of tag classification for the whole pipeline. context.mjs uses it to
+// count tags per edge; merge-context.mjs uses it to verify that a shipped receipt title
+// actually carries the tag it's meant to back. Both must classify identically or
+// merge-time pruning and client-time filtering would disagree — so the compile lives here.
+//
+// Word-boundary match with optional plural; [^a-z] boundaries like the ingredient matcher
+// so "salad" doesn't fire inside "saladillo" but does before punctuation. The client
+// (src/utils/pairingContext.ts) reconstructs this exact regex from CONTEXT_TAG_KEYWORDS.
+export const loadTitleClassifier = () => {
+  const vocab = JSON.parse(
+    fs.readFileSync(path.join(PIPELINE_DIR, 'context-vocab.json'), 'utf8'),
+  );
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const compileGroup = (group) =>
+    Object.entries(group).map(([tag, keywords]) => [
+      tag,
+      new RegExp(`(?:^|[^a-z])(?:${keywords.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`),
+    ]);
+  const DISH = compileGroup(vocab.dishTypes);
+  const METHOD = compileGroup(vocab.methods);
+  const CUISINE = compileGroup(vocab.cuisines);
+  const tagsFor = (compiled, text) => {
+    const out = [];
+    for (const [tag, re] of compiled) if (re.test(text)) out.push(tag);
+    return out;
+  };
+  return { DISH, METHOD, CUISINE, tagsFor, vocab };
+};
+
 // ---- minimal streaming RFC4180-ish CSV parser (handles quotes + embedded newlines) ----
 export async function* parseCsv(filePath) {
   const stream = fs.createReadStream(filePath, { encoding: 'utf8', highWaterMark: 1 << 20 });

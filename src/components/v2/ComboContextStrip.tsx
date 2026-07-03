@@ -32,9 +32,12 @@ export const ComboContextStrip = ({
   }, [mod]);
 
   const ctx = useMemo(
-    () => (mod && valid.length >= 2 ? mod.getComboContext(valid) : null),
+    // Pass the active steer so the "seen in" receipts are filtered to titles that
+    // actually carry the steered tag (empty under steer → line hidden, never a
+    // contradicting fallback).
+    () => (mod && valid.length >= 2 ? mod.getComboContext(valid, steer) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [comboKey, mod]
+    [comboKey, mod, steer?.group, steer?.tag]
   );
 
   if (!ctx && !steer) return null;
