@@ -74,6 +74,19 @@ body.modal-open {
     min-height: 100vh;
   }
 
+  /* #root is position:fixed at viewport height with overflow hidden (below), so
+     the app shell — and the .App wrapper the height percentage resolves
+     through — must be capped to it. Otherwise the shell grows invisibly past
+     the viewport and <main>'s overflow-y-auto never engages (content taller
+     than a screen, like the landing surface's tag lists, becomes unreachable). */
+  .App {
+    height: 100%;
+  }
+  .app-min-h {
+    height: 100%;
+    min-height: 0;
+  }
+
   /* Prevent keyboard from pushing content up - use fixed viewport */
   html, body {
     position: fixed;

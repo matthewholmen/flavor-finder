@@ -12,6 +12,7 @@ import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
 import { TasteLabSplit } from './components/v2/TasteLabSplit.tsx';
 import { PresetGallery } from './components/v2/PresetGallery.tsx';
+import { LandingSurface, LandingTagGroup } from './components/v2/LandingSurface.tsx';
 import { FlavorPreset } from './data/flavorPresets.ts';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
@@ -236,6 +237,20 @@ export default function FlavorFinderV2() {
     return steerModule.filterFlavorMapByTag(baseFlavorMap, contextSteer.group, contextSteer.tag);
   }, [baseFlavorMap, contextSteer, steerModule, isTasteLab]);
 
+  // Landing entry surface: on a fresh open (no deep link) the app leads with
+  // search + browsable tags instead of an auto-seeded combo. Retired for the
+  // session the moment any path fills the combo — a landing pick, Generate,
+  // or a drawer selection.
+  const [landingDismissed, setLandingDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.has('lab') || params.has('ing');
+  });
+  const showLanding = !landingDismissed && selectedIngredients.length === 0;
+  useEffect(() => {
+    if (!landingDismissed && selectedIngredients.length > 0) setLandingDismissed(true);
+  }, [landingDismissed, selectedIngredients]);
+
   // All ingredients: union of the flavor map (pairing-connected) and every profiled
   // ingredient. Sourcing from profiles too means newly-added ingredients are browsable
   // and searchable even before the mining pass gives them pairing edges. (Generation
@@ -307,12 +322,22 @@ export default function FlavorFinderV2() {
   // mode: 'perfect' = all ingredients must pair with each other
   //       'mixed' = each ingredient must pair with at least one other
   //       'random' = no pairing requirements
-  const getRandomIngredients = (count = 5, lockedList: string[] = [], mode = 'perfect') => {
+  // mapOverride: generate against a different graph than the live flavorMap —
+  //   used by the landing surface to run against a freshly steered map before
+  //   the steer state has flushed. Always a subset of the flavor map, so the
+  //   compatibility check itself is unchanged.
+  const getRandomIngredients = (
+    count = 5,
+    lockedList: string[] = [],
+    mode = 'perfect',
+    mapOverride?: Map<string, Set<string>>
+  ) => {
+    const map = mapOverride ?? flavorMap;
     const maxGlobalAttempts = 200;
 
     // Random mode: just pick any ingredients (respecting dietary restrictions)
     if (mode === 'random') {
-      const availablePool = Array.from(flavorMap.keys())
+      const availablePool = Array.from(map.keys())
         .filter(ingredient => !lockedList.includes(ingredient))
         .filter(ingredient => !isIngredientRestricted(ingredient));
 
@@ -339,7 +364,7 @@ export default function FlavorFinderV2() {
         const excludeSet = new Set([...lockedList]);
 
         // Get all available ingredients
-        const availablePool = Array.from(flavorMap.keys())
+        const availablePool = Array.from(map.keys())
           .filter(ingredient => !excludeSet.has(ingredient))
           .filter(ingredient => !isIngredientRestricted(ingredient));
 
@@ -361,7 +386,7 @@ export default function FlavorFinderV2() {
           } else {
             // Must pair with at least one existing ingredient
             const pairsWithAtLeastOne = allExisting.some(existing =>
-              flavorMap.get(existing)?.has(candidate)
+              map.get(existing)?.has(candidate)
             );
 
             if (pairsWithAtLeastOne) {
@@ -376,7 +401,7 @@ export default function FlavorFinderV2() {
         const isValid = allIngredientsList.every(ing => {
           const others = allIngredientsList.filter(other => other !== ing);
           return others.length === 0 || others.some(other =>
-            flavorMap.get(ing)?.has(other)
+            map.get(ing)?.has(other)
           );
         });
 
@@ -401,17 +426,17 @@ export default function FlavorFinderV2() {
         let pool: string[];
         if (selections.length === 0 && lockedList.length === 0) {
           // First ingredient with no locks - pick from all
-          pool = Array.from(flavorMap.keys())
+          pool = Array.from(map.keys())
             .filter(ingredient => !excludeSet.has(ingredient))
             .filter(ingredient => !isIngredientRestricted(ingredient));
         } else {
           // Must be compatible with all existing selections and locked ingredients
           const allToCheck = [...selections, ...lockedList];
-          pool = Array.from(flavorMap.keys()).filter(candidate => {
+          pool = Array.from(map.keys()).filter(candidate => {
             if (excludeSet.has(candidate)) return false;
             if (isIngredientRestricted(candidate)) return false;
             return allToCheck.every(existing =>
-              flavorMap.get(existing)?.has(candidate)
+              map.get(existing)?.has(candidate)
             );
           });
         }
@@ -950,9 +975,35 @@ export default function FlavorFinderV2() {
     }
   }, [isTasteLab, selectedIngredients.length, setIsTasteLab]);
 
-  // Seed once on mount. In Taste Lab, start from a single random pair of
-  // distinct tastes (no intro shuffle) so each visit opens on a fresh contrast
-  // rather than always salty + sweet — then find a pairing that fits it.
+  // Seed a fresh combo the way a first open used to: in Taste Lab, a random
+  // pair of distinct tastes (a fresh contrast rather than always salty +
+  // sweet) with a pairing that fits it; otherwise two random compatible
+  // ingredients. Used by the landing's "Surprise me" and deep-link fallbacks.
+  const seedFreshCombo = () => {
+    if (isTasteLab) {
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const shuffled = [...TASTE_KEYS].sort(() => Math.random() - 0.5);
+        const t0 = shuffled[0];
+        const t1 = shuffled[1];
+        const slots = [
+          { mode: 'taste' as const, taste: t0, category: slotTastes[0].category },
+          { mode: 'taste' as const, taste: t1, category: slotTastes[1].category },
+        ];
+        const pair = computeTasteLabCombo(slots, {});
+        if (pair.length === 2) {
+          setSlotTaste(0, { mode: 'taste', taste: t0 });
+          setSlotTaste(1, { mode: 'taste', taste: t1 });
+          setSelectedIngredients(pair);
+          return;
+        }
+      }
+    }
+    // Classic, or no taste combo landed a pairing: fall back to random.
+    setSelectedIngredients(getRandomIngredients(2));
+  };
+
+  // On mount: restore a deep link if present; otherwise leave the combo empty
+  // so the landing surface is the front door (it seeds via its own actions).
   useEffect(() => {
     if (selectedIngredients.length !== 0) return;
 
@@ -1003,26 +1054,11 @@ export default function FlavorFinderV2() {
       // Malformed link — fall through to the normal seed.
     }
 
-    if (isTasteLab) {
-      for (let attempt = 0; attempt < 12; attempt++) {
-        const shuffled = [...TASTE_KEYS].sort(() => Math.random() - 0.5);
-        const t0 = shuffled[0];
-        const t1 = shuffled[1];
-        const slots = [
-          { mode: 'taste' as const, taste: t0, category: slotTastes[0].category },
-          { mode: 'taste' as const, taste: t1, category: slotTastes[1].category },
-        ];
-        const pair = computeTasteLabCombo(slots, {});
-        if (pair.length === 2) {
-          setSlotTaste(0, { mode: 'taste', taste: t0 });
-          setSlotTaste(1, { mode: 'taste', taste: t1 });
-          setSelectedIngredients(pair);
-          return;
-        }
-      }
-    }
-    // Classic, or no taste combo landed a pairing: fall back to random.
-    setSelectedIngredients(getRandomIngredients(2));
+    // No deep link: the landing surface takes it from here. A deep link that
+    // failed to restore (malformed param) still gets the classic random seed,
+    // since landingDismissed initialized true for it.
+    if (!landingDismissed) return;
+    seedFreshCombo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1073,6 +1109,13 @@ export default function FlavorFinderV2() {
 
   // Handle randomize/generate - creates exactly targetIngredientCount ingredients
   const handleRandomize = () => {
+    // Generate over an empty Taste Lab combo (the landing is up, nothing picked
+    // yet) is a fresh-open seed, not a reroll — slotCount would clamp to a
+    // single slot otherwise.
+    if (isTasteLab && selectedIngredients.length === 0) {
+      seedFreshCombo();
+      return;
+    }
     // Taste Lab: fully randomize the pair, like Classic Generate. Each slot is
     // either pinned (ingredient lock = exact; constraint lock = within its
     // taste/category) or free (any ingredient). Free slots then adopt the new
@@ -1134,6 +1177,38 @@ export default function FlavorFinderV2() {
   // you can lock "salads" and then add/swap single ingredients within it; hitting
   // Generate rerolls inside the steer. Clearing a steer also keeps the combo (it
   // remains valid in the full graph by construction).
+
+  // Landing tag tap: switch to Classic, lock the steer, and generate a showcase
+  // combo at the largest size the steered subgraph supports (4 → 3 → 2), so a
+  // sparse tag (Korean, marinades…) lands a smaller combo instead of a no-match
+  // toast. Same backtracking generator — the steered map is passed directly
+  // because the steer state hasn't flushed yet.
+  const handleLandingTag = (group: LandingTagGroup, tag: string) => {
+    const mod = steerModule ?? getLoadedContext();
+    if (!mod) return; // tags render from the context chunk, so it's loaded before they're tappable
+    if (!steerModule) setSteerModule(mod);
+    const steered = mod.filterFlavorMapByTag(baseFlavorMap, group, tag);
+    setIsTasteLab(false);
+    setContextSteer({ group, tag });
+    for (let size = 4; size >= 2; size--) {
+      const combo = getRandomIngredients(size, [], 'perfect', steered);
+      if (combo.length === size) {
+        setTargetIngredientCount(size);
+        setSelectedIngredients(combo);
+        return;
+      }
+    }
+    // Not even a pair under this tag (shouldn't happen for a listed one) —
+    // drop the steer rather than strand an empty screen.
+    setContextSteer(null);
+    setSelectedIngredients(getRandomIngredients(2));
+  };
+
+  // Landing "Surprise me": the pre-landing first-open behavior.
+  const handleLandingSurprise = () => {
+    setLandingDismissed(true);
+    seedFreshCombo();
+  };
 
   // Wrap handleIngredientSelect to clear search term. In Taste Lab, the global
   // search starts a fresh pairing from scratch: the chosen ingredient becomes
@@ -1646,8 +1721,17 @@ export default function FlavorFinderV2() {
         pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}
         ${isMobile && !isDrawerOpen ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
-        {/* Taste Lab: full-bleed split view (columns on desktop, rows on mobile) */}
-        {isTasteLab && !isDrawerOpen ? (
+        {/* Landing entry surface — the front door on a fresh open. Yields to the
+            drawer (its search is another valid way in). */}
+        {showLanding && !isDrawerOpen ? (
+          <LandingSurface
+            isMobile={isMobile}
+            allIngredients={allIngredients}
+            onPickTag={handleLandingTag}
+            onPickIngredient={handleIngredientSelect}
+            onSurprise={handleLandingSurprise}
+          />
+        ) : isTasteLab && !isDrawerOpen ? (
           <TasteLabSplit
             slotTastes={slotTastes}
             onSlotTasteChange={handleSlotTasteChange}

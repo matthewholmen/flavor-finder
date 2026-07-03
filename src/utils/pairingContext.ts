@@ -102,6 +102,31 @@ export const filterFlavorMapByTag = (
   return out;
 };
 
+/**
+ * Edge counts per steerable tag, richest-first — the same two-tier membership
+ * filterFlavorMapByTag uses, so a tag's count is exactly the size of its steered
+ * subgraph over the full mined corpus. Corpus-wide (not filtered by enabled
+ * sources): used to order browse/suggestion lists, not to gate anything.
+ */
+export const getSteerTagCounts = (): Record<SteerGroup, Array<{ tag: string; edges: number }>> => {
+  const dish = new Array(CONTEXT_DISH_TYPES.length).fill(0);
+  const cuisine = new Array(CONTEXT_CUISINES.length).fill(0);
+  for (const key in pairingContext) {
+    const entry = pairingContext[key];
+    entry[1].forEach(i => dish[i]++);
+    entry[3].forEach(i => cuisine[i]++);
+  }
+  const ranked = (counts: number[], table: string[]) =>
+    counts
+      .map((edges, i) => ({ tag: table[i], edges }))
+      .filter(t => t.edges > 0)
+      .sort((a, b) => b.edges - a.edges);
+  return {
+    dish: ranked(dish, CONTEXT_DISH_TYPES),
+    cuisine: ranked(cuisine, CONTEXT_CUISINES),
+  };
+};
+
 export interface ComboContext {
   /** Top dish-type tags across the combo's edges, most-supported first. */
   dishTypes: string[];

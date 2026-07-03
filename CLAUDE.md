@@ -38,6 +38,7 @@ src/
 ├── components/
 │   ├── v2/                   # All live UI components
 │   │   ├── MinimalHeader.tsx       # Top header: logo, ±/Generate cluster, Save/Share/Recipes
+│   │   ├── LandingSurface.tsx      # Front-door entry: search + browsable cuisine/dish tags
 │   │   ├── IngredientDisplay.tsx   # Unified ingredient display (hero + compact, mobile swipe rows)
 │   │   ├── IngredientDrawer.tsx    # Search/filter drawer (desktop 3-col, mobile bottom sheet)
 │   │   ├── IngredientFiltersModal.tsx # Dietary/category include-exclude modal
