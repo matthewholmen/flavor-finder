@@ -4,13 +4,26 @@
 
 ## Status — v1 shipped 2026-07-02
 
-`LandingSurface.tsx` is live: search with rotating live-data suggestions plus
-browsable cuisine/dish tag lists (richest subgraph first), shown on every fresh
-open in place of the auto-seeded combo. Decisions taken:
+`LandingSurface.tsx` is live: a pinned "What do you want to cook?" heading +
+search (rotating live-data suggestions), with a small curated set of the
+densest cuisine/dish example chips below and a "Browse all" chevron to reveal
+the full lists. Decisions taken:
 
-- **Shows every open**, replacing the auto-combo; retired for the session once
-  anything fills the combo (landing pick, Generate, drawer select). Deep links
-  (`?lab=`/`?ing=`) bypass it. "Surprise me" reruns the old first-open seed.
+- **The landing IS the empty state.** It shows whenever the combo is empty —
+  on a fresh open, and again whenever the user deletes every ingredient (the
+  way "back to the front door"). Filling the combo hides it. Deep links
+  (`?lab=`/`?ing=`) bypass it with no flash. Returning to it clears any active
+  steer, so the next entry is a clean slate.
+- **Everything defaults to Classic.** `useTasteLab` now starts `false`; all four
+  entry paths (tag tap, ingredient pick, search, Surprise me, Generate) resolve
+  into Classic so they land in the same place. Taste Lab is opt-in from the
+  sidebar — our testing surface.
+- **Calm by default, full list on demand.** Only ~6 example chips per group show
+  at rest (top of the richest-subgraph ordering); "Browse all" expands to
+  everything. The search covers the whole vocabulary regardless.
+- **Pinned search.** The heading + search sit in a `shrink-0` block; only the
+  tag area scrolls (fixed by capping the mobile app shell to `#root` — see
+  `index.css`), so the search never scrolls out of view.
 - **V1 scope: tags + ingredients only.** Search handles cuisines, dish types,
   and ingredients. Dish-name reverse lookup and taste-word routing are still
   open (below).

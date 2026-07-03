@@ -107,9 +107,11 @@ interface UseTasteLabReturn {
  * must still pair with each other.
  */
 export const useTasteLab = (): UseTasteLabReturn => {
-  // Default on for now — Taste Lab is the mode we're actively iterating on, and
-  // landing straight in it saves a click. Flip back to false to default Classic.
-  const [isTasteLab, setIsTasteLab] = useState(true);
+  // Classic is the default entry mode: the landing surface and every entry path
+  // (tag steer, ingredient pick, Surprise me) resolve into Classic so they all
+  // land in the same place. Taste Lab is opt-in from the sidebar — our testing
+  // surface. Flip to true to default into Taste Lab.
+  const [isTasteLab, setIsTasteLab] = useState(false);
   const [slotTastes, setSlotTastes] = useState<SlotTaste[]>(DEFAULT_SLOTS);
 
   const setSlotTaste = useCallback((slotIndex: number, patch: Partial<SlotTaste>) => {

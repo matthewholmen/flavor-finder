@@ -237,19 +237,25 @@ export default function FlavorFinderV2() {
     return steerModule.filterFlavorMapByTag(baseFlavorMap, contextSteer.group, contextSteer.tag);
   }, [baseFlavorMap, contextSteer, steerModule, isTasteLab]);
 
-  // Landing entry surface: on a fresh open (no deep link) the app leads with
-  // search + browsable tags instead of an auto-seeded combo. Retired for the
-  // session the moment any path fills the combo — a landing pick, Generate,
-  // or a drawer selection.
-  const [landingDismissed, setLandingDismissed] = useState(() => {
+  // Landing entry surface: the empty state. Whenever the combo is empty the app
+  // leads with search + browsable tags instead of an auto-seeded combo — so it
+  // shows on a fresh open AND returns when the user deletes every ingredient.
+  // The one exception is the initial deep-link restore (?lab=/?ing=), where the
+  // combo is momentarily empty before the seed effect runs; suppress the flash
+  // until that effect clears the flag.
+  const [suppressLandingForRestore, setSuppressLandingForRestore] = useState(() => {
     if (typeof window === 'undefined') return false;
     const params = new URLSearchParams(window.location.search);
     return params.has('lab') || params.has('ing');
   });
-  const showLanding = !landingDismissed && selectedIngredients.length === 0;
+  const showLanding = !suppressLandingForRestore && selectedIngredients.length === 0;
+
+  // Returning to the landing (empty combo) is a clean slate: drop any active
+  // steer so the next entry — a tag tap, an ingredient, Surprise me — isn't
+  // secretly constrained by the tag the emptied combo was steered into.
   useEffect(() => {
-    if (!landingDismissed && selectedIngredients.length > 0) setLandingDismissed(true);
-  }, [landingDismissed, selectedIngredients]);
+    if (selectedIngredients.length === 0 && contextSteer) setContextSteer(null);
+  }, [selectedIngredients, contextSteer]);
 
   // All ingredients: union of the flavor map (pairing-connected) and every profiled
   // ingredient. Sourcing from profiles too means newly-added ingredients are browsable
@@ -1007,6 +1013,12 @@ export default function FlavorFinderV2() {
   useEffect(() => {
     if (selectedIngredients.length !== 0) return;
 
+    // The one-shot restore attempt is happening now, so lift the landing
+    // suppression. Batched with any restore setState below, so a successful
+    // restore shows the combo with no landing flash; a fresh/broken open falls
+    // through to an empty combo and the landing shows.
+    setSuppressLandingForRestore(false);
+
     // Deep-link restore: a `?lab=` or `?ing=` param recreates a shared state and
     // skips the random seed.
     try {
@@ -1051,14 +1063,8 @@ export default function FlavorFinderV2() {
         }
       }
     } catch {
-      // Malformed link — fall through to the normal seed.
+      // Malformed link — leave the combo empty and let the landing surface show.
     }
-
-    // No deep link: the landing surface takes it from here. A deep link that
-    // failed to restore (malformed param) still gets the classic random seed,
-    // since landingDismissed initialized true for it.
-    if (!landingDismissed) return;
-    seedFreshCombo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1204,9 +1210,9 @@ export default function FlavorFinderV2() {
     setSelectedIngredients(getRandomIngredients(2));
   };
 
-  // Landing "Surprise me": the pre-landing first-open behavior.
+  // Landing "Surprise me": seed a fresh combo (Classic by default). Filling the
+  // combo hides the landing on its own — it's the empty state.
   const handleLandingSurprise = () => {
-    setLandingDismissed(true);
     seedFreshCombo();
   };
 
