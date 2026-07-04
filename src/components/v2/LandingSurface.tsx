@@ -170,7 +170,7 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
         className="mx-auto w-full max-w-xl flex flex-col items-center py-6"
       >
         <h2 className={`font-display font-black tracking-tight text-gray-900 dark:text-white text-center ${isMobile ? 'text-3xl' : 'text-4xl'}`}>
-          What do you want to cook?
+          What do you want to make?
         </h2>
 
         {/* The search — the one thing to focus on */}

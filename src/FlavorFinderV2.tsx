@@ -1235,6 +1235,25 @@ export default function FlavorFinderV2() {
       setIsDrawerOpen(false);
       return;
     }
+    // First pick from an empty combo: rather than stranding a lone ingredient
+    // next to a blank second slot, seed a full 2-ingredient pairing anchored on
+    // the searched ingredient. It's locked (index 0) so a later Generate keeps
+    // it and only rerolls the partner. Falls back to the bare ingredient if the
+    // graph has no compatible partner (shouldn't happen for a real ingredient).
+    if (selectedIngredients.length === 0) {
+      saveToHistory();
+      const partner = getRandomIngredients(1, [ingredient], compatibilityMode);
+      if (partner.length === 1) {
+        setSelectedIngredients([ingredient, partner[0]]);
+        setTargetIngredientCount(2);
+        setLockedIngredients(new Set([0]));
+      } else {
+        setSelectedIngredients([ingredient]);
+      }
+      setSearchTerm('');
+      setIsDrawerOpen(false);
+      return;
+    }
     baseHandleIngredientSelect(ingredient);
     setSearchTerm('');
   };
