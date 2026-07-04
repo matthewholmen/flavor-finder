@@ -99,6 +99,55 @@ export const titleCarriesTag = (title: string, group: SteerGroup, tag: string): 
   return re ? re.test(title.toLowerCase()) : false;
 };
 
+// The same dish reaches a combo from several edges under different spellings ("Muffuletta"
+// /"Muffaletta"), plurals ("California Roll"/"Rolls"), or accents — showing two of them
+// side by side reads as a bug. Normalize to a comparison key (lowercase, de-accent, strip
+// punctuation + trailing plural) then treat keys within one edit as the same recipe.
+const titleKey = (t: string): string =>
+  t.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // drop diacritics
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/(es|s)$/, ''); // trailing plural on the last word
+
+// Levenshtein, capped: only need to know whether the distance is <= 1.
+const withinOneEdit = (a: string, b: string): boolean => {
+  if (a === b) return true;
+  const m = a.length, n = b.length;
+  if (Math.abs(m - n) > 1) return false;
+  // Single walk allowing at most one insert/delete/substitute.
+  let i = 0, j = 0, edits = 0;
+  while (i < m && j < n) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++edits > 1) return false;
+    if (m > n) i++;            // delete from a
+    else if (n > m) j++;       // insert into a
+    else { i++; j++; }         // substitute
+  }
+  return edits + (m - i) + (n - j) <= 1;
+};
+
+/**
+ * Collapse near-duplicate receipts (spelling/plural variants of one dish) in a
+ * score-ordered title list, keeping the highest-scored spelling. Guarded to keys of
+ * length >= 4 so short distinct words aren't merged on a coincidental single edit.
+ */
+const dedupeTitleVariants = (titlesByScore: string[]): string[] => {
+  const kept: string[] = [];
+  const keptKeys: string[] = [];
+  for (const title of titlesByScore) {
+    const key = titleKey(title);
+    const dup = keptKeys.some(
+      k => k === key || (Math.min(k.length, key.length) >= 4 && withinOneEdit(k, key))
+    );
+    if (dup) continue;
+    kept.push(title);
+    keptKeys.push(key);
+  }
+  return kept;
+};
+
 /**
  * Restrict a flavor map to edges whose mined context carries the given tag — the
  * engine behind tag-click steering ("lock into Mexican / desserts and shuffle").
@@ -254,10 +303,12 @@ export const getComboContext = (
   // dish/cuisine tags and no "seen in" line than a title that doesn't fit. Protein-anchoring
   // falls out for free: full coverage always includes any protein. Rank by the edge-vote.
   const comboSize = ingredients.length;
-  const titles = Array.from(titleScore.entries())
-    .filter(([title]) => titleCovered.get(title)!.size === comboSize)
-    .sort((a, b) => b[1] - a[1])
-    .map(([title]) => title);
+  const titles = dedupeTitleVariants(
+    Array.from(titleScore.entries())
+      .filter(([title]) => titleCovered.get(title)!.size === comboSize)
+      .sort((a, b) => b[1] - a[1])
+      .map(([title]) => title)
+  );
 
   return {
     dishTypes: rank(edges.map(e => e.ctx.dishTypes)),
