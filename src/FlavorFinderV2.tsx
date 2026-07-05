@@ -999,12 +999,16 @@ export default function FlavorFinderV2() {
         if (pair.length === 2) {
           setSlotTaste(0, { mode: 'taste', taste: t0 });
           setSlotTaste(1, { mode: 'taste', taste: t1 });
+          setTargetIngredientCount(2);
           setSelectedIngredients(pair);
           return;
         }
       }
     }
-    // Classic, or no taste combo landed a pairing: fall back to random.
+    // Classic, or no taste combo landed a pairing: fall back to random. Reset the
+    // slot count too — otherwise a stale target (e.g. left at 4 by a preset/tag)
+    // makes the fresh pair render with commas + no "&" until the next Generate.
+    setTargetIngredientCount(2);
     setSelectedIngredients(getRandomIngredients(2));
   };
 
