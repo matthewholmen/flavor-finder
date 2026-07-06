@@ -30,7 +30,6 @@ export const IngredientDrawer = ({
   onToggle,
   onClose,
   onOpen = () => {},
-  isTasteLab = false,
   onUndo = () => {},
   canUndo = false,
   searchTerm,
@@ -108,10 +107,7 @@ export const IngredientDrawer = ({
   const [isFiltersPanelCollapsed, setIsFiltersPanelCollapsed] = useState(true);
   const [sortMode, setSortMode] = useState('alphabetical'); // 'alphabetical' | 'category' | 'taste' | 'popularity'
   const [isMobileFiltersVisible, setIsMobileFiltersVisible] = useState(false);
-  // Taste Lab: the inline-search popover above the bottom bar is open (the
-  // field is focused) — no full-drawer takeover.
-  const [inlineSearchOpen, setInlineSearchOpen] = useState(false);
-  
+
   // Auto-focus search input when drawer opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -1262,17 +1258,9 @@ export const IngredientDrawer = ({
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            // In Taste Lab, keep the search inline (no drawer takeover) — just
-            // open the suggestion popover above the bar.
-            onFocus={isTasteLab ? () => setInlineSearchOpen(true) : onOpen}
-            onClick={isTasteLab ? () => setInlineSearchOpen(true) : onOpen}
-            onBlur={isTasteLab ? () => setTimeout(() => setInlineSearchOpen(false), 120) : undefined}
+            onFocus={onOpen}
+            onClick={onOpen}
             onKeyDown={(e) => {
-              if (e.key === 'Escape' && isTasteLab) {
-                setInlineSearchOpen(false);
-                e.currentTarget.blur();
-                return;
-              }
               if (e.key === 'Enter') {
                 const availableSuggestions = suggestions.filter(
                   ing => !selectedIngredients.includes(ing)
@@ -1282,7 +1270,6 @@ export const IngredientDrawer = ({
                   if (selectedIngredients.length < 5) {
                     onSearchChange('');
                   }
-                  if (isTasteLab) setInlineSearchOpen(false);
                 }
               }
             }}
@@ -1303,33 +1290,6 @@ export const IngredientDrawer = ({
             </button>
           )}
 
-          {/* Taste Lab inline suggestions — a quiet popover above the bar so the
-              split view stays put. Picking one starts a fresh pairing. */}
-          {isTasteLab && inlineSearchOpen && searchTerm.trim() && (
-            <div className="absolute left-0 right-0 bottom-full mb-2 z-[60] max-h-[44vh] overflow-y-auto p-1.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl">
-              {suggestions.length === 0 ? (
-                <div className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-                  No ingredients found
-                </div>
-              ) : (
-                suggestions.slice(0, 10).map((ing) => (
-                  <button
-                    key={ing}
-                    // Keep the input focused so the blur-close doesn't fire first.
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      handleIngredientAdd(ing);
-                      onSearchChange('');
-                      setInlineSearchOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-xl text-base font-medium capitalize text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    {ing}
-                  </button>
-                ))
-              )}
-            </div>
-          )}
         </div>
         {/* Show Partial Matches - only relevant while browsing suggestions */}
         {isOpen && (

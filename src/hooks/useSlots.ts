@@ -47,11 +47,14 @@ export const CATEGORY_KEYS: CategoryKey[] = [
 // preference in the solver does the heavy lifting of keeping pairings crisp.
 export const TASTE_THRESHOLD = 5;
 
-// How a Taste Lab slot constrains its ingredient. A slot hunts for a dominant
-// `taste` (e.g. salty → anchovy), for membership in a `category` (e.g. Fruits →
-// plum), or is `wild` — no constraint at all, accepting any compatible
-// ingredient so you can shuffle freely. `mode` picks which is live; the taste
-// and category values are remembered so toggling back keeps the last choice.
+// The app runs 1–5 ingredient slots.
+export const MAX_SLOTS = 5;
+
+// How a slot constrains its ingredient. A slot hunts for a dominant `taste`
+// (e.g. salty → anchovy), for membership in a `category` (e.g. Fruits → plum),
+// or is `wild` — no constraint at all, accepting any compatible ingredient so
+// you can shuffle freely. `mode` picks which is live; the taste and category
+// values are remembered so toggling back keeps the last choice.
 export type SlotMode = 'taste' | 'category' | 'wild';
 
 export interface SlotTaste {
@@ -82,37 +85,38 @@ export const SUBCATEGORIES: Record<CategoryKey, string[]> = {
   Alcohol: ['Wine', 'Beer & Cider', 'Spirits', 'Liqueurs'],
 };
 
-// Up to four slots (Taste Lab runs 2–4). The first two default to a classic
-// contrast (salty + sweet → e.g. anchovy + plum); slots 3–4 seed sensible
-// extra notes and are only used when the user adds ingredients.
+// Every slot defaults to wild — no constraint, exactly the classic Generate
+// behavior. The taste/category values are just remembered seeds so opening the
+// role popover and toggling to taste/category mode starts somewhere sensible
+// (and varied) rather than on a uniform default.
 const DEFAULT_SLOTS: SlotTaste[] = [
-  { mode: 'taste', taste: 'salty', category: 'Proteins' },
-  { mode: 'taste', taste: 'sweet', category: 'Fruits' },
-  { mode: 'taste', taste: 'sour', category: 'Vegetables' },
-  { mode: 'taste', taste: 'umami', category: 'Seasonings' },
+  { mode: 'wild', taste: 'salty', category: 'Proteins' },
+  { mode: 'wild', taste: 'sweet', category: 'Fruits' },
+  { mode: 'wild', taste: 'sour', category: 'Vegetables' },
+  { mode: 'wild', taste: 'umami', category: 'Seasonings' },
+  { mode: 'wild', taste: 'aromatic', category: 'Pantry' },
 ];
 
-interface UseTasteLabReturn {
-  isTasteLab: boolean;
-  setIsTasteLab: React.Dispatch<React.SetStateAction<boolean>>;
+// A fresh copy of the default slot set — used on mount and by every
+// clean-slate entry (surprise me, landing tag, first search pick).
+export const defaultSlots = (): SlotTaste[] => DEFAULT_SLOTS.map(s => ({ ...s }));
+
+interface UseSlotsReturn {
   slotTastes: SlotTaste[];
   setSlotTaste: (slotIndex: number, patch: Partial<SlotTaste>) => void;
-  // Replace the whole slot array at once — used by undo to restore a snapshot.
+  // Replace the whole slot array at once — used by undo to restore a snapshot
+  // and by clean-slate entries to reset every role to wild.
   setSlotTastes: React.Dispatch<React.SetStateAction<SlotTaste[]>>;
 }
 
 /**
- * State for "Taste Lab" mode: a two-ingredient generation mode where each slot
- * is constrained to either a dominant taste or a category, and the two results
- * must still pair with each other.
+ * Per-slot role state for the unified generator: every slot carries an
+ * optional role (a dominant taste or a category, default wild) that constrains
+ * which ingredients can fill it. Roles only ever shrink a slot's candidate
+ * pool — the flavor-map pairing requirement is never relaxed.
  */
-export const useTasteLab = (): UseTasteLabReturn => {
-  // Classic is the default entry mode: the landing surface and every entry path
-  // (tag steer, ingredient pick, Surprise me) resolve into Classic so they all
-  // land in the same place. Taste Lab is opt-in from the sidebar — our testing
-  // surface. Flip to true to default into Taste Lab.
-  const [isTasteLab, setIsTasteLab] = useState(false);
-  const [slotTastes, setSlotTastes] = useState<SlotTaste[]>(DEFAULT_SLOTS);
+export const useSlots = (): UseSlotsReturn => {
+  const [slotTastes, setSlotTastes] = useState<SlotTaste[]>(defaultSlots());
 
   const setSlotTaste = useCallback((slotIndex: number, patch: Partial<SlotTaste>) => {
     setSlotTastes(prev =>
@@ -120,7 +124,7 @@ export const useTasteLab = (): UseTasteLabReturn => {
     );
   }, []);
 
-  return { isTasteLab, setIsTasteLab, slotTastes, setSlotTaste, setSlotTastes };
+  return { slotTastes, setSlotTaste, setSlotTastes };
 };
 
-export default useTasteLab;
+export default useSlots;

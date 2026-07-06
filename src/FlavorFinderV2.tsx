@@ -10,16 +10,23 @@ import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
 import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
 import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
-import { TasteLabSplit } from './components/v2/TasteLabSplit.tsx';
 import { PresetGallery } from './components/v2/PresetGallery.tsx';
 import { LandingSurface, LandingTagGroup } from './components/v2/LandingSurface.tsx';
 import { FlavorPreset } from './data/flavorPresets.ts';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
-import { useCompatibility } from './hooks/useCompatibility.ts';
-import { useTasteLab, TASTE_KEYS, TASTE_THRESHOLD, TasteKey, CategoryKey, SlotTaste } from './hooks/useTasteLab.ts';
-import { useTheme } from './contexts/ThemeContext.tsx';
+import { useCompatibility, CompatibilityMode } from './hooks/useCompatibility.ts';
+import {
+  useSlots,
+  defaultSlots,
+  MAX_SLOTS,
+  TASTE_KEYS,
+  TASTE_THRESHOLD,
+  TasteKey,
+  CategoryKey,
+  SlotTaste,
+} from './hooks/useSlots.ts';
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
 import { useCustomPresets } from './hooks/useCustomPresets.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
@@ -32,7 +39,7 @@ import {
   encodeIngredientsToUrl,
   decodeUrlToIngredients,
 } from './utils/urlEncoding.js';
-import { TASTE_COLORS, CATEGORY_COLORS } from './utils/colors.ts';
+import { CATEGORY_COLORS } from './utils/colors.ts';
 import { ChevronDown } from 'lucide-react';
 import {
   NUT_INGREDIENTS_SET,
@@ -81,33 +88,27 @@ export default function FlavorFinderV2() {
     handleLockToggle,
     handleRemove,
     handleIngredientSelect: baseHandleIngredientSelect,
-    handleIncrementTarget: baseHandleIncrementTarget,
-    handleDecrementTarget: baseHandleDecrementTarget,
   } = useIngredientSelection({
     initialTargetCount: 2,
-    // Taste Lab picks mutate the slot constraints (a slot relabels to describe
-    // the new ingredient, which drives its color + match count). Snapshot that
-    // state alongside the ingredients so undo reverts the whole pairing — color,
-    // constraint, and match results — not just the ingredient names.
+    // Slot edits mutate the slot roles (a slot relabels to describe the new
+    // ingredient, which drives its indicator + match count). Snapshot that
+    // state alongside the ingredients so undo reverts the whole pairing — role,
+    // lock, and pool — not just the ingredient names.
     captureExtra: () => ({
       slotTastes,
       lockedConstraints: new Set(lockedConstraints),
-      tasteLabPool,
+      themedPool,
     }),
     restoreExtra: (extra) => {
       const e = extra as
-        | { slotTastes: SlotTaste[]; lockedConstraints: Set<number>; tasteLabPool: typeof tasteLabPool }
+        | { slotTastes: SlotTaste[]; lockedConstraints: Set<number>; themedPool: typeof themedPool }
         | undefined;
       if (!e) return;
       setSlotTastes(e.slotTastes);
       setLockedConstraints(new Set(e.lockedConstraints));
-      setTasteLabPool(e.tasteLabPool);
+      setThemedPool(e.themedPool);
     },
   });
-
-  // Taste Lab supports 2–4 ingredients.
-  const TASTE_LAB_MIN = 1;
-  const TASTE_LAB_MAX = 4;
 
   const {
     activeCategory,
@@ -138,9 +139,9 @@ export default function FlavorFinderV2() {
 
   const { customPresets, addCustomPreset, deleteCustomPreset } = useCustomPresets();
 
-  // Active themed pool (e.g. "Pizza Night"): when set, every Taste Lab slot is
-  // confined to this whitelist of ingredients. null = the full library.
-  const [tasteLabPool, setTasteLabPool] = useState<{ name: string; ingredients: string[] } | null>(null);
+  // Active themed pool (e.g. "Pizza Night"): when set, every slot is confined
+  // to this whitelist of ingredients. null = the full library.
+  const [themedPool, setThemedPool] = useState<{ name: string; ingredients: string[] } | null>(null);
   // Whether the themed-pool banner is expanded to reveal its full ingredient list.
   const [isPoolExpanded, setIsPoolExpanded] = useState(false);
   const poolBannerRef = useRef<HTMLDivElement>(null);
@@ -157,14 +158,12 @@ export default function FlavorFinderV2() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isPoolExpanded]);
 
-  // Taste Lab: two-slot, taste-driven generation mode
+  // Per-slot roles for the unified generator (default: all wild).
   const {
-    isTasteLab,
-    setIsTasteLab,
     slotTastes,
     setSlotTaste,
     setSlotTastes,
-  } = useTasteLab();
+  } = useSlots();
 
   // Slot indices whose taste/category constraint is pinned. Generate randomizes
   // freely on unlocked slots but stays within the constraint on locked ones
@@ -178,8 +177,6 @@ export default function FlavorFinderV2() {
       return next;
     });
   };
-
-  const { isDarkMode, isHighContrast } = useTheme();
 
   // UI state (not extracted to hooks as they're specific to this component)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -233,9 +230,9 @@ export default function FlavorFinderV2() {
   }, [contextSteer, steerModule]);
 
   const flavorMap = useMemo(() => {
-    if (!contextSteer || !steerModule || isTasteLab) return baseFlavorMap;
+    if (!contextSteer || !steerModule) return baseFlavorMap;
     return steerModule.filterFlavorMapByTag(baseFlavorMap, contextSteer.group, contextSteer.tag);
-  }, [baseFlavorMap, contextSteer, steerModule, isTasteLab]);
+  }, [baseFlavorMap, contextSteer, steerModule]);
 
   // Landing entry surface: the empty state. Whenever the combo is empty the app
   // leads with search + browsable tags instead of an auto-seeded combo — so it
@@ -324,199 +321,69 @@ export default function FlavorFinderV2() {
     });
   };
 
-  // Random ingredient generation with backtracking
-  // mode: 'perfect' = all ingredients must pair with each other
-  //       'mixed' = each ingredient must pair with at least one other
-  //       'random' = no pairing requirements
-  // mapOverride: generate against a different graph than the live flavorMap —
-  //   used by the landing surface to run against a freshly steered map before
-  //   the steer state has flushed. Always a subset of the flavor map, so the
-  //   compatibility check itself is unchanged.
-  const getRandomIngredients = (
-    count = 5,
-    lockedList: string[] = [],
-    mode = 'perfect',
-    mapOverride?: Map<string, Set<string>>
+  // Dev-only invariant check: every generated combination must satisfy the
+  // active pairing rule against the exact map it was generated from. `perfect`
+  // = every pair mutually present (the inviolable rule, verified mechanically);
+  // `mixed` = every ingredient pairs with at least one other (the pre-existing
+  // user-selected mode); `random` = no requirement. Throws in development so a
+  // violation is loud; a no-op in production builds.
+  const assertComboInvariant = (
+    combo: string[],
+    map: Map<string, Set<string>>,
+    mode: CompatibilityMode
   ) => {
-    const map = mapOverride ?? flavorMap;
-    const maxGlobalAttempts = 200;
-
-    // Random mode: just pick any ingredients (respecting dietary restrictions)
-    if (mode === 'random') {
-      const availablePool = Array.from(map.keys())
-        .filter(ingredient => !lockedList.includes(ingredient))
-        .filter(ingredient => !isIngredientRestricted(ingredient));
-
-      const selections: string[] = [];
-      const usedSet = new Set(lockedList);
-
-      for (let i = 0; i < count && availablePool.length > 0; i++) {
-        const remaining = availablePool.filter(ing => !usedSet.has(ing));
-        if (remaining.length === 0) break;
-
-        const randomIndex = Math.floor(Math.random() * remaining.length);
-        const picked = remaining[randomIndex];
-        selections.push(picked);
-        usedSet.add(picked);
-      }
-
-      return selections;
-    }
-
-    // Mixed mode: each ingredient must pair with at least one other in the set
-    if (mode === 'mixed') {
-      for (let attempt = 0; attempt < maxGlobalAttempts; attempt++) {
-        const selections: string[] = [];
-        const excludeSet = new Set([...lockedList]);
-
-        // Get all available ingredients
-        const availablePool = Array.from(map.keys())
-          .filter(ingredient => !excludeSet.has(ingredient))
-          .filter(ingredient => !isIngredientRestricted(ingredient));
-
-        // Shuffle the pool for randomness
-        const shuffled = [...availablePool].sort(() => Math.random() - 0.5);
-
-        for (const candidate of shuffled) {
-          if (selections.length >= count) break;
-          if (excludeSet.has(candidate)) continue;
-
-          // Check if this candidate pairs with at least one existing ingredient
-          // (or if it's the first ingredient, just add it)
-          const allExisting = [...selections, ...lockedList];
-
-          if (allExisting.length === 0) {
-            // First ingredient - just add it
-            selections.push(candidate);
-            excludeSet.add(candidate);
-          } else {
-            // Must pair with at least one existing ingredient
-            const pairsWithAtLeastOne = allExisting.some(existing =>
-              map.get(existing)?.has(candidate)
-            );
-
-            if (pairsWithAtLeastOne) {
-              selections.push(candidate);
-              excludeSet.add(candidate);
-            }
-          }
-        }
-
-        // Validate: each ingredient (including locked) must pair with at least one other
-        const allIngredientsList = [...lockedList, ...selections];
-        const isValid = allIngredientsList.every(ing => {
-          const others = allIngredientsList.filter(other => other !== ing);
-          return others.length === 0 || others.some(other =>
-            map.get(ing)?.has(other)
-          );
-        });
-
-        if (selections.length === count && isValid) {
-          return selections;
-        }
-      }
-
-      return [];
-    }
-
-    // Perfect mode (default): all ingredients must pair with all others
-    for (let attempt = 0; attempt < maxGlobalAttempts; attempt++) {
-      const selections: string[] = [];
-      const excludeSet = new Set([...lockedList]);
-
-      // Track choices at each level for backtracking
-      const choicesAtLevel: Set<string>[] = [];
-
-      while (selections.length < count) {
-        // Get compatible pool for current position
-        let pool: string[];
-        if (selections.length === 0 && lockedList.length === 0) {
-          // First ingredient with no locks - pick from all
-          pool = Array.from(map.keys())
-            .filter(ingredient => !excludeSet.has(ingredient))
-            .filter(ingredient => !isIngredientRestricted(ingredient));
-        } else {
-          // Must be compatible with all existing selections and locked ingredients
-          const allToCheck = [...selections, ...lockedList];
-          pool = Array.from(map.keys()).filter(candidate => {
-            if (excludeSet.has(candidate)) return false;
-            if (isIngredientRestricted(candidate)) return false;
-            return allToCheck.every(existing =>
-              map.get(existing)?.has(candidate)
-            );
-          });
-        }
-
-        // Filter out choices we've already tried at this level (in this attempt)
-        const triedAtThisLevel = choicesAtLevel[selections.length] || new Set();
-        pool = pool.filter(ing => !triedAtThisLevel.has(ing));
-
-        if (pool.length > 0) {
-          // Pick a random ingredient from the pool
-          const randomIndex = Math.floor(Math.random() * pool.length);
-          const picked = pool[randomIndex];
-
-          // Track that we tried this choice at this level
-          if (!choicesAtLevel[selections.length]) {
-            choicesAtLevel[selections.length] = new Set();
-          }
-          choicesAtLevel[selections.length].add(picked);
-
-          selections.push(picked);
-          excludeSet.add(picked);
-        } else {
-          // No valid choices at this level - backtrack
-          if (selections.length === 0) {
-            // Can't backtrack further, this attempt failed
-            break;
-          }
-
-          // Remove last selection and try a different path
-          const removed = selections.pop()!;
-          excludeSet.delete(removed);
-
-          // Clear tried choices for levels after the one we're backtracking to
-          choicesAtLevel.length = selections.length + 1;
-        }
-      }
-
-      // If we got exactly the count we wanted, return immediately
-      if (selections.length === count) {
-        return selections;
+    if (process.env.NODE_ENV === 'production' || mode === 'random') return;
+    for (const ing of combo) {
+      const others = combo.filter(o => o !== ing);
+      if (others.length === 0) continue;
+      const paired = others.filter(o => map.get(ing)?.has(o));
+      const ok = mode === 'perfect' ? paired.length === others.length : paired.length > 0;
+      if (!ok) {
+        throw new Error(
+          `Pairing invariant violated (${mode} mode): "${ing}" in [${combo.join(', ')}]`
+        );
       }
     }
-
-    // Could not find a valid combination
-    return [];
   };
 
-  // Taste Lab generation: find one ingredient per slot that satisfies its
-  // constraint — a dominant taste or a category — where the two results still
-  // pair with each other. A locked slot is treated as an anchor: its ingredient
-  // is kept and the other slot is generated to pair against it (e.g. lock peanut
-  // butter, find a sweet match).
+  // The single generation engine. Given N slot roles and a set of fixed
+  // anchors (ingredients to keep in place), find a combination — one
+  // ingredient per slot, each clearing its slot's taste/category (or anything
+  // for a wild/free slot) — that satisfies the active compatibility mode:
+  //   'perfect' (default) — every pair mutually compatible, by backtracking
+  //     (the inviolable flavor-map rule)
+  //   'mixed'  — every ingredient pairs with at least one other in the set
+  //   'random' — no pairing requirement
+  // Pool filtering (slot roles, dietary restrictions, themed pool, excludes)
+  // applies in ALL modes; only the pairing check varies, exactly as the
+  // pre-existing user-selected modes always have. `anchors` maps a slot index
+  // to an ingredient that must stay; open slots are generated.
   //
   // "Dominant" weighting (taste slots only): we first try to fill each taste
   // slot with ingredients whose chosen taste is their single strongest note
   // (anchovy → salty, plum → sweet), which makes pairings feel crisp. If no
-  // pairing exists under that constraint, we relax it one slot at a time, then
-  // fall back to the plain qualifying pool. Category slots ignore this weighting.
-  //
-  // Core solver: given N slot constraints and a set of fixed anchors
-  // (ingredients to keep in place), find a mutually-compatible combination —
-  // one ingredient per slot, every pair compatible, each clearing its slot's
-  // taste/category (or anything for a free slot). `anchors` maps a slot index to
-  // an ingredient that must stay; open slots are generated by backtracking.
-  const computeTasteLabCombo = (
+  // combination exists under that preference, we relax to the plain
+  // qualifying pool. Category/wild slots ignore this weighting.
+  const computeCombo = (
     slots: SlotTaste[],
     anchors: Record<number, string>,
-    // Slot indices with no taste/category constraint — they accept any
-    // ingredient. Used by Generate to fully randomize an unlocked slot.
+    // Slot indices whose role is ignored for this run — they accept any
+    // ingredient. Used by Generate to fully randomize a role-unlocked slot.
     freeSlots: Set<number> = new Set(),
     // Themed pool whitelist. Defaults to the live pool; passed explicitly by
     // handleLoadPreset since the pool state update hasn't flushed yet there.
-    poolOverride: string[] | null | undefined = tasteLabPool?.ingredients ?? null
+    poolOverride: string[] | null | undefined = themedPool?.ingredients ?? null,
+    opts: {
+      mode?: CompatibilityMode;
+      // Generate against a different graph than the live flavorMap — used by
+      // the landing surface to run against a freshly steered map before the
+      // steer state has flushed. Always a subset of the flavor map, so the
+      // compatibility check itself is unchanged.
+      mapOverride?: Map<string, Set<string>>;
+    } = {}
   ): string[] => {
+    const mode = opts.mode ?? compatibilityMode;
+    const map = opts.mapOverride ?? flavorMap;
     const N = slots.length;
     const profileFor = (ing: string) => profileByName.get(ing.toLowerCase())?.flavorProfile as any;
     const tasteScore = (ing: string, taste: string) => profileFor(ing)?.[taste] ?? 0;
@@ -556,7 +423,7 @@ export default function FlavorFinderV2() {
     // free or category slot has no "dominant note" to prefer, so it ignores it.
     const poolFor = (idx: number, requireDominant: boolean) => {
       const slot = slots[idx];
-      return Array.from(flavorMap.keys()).filter(ing =>
+      return Array.from(map.keys()).filter(ing =>
         !isIngredientRestricted(ing) &&
         qualifies(ing, idx) &&
         (!requireDominant || freeSlots.has(idx) || slot.mode === 'category' || slot.mode === 'wild' || isDominant(ing, slot.taste))
@@ -566,16 +433,35 @@ export default function FlavorFinderV2() {
     const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
 
     const placed: (string | null)[] = new Array(N).fill(null);
-    Object.entries(anchors).forEach(([k, v]) => { placed[Number(k)] = v; });
+    const resetPlaced = () => {
+      placed.fill(null);
+      Object.entries(anchors).forEach(([k, v]) => { placed[Number(k)] = v; });
+    };
+    resetPlaced();
 
-    // Is `ing` distinct from, and compatible with, every other placed pick?
+    // Mode-aware placement check. Distinctness always holds; the pairing
+    // requirement varies. Mixed accepts a candidate that pairs with at least
+    // one already-placed pick (or opens the set); the whole-combo validation
+    // below then enforces that EVERY member — anchors included — ends up
+    // paired, matching the mode's long-standing semantics.
     const fitsPlaced = (ing: string, idx: number) => {
+      let anyPlaced = false;
+      let anyPaired = false;
       for (let j = 0; j < N; j++) {
         if (j === idx || !placed[j]) continue;
         if (ing === placed[j]) return false;
-        if (!flavorMap.get(ing)?.has(placed[j] as string)) return false;
+        anyPlaced = true;
+        const paired = !!map.get(ing)?.has(placed[j] as string);
+        if (mode === 'perfect' && !paired) return false;
+        if (paired) anyPaired = true;
       }
-      return true;
+      if (mode === 'mixed') return !anyPlaced || anyPaired;
+      return true; // perfect already vetoed non-pairs; random has no requirement
+    };
+
+    const comboValid = (list: string[]) => {
+      if (mode !== 'mixed' || list.length <= 1) return true;
+      return list.every(ing => list.some(o => o !== ing && map.get(ing)?.has(o)));
     };
 
     const openIdx: number[] = [];
@@ -596,61 +482,24 @@ export default function FlavorFinderV2() {
     };
 
     // Prefer dominant-note matches on taste slots, then relax if none fit.
-    if ((fill(0, true) || fill(0, false)) && placed.every(p => p)) {
-      return placed as string[];
+    // Perfect mode backtracks exhaustively, so one pass per tier suffices;
+    // mixed fills greedily against a shifting "pairs with ≥1" target and can
+    // fail whole-combo validation, so it gets fresh shuffles.
+    const attempts = mode === 'mixed' ? 50 : 1;
+    for (const requireDominant of [true, false]) {
+      for (let attempt = 0; attempt < attempts; attempt++) {
+        resetPlaced();
+        if (fill(0, requireDominant) && placed.every(p => p)) {
+          const combo = placed as string[];
+          if (comboValid(combo)) {
+            assertComboInvariant(combo, map, mode);
+            return combo;
+          }
+        }
+      }
     }
     return [];
   };
-
-  // The active number of Taste Lab slots (how many ingredients are in play).
-  const slotCount = Math.min(Math.max(selectedIngredients.length, TASTE_LAB_MIN), TASTE_LAB_MAX);
-
-  // Full Generate: anchor whichever slots are locked (unless ignoring locks).
-  const getTasteLabCombo = (count: number, opts: { ignoreLocks?: boolean } = {}): string[] => {
-    const slots = slotTastes.slice(0, count);
-    const anchors: Record<number, string> = {};
-    if (!opts.ignoreLocks) {
-      for (let i = 0; i < count; i++) {
-        if (lockedIngredients.has(i) && selectedIngredients[i]) anchors[i] = selectedIngredients[i];
-      }
-    }
-    return computeTasteLabCombo(slots, anchors);
-  };
-
-  // The ingredients that could actually fill each slot: they satisfy the slot's
-  // constraint (category or taste), they pair with *every other* selected
-  // ingredient, and aren't already chosen. This is what the per-slot search's
-  // count reflects and what swipe/chevron cycling steps through.
-  const slotCandidates = useMemo(
-    () => {
-      const poolSet = tasteLabPool ? new Set(tasteLabPool.ingredients.map(s => s.toLowerCase())) : null;
-      return slotTastes.slice(0, selectedIngredients.length).map((slot, slotIndex) => {
-        const others = selectedIngredients.filter((ing, j) => j !== slotIndex && !!ing);
-        const meetsSlot = (ing: string) => {
-          if (isIngredientRestricted(ing)) return false;
-          if (poolSet && !poolSet.has(ing.toLowerCase())) return false;
-          const profile = profileByName.get(ing.toLowerCase());
-          if (slot.exclude?.length && profile?.category && slot.exclude.includes(profile.category as CategoryKey)) return false;
-          if (slot.mode === 'wild') return true; // no constraint — any ingredient
-          if (slot.mode === 'category') {
-            if (profile?.category !== slot.category) return false;
-            return !slot.subcategories?.length || slot.subcategories.includes(profile?.subcategory as string);
-          }
-          const fp = profile?.flavorProfile as any;
-          return fp && (fp[slot.taste] ?? 0) >= TASTE_THRESHOLD;
-        };
-        return Array.from(flavorMap.keys())
-          .filter(ing =>
-            !others.includes(ing) &&
-            meetsSlot(ing) &&
-            others.every(o => flavorMap.get(o)?.has(ing))
-          )
-          .sort((a, b) => a.localeCompare(b));
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName, tasteLabPool]
-  );
 
   // For each slot, how many ingredients compatible with all the OTHER selections
   // each taste and category would yield — previews the count per option so a
@@ -658,7 +507,7 @@ export default function FlavorFinderV2() {
   // of the other ingredients' neighbor sets once and tallies.
   const slotOptionCounts = useMemo(
     () => {
-      const poolSet = tasteLabPool ? new Set(tasteLabPool.ingredients.map(s => s.toLowerCase())) : null;
+      const poolSet = themedPool ? new Set(themedPool.ingredients.map(s => s.toLowerCase())) : null;
       return slotTastes.slice(0, selectedIngredients.length).map((slot, slotIndex) => {
         const others = selectedIngredients.filter((ing, j) => j !== slotIndex && !!ing);
         const taste: Record<string, number> = {};
@@ -690,75 +539,40 @@ export default function FlavorFinderV2() {
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName, tasteLabPool]
+    [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName, themedPool]
   );
 
-  // Every selectable ingredient (dietary-allowed), with a border color keyed to
-  // its dominant taste, plus its category and the tastes it clears the threshold
-  // on — enough for the per-slot search to re-filter by any taste/category tag.
-  const tasteLabSearchPool = useMemo(() => {
-    return Array.from(flavorMap.keys())
-      .filter(ing => !isIngredientRestricted(ing))
-      .sort((a, b) => a.localeCompare(b))
-      .map(name => {
-        const profile = profileByName.get(name.toLowerCase());
-        const fp = (profile?.flavorProfile ?? {}) as Record<string, number>;
-        let dom: string | null = null;
-        let max = -1;
-        const tastes: string[] = [];
-        TASTE_KEYS.forEach(t => {
-          const v = fp[t] ?? 0;
-          if (v > max) { max = v; dom = t; }
-          if (v >= TASTE_THRESHOLD) tastes.push(t);
-        });
-        const color = max > 0 && dom ? ((TASTE_COLORS as any)[dom] ?? '#9ca3af') : '#9ca3af';
-        return { name, color, category: profile?.category ?? '', tastes };
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flavorMap, dietaryRestrictions, profileByName]);
-
-  // Per slot: every ingredient that pairs with all the OTHER selections, NOT
-  // filtered by this slot's taste/category. The search browses this pool so the
-  // user can drop the taste/category filter and see all compatible pairings.
-  const slotPartnerCandidates = useMemo(
-    () => {
-      const poolSet = tasteLabPool ? new Set(tasteLabPool.ingredients.map(s => s.toLowerCase())) : null;
-      const inPool = (ing: string) => !poolSet || poolSet.has(ing.toLowerCase());
-      return slotTastes.slice(0, selectedIngredients.length).map((_slot, slotIndex) => {
-        const others = selectedIngredients.filter((ing, j) => j !== slotIndex && !!ing);
-        if (others.length === 0) {
-          return Array.from(flavorMap.keys()).filter(ing => !isIngredientRestricted(ing) && inPool(ing));
-        }
-        const sets = others.map(o => flavorMap.get(o) ?? new Set<string>());
-        return Array.from(sets[0]).filter(
-          ing =>
-            !isIngredientRestricted(ing) &&
-            inPool(ing) &&
-            !others.includes(ing) &&
-            sets.slice(1).every(s => s.has(ing))
-        );
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slotTastes, selectedIngredients, flavorMap, dietaryRestrictions, profileByName, tasteLabPool]
-  );
-
-  // Changing a slot's constraint (its mode, taste, or category) rerolls just
-  // that side, keeping the other ingredient anchored. Each change is a discrete,
+  // Changing a slot's role (its mode, taste, or category) rerolls just that
+  // slot, keeping every other ingredient anchored. Each change is a discrete,
   // undoable user choice, so every one saves history and refreshes the pick.
   const handleSlotTasteChange = (
     slotIndex: number,
     patch: Partial<SlotTaste>
   ) => {
+    // Going wild clears the role: the current ingredient trivially satisfies
+    // "no constraint", so keep it in place (no reroll) and drop the role pin —
+    // Generate is free to randomize this slot again.
+    if (patch.mode === 'wild') {
+      saveToHistory();
+      setSlotTaste(slotIndex, patch);
+      setLockedConstraints(prev => {
+        if (!prev.has(slotIndex)) return prev;
+        const next = new Set(prev);
+        next.delete(slotIndex);
+        return next;
+      });
+      return;
+    }
+
     setSlotTaste(slotIndex, patch);
-    // Touching a slot's constraint from the picker is a deliberate "this is what I
+    // Picking a taste/category from the popover is a deliberate "this is what I
     // want to see" choice, so pin it: a subsequent Generate rerolls the ingredient
-    // *within* this taste/category/wild instead of randomizing the constraint away.
-    // (Free shuffling stays free — only opening the menu and picking locks it.)
+    // *within* this role instead of randomizing the role away.
     setLockedConstraints(prev => (prev.has(slotIndex) ? prev : new Set(prev).add(slotIndex)));
-    if (!isTasteLab) return;
 
     const count = selectedIngredients.length;
+    // A role set on a slot with no ingredient yet has nothing to reroll.
+    if (slotIndex >= count) return;
     const newSlots = slotTastes.slice(0, count).map((s, i) =>
       i === slotIndex ? { ...s, ...patch } : s
     );
@@ -766,21 +580,21 @@ export default function FlavorFinderV2() {
     // Hand-picking a slot's taste or category departs from the themed pool — the
     // "Pizza Night" label no longer fits — so drop the pool and reroll against the
     // full library. (Subcategory narrows / excludes stay within the pool.) Pass
-    // the override explicitly since setTasteLabPool hasn't flushed yet.
+    // the override explicitly since setThemedPool hasn't flushed yet.
     const breaksPool =
-      tasteLabPool && (patch.taste !== undefined || patch.category !== undefined);
+      themedPool && (patch.taste !== undefined || patch.category !== undefined);
     if (breaksPool) {
-      setTasteLabPool(null);
+      setThemedPool(null);
       setIsPoolExpanded(false);
     }
 
     // Keep every other ingredient anchored; reroll just this slot to fit the new
-    // constraint and stay compatible with the rest.
+    // role and stay compatible with the rest.
     const anchors: Record<number, string> = {};
     selectedIngredients.forEach((ing, j) => {
       if (j !== slotIndex && ing) anchors[j] = ing;
     });
-    const combo = computeTasteLabCombo(
+    const combo = computeCombo(
       newSlots,
       anchors,
       new Set(),
@@ -817,90 +631,14 @@ export default function FlavorFinderV2() {
     }
   };
 
-  // Picking an ingredient for a slot. Two paths:
-  //  • Cycling (swipe / chevron / wheel) walks the slot's candidate list, which
-  //    is already filtered to this slot's taste/category AND compatible with the
-  //    others — so we keep the slot's label fixed and just swap it in. Cycling
-  //    therefore stays within the same note, regardless of the lock.
-  //  • Search lets you add ANY ingredient, even off-constraint, so the slot
-  //    relabels to match and we reconcile the rest of the combo (below).
-  const handleSlotIngredientPick = (slotIndex: number, ingredient: string, fromSearch = false) => {
-    if (!isTasteLab) return;
-    if (selectedIngredients[slotIndex] === ingredient) return;
-    saveToHistory();
-
-    if (!fromSearch) {
-      const next = [...selectedIngredients];
-      next[slotIndex] = ingredient;
-      setSelectedIngredients(next);
-      return;
-    }
-
-    const count = selectedIngredients.length;
-    const others = selectedIngredients
-      .map((ing, j) => ({ ing, j }))
-      .filter(x => x.j !== slotIndex && x.ing);
-    const compatibleWithAll = others.every(o => flavorMap.get(ingredient)?.has(o.ing));
-
-    relabelSlotToIngredient(slotIndex, ingredient);
-
-    if (compatibleWithAll) {
-      const next = [...selectedIngredients];
-      next[slotIndex] = ingredient;
-      setSelectedIngredients(next);
-      return;
-    }
-
-    // Incompatible with at least one other → keep the pick and every slot that
-    // already fits it (or is ingredient-locked); reroll the rest.
-    const anchors: Record<number, string> = { [slotIndex]: ingredient };
-    const freeSlots = new Set<number>();
-    selectedIngredients.forEach((ing, j) => {
-      if (j === slotIndex || !ing) return;
-      const stillFits = !!flavorMap.get(ingredient)?.has(ing);
-      if (lockedIngredients.has(j) || stillFits) {
-        anchors[j] = ing;
-      } else if (!lockedConstraints.has(j)) {
-        freeSlots.add(j); // reroll freely
-      }
-      // else: constraint-locked & incompatible → left open to reroll within constraint
-    });
-
-    const combo = computeTasteLabCombo(slotTastes.slice(0, count), anchors, freeSlots);
-    if (combo.length === count) {
-      setSelectedIngredients(combo);
-      freeSlots.forEach(j => relabelSlotToIngredient(j, combo[j]));
-    } else {
-      // Nothing pairs with the pick — set it solo.
-      const next = [...selectedIngredients];
-      next[slotIndex] = ingredient;
-      setSelectedIngredients(next);
-    }
-  };
-
-  // Toggle Taste Lab mode. Entering it resets to a fresh 2-slot pair.
-  const handleTasteLabChange = (enabled: boolean) => {
-    setIsTasteLab(enabled);
-    setLockedConstraints(new Set());
-    setTasteLabPool(null);
-    if (enabled) {
-      saveToHistory();
-      setLockedIngredients(new Set());
-      setTargetIngredientCount(2);
-      const combo = getTasteLabCombo(2, { ignoreLocks: true });
-      if (combo.length === 2) setSelectedIngredients(combo);
-    }
-  };
-
-  // Load a Flavor Preset: push its slot constraints into Taste Lab, then
+  // Load a Flavor Preset: push its slot roles into the generator, then
   // generate a fresh combo that fits them. The preset is the DNA (tastes /
   // categories), not fixed ingredients — Generate keeps producing new combos
-  // for it. "Wide open" by default (no constraint locks) so it stays explorable.
+  // for it.
   const handleLoadPreset = (preset: FlavorPreset) => {
     const slots = preset.slots;
-    const count = Math.min(Math.max(slots.length, TASTE_LAB_MIN), TASTE_LAB_MAX);
+    const count = Math.min(Math.max(slots.length, 1), MAX_SLOTS);
 
-    setIsTasteLab(true);
     saveToHistory();
 
     // Push each slot's constraint into the hook (state update is async, so we
@@ -910,10 +648,10 @@ export default function FlavorFinderV2() {
     );
 
     // Themed presets confine generation to a pool; others clear any prior pool.
-    setTasteLabPool(preset.pool ? { name: preset.name, ingredients: preset.pool } : null);
+    setThemedPool(preset.pool ? { name: preset.name, ingredients: preset.pool } : null);
 
     setLockedIngredients(new Set());
-    // Lock every slot's constraint by default so Generate rerolls *within* the
+    // Lock every slot's role by default so Generate rerolls *within* the
     // preset's DNA (new sweet+salty pairs, not a drift to all-sweet) — the
     // palette-generator feel. A preset can opt out with an explicit list.
     const lockedDefault = Array.from({ length: count }, (_, i) => i);
@@ -921,10 +659,11 @@ export default function FlavorFinderV2() {
     setTargetIngredientCount(count);
 
     // A few attempts — a tight 4-slot preset can miss on an unlucky shuffle.
-    // Pass the pool explicitly since setTasteLabPool hasn't flushed yet.
+    // Pass the pool explicitly since setThemedPool hasn't flushed yet. Presets
+    // are curated against the full pairing rule, so they load in perfect mode.
     let combo: string[] = [];
     for (let attempt = 0; attempt < 12 && combo.length < count; attempt++) {
-      combo = computeTasteLabCombo(slots.slice(0, count), {}, new Set(), preset.pool ?? null);
+      combo = computeCombo(slots.slice(0, count), {}, new Set(), preset.pool ?? null, { mode: 'perfect' });
     }
 
     if (combo.length === count) {
@@ -936,17 +675,25 @@ export default function FlavorFinderV2() {
   };
 
   // Build a shareable deep-link for the current state and copy it to the
-  // clipboard. Taste Lab encodes the full DNA (slots + picks + locks + pool) in
-  // `?lab=`; Classic encodes just the ingredients in `?ing=`. Both are query
-  // params, so the link restores on any static host without server routing.
+  // clipboard. A plain combo (all-wild roles, no locks/pool) encodes just the
+  // ingredients in `?ing=`, exactly as before; anything richer encodes the
+  // full DNA (slots + picks + locks + pool) in `?lab=`. Both are query params,
+  // so the link restores on any static host without server routing.
   const handleShare = () => {
     const base = `${window.location.origin}${window.location.pathname}`;
+    const count = selectedIngredients.length;
+    const slots = slotTastes.slice(0, count);
+    const isPlain =
+      slots.every(s => s.mode === 'wild' && !s.exclude?.length) &&
+      lockedConstraints.size === 0 &&
+      !themedPool;
     let url: string;
-    if (isTasteLab) {
-      const count = slotCount;
+    if (isPlain) {
+      url = `${base}?ing=${encodeIngredientsToUrl(selectedIngredients)}`;
+    } else {
       const state = {
         v: 1,
-        s: slotTastes.slice(0, count).map(s => ({
+        s: slots.map(s => ({
           m: s.mode,
           t: s.taste,
           c: s.category,
@@ -956,11 +703,9 @@ export default function FlavorFinderV2() {
         i: selectedIngredients.slice(0, count),
         lc: Array.from(lockedConstraints),
         li: Array.from(lockedIngredients),
-        ...(tasteLabPool ? { p: { n: tasteLabPool.name, g: tasteLabPool.ingredients } } : {}),
+        ...(themedPool ? { p: { n: themedPool.name, g: themedPool.ingredients } } : {}),
       };
       url = `${base}?lab=${encodeTasteLabState(state)}`;
-    } else {
-      url = `${base}?ing=${encodeIngredientsToUrl(selectedIngredients)}`;
     }
     try {
       navigator.clipboard?.writeText(url);
@@ -970,46 +715,22 @@ export default function FlavorFinderV2() {
     }
   };
 
-  // Taste Lab supports 2–4 slots, each slot's taste governing the ingredient at
-  // that index. Anything outside that range (e.g. an external edit) drops back
-  // to Classic. length === 0 is the pre-init state — ignore it so defaulting to
-  // Taste Lab doesn't bounce us out on first mount.
-  useEffect(() => {
-    const len = selectedIngredients.length;
-    if (isTasteLab && len !== 0 && (len < TASTE_LAB_MIN || len > TASTE_LAB_MAX)) {
-      setIsTasteLab(false);
-    }
-  }, [isTasteLab, selectedIngredients.length, setIsTasteLab]);
-
-  // Seed a fresh combo the way a first open used to: in Taste Lab, a random
-  // pair of distinct tastes (a fresh contrast rather than always salty +
-  // sweet) with a pairing that fits it; otherwise two random compatible
-  // ingredients. Used by the landing's "Surprise me" and deep-link fallbacks.
+  // Seed a fresh two-ingredient combo from a clean slate: roles reset to wild,
+  // locks and pool cleared — exactly what a first open used to show. Used by
+  // the landing's "Surprise me", Space on an empty combo, and deep-link
+  // fallbacks. Always perfect-paired, whatever the compatibility mode: a
+  // showcase seed should demonstrate the app's whole point.
   const seedFreshCombo = () => {
-    if (isTasteLab) {
-      for (let attempt = 0; attempt < 12; attempt++) {
-        const shuffled = [...TASTE_KEYS].sort(() => Math.random() - 0.5);
-        const t0 = shuffled[0];
-        const t1 = shuffled[1];
-        const slots = [
-          { mode: 'taste' as const, taste: t0, category: slotTastes[0].category },
-          { mode: 'taste' as const, taste: t1, category: slotTastes[1].category },
-        ];
-        const pair = computeTasteLabCombo(slots, {});
-        if (pair.length === 2) {
-          setSlotTaste(0, { mode: 'taste', taste: t0 });
-          setSlotTaste(1, { mode: 'taste', taste: t1 });
-          setTargetIngredientCount(2);
-          setSelectedIngredients(pair);
-          return;
-        }
-      }
-    }
-    // Classic, or no taste combo landed a pairing: fall back to random. Reset the
-    // slot count too — otherwise a stale target (e.g. left at 4 by a preset/tag)
-    // makes the fresh pair render with commas + no "&" until the next Generate.
+    const slots = defaultSlots();
+    setSlotTastes(slots);
+    setLockedConstraints(new Set());
+    setLockedIngredients(new Set());
+    setThemedPool(null);
+    // Reset the slot count too — otherwise a stale target (e.g. left at 4 by a
+    // preset/tag) makes the fresh pair render with commas + no "&" until the
+    // next Generate.
     setTargetIngredientCount(2);
-    setSelectedIngredients(getRandomIngredients(2));
+    setSelectedIngredients(computeCombo(slots.slice(0, 2), {}, new Set(), null, { mode: 'perfect' }));
   };
 
   // On mount: restore a deep link if present; otherwise leave the combo empty
@@ -1031,26 +752,25 @@ export default function FlavorFinderV2() {
       if (labParam) {
         const d: any = decodeTasteLabState(labParam);
         if (d?.s?.length) {
-          const count = Math.min(Math.max(d.s.length, TASTE_LAB_MIN), TASTE_LAB_MAX);
-          setIsTasteLab(true);
-          d.s.slice(0, count).forEach((s: any, i: number) =>
-            // `sc` was a single subcategory string in older links; normalize to an array.
-            setSlotTaste(i, {
-              mode: s.m,
-              taste: s.t,
-              category: s.c,
-              subcategories: s.sc ? (Array.isArray(s.sc) ? s.sc : [s.sc]) : undefined,
-              exclude: s.x,
-            })
-          );
+          // Old links carry 2–4 slots; the unified engine runs 1–5. `sc` was a
+          // single subcategory string in older links; normalize to an array.
+          const count = Math.min(Math.max(d.s.length, 1), MAX_SLOTS);
+          const decodedSlots: SlotTaste[] = d.s.slice(0, count).map((s: any, i: number) => ({
+            mode: s.m ?? 'wild',
+            taste: s.t ?? slotTastes[i]?.taste ?? TASTE_KEYS[0],
+            category: s.c ?? slotTastes[i]?.category ?? 'Proteins',
+            subcategories: s.sc ? (Array.isArray(s.sc) ? s.sc : [s.sc]) : undefined,
+            exclude: s.x,
+          }));
+          decodedSlots.forEach((s, i) => setSlotTaste(i, s));
           setTargetIngredientCount(count);
           setLockedConstraints(new Set<number>(d.lc ?? []));
           setLockedIngredients(new Set<number>(d.li ?? []));
-          setTasteLabPool(d.p ? { name: d.p.n, ingredients: d.p.g } : null);
+          setThemedPool(d.p ? { name: d.p.n, ingredients: d.p.g } : null);
           if (Array.isArray(d.i) && d.i.length) {
             setSelectedIngredients(d.i.slice(0, count));
           } else {
-            const combo = computeTasteLabCombo(d.s.slice(0, count), {}, new Set(), d.p?.g ?? null);
+            const combo = computeCombo(decodedSlots, {}, new Set(), d.p?.g ?? null, { mode: 'perfect' });
             if (combo.length === count) setSelectedIngredients(combo);
           }
           return;
@@ -1060,9 +780,8 @@ export default function FlavorFinderV2() {
       if (ingParam) {
         const ings = decodeUrlToIngredients(ingParam);
         if (ings.length) {
-          setIsTasteLab(false);
           setTargetIngredientCount(ings.length);
-          setSelectedIngredients(ings);
+          setSelectedIngredients(ings.slice(0, MAX_SLOTS));
           return;
         }
       }
@@ -1117,70 +836,40 @@ export default function FlavorFinderV2() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isDrawerOpen]);
 
-  // Handle randomize/generate - creates exactly targetIngredientCount ingredients
+  // Handle Generate — rerolls into exactly targetIngredientCount ingredients.
+  // Each slot is either pinned (ingredient lock = exact; role lock = within
+  // its taste/category) or free (any ingredient). Free slots with a non-wild
+  // role then adopt the new pick's dominant taste / category so their label
+  // still describes the result; wild slots stay wild. Locked ingredients keep
+  // their slot positions.
   const handleRandomize = () => {
-    // Generate over an empty Taste Lab combo (the landing is up, nothing picked
-    // yet) is a fresh-open seed, not a reroll — slotCount would clamp to a
-    // single slot otherwise.
-    if (isTasteLab && selectedIngredients.length === 0) {
+    // Generate over an empty combo (the landing is up, nothing picked yet —
+    // e.g. Space) is a fresh-open seed, not a reroll.
+    if (selectedIngredients.length === 0) {
       seedFreshCombo();
       return;
     }
-    // Taste Lab: fully randomize the pair, like Classic Generate. Each slot is
-    // either pinned (ingredient lock = exact; constraint lock = within its
-    // taste/category) or free (any ingredient). Free slots then adopt the new
-    // pick's dominant taste / category so their label still describes the result.
-    if (isTasteLab) {
-      const count = slotCount;
-      const anchors: Record<number, string> = {};
-      const freeSlots = new Set<number>();
-      for (let i = 0; i < count; i++) {
-        if (lockedIngredients.has(i) && selectedIngredients[i]) anchors[i] = selectedIngredients[i];
-        else if (!lockedConstraints.has(i)) freeSlots.add(i);
-      }
 
-      const combo = computeTasteLabCombo(slotTastes.slice(0, count), anchors, freeSlots);
-      if (combo.length < count) {
-        setNoMatchToast(true);
-        return;
-      }
-      saveToHistory();
-      setSelectedIngredients(combo);
-
-      // Relabel each free slot to match what Generate landed on.
-      freeSlots.forEach(i => relabelSlotToIngredient(i, combo[i]));
-      return;
+    const count = targetIngredientCount;
+    const anchors: Record<number, string> = {};
+    const freeSlots = new Set<number>();
+    for (let i = 0; i < count; i++) {
+      if (lockedIngredients.has(i) && selectedIngredients[i]) anchors[i] = selectedIngredients[i];
+      else if (!lockedConstraints.has(i)) freeSlots.add(i);
     }
 
+    const combo = computeCombo(slotTastes.slice(0, count), anchors, freeSlots);
+    if (combo.length < count) {
+      // Under steering / a themed pool / tight roles the graph can be too
+      // sparse for the slot count — say so instead of silently doing nothing.
+      setNoMatchToast(true);
+      return;
+    }
     saveToHistory();
+    setSelectedIngredients(combo);
 
-    // Get locked ingredients (preserving their actual values)
-    const lockedIngredientsList = selectedIngredients.filter((_, index) =>
-      lockedIngredients.has(index)
-    );
-
-    // Calculate how many new ingredients to generate
-    const slotsToFill = targetIngredientCount - lockedIngredientsList.length;
-
-    // Generate compatible ingredients using current compatibility mode
-    const newRandomIngredients = getRandomIngredients(slotsToFill, lockedIngredientsList, compatibilityMode);
-
-    // Only update if we got the exact number of ingredients requested
-    if (newRandomIngredients.length < slotsToFill) {
-      // Under steering the graph can be too sparse for the slot count (e.g. a niche
-      // cuisine at 5 slots) — say so instead of silently doing nothing.
-      if (contextSteer) setNoMatchToast(true);
-      return;
-    }
-
-    // Combine locked + new ingredients
-    const combinedIngredients = [...lockedIngredientsList, ...newRandomIngredients];
-    setSelectedIngredients(combinedIngredients);
-
-    // Reset locked indices to match new positions (locked ingredients are now at the beginning)
-    const newLockedSet = new Set<number>();
-    lockedIngredientsList.forEach((_, index) => newLockedSet.add(index));
-    setLockedIngredients(newLockedSet);
+    // Relabel each free slot to match what Generate landed on.
+    freeSlots.forEach(i => relabelSlotToIngredient(i, combo[i]));
   };
 
   // Note: activating a steer deliberately does NOT regenerate. The combo stays put so
@@ -1188,20 +877,27 @@ export default function FlavorFinderV2() {
   // Generate rerolls inside the steer. Clearing a steer also keeps the combo (it
   // remains valid in the full graph by construction).
 
-  // Landing tag tap: switch to Classic, lock the steer, and generate a showcase
-  // combo at the largest size the steered subgraph supports (4 → 3 → 2), so a
-  // sparse tag (Korean, marinades…) lands a smaller combo instead of a no-match
-  // toast. Same backtracking generator — the steered map is passed directly
-  // because the steer state hasn't flushed yet.
+  // Landing tag tap: a clean-slate entry — reset roles/locks/pool, lock the
+  // steer, and generate a showcase combo at the largest size the steered
+  // subgraph supports (4 → 3 → 2), so a sparse tag (Korean, marinades…) lands
+  // a smaller combo instead of a no-match toast. Same solver — the steered map
+  // is passed directly because the steer state hasn't flushed yet.
   const handleLandingTag = (group: LandingTagGroup, tag: string) => {
     const mod = steerModule ?? getLoadedContext();
     if (!mod) return; // tags render from the context chunk, so it's loaded before they're tappable
     if (!steerModule) setSteerModule(mod);
     const steered = mod.filterFlavorMapByTag(baseFlavorMap, group, tag);
-    setIsTasteLab(false);
+    const slots = defaultSlots();
+    setSlotTastes(slots);
+    setLockedConstraints(new Set());
+    setLockedIngredients(new Set());
+    setThemedPool(null);
     setContextSteer({ group, tag });
     for (let size = 4; size >= 2; size--) {
-      const combo = getRandomIngredients(size, [], 'perfect', steered);
+      const combo = computeCombo(slots.slice(0, size), {}, new Set(), null, {
+        mode: 'perfect',
+        mapOverride: steered,
+      });
       if (combo.length === size) {
         setTargetIngredientCount(size);
         setSelectedIngredients(combo);
@@ -1211,7 +907,8 @@ export default function FlavorFinderV2() {
     // Not even a pair under this tag (shouldn't happen for a listed one) —
     // drop the steer rather than strand an empty screen.
     setContextSteer(null);
-    setSelectedIngredients(getRandomIngredients(2));
+    setTargetIngredientCount(2);
+    setSelectedIngredients(computeCombo(slots.slice(0, 2), {}, new Set(), null, { mode: 'perfect' }));
   };
 
   // Landing "Generate": seed a fresh combo (Classic by default). Filling the
@@ -1220,45 +917,41 @@ export default function FlavorFinderV2() {
     seedFreshCombo();
   };
 
-  // Wrap handleIngredientSelect to clear search term. In Taste Lab, the global
-  // search starts a fresh pairing from scratch: the chosen ingredient becomes
-  // one slot and we generate a random compatible partner for the other (for
-  // now), replacing whatever was there.
+  // Wrap handleIngredientSelect to clear search term and keep slot roles
+  // truthful for the slot the pick lands in.
   const handleIngredientSelect = (ingredient: string) => {
-    if (isTasteLab) {
-      saveToHistory();
-      setTasteLabPool(null);
-      const combo = computeTasteLabCombo(slotTastes.slice(0, 2), { 0: ingredient }, new Set([1]), null);
-      const pair = combo.length === 2 ? combo : [ingredient];
-      setLockedIngredients(new Set());
-      setLockedConstraints(new Set());
-      setTargetIngredientCount(2);
-      setSelectedIngredients(pair);
-      pair.forEach((ing, i) => relabelSlotToIngredient(i, ing));
-      setSearchTerm('');
-      setIsDrawerOpen(false);
-      return;
-    }
-    // First pick from an empty combo: rather than stranding a lone ingredient
-    // next to a blank second slot, seed a full 2-ingredient pairing anchored on
-    // the searched ingredient. It's locked (index 0) so a later Generate keeps
-    // it and only rerolls the partner. Falls back to the bare ingredient if the
-    // graph has no compatible partner (shouldn't happen for a real ingredient).
+    // First pick from an empty combo: a clean-slate entry — rather than
+    // stranding a lone ingredient next to a blank second slot, seed a full
+    // 2-ingredient pairing anchored on the searched ingredient. It's locked
+    // (index 0) so a later Generate keeps it and only rerolls the partner.
+    // Falls back to the bare ingredient if the graph has no compatible partner
+    // (shouldn't happen for a real ingredient).
     if (selectedIngredients.length === 0) {
       saveToHistory();
-      const partner = getRandomIngredients(1, [ingredient], compatibilityMode);
-      if (partner.length === 1) {
-        setSelectedIngredients([ingredient, partner[0]]);
+      const slots = defaultSlots();
+      setSlotTastes(slots);
+      setLockedConstraints(new Set());
+      setThemedPool(null);
+      const combo = computeCombo(slots.slice(0, 2), { 0: ingredient }, new Set([1]), null);
+      if (combo.length === 2) {
+        setSelectedIngredients(combo);
         setTargetIngredientCount(2);
         setLockedIngredients(new Set([0]));
       } else {
         setSelectedIngredients([ingredient]);
+        setLockedIngredients(new Set());
       }
       setSearchTerm('');
       setIsDrawerOpen(false);
       return;
     }
+    // Appending into a slot whose remembered role doesn't describe the pick
+    // would lie (e.g. a "sweet" slot receiving anchovy) — relabel it. Wild
+    // slots stay wild. Only when the pick will actually be added.
+    const willAdd =
+      selectedIngredients.length < MAX_SLOTS && !selectedIngredients.includes(ingredient);
     baseHandleIngredientSelect(ingredient);
+    if (willAdd) relabelSlotToIngredient(selectedIngredients.length, ingredient);
     setSearchTerm('');
   };
 
@@ -1274,50 +967,73 @@ export default function FlavorFinderV2() {
     setSelectedInfoIndex(index);
   };
 
-  // Taste Lab can hold 2–4 ingredients.
-  const tasteLabCanIncrement = slotCount < TASTE_LAB_MAX;
-  const tasteLabCanDecrement = slotCount > TASTE_LAB_MIN;
-
-  // Add a slot: in Taste Lab, generate one more ingredient compatible with all
-  // the current picks (the new slot is free, then relabeled). In Classic, defer
-  // to the base handler. Either way surface feedback when nothing fits.
-  const handleIncrementTarget = () => {
-    if (isTasteLab) {
-      const count = slotCount;
-      if (count >= TASTE_LAB_MAX) return;
-      const newCount = count + 1;
-      const anchors: Record<number, string> = {};
-      selectedIngredients.forEach((ing, i) => { if (ing) anchors[i] = ing; });
-      const combo = computeTasteLabCombo(slotTastes.slice(0, newCount), anchors, new Set([count]));
-      if (combo.length !== newCount) {
-        setNoMatchToast(true);
-        return;
-      }
-      saveToHistory();
-      setSelectedIngredients(combo);
-      setTargetIngredientCount(newCount);
-      relabelSlotToIngredient(count, combo[count]);
-      return;
-    }
-    const added = baseHandleIncrementTarget(flavorMap, isIngredientRestricted);
-    if (!added) {
-      setNoMatchToast(true);
-    }
+  // Removing an ingredient must keep slot state aligned: splice its role out
+  // (appending a fresh wild slot at the end so 5 remembered slots remain) and
+  // shift role locks down past the gap. The base handler does the same for
+  // ingredient locks and the target count.
+  const spliceSlotState = (index: number) => {
+    setSlotTastes(prev => {
+      const removed = prev[index];
+      const next = prev.filter((_, i) => i !== index);
+      next.push({ mode: 'wild', taste: removed?.taste ?? TASTE_KEYS[0], category: removed?.category ?? 'Proteins' });
+      return next;
+    });
+    setLockedConstraints(prev => {
+      const next = new Set<number>();
+      prev.forEach(i => {
+        if (i < index) next.add(i);
+        else if (i > index) next.add(i - 1);
+      });
+      return next;
+    });
   };
 
-  // Remove a slot: in Taste Lab, drop the last ingredient (and any locks on it).
-  const handleDecrementTarget = () => {
-    if (isTasteLab) {
-      const count = slotCount;
-      if (count <= TASTE_LAB_MIN) return;
-      saveToHistory();
-      setSelectedIngredients(selectedIngredients.slice(0, count - 1));
-      setTargetIngredientCount(count - 1);
-      setLockedIngredients(prev => { const n = new Set(prev); n.delete(count - 1); return n; });
-      setLockedConstraints(prev => { const n = new Set(prev); n.delete(count - 1); return n; });
+  // Remove one ingredient (X control / swipe / Delete key), keeping slot roles
+  // and role locks aligned with the survivors.
+  const handleRemoveWithRoles = (index: number) => {
+    handleRemove(index); // saves history (pre-change roles included) first
+    spliceSlotState(index);
+  };
+
+  // Add a slot: generate one more ingredient that fits alongside the current
+  // picks (the new slot ignores its remembered role, then relabels to describe
+  // the result — wild stays wild). Surfaces feedback when nothing fits.
+  const handleIncrementTarget = () => {
+    const count = selectedIngredients.length;
+    if (count >= MAX_SLOTS) return;
+    const newCount = count + 1;
+    const anchors: Record<number, string> = {};
+    selectedIngredients.forEach((ing, i) => { if (ing) anchors[i] = ing; });
+    const combo = computeCombo(slotTastes.slice(0, newCount), anchors, new Set([count]));
+    if (combo.length !== newCount) {
+      setNoMatchToast(true);
       return;
     }
-    baseHandleDecrementTarget();
+    saveToHistory();
+    setSelectedIngredients(combo);
+    // With empty display slots (target > picks), + fills one of those instead
+    // of widening the target.
+    if (newCount > targetIngredientCount) setTargetIngredientCount(newCount);
+    relabelSlotToIngredient(count, combo[count]);
+  };
+
+  // Remove a slot: with empty display slots, shrink the target first;
+  // otherwise remove the last unlocked ingredient (and its role bookkeeping).
+  const handleDecrementTarget = () => {
+    if (targetIngredientCount > selectedIngredients.length) {
+      const newTarget = targetIngredientCount - 1;
+      if (newTarget >= selectedIngredients.length && newTarget >= 1) {
+        saveToHistory();
+        setTargetIngredientCount(newTarget);
+      }
+      return;
+    }
+    for (let i = selectedIngredients.length - 1; i >= 0; i--) {
+      if (!lockedIngredients.has(i)) {
+        handleRemoveWithRoles(i);
+        return;
+      }
+    }
   };
 
   // Auto-dismiss the "no matching ingredient" toast
@@ -1348,7 +1064,7 @@ export default function FlavorFinderV2() {
         // Find and remove the last unlocked ingredient
         for (let i = selectedIngredients.length - 1; i >= 0; i--) {
           if (!lockedIngredients.has(i)) {
-            handleRemove(i);
+            handleRemoveWithRoles(i);
             return;
           }
         }
@@ -1362,19 +1078,19 @@ export default function FlavorFinderV2() {
         return;
       }
 
-      // + or = - Add ingredient (Taste Lab caps at 4)
+      // + or = - Add ingredient
       if (e.key === '+' || e.key === '=') {
         e.preventDefault();
-        if (isTasteLab ? tasteLabCanIncrement : canIncrementTarget) {
+        if (canIncrementTarget) {
           handleIncrementTarget();
         }
         return;
       }
 
-      // - - Remove ingredient (Taste Lab floors at 2)
+      // - - Remove ingredient
       if (e.key === '-') {
         e.preventDefault();
-        if (isTasteLab ? tasteLabCanDecrement : canDecrementTarget) {
+        if (canDecrementTarget) {
           handleDecrementTarget();
         }
         return;
@@ -1389,7 +1105,7 @@ export default function FlavorFinderV2() {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedIngredients, lockedIngredients, canIncrementTarget, canDecrementTarget, isTasteLab, slotTastes]);
+  }, [selectedIngredients, lockedIngredients, canIncrementTarget, canDecrementTarget, slotTastes]);
 
   // Handle recipe search - opens the recipe finder modal
   const handleRecipeSearch = () => {
@@ -1595,24 +1311,21 @@ export default function FlavorFinderV2() {
           {(() => {
             // Explain *why* nothing was found, using the current constraints, so
             // the suggestion is actionable rather than a dead end.
-            if (!isTasteLab) {
-              const within = contextSteer ? ` within “${contextSteer.tag}”` : '';
-              if (lockedIngredients.size > 0) {
-                return contextSteer
-                  ? `Nothing pairs with your locked picks${within} — unlock one or clear the tag`
-                  : 'No other ingredient pairs with your locked picks — unlock one to free it up';
-              }
+            if (themedPool) {
+              return `Too few ingredients in “${themedPool.name}” pair up — remove the preset for more options`;
+            }
+            const within = contextSteer ? ` within “${contextSteer.tag}”` : '';
+            if (lockedIngredients.size > 0) {
               return contextSteer
-                ? `Nothing pairs with all of these${within} — clear the tag for more options`
-                : 'No other ingredient pairs with all of these';
+                ? `Nothing pairs with your locked picks${within} — unlock one or clear the tag`
+                : 'No other ingredient pairs with your locked picks — unlock one to free it up';
             }
-            if (tasteLabPool) {
-              return `Too few ingredients in “${tasteLabPool.name}” pair up — remove the preset for more options`;
+            if (lockedConstraints.size > 0) {
+              return 'No pairing fits your slot roles — unlock one or change its taste/category';
             }
-            if (lockedConstraints.size > 0 || lockedIngredients.size > 0) {
-              return 'No pairing fits your locked slots — unlock one or change its taste/category';
-            }
-            return 'No mutually-compatible pairing for those tastes — try different ones';
+            return contextSteer
+              ? `Nothing pairs with all of these${within} — clear the tag for more options`
+              : 'No other ingredient pairs with all of these';
           })()}
         </div>
       )}
@@ -1638,7 +1351,7 @@ export default function FlavorFinderV2() {
 
       {/* Themed pool banner — shows the active pool, reveals its ingredients on
           click, and offers an escape hatch */}
-      {isTasteLab && tasteLabPool && !isDrawerOpen && (
+      {themedPool && !isDrawerOpen && (
         <div
           ref={poolBannerRef}
           className={`
@@ -1659,7 +1372,7 @@ export default function FlavorFinderV2() {
               <ChevronDown
                 className={`w-3.5 h-3.5 transition-transform ${isPoolExpanded ? 'rotate-180' : ''}`}
               />
-              {tasteLabPool.name} pool · {tasteLabPool.ingredients.length} ingredients
+              {themedPool.name} pool · {themedPool.ingredients.length} ingredients
             </button>
             <button
               onClick={() => { setIsPoolExpanded(false); setTasteLabPool(null); }}
@@ -1672,7 +1385,7 @@ export default function FlavorFinderV2() {
           {isPoolExpanded && (
             <div className="max-h-[50vh] overflow-y-auto px-3.5 pb-3 pt-0.5 border-t border-white/15 dark:border-gray-900/10">
               {Object.entries(
-                tasteLabPool.ingredients.reduce<Record<string, string[]>>((acc, name) => {
+                themedPool.ingredients.reduce<Record<string, string[]>>((acc, name) => {
                   const cat = profileByName.get(name.toLowerCase())?.category ?? 'Other';
                   (acc[cat] ??= []).push(name);
                   return acc;
@@ -1712,10 +1425,10 @@ export default function FlavorFinderV2() {
       <MinimalHeader
         targetCount={targetIngredientCount}
         currentCount={selectedIngredients.length}
-        minTarget={isTasteLab ? TASTE_LAB_MIN : minTarget}
-        maxTarget={isTasteLab ? TASTE_LAB_MAX : 5}
-        canIncrement={isTasteLab ? tasteLabCanIncrement : canIncrementTarget}
-        canDecrement={isTasteLab ? tasteLabCanDecrement : canDecrementTarget}
+        minTarget={minTarget}
+        maxTarget={MAX_SLOTS}
+        canIncrement={canIncrementTarget}
+        canDecrement={canDecrementTarget}
         onGenerate={handleRandomize}
         onIncrementTarget={handleIncrementTarget}
         onDecrementTarget={handleDecrementTarget}
@@ -1726,7 +1439,6 @@ export default function FlavorFinderV2() {
         onLogoClick={() => setIsSidebarOpen(true)}
         isGeneratePulsing={isFirstLoad}
         isMobile={isMobile}
-        isTasteLab={isTasteLab}
         dimmed={showLanding}
       />
 
@@ -1734,8 +1446,8 @@ export default function FlavorFinderV2() {
       {isMobile && (
         <div className={showLanding ? 'opacity-40 pointer-events-none' : ''}>
           <MobileBottomBar
-            canIncrement={isTasteLab ? tasteLabCanIncrement : canIncrementTarget}
-            canDecrement={isTasteLab ? tasteLabCanDecrement : canDecrementTarget}
+            canIncrement={canIncrementTarget}
+            canDecrement={canDecrementTarget}
             canUndo={canUndo}
             onGenerate={handleRandomize}
             onIncrementTarget={handleIncrementTarget}
@@ -1758,7 +1470,7 @@ export default function FlavorFinderV2() {
           // (the desktop app shell has no height cap, unlike mobile). Symmetric
           // padding clears the fixed header/bottom bar and centers optically.
           ? `h-[100dvh] min-h-0 ${isMobile ? 'py-24' : 'py-28'}`
-          : `flex-1 pt-20 ${isTasteLab && !isDrawerOpen ? (isMobile ? 'pb-[calc(81px_+_env(safe-area-inset-bottom))]' : 'pb-20') : (isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32')}`}
+          : `flex-1 pt-20 ${isMobile ? 'pb-[calc(96px_+_env(safe-area-inset-bottom))]' : 'pb-32'}`}
         ${isMobile && !isDrawerOpen && !showLanding ? 'overflow-y-auto overflow-x-clip' : ''}
       `}>
         {/* Landing entry surface — the front door on a fresh open. Yields to the
@@ -1771,24 +1483,6 @@ export default function FlavorFinderV2() {
             onPickIngredient={handleIngredientSelect}
             onGenerate={handleLandingGenerate}
           />
-        ) : isTasteLab && !isDrawerOpen ? (
-          <TasteLabSplit
-            slotTastes={slotTastes}
-            onSlotTasteChange={handleSlotTasteChange}
-            slotCandidates={slotCandidates}
-            slotPartnerCandidates={slotPartnerCandidates}
-            slotOptionCounts={slotOptionCounts}
-            onSlotIngredientPick={handleSlotIngredientPick}
-            searchPool={tasteLabSearchPool}
-            ingredients={selectedIngredients}
-            lockedIndices={lockedIngredients}
-            onLockToggle={handleLockToggleWithFocus}
-            constraintLockedIndices={lockedConstraints}
-            onConstraintLockToggle={handleConstraintLockToggle}
-            isMobile={isMobile}
-            isDarkMode={isDarkMode}
-            isHighContrast={isHighContrast}
-          />
         ) : isMobile && !isDrawerOpen ? (
           <>
             {/* Ingredient Display */}
@@ -1798,7 +1492,7 @@ export default function FlavorFinderV2() {
                 lockedIngredients={lockedIngredients}
                 ingredientProfiles={ingredientProfiles}
                 maxSlots={targetIngredientCount}
-                onRemove={handleRemove}
+                onRemove={handleRemoveWithRoles}
                 onLockToggle={handleLockToggleWithFocus}
                 onEmptySlotClick={() => setIsDrawerOpen(true)}
                 onCloseDrawer={() => setIsDrawerOpen(false)}
@@ -1806,6 +1500,12 @@ export default function FlavorFinderV2() {
                 // Base map, not the steered one: the hero's warning means "these don't
                 // PAIR" — steer fit is a different fact and must not hijack it.
                 flavorMap={baseFlavorMap}
+                // Per-slot roles: indicator + popover editor
+                slotTastes={slotTastes}
+                slotOptionCounts={slotOptionCounts}
+                constraintLockedIndices={lockedConstraints}
+                onSlotRoleChange={handleSlotTasteChange}
+                onConstraintLockToggle={handleConstraintLockToggle}
               />
             </div>
 
@@ -1836,13 +1536,19 @@ export default function FlavorFinderV2() {
                 lockedIngredients={lockedIngredients}
                 ingredientProfiles={ingredientProfiles}
                 maxSlots={targetIngredientCount}
-                onRemove={handleRemove}
+                onRemove={handleRemoveWithRoles}
                 onLockToggle={handleLockToggleWithFocus}
                 onEmptySlotClick={() => setIsDrawerOpen(true)}
                 onCloseDrawer={() => setIsDrawerOpen(false)}
                 isDrawerOpen={isDrawerOpen}
                 // Base map — same reason as the mobile mount above.
                 flavorMap={baseFlavorMap}
+                // Per-slot roles: indicator + popover editor
+                slotTastes={slotTastes}
+                slotOptionCounts={slotOptionCounts}
+                constraintLockedIndices={lockedConstraints}
+                onSlotRoleChange={handleSlotTasteChange}
+                onConstraintLockToggle={handleConstraintLockToggle}
               />
             </div>
             {/* Mined dish context for the current combo — hero view only, so the
@@ -1871,9 +1577,6 @@ export default function FlavorFinderV2() {
         onToggle={() => setIsDrawerOpen(!isDrawerOpen)}
         onClose={() => setIsDrawerOpen(false)}
         onOpen={() => setIsDrawerOpen(true)}
-        // In Taste Lab the bottom search stays inline (no drawer takeover) and a
-        // pick starts a fresh pairing.
-        isTasteLab={isTasteLab}
         onUndo={handleUndo}
         canUndo={canUndo}
         searchTerm={searchTerm}
@@ -1921,8 +1624,6 @@ export default function FlavorFinderV2() {
         onDietaryChange={setDietaryRestrictions}
         compatibilityMode={compatibilityMode}
         onCompatibilityChange={handleCompatibilityChange}
-        isTasteLab={isTasteLab}
-        onTasteLabChange={handleTasteLabChange}
         enabledSources={enabledSources}
         onToggleSource={handleToggleSource}
         onOpenIngredientFilters={() => setIsIngredientFiltersOpen(true)}

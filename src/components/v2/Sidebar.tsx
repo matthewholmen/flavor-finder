@@ -91,67 +91,14 @@ const CollapsibleSection = ({ title, icon, isOpen, onToggle, children }) => {
   );
 };
 
-// Classic ⇄ Taste Lab mode toggle. Lifted to the sidebar's top level (above the
-// collapsible sections) so switching modes is always one tap away.
-const ModeToggle = ({
-  isTasteLab = false,
-  onTasteLabChange = () => {},
-}) => (
-  <div className="relative inline-grid grid-cols-2 bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-full">
-    <div
-      className="absolute top-1 bottom-1 bg-gray-900 dark:bg-gray-100 rounded-full transition-all duration-200 ease-out"
-      style={{
-        width: 'calc(50% - 2px)',
-        left: isTasteLab ? 'calc(50% + 1px)' : '1px',
-      }}
-    />
-    {[
-      { key: 'classic', label: 'Classic' },
-      { key: 'taste', label: 'Taste Lab' },
-    ].map((mode) => {
-      const active = (mode.key === 'taste') === isTasteLab;
-      return (
-        <button
-          key={mode.key}
-          onClick={() => onTasteLabChange(mode.key === 'taste')}
-          className={`
-            relative z-10 py-1.5 px-2 text-xs font-medium text-center
-            rounded-full transition-colors duration-200
-            ${active
-              ? 'text-white dark:text-gray-900'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
-            }
-          `}
-        >
-          {mode.label}
-        </button>
-      );
-    })}
-  </div>
-);
-
-// Generation Options Content. The Classic/Taste Lab mode toggle now lives at the
-// sidebar's top level (see ModeToggle); this section holds the mode-specific
-// generation settings.
+// Generation Options Content: the compatibility mode picker.
 const GenerationOptionsContent = ({
   compatibilityMode,
   onCompatibilityChange,
-  isTasteLab = false,
 }) => {
-  // Taste Lab has no sidebar generation settings — its controls live on the
-  // per-slot cards in the main view.
-  if (isTasteLab) {
-    return (
-      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-        Set each slot's dominant taste or category right on the cards, and
-        Generate finds a pairing that fits — like salty + sweet → anchovy & plum.
-      </p>
-    );
-  }
-
   return (
     <>
-      {/* Compatibility Section (Classic mode only) */}
+      {/* Compatibility Section */}
       <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm mb-3">Compatibility</h3>
       <div className="relative inline-grid grid-cols-3 bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-full mb-2">
         {/* Sliding background indicator */}
@@ -299,8 +246,6 @@ export const Sidebar = ({
   onDietaryChange = () => {},
   compatibilityMode = 'perfect',
   onCompatibilityChange = () => {},
-  isTasteLab = false,
-  onTasteLabChange = () => {},
   enabledSources = ['flavorbible', 'recipenlg', 'flavordb'],
   onToggleSource = () => {},
   onOpenIngredientFilters = () => {},
@@ -376,12 +321,7 @@ export const Sidebar = ({
               straight to recipes for your combination.
             </p>
 
-            {/* Mode toggle — top-level for one-tap Classic ⇄ Taste Lab switching */}
-            <div className="px-4 pb-4">
-              <ModeToggle isTasteLab={isTasteLab} onTasteLabChange={onTasteLabChange} />
-            </div>
-
-            {/* Flavor Presets — the "discover" entry into Taste Lab */}
+            {/* Flavor Presets — curated slot-role recipes for the generator */}
             <button
               onClick={onOpenPresets}
               className="w-full flex items-center justify-between py-3 px-4 text-left border-y border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -417,7 +357,6 @@ export const Sidebar = ({
               <GenerationOptionsContent
                 compatibilityMode={compatibilityMode}
                 onCompatibilityChange={onCompatibilityChange}
-                isTasteLab={isTasteLab}
               />
             </CollapsibleSection>
 

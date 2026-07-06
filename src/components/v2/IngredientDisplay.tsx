@@ -1,10 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
+import { TASTE_COLORS, CATEGORY_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { FilledLock, CustomUnlock } from '../icons/LockIcons.tsx';
 import { getIngredientColor } from '../../utils/ingredientColors.ts';
+import { SlotRolePopover } from './ui/SlotRolePopover.tsx';
+
+// The indicator color for a slot's role: its taste or category color when a
+// role is set; the wild gray when only excludes are carved out; null for a
+// plain wild slot (no indicator — today's classic look).
+const slotRoleColor = (slot, isHighContrast, isDarkMode) => {
+  if (!slot) return null;
+  if (slot.mode === 'taste') return getIngredientColorWithContrast(TASTE_COLORS[slot.taste] ?? WILD_COLOR, isHighContrast, isDarkMode);
+  if (slot.mode === 'category') return getIngredientColorWithContrast(CATEGORY_COLORS[slot.category] ?? WILD_COLOR, isHighContrast, isDarkMode);
+  return slot.exclude?.length ? WILD_COLOR : null;
+};
 
 // Custom hook for swipe-to-delete gesture
 const useSwipeToDelete = ({ onDelete, enabled = true }) => {
@@ -143,6 +154,10 @@ const Ingredient = ({
   onFocus,
   onRemove,
   onLockToggle,
+  // Slot-role affordance (desktop icon stack): the indicator/edit dot. A set
+  // role paints it and keeps it visible; wild shows a quiet outline on hover.
+  roleColor = null,
+  onRoleClick = null,
   showComma,
   showAmpersand,
   tightAmpersand = false, // Two-ingredient set: preceding item has no comma, pull & closer
@@ -206,6 +221,38 @@ const Ingredient = ({
           <CustomUnlock color="#d1d5db" />
         )}
       </button>
+      {onRoleClick && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onRoleClick(e.currentTarget.getBoundingClientRect()); }}
+          className="p-0 transition-opacity"
+          title={roleColor ? 'Edit this slot’s role' : 'Give this slot a role (taste or category)'}
+          aria-label="Edit slot role"
+          style={{
+            lineHeight: 0,
+            marginTop: '0.02em',
+            width: iconSize,
+            height: '0.22em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            // An active role stays visible as the slot's indicator; a wild
+            // slot only reveals the dot alongside the other hover controls.
+            opacity: roleColor ? 1 : (showControls ? 1 : 0),
+            pointerEvents: (roleColor || showControls) ? 'auto' : 'none',
+          }}
+        >
+          <span
+            style={{
+              width: '0.2em',
+              height: '0.2em',
+              borderRadius: '9999px',
+              backgroundColor: roleColor ?? 'transparent',
+              border: roleColor ? 'none' : '0.045em solid #d1d5db',
+              display: 'inline-block',
+            }}
+          />
+        </button>
+      )}
     </span>
   );
 
@@ -575,14 +622,38 @@ export const IngredientDisplay = ({
   onCloseDrawer,
   isDrawerOpen = false,
   flavorMap = null, // Optional: for showing which ingredients don't pair perfectly
+  // Per-slot roles (unified engine): indicator + popover editor. All optional —
+  // without them the display renders exactly as before, with no role affordance.
+  slotTastes = [],
+  slotOptionCounts = [],
+  constraintLockedIndices = new Set(),
+  onSlotRoleChange = null,
+  onConstraintLockToggle = null,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
   const [layoutMode, setLayoutMode] = useState(isDrawerOpen ? 'compact' : 'full');
   const [isVisible, setIsVisible] = useState(true); // For fade in/out animation
   const [expandedInfoIndex, setExpandedInfoIndex] = useState(null); // For mobile ingredient info expansion
+  // Which slot's role popover is open (actual slot index), and the trigger's
+  // rect it anchors to on desktop.
+  const [roleEditIndex, setRoleEditIndex] = useState(null);
+  const [roleAnchorRect, setRoleAnchorRect] = useState(null);
   const { isMobile } = useScreenSize();
   const { isHighContrast, isDarkMode } = useTheme(); // Force re-render when high contrast changes
+
+  const rolesEnabled = !!onSlotRoleChange;
+  const openRoleEditor = (actualIndex, rect) => {
+    setRoleAnchorRect(rect ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right } : null);
+    setRoleEditIndex(actualIndex);
+  };
+
+  // Close the role editor if its slot's ingredient goes away (remove/undo).
+  useEffect(() => {
+    if (roleEditIndex !== null && !ingredients[roleEditIndex]) {
+      setRoleEditIndex(null);
+    }
+  }, [ingredients, roleEditIndex]);
 
   const validIngredients = ingredients.filter(Boolean);
   const emptySlotCount = maxSlots - validIngredients.length;
@@ -873,6 +944,9 @@ export const IngredientDisplay = ({
 
             const color = getIngredientColor(ingredient, ingredientProfiles, isHighContrast, isDarkMode);
             const { showComma, showAmpersand, isLastIngredient } = getIngredientDisplayInfo(displayIndex);
+            const roleColor = rolesEnabled
+              ? slotRoleColor(slotTastes[actualIndex], isHighContrast, isDarkMode)
+              : null;
 
             const ingredientElement = (
               <Ingredient
@@ -890,6 +964,8 @@ export const IngredientDisplay = ({
                 onFocus={() => setFocusedIngredientIndex(displayIndex)}
                 onRemove={() => onRemove(actualIndex)}
                 onLockToggle={() => onLockToggle(actualIndex)}
+                roleColor={roleColor}
+                onRoleClick={rolesEnabled ? (rect) => openRoleEditor(actualIndex, rect) : null}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
                 tightAmpersand={
@@ -1075,6 +1151,46 @@ export const IngredientDisplay = ({
                                 <ChevronDown size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
                               )}
                             </button>
+                            {/* Role dot — quiet right-edge affordance opening the
+                                role editor (bottom sheet). Colored when a role is
+                                set; faint outline when wild. Shifts left of the
+                                info chevron when the row is locked. */}
+                            {rolesEnabled && (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  openRoleEditor(actualIndex, null);
+                                }}
+                                aria-label="Edit slot role"
+                                style={{
+                                  position: 'absolute',
+                                  right: isLocked ? '0.85em' : 0,
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: '0.14em',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  transition: 'right 250ms ease-out',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    width: '0.22em',
+                                    height: '0.22em',
+                                    borderRadius: '9999px',
+                                    backgroundColor: roleColor ?? 'transparent',
+                                    border: roleColor
+                                      ? 'none'
+                                      : `0.045em solid ${isLocked ? lockedTextColor : (isDarkMode ? '#4b5563' : '#d1d5db')}`,
+                                    display: 'inline-block',
+                                  }}
+                                />
+                              </button>
+                            )}
                           </span>
                         );
                       })()}
@@ -1165,6 +1281,24 @@ export const IngredientDisplay = ({
           )}
         </div>
       </div>
+
+      {/* Slot role editor — portals itself to <body>, so it escapes this
+          component's transform/pointer-events styling. */}
+      {rolesEnabled && roleEditIndex !== null && slotTastes[roleEditIndex] && (
+        <SlotRolePopover
+          slot={slotTastes[roleEditIndex]}
+          ingredient={ingredients[roleEditIndex]}
+          optionCounts={slotOptionCounts[roleEditIndex]}
+          isConstraintLocked={constraintLockedIndices.has(roleEditIndex)}
+          onChange={(patch) => onSlotRoleChange(roleEditIndex, patch)}
+          onConstraintLockToggle={() => onConstraintLockToggle && onConstraintLockToggle(roleEditIndex)}
+          onClose={() => setRoleEditIndex(null)}
+          anchorRect={roleAnchorRect}
+          isMobile={isMobile}
+          isDarkMode={isDarkMode}
+          isHighContrast={isHighContrast}
+        />
+      )}
     </>
   );
 };

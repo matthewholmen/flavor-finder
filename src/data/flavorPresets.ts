@@ -1,4 +1,4 @@
-import { SlotTaste, TasteKey, CategoryKey } from '../hooks/useTasteLab.ts';
+import { SlotTaste, TasteKey, CategoryKey } from '../hooks/useSlots.ts';
 
 // A Flavor Preset is the *DNA* of a pairing, not a fixed set of ingredients: an
 // ordered list of slot constraints (each a dominant taste or a category) that

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FlavorPreset } from '../data/flavorPresets.ts';
-import { SlotTaste } from './useTasteLab.ts';
+import { SlotTaste } from './useSlots.ts';
 
 const STORAGE_KEY = 'flavorFinderCustomPresets';
 

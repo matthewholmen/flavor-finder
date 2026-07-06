@@ -10,7 +10,7 @@ import {
   CategoryKey,
   SlotMode,
   SlotTaste,
-} from '../../hooks/useTasteLab.ts';
+} from '../../hooks/useSlots.ts';
 import {
   FlavorPreset,
   FLAVOR_PRESETS,
@@ -453,7 +453,7 @@ const PairingBuilder = ({
               onClick={() => onOpen(slots)}
               className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-bold bg-gray-900 dark:bg-white text-white dark:text-gray-900 transition-transform active:scale-95"
             >
-              <Wand2 size={15} strokeWidth={2.5} /> Open in Taste Lab
+              <Wand2 size={15} strokeWidth={2.5} /> Load this pairing
             </button>
           </div>
         </div>
@@ -539,7 +539,7 @@ export const PresetGallery = ({
                   Flavor Presets
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                  Pick a flavor DNA — Taste Lab generates fresh combinations that fit it.
+                  Pick a flavor DNA — Generate keeps producing fresh combinations that fit it.
                 </p>
               </div>
               <button
