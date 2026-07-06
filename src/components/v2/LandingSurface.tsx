@@ -285,7 +285,7 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
           "
         >
           <Sparkles size={18} aria-hidden="true" />
-          Generate
+          Surprise me
         </button>
 
         {/* Quiet escape hatch to the full tag lists */}
