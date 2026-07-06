@@ -573,6 +573,16 @@ export default function FlavorFinderV2() {
     const count = selectedIngredients.length;
     // A role set on a slot with no ingredient yet has nothing to reroll.
     if (slotIndex >= count) return;
+
+    // An ingredient-locked slot keeps its pinned ingredient: the lock is the
+    // user's strongest statement, so the role is recorded without rerolling
+    // out from under it. (Consistent with Generate, where anchors supersede
+    // roles — the role starts steering this slot once the pin comes off.)
+    if (lockedIngredients.has(slotIndex)) {
+      saveToHistory();
+      return;
+    }
+
     const newSlots = slotTastes.slice(0, count).map((s, i) =>
       i === slotIndex ? { ...s, ...patch } : s
     );

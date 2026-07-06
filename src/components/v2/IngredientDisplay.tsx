@@ -250,11 +250,13 @@ const Ingredient = ({
         >
           {roleIndicator?.Icon ? (
             // Category role: its icon. On a locked highlight bar, use the
-            // locked ink so it stays legible on the ingredient color.
+            // locked ink so it stays legible on the ingredient color;
+            // otherwise near-white/deep-gray ink so it reads clearly against
+            // the page rather than as a muddy mid-gray.
             <roleIndicator.Icon
               size="0.26em"
               strokeWidth={2.5}
-              style={{ color: isLocked ? lockedIconColor : '#9ca3af' }}
+              style={{ color: isLocked ? lockedIconColor : (isDarkMode ? '#e5e7eb' : '#4b5563') }}
             />
           ) : (
             // Taste role (colored dot), exclude-only (wild gray dot), or the
@@ -430,7 +432,11 @@ const Ingredient = ({
                 )}
                 {!isMobile && (
                   <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
-                    {!isLocked && !showControls && (
+                    {/* The comma yields its spot to whichever control is
+                        visible there - the lock (when locked) or the role
+                        indicator (when a role is set) - matching the existing
+                        lock-replaces-comma pattern so nothing overlaps. */}
+                    {!isLocked && !showControls && !roleIndicator && (
                       <span
                         className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                         style={{
@@ -479,7 +485,11 @@ const Ingredient = ({
                 )}
                 {!isMobile && (
                   <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
-                    {!isLocked && !showControls && (
+                    {/* The comma yields its spot to whichever control is
+                        visible there - the lock (when locked) or the role
+                        indicator (when a role is set) - matching the existing
+                        lock-replaces-comma pattern so nothing overlaps. */}
+                    {!isLocked && !showControls && !roleIndicator && (
                       <span
                         className={isFaded ? '' : 'text-gray-900 dark:text-white'}
                         style={{
@@ -989,13 +999,16 @@ export const IngredientDisplay = ({
                 onRoleClick={rolesEnabled ? (rect) => openRoleEditor(actualIndex, rect) : null}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
-                tightAmpersand={
-                  // Two-ingredient set with an unlocked first ingredient: its
-                  // trailing control space renders empty, so pull the & closer.
-                  // (When locked, the highlight bar fills that space.)
-                  validIngredients.length === 2 &&
-                  !lockedIngredients.has(ingredients.findIndex(Boolean))
-                }
+                tightAmpersand={(() => {
+                  // Two-ingredient set with an unlocked, role-less first
+                  // ingredient: its trailing control space renders empty, so
+                  // pull the & closer. (A lock's highlight bar or a role
+                  // indicator fills that space, so the & keeps its distance.)
+                  if (validIngredients.length !== 2) return false;
+                  const firstIdx = ingredients.findIndex(Boolean);
+                  if (lockedIngredients.has(firstIdx)) return false;
+                  return !(rolesEnabled && slotRoleIndicator(slotTastes[firstIdx], isHighContrast, isDarkMode));
+                })()}
                 isMobile={isMobile}
                 isCompact={layoutMode === 'compact'}
                 isHighContrast={isHighContrast}
@@ -1204,7 +1217,7 @@ export const IngredientDisplay = ({
                                   <roleIndicator.Icon
                                     size="0.3em"
                                     strokeWidth={2.5}
-                                    style={{ color: isLocked ? lockedTextColor : (isDarkMode ? '#9ca3af' : '#6b7280') }}
+                                    style={{ color: isLocked ? lockedTextColor : (isDarkMode ? '#e5e7eb' : '#4b5563') }}
                                   />
                                 ) : (
                                   <span
