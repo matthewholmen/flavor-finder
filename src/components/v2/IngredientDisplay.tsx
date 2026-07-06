@@ -1,20 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import { TASTE_COLORS, CATEGORY_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
+import { TASTE_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { FilledLock, CustomUnlock } from '../icons/LockIcons.tsx';
 import { getIngredientColor } from '../../utils/ingredientColors.ts';
 import { SlotRolePopover } from './ui/SlotRolePopover.tsx';
+import { CATEGORY_ICONS } from '../../utils/categoryIcons.ts';
 
-// The indicator color for a slot's role: its taste or category color when a
-// role is set; the wild gray when only excludes are carved out; null for a
-// plain wild slot (no indicator — today's classic look).
-const slotRoleColor = (slot, isHighContrast, isDarkMode) => {
+// What a slot's role indicator shows. The visual contract: COLOR means taste,
+// an ICON means category (see utils/categoryIcons.ts) — the two axes never
+// share a channel. A wild slot with excludes gets the neutral wild dot; a
+// plain wild slot has no indicator (today's classic look).
+const slotRoleIndicator = (slot, isHighContrast, isDarkMode) => {
   if (!slot) return null;
-  if (slot.mode === 'taste') return getIngredientColorWithContrast(TASTE_COLORS[slot.taste] ?? WILD_COLOR, isHighContrast, isDarkMode);
-  if (slot.mode === 'category') return getIngredientColorWithContrast(CATEGORY_COLORS[slot.category] ?? WILD_COLOR, isHighContrast, isDarkMode);
-  return slot.exclude?.length ? WILD_COLOR : null;
+  if (slot.mode === 'taste') {
+    return { color: getIngredientColorWithContrast(TASTE_COLORS[slot.taste] ?? WILD_COLOR, isHighContrast, isDarkMode), Icon: null };
+  }
+  if (slot.mode === 'category') {
+    return { color: null, Icon: CATEGORY_ICONS[slot.category] ?? null };
+  }
+  return slot.exclude?.length ? { color: WILD_COLOR, Icon: null } : null;
 };
 
 // Custom hook for swipe-to-delete gesture
@@ -154,9 +160,10 @@ const Ingredient = ({
   onFocus,
   onRemove,
   onLockToggle,
-  // Slot-role affordance (desktop icon stack): the indicator/edit dot. A set
-  // role paints it and keeps it visible; wild shows a quiet outline on hover.
-  roleColor = null,
+  // Slot-role affordance (desktop icon stack): the indicator/edit control. A
+  // set role keeps it visible — a taste paints a dot, a category shows its
+  // icon; wild shows a quiet outline circle on hover.
+  roleIndicator = null,
   onRoleClick = null,
   showComma,
   showAmpersand,
@@ -225,32 +232,46 @@ const Ingredient = ({
         <button
           onClick={(e) => { e.stopPropagation(); onRoleClick(e.currentTarget.getBoundingClientRect()); }}
           className="p-0 transition-opacity"
-          title={roleColor ? 'Edit this slot’s role' : 'Give this slot a role (taste or category)'}
+          title={roleIndicator ? 'Edit this slot’s role' : 'Give this slot a role (taste or category)'}
           aria-label="Edit slot role"
           style={{
             lineHeight: 0,
             marginTop: '0.02em',
             width: iconSize,
-            height: '0.22em',
+            height: '0.26em',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             // An active role stays visible as the slot's indicator; a wild
-            // slot only reveals the dot alongside the other hover controls.
-            opacity: roleColor ? 1 : (showControls ? 1 : 0),
-            pointerEvents: (roleColor || showControls) ? 'auto' : 'none',
+            // slot only reveals the control alongside the other hover controls.
+            opacity: roleIndicator ? 1 : (showControls ? 1 : 0),
+            pointerEvents: (roleIndicator || showControls) ? 'auto' : 'none',
           }}
         >
-          <span
-            style={{
-              width: '0.2em',
-              height: '0.2em',
-              borderRadius: '9999px',
-              backgroundColor: roleColor ?? 'transparent',
-              border: roleColor ? 'none' : '0.045em solid #d1d5db',
-              display: 'inline-block',
-            }}
-          />
+          {roleIndicator?.Icon ? (
+            // Category role: its icon. On a locked highlight bar, use the
+            // locked ink so it stays legible on the ingredient color.
+            <roleIndicator.Icon
+              size="0.26em"
+              strokeWidth={2.5}
+              style={{ color: isLocked ? lockedIconColor : '#9ca3af' }}
+            />
+          ) : (
+            // Taste role (colored dot), exclude-only (wild gray dot), or the
+            // empty outline-circle affordance.
+            <span
+              style={{
+                width: '0.2em',
+                height: '0.2em',
+                borderRadius: '9999px',
+                backgroundColor: roleIndicator
+                  ? (isLocked ? lockedIconColor : roleIndicator.color)
+                  : 'transparent',
+                border: roleIndicator ? 'none' : '0.045em solid #d1d5db',
+                display: 'inline-block',
+              }}
+            />
+          )}
         </button>
       )}
     </span>
@@ -944,8 +965,8 @@ export const IngredientDisplay = ({
 
             const color = getIngredientColor(ingredient, ingredientProfiles, isHighContrast, isDarkMode);
             const { showComma, showAmpersand, isLastIngredient } = getIngredientDisplayInfo(displayIndex);
-            const roleColor = rolesEnabled
-              ? slotRoleColor(slotTastes[actualIndex], isHighContrast, isDarkMode)
+            const roleIndicator = rolesEnabled
+              ? slotRoleIndicator(slotTastes[actualIndex], isHighContrast, isDarkMode)
               : null;
 
             const ingredientElement = (
@@ -964,7 +985,7 @@ export const IngredientDisplay = ({
                 onFocus={() => setFocusedIngredientIndex(displayIndex)}
                 onRemove={() => onRemove(actualIndex)}
                 onLockToggle={() => onLockToggle(actualIndex)}
-                roleColor={roleColor}
+                roleIndicator={roleIndicator}
                 onRoleClick={rolesEnabled ? (rect) => openRoleEditor(actualIndex, rect) : null}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
@@ -1151,10 +1172,12 @@ export const IngredientDisplay = ({
                                 <ChevronDown size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
                               )}
                             </button>
-                            {/* Role dot — quiet right-edge affordance opening the
-                                role editor (bottom sheet). Colored when a role is
-                                set; faint outline when wild. Shifts left of the
-                                info chevron when the row is locked. */}
+                            {/* Role control — quiet right-edge affordance opening
+                                the role editor (bottom sheet). A taste role is a
+                                colored dot, a category role its icon, wild a faint
+                                outline. On a locked (color-filled) row everything
+                                renders in the locked ink for contrast. Shifts left
+                                of the info chevron when the row is locked. */}
                             {rolesEnabled && (
                               <button
                                 onClick={(e) => {
@@ -1177,18 +1200,28 @@ export const IngredientDisplay = ({
                                   transition: 'right 250ms ease-out',
                                 }}
                               >
-                                <span
-                                  style={{
-                                    width: '0.22em',
-                                    height: '0.22em',
-                                    borderRadius: '9999px',
-                                    backgroundColor: roleColor ?? 'transparent',
-                                    border: roleColor
-                                      ? 'none'
-                                      : `0.045em solid ${isLocked ? lockedTextColor : (isDarkMode ? '#4b5563' : '#d1d5db')}`,
-                                    display: 'inline-block',
-                                  }}
-                                />
+                                {roleIndicator?.Icon ? (
+                                  <roleIndicator.Icon
+                                    size="0.3em"
+                                    strokeWidth={2.5}
+                                    style={{ color: isLocked ? lockedTextColor : (isDarkMode ? '#9ca3af' : '#6b7280') }}
+                                  />
+                                ) : (
+                                  <span
+                                    style={{
+                                      width: '0.22em',
+                                      height: '0.22em',
+                                      borderRadius: '9999px',
+                                      backgroundColor: roleIndicator
+                                        ? (isLocked ? lockedTextColor : roleIndicator.color)
+                                        : 'transparent',
+                                      border: roleIndicator
+                                        ? 'none'
+                                        : `0.045em solid ${isLocked ? lockedTextColor : (isDarkMode ? '#4b5563' : '#d1d5db')}`,
+                                      display: 'inline-block',
+                                    }}
+                                  />
+                                )}
                               </button>
                             )}
                           </span>

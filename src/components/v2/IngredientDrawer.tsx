@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap, Undo2 } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
+import { CATEGORY_ICONS } from '../../utils/categoryIcons.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { Slider, IngredientTile } from './ui/index.ts';
@@ -557,6 +558,7 @@ export const IngredientDrawer = ({
                     {activeSearchTab === 'category' ? (
                       CATEGORIES.map((cat) => {
                         const isActive = activeCategory === cat;
+                        const CatIcon = CATEGORY_ICONS[cat];
                         return (
                           <button
                             key={cat}
@@ -565,6 +567,7 @@ export const IngredientDrawer = ({
                               py-1.5 px-3 text-sm
                               rounded-full border-2 font-medium
                               whitespace-nowrap flex-shrink-0
+                              inline-flex items-center gap-1.5
                               transition-all
                               ${isActive
                                 ? 'border-[#6AAFE8] bg-[#6AAFE8] text-white'
@@ -572,6 +575,7 @@ export const IngredientDrawer = ({
                               }
                             `}
                           >
+                            {CatIcon && <CatIcon size={14} strokeWidth={2.25} className="shrink-0 opacity-80" />}
                             {categoryLabel(cat)}
                           </button>
                         );
@@ -848,21 +852,26 @@ export const IngredientDrawer = ({
                     <div className="space-y-3">
                       {!activeCategory ? (
                         <div className="grid grid-cols-2 gap-2">
-                          {CATEGORIES.map((cat) => (
-                            <button
-                              key={cat}
-                              onClick={() => handleCategoryClick(cat)}
-                              className="
-                                py-2.5 px-3 text-sm
-                                rounded-full border-2 border-gray-300 dark:border-gray-600
-                                bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium
-                                hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700
-                                transition-all
-                              "
-                            >
-                              {categoryLabel(cat)}
-                            </button>
-                          ))}
+                          {CATEGORIES.map((cat) => {
+                            const CatIcon = CATEGORY_ICONS[cat];
+                            return (
+                              <button
+                                key={cat}
+                                onClick={() => handleCategoryClick(cat)}
+                                className="
+                                  py-2.5 px-3 text-sm
+                                  rounded-full border-2 border-gray-300 dark:border-gray-600
+                                  bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium
+                                  hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700
+                                  transition-all
+                                  inline-flex items-center justify-center gap-1.5
+                                "
+                              >
+                                {CatIcon && <CatIcon size={14} strokeWidth={2.25} className="shrink-0 opacity-70" />}
+                                {categoryLabel(cat)}
+                              </button>
+                            );
+                          })}
                         </div>
                       ) : (
                         <div className="space-y-3">
@@ -873,7 +882,11 @@ export const IngredientDrawer = ({
                             >
                               <X size={16} className="text-gray-600 dark:text-gray-300" />
                             </button>
-                            <span className="py-2 px-4 rounded-full border-2 border-[#6AAFE8] bg-[#6AAFE8] text-white font-medium text-sm">
+                            <span className="py-2 px-4 rounded-full border-2 border-[#6AAFE8] bg-[#6AAFE8] text-white font-medium text-sm inline-flex items-center gap-1.5">
+                              {(() => {
+                                const ActiveIcon = CATEGORY_ICONS[activeCategory];
+                                return ActiveIcon ? <ActiveIcon size={14} strokeWidth={2.25} className="shrink-0" /> : null;
+                              })()}
                               {categoryLabel(activeCategory)}
                             </span>
                           </div>

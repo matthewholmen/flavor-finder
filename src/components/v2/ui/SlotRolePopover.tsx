@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Lock, LockOpen, X } from 'lucide-react';
 import { categoryLabel } from '../../../utils/categoryLabels.ts';
+import { CATEGORY_ICONS } from '../../../utils/categoryIcons.ts';
 import {
   TASTE_COLORS,
-  CATEGORY_COLORS,
   getIngredientColorWithContrast,
 } from '../../../utils/colors.ts';
 import {
@@ -123,8 +123,10 @@ export const SlotRolePopover = ({
   const excluded = slot.exclude ?? [];
   const subcategories = SUBCATEGORIES[slot.category] ?? [];
 
-  const options: { value: string; color: string; count: number }[] = isCategory
-    ? CATEGORY_KEYS.map(c => ({ value: c, color: CATEGORY_COLORS[c], count: optionCounts?.category[c] ?? 0 }))
+  // Color belongs to taste; category rows carry an icon instead (see
+  // utils/categoryIcons.ts for the contract).
+  const options: { value: string; color: string | null; count: number }[] = isCategory
+    ? CATEGORY_KEYS.map(c => ({ value: c, color: null, count: optionCounts?.category[c] ?? 0 }))
     : TASTE_KEYS.map(t => ({ value: t, color: TASTE_COLORS[t as TasteKey], count: optionCounts?.taste[t] ?? 0 }));
   const selectedValue = isCategory ? slot.category : slot.taste;
 
@@ -242,10 +244,16 @@ export const SlotRolePopover = ({
         ) : (
           <div role="listbox" className="flex flex-col gap-0.5">
             {options.map(({ value, color, count }) => {
-              const dotColor = getIngredientColorWithContrast(color, isHighContrast, isDarkMode);
+              const dotColor = color ? getIngredientColorWithContrast(color, isHighContrast, isDarkMode) : null;
+              const CategoryIcon = isCategory ? CATEGORY_ICONS[value as CategoryKey] : null;
               const selected = value === selectedValue;
               const highlighted = selected || hovered === value;
               const showSubs = isCategory && selected && subcategories.length > 0;
+              // Taste rows tint with their own color, previewing the indicator
+              // they would paint; category rows (icon, no color) tint neutrally.
+              const tint = dotColor
+                ? `${dotColor}${isDarkMode ? '3d' : '2e'}`
+                : isDarkMode ? 'rgba(255,255,255,0.09)' : 'rgba(17,24,39,0.06)';
               return (
                 <React.Fragment key={value}>
                   <button
@@ -256,13 +264,15 @@ export const SlotRolePopover = ({
                     onClick={() => selectOption(value)}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium w-full text-left transition-colors text-gray-800 dark:text-gray-100"
                     style={{
-                      // Selected/hovered rows tint with the option's own color,
-                      // previewing the indicator it would paint.
-                      backgroundColor: highlighted ? `${dotColor}${isDarkMode ? '3d' : '2e'}` : 'transparent',
+                      backgroundColor: highlighted ? tint : 'transparent',
                       opacity: count === 0 ? 0.45 : 1,
                     }}
                   >
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
+                    {CategoryIcon ? (
+                      <CategoryIcon size={15} strokeWidth={2.25} className="shrink-0 text-gray-500 dark:text-gray-400" />
+                    ) : (
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor ?? undefined }} />
+                    )}
                     <span className="flex-1 capitalize">{isCategory ? categoryLabel(value) : value}</span>
                     <span className="text-xs tabular-nums shrink-0 text-gray-400 dark:text-gray-500">{count}</span>
                   </button>
@@ -315,16 +325,18 @@ export const SlotRolePopover = ({
             <div className="flex flex-wrap gap-1 px-1.5 pb-1">
               {CATEGORY_KEYS.map(c => {
                 const on = excluded.includes(c as CategoryKey);
+                const ExcludeIcon = CATEGORY_ICONS[c as CategoryKey];
                 return (
                   <button
                     key={c}
                     onClick={() => toggleExclude(c as CategoryKey)}
-                    className={`px-2 py-0.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
                       on
                         ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 line-through'
                         : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
+                    <ExcludeIcon size={11} strokeWidth={2.25} className="shrink-0" />
                     {categoryLabel(c)}
                   </button>
                 );
