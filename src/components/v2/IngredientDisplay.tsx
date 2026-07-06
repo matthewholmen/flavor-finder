@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowRight } from 'lucide-react';
 import { TASTE_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
@@ -165,6 +165,8 @@ const Ingredient = ({
   // icon; wild shows a quiet outline circle on hover.
   roleIndicator = null,
   onRoleClick = null,
+  // Opens the ingredient's Atlas page (hover-revealed ⓘ in the icon stack).
+  onOpenAtlas = null,
   showComma,
   showAmpersand,
   tightAmpersand = false, // Two-ingredient set: preceding item has no comma, pull & closer
@@ -274,6 +276,27 @@ const Ingredient = ({
               }}
             />
           )}
+        </button>
+      )}
+      {onOpenAtlas && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onOpenAtlas(); }}
+          className="p-0 transition-opacity"
+          title={`About ${ingredient}`}
+          aria-label={`Open ingredient page for ${ingredient}`}
+          style={{
+            lineHeight: 0,
+            marginTop: '0.03em',
+            width: iconSize,
+            height: '0.26em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: showControls ? 1 : 0,
+            pointerEvents: showControls ? 'auto' : 'none',
+          }}
+        >
+          <Info size="0.24em" strokeWidth={2.5} style={{ color: '#9ca3af' }} />
         </button>
       )}
     </span>
@@ -570,7 +593,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 };
 
 // Mobile Ingredient Info Component
-const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode }) => {
+const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenAtlas = null }) => {
   const profile = ingredientProfiles?.find(
     p => p.name.toLowerCase() === ingredient.toLowerCase()
   );
@@ -637,6 +660,17 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
           ))}
         </div>
       )}
+
+      {/* Handoff to the full Atlas page */}
+      {onOpenAtlas && (
+        <button
+          onClick={() => onOpenAtlas(ingredient)}
+          className="mt-4 inline-flex items-center gap-1.5 text-base font-medium text-gray-700 dark:text-gray-200 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color]"
+        >
+          Full flavor page
+          <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+        </button>
+      )}
     </div>
   );
 };
@@ -660,6 +694,9 @@ export const IngredientDisplay = ({
   constraintLockedIndices = new Set(),
   onSlotRoleChange = null,
   onConstraintLockToggle = null,
+  // Opens an ingredient's Atlas reference page. Optional — without it neither
+  // the desktop ⓘ control nor the mobile "Full flavor page" link renders.
+  onOpenAtlas = null,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
@@ -997,6 +1034,7 @@ export const IngredientDisplay = ({
                 onLockToggle={() => onLockToggle(actualIndex)}
                 roleIndicator={roleIndicator}
                 onRoleClick={rolesEnabled ? (rect) => openRoleEditor(actualIndex, rect) : null}
+                onOpenAtlas={onOpenAtlas ? () => onOpenAtlas(ingredient) : null}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
                 tightAmpersand={(() => {
@@ -1259,6 +1297,7 @@ export const IngredientDisplay = ({
                       selectedIngredients={validIngredients}
                       isHighContrast={isHighContrast}
                       isDarkMode={isDarkMode}
+                      onOpenAtlas={onOpenAtlas}
                     />
                   </div>
                   {shouldShowAmpersandAfter && (

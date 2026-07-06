@@ -11,6 +11,7 @@ import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.t
 import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
 import { PresetGallery } from './components/v2/PresetGallery.tsx';
+import { IngredientAtlas } from './components/v2/IngredientAtlas.tsx';
 import { LandingSurface, LandingTagGroup } from './components/v2/LandingSurface.tsx';
 import { FlavorPreset } from './data/flavorPresets.ts';
 import { useScreenSize } from './hooks/useScreenSize.ts';
@@ -28,6 +29,7 @@ import {
   SlotTaste,
 } from './hooks/useSlots.ts';
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
+import { useAtlasRoute } from './hooks/useAtlasRoute.ts';
 import { useCustomPresets } from './hooks/useCustomPresets.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { buildFlavorMap, ALL_SOURCES } from './utils/flavorMap.ts';
@@ -69,6 +71,9 @@ const getEnabledSources = (): PairingSource[] => {
 
 export default function FlavorFinderV2() {
   const { isMobile } = useScreenSize();
+
+  // Ingredient Atlas overlay routing (?atlas=<name>, pushState/popstate).
+  const { atlasIngredient, openAtlas, closeAtlas } = useAtlasRoute();
 
   // Use custom hooks for state management
   const {
@@ -831,10 +836,11 @@ export default function FlavorFinderV2() {
     return () => document.removeEventListener('click', handleClick);
   }, [isFirstLoad]);
 
-  // Close drawer on Escape key
+  // Close drawer on Escape key. Gated off while the Atlas overlay is up — it sits
+  // above the drawer and owns Escape (its own listener closes it).
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isDrawerOpen) {
+      if (e.key === 'Escape' && isDrawerOpen && !atlasIngredient) {
         setIsDrawerOpen(false);
         // Blur the active element (search input) so shortcuts work
         if (document.activeElement instanceof HTMLElement) {
@@ -844,7 +850,7 @@ export default function FlavorFinderV2() {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isDrawerOpen]);
+  }, [isDrawerOpen, atlasIngredient]);
 
   // Handle Generate — rerolls into exactly targetIngredientCount ingredients.
   // Each slot is either pinned (ingredient lock = exact; role lock = within
@@ -927,30 +933,43 @@ export default function FlavorFinderV2() {
     seedFreshCombo();
   };
 
+  // Clean-slate entry anchored on one ingredient: seed a fresh 2-ingredient
+  // pairing with the pick locked at index 0, so a later Generate keeps it and
+  // only rerolls the partner. Resets roles/locks/pool/steer first (history is
+  // saved, so Undo restores whatever was on screen). Falls back to the bare
+  // ingredient if the graph has no compatible partner (shouldn't happen for a
+  // real ingredient). Used by the first pick from an empty combo and by the
+  // Atlas's "start a pairing from here" handoff.
+  const startPairingFrom = (ingredient: string) => {
+    saveToHistory();
+    const slots = defaultSlots();
+    setSlotTastes(slots);
+    setLockedConstraints(new Set());
+    setThemedPool(null);
+    setContextSteer(null);
+    // The steer/pool clears haven't flushed yet — run against the unsteered
+    // base map explicitly (still the full pairing check, just not a stale subset).
+    const combo = computeCombo(slots.slice(0, 2), { 0: ingredient }, new Set([1]), null, {
+      mapOverride: baseFlavorMap,
+    });
+    if (combo.length === 2) {
+      setSelectedIngredients(combo);
+      setTargetIngredientCount(2);
+      setLockedIngredients(new Set([0]));
+    } else {
+      setSelectedIngredients([ingredient]);
+      setLockedIngredients(new Set());
+    }
+  };
+
   // Wrap handleIngredientSelect to clear search term and keep slot roles
   // truthful for the slot the pick lands in.
   const handleIngredientSelect = (ingredient: string) => {
     // First pick from an empty combo: a clean-slate entry — rather than
     // stranding a lone ingredient next to a blank second slot, seed a full
-    // 2-ingredient pairing anchored on the searched ingredient. It's locked
-    // (index 0) so a later Generate keeps it and only rerolls the partner.
-    // Falls back to the bare ingredient if the graph has no compatible partner
-    // (shouldn't happen for a real ingredient).
+    // 2-ingredient pairing anchored on the searched ingredient.
     if (selectedIngredients.length === 0) {
-      saveToHistory();
-      const slots = defaultSlots();
-      setSlotTastes(slots);
-      setLockedConstraints(new Set());
-      setThemedPool(null);
-      const combo = computeCombo(slots.slice(0, 2), { 0: ingredient }, new Set([1]), null);
-      if (combo.length === 2) {
-        setSelectedIngredients(combo);
-        setTargetIngredientCount(2);
-        setLockedIngredients(new Set([0]));
-      } else {
-        setSelectedIngredients([ingredient]);
-        setLockedIngredients(new Set());
-      }
+      startPairingFrom(ingredient);
       setSearchTerm('');
       setIsDrawerOpen(false);
       return;
@@ -1492,6 +1511,7 @@ export default function FlavorFinderV2() {
             onPickTag={handleLandingTag}
             onPickIngredient={handleIngredientSelect}
             onGenerate={handleLandingGenerate}
+            onOpenAtlas={openAtlas}
           />
         ) : isMobile && !isDrawerOpen ? (
           <>
@@ -1516,6 +1536,7 @@ export default function FlavorFinderV2() {
                 constraintLockedIndices={lockedConstraints}
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
+                onOpenAtlas={openAtlas}
               />
             </div>
 
@@ -1559,6 +1580,7 @@ export default function FlavorFinderV2() {
                 constraintLockedIndices={lockedConstraints}
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
+                onOpenAtlas={openAtlas}
               />
             </div>
             {/* Mined dish context for the current combo — hero view only, so the
@@ -1616,6 +1638,7 @@ export default function FlavorFinderV2() {
         // Side info panel focus (lifted so locking can focus it too)
         selectedInfoIndex={selectedInfoIndex}
         onInfoIndexChange={setSelectedInfoIndex}
+        onOpenAtlas={openAtlas}
       />
       </div>
 
@@ -1624,6 +1647,18 @@ export default function FlavorFinderV2() {
         isOpen={isRecipeModalOpen}
         onClose={() => setIsRecipeModalOpen(false)}
         ingredients={selectedIngredients}
+      />
+
+      {/* Ingredient Atlas — per-ingredient reference page (deep-linked via ?atlas=) */}
+      <IngredientAtlas
+        ingredient={atlasIngredient}
+        onClose={closeAtlas}
+        onNavigate={openAtlas}
+        onStartPairing={name => {
+          startPairingFrom(name);
+          closeAtlas();
+        }}
+        isMobile={isMobile}
       />
 
       {/* Sidebar */}

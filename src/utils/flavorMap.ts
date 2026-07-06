@@ -63,6 +63,21 @@ export const REDUNDANT_EDGES: Set<string> = (() => {
   return out;
 })();
 
+/** Canonical keys of every chef-canon (flavorbible) edge. Precomputed once — the base
+ *  pairing list is static — so canon membership is a single Set lookup anywhere. */
+export const CHEF_CANON_EDGES: Set<string> = (() => {
+  const out = new Set<string>();
+  flavorPairings.forEach(pair => {
+    const [a, b] = pair.split(',');
+    if (a && b) out.add(pairKey(a, b));
+  });
+  return out;
+})();
+
+/** Whether an edge comes from the chef-canon (flavorbible) base list. */
+export const isChefCanon = (a: string, b: string): boolean =>
+  CHEF_CANON_EDGES.has(pairKey(a, b));
+
 export interface BuildFlavorMapOptions {
   /** Sources to include. Default: all. An edge is kept if any of its attesting
    *  sources is enabled. */
@@ -122,23 +137,18 @@ export const buildFlavorMap = (opts: BuildFlavorMapOptions = {}): FlavorMapResul
     flavorMap.get(b)!.add(a);
   };
 
-  // Set of flavorbible edges (canonical keys), and the chef-canon adjacency derived from
-  // them. The adjacency is the trusted base against which weak recipe-mined edges are
-  // judged: shared-neighbor support is always measured in chef canon, never in the
-  // (noisier) merged graph, so mined edges can't prop each other up.
-  const flavorBibleEdges = new Set<string>();
+  // Chef-canon adjacency (canon edge keys live in CHEF_CANON_EDGES, module-level). The
+  // adjacency is the trusted base against which weak recipe-mined edges are judged:
+  // shared-neighbor support is always measured in chef canon, never in the (noisier)
+  // merged graph, so mined edges can't prop each other up.
   const chefAdj = new Map<string, Set<string>>();
-  const chefLink = (a: string, b: string) => {
+  flavorPairings.forEach(pair => {
+    const [a, b] = pair.split(',');
+    if (!a || !b) return;
     if (!chefAdj.has(a)) chefAdj.set(a, new Set());
     if (!chefAdj.has(b)) chefAdj.set(b, new Set());
     chefAdj.get(a)!.add(b);
     chefAdj.get(b)!.add(a);
-  };
-  flavorPairings.forEach(pair => {
-    const [a, b] = pair.split(',');
-    if (!a || !b) return;
-    flavorBibleEdges.add(pairKey(a, b));
-    chefLink(a, b);
   });
 
   // Count shared neighbors of two ingredients within the chef-canon graph.
@@ -156,7 +166,7 @@ export const buildFlavorMap = (opts: BuildFlavorMapOptions = {}): FlavorMapResul
   };
 
   // Iterate the union of flavorbible edges and any meta-only edges.
-  const allKeys = new Set<string>([...flavorBibleEdges, ...Object.keys(pairingMeta)]);
+  const allKeys = new Set<string>([...CHEF_CANON_EDGES, ...Object.keys(pairingMeta)]);
 
   allKeys.forEach(key => {
     const [a, b] = key.split(',');
@@ -169,13 +179,13 @@ export const buildFlavorMap = (opts: BuildFlavorMapOptions = {}): FlavorMapResul
     const meta = pairingMeta[key];
     if (meta?.strength !== undefined && meta.strength < minStrength) return;
 
-    const isChefCanon = flavorBibleEdges.has(key);
+    const canon = CHEF_CANON_EDGES.has(key);
 
     // Structural quality gate for weak mined edges. Chef-canon edges are exempt — the
     // graph audit for canon dead-ends is a separate concern from pruning mined noise.
     if (
       prune &&
-      !isChefCanon &&
+      !canon &&
       meta?.strength !== undefined &&
       meta.strength <= prune.maxStrength &&
       sharedChefNeighbors(a, b) < prune.minSharedNeighbors
@@ -185,7 +195,7 @@ export const buildFlavorMap = (opts: BuildFlavorMapOptions = {}): FlavorMapResul
 
     // Effective sources = explicit meta sources + implicit flavorbible membership.
     const sources = new Set<PairingSource>(meta?.sources ?? []);
-    if (isChefCanon) sources.add('flavorbible');
+    if (canon) sources.add('flavorbible');
 
     let included = false;
     sources.forEach(s => {

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap, Undo2 } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap, Undo2, ArrowRight } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { CATEGORY_ICONS } from '../../utils/categoryIcons.ts';
@@ -61,6 +61,8 @@ export const IngredientDrawer = ({
   // drawer (e.g. locking an ingredient) can focus it in the info panel too.
   selectedInfoIndex = 0,
   onInfoIndexChange = () => {},
+  // Opens an ingredient's Atlas reference page from the info panel.
+  onOpenAtlas = null,
 }) => {
   const inputRef = useRef(null);
   const drawerRef = useRef(null);
@@ -1175,6 +1177,17 @@ export const IngredientDrawer = ({
                           {profile.category.toLowerCase()}
                           {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
                         </p>
+                      )}
+
+                      {/* Handoff to the full Atlas page */}
+                      {onOpenAtlas && (
+                        <button
+                          onClick={() => onOpenAtlas(currentIngredient)}
+                          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white underline decoration-transparent hover:decoration-current underline-offset-4 transition-colors"
+                        >
+                          Open ingredient page
+                          <ArrowRight size={14} strokeWidth={2} aria-hidden="true" />
+                        </button>
                       )}
 
                       {/* Description */}

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, ChevronDown } from 'lucide-react';
+import { Search, Sparkles, ChevronDown, Info } from 'lucide-react';
 import { Pill } from './ui/Pill.tsx';
 import { getLoadedContext, loadContext } from '../../utils/contextLoader.ts';
 import { ingredientProfiles } from '../../data/ingredientProfiles.ts';
@@ -29,6 +29,8 @@ interface LandingSurfaceProps {
   onPickIngredient: (name: string) => void;
   /** Seed a random combo — the "just cook something" path. */
   onGenerate: () => void;
+  /** Open an ingredient's Atlas reference page (ⓘ on ingredient search hits). */
+  onOpenAtlas?: (name: string) => void;
 }
 
 interface SearchHit {
@@ -48,6 +50,7 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
   onPickTag,
   onPickIngredient,
   onGenerate,
+  onOpenAtlas,
 }) => {
   const [mod, setMod] = useState(() => getLoadedContext());
   useEffect(() => {
@@ -232,31 +235,44 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
               "
             >
               {hits.map(hit => (
-                <button
+                // Row = pick button + (ingredient rows) a trailing ⓘ to the Atlas page.
+                // Two sibling buttons, not nested — the ⓘ replaces the kind label there.
+                <div
                   key={`${hit.kind}:${hit.label}`}
-                  onClick={() => pickHit(hit)}
-                  className="
-                    w-full flex items-center gap-2.5 px-5 py-2.5 text-left
-                    text-gray-900 dark:text-white
-                    hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors
-                  "
+                  className="w-full flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
                 >
-                  {hit.kind === 'ingredient' && (
-                    <span
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{
-                        backgroundColor:
-                          CATEGORY_COLORS[categoryByIngredient.get(hit.label.toLowerCase()) ?? ''] ??
-                          '#9CA3AF',
-                      }}
-                      aria-hidden="true"
-                    />
+                  <button
+                    onClick={() => pickHit(hit)}
+                    className="flex-1 min-w-0 flex items-center gap-2.5 pl-5 pr-2 py-2.5 text-left text-gray-900 dark:text-white"
+                  >
+                    {hit.kind === 'ingredient' && (
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{
+                          backgroundColor:
+                            CATEGORY_COLORS[categoryByIngredient.get(hit.label.toLowerCase()) ?? ''] ??
+                            '#9CA3AF',
+                        }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="truncate">{hit.label}</span>
+                  </button>
+                  {hit.kind === 'ingredient' && onOpenAtlas ? (
+                    <button
+                      onClick={() => onOpenAtlas(hit.label)}
+                      aria-label={`About ${hit.label}`}
+                      title={`About ${hit.label}`}
+                      className="shrink-0 px-4 py-2.5 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                    >
+                      <Info size={16} strokeWidth={2} />
+                    </button>
+                  ) : (
+                    <span className="shrink-0 pr-5 pl-2 text-xs text-gray-400 dark:text-gray-500">
+                      {kindLabel[hit.kind]}
+                    </span>
                   )}
-                  <span className="truncate">{hit.label}</span>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500 shrink-0">
-                    {kindLabel[hit.kind]}
-                  </span>
-                </button>
+                </div>
               ))}
             </div>
           )}
