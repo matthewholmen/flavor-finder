@@ -96,7 +96,7 @@ const PaletteStrip = ({ slots, className = 'h-20' }: { slots: SlotTaste[]; class
       return (
         <div
           key={i}
-          className="flex-1 flex items-end justify-center pb-1.5"
+          className="flex-1 min-w-0 flex items-end justify-center pb-1.5"
           style={{ backgroundColor: color }}
         >
           <span
