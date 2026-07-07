@@ -56,6 +56,15 @@ const PairingSourcesContent = ({ enabledSources, onToggleSource }) => {
   );
 };
 
+// Small uppercase group label — clusters the menu rows by kind (Build / Settings
+// / Help) so popouts and accordions read as intentional groups, not one long
+// interleaved list. Matches the app's section-label style (e.g. DISH FRAMES).
+const GroupLabel = ({ children }) => (
+  <div className="px-4 pt-5 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+    {children}
+  </div>
+);
+
 // Collapsible Section Component
 const CollapsibleSection = ({ title, icon, isOpen, onToggle, children }) => {
   return (
@@ -132,26 +141,29 @@ const BottomSettingsToggles = () => {
   const { isDarkMode, toggleDarkMode, isHighContrast, toggleHighContrast } = useTheme();
 
   return (
-    <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-      {/* Dark Mode Toggle */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {isDarkMode ? (
-            <Moon size={18} className="text-gray-600 dark:text-gray-300" />
-          ) : (
-            <Sun size={18} className="text-gray-600 dark:text-gray-300" />
-          )}
-          <span className="text-sm text-gray-700 dark:text-gray-300">Dark Mode</span>
+    <>
+      <GroupLabel>Appearance</GroupLabel>
+      <div className="px-4 pb-4 space-y-3">
+        {/* Dark Mode Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {isDarkMode ? (
+              <Moon size={18} className="text-gray-600 dark:text-gray-300" />
+            ) : (
+              <Sun size={18} className="text-gray-600 dark:text-gray-300" />
+            )}
+            <span className="text-sm text-gray-700 dark:text-gray-300">Dark Mode</span>
+          </div>
+          <Toggle checked={isDarkMode} onChange={toggleDarkMode} label="Toggle dark mode" />
         </div>
-        <Toggle checked={isDarkMode} onChange={toggleDarkMode} label="Toggle dark mode" />
-      </div>
 
-      {/* High Contrast Toggle */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-700 dark:text-gray-300">High Contrast</span>
-        <Toggle checked={isHighContrast} onChange={toggleHighContrast} label="Toggle high contrast" />
+        {/* High Contrast Toggle */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-700 dark:text-gray-300">High Contrast</span>
+          <Toggle checked={isHighContrast} onChange={toggleHighContrast} label="Toggle high contrast" />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -283,16 +295,16 @@ export const Sidebar = ({
           </div>
 
           <div className="flex-1 flex flex-col overflow-y-auto">
-            {/* Description */}
-            <p className="text-gray-700 dark:text-gray-400 text-sm leading-relaxed px-4 pt-3 pb-3">
-              Mix and match ingredients that taste great together, then jump
-              straight to recipes for your combination.
-            </p>
+            {/* — BUILD: start or recall a combination — */}
+            <GroupLabel>Build</GroupLabel>
 
             {/* Flavor Presets — curated slot-role recipes for the generator */}
             <button
-              onClick={onOpenPresets}
-              className="w-full flex items-center justify-between py-3 px-4 text-left border-y border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              onClick={() => {
+                onClose();
+                onOpenPresets();
+              }}
+              className="w-full flex items-center justify-between py-3 px-4 text-left border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold text-base">
                 <LayoutGrid size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />
@@ -314,6 +326,9 @@ export const Sidebar = ({
                 onDeleteCombination={onDeleteCombination}
               />
             </CollapsibleSection>
+
+            {/* — SETTINGS: how generation behaves and what's in the pool — */}
+            <GroupLabel>Settings</GroupLabel>
 
             {/* Generation Options */}
             <CollapsibleSection
@@ -356,6 +371,12 @@ export const Sidebar = ({
               <ChevronRight size={20} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
             </button>
 
+            {/* Spacer to push help + settings to bottom */}
+            <div className="flex-1" />
+
+            {/* — HELP: demoted to the footer, next to the theme toggles — */}
+            <GroupLabel>Help</GroupLabel>
+
             {/* Take the tour */}
             <button
               onClick={onStartTour}
@@ -387,9 +408,6 @@ export const Sidebar = ({
                 </ul>
               </CollapsibleSection>
             )}
-
-            {/* Spacer to push settings to bottom */}
-            <div className="flex-1" />
 
             {/* Settings toggles at bottom */}
             <BottomSettingsToggles />
