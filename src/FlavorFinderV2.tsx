@@ -1758,6 +1758,7 @@ export default function FlavorFinderV2() {
         isOpen={isRecipeModalOpen}
         onClose={() => setIsRecipeModalOpen(false)}
         ingredients={selectedIngredients}
+        dishContext={contextSteer}
       />
 
       {/* Ingredient Atlas — per-ingredient reference page (deep-linked via ?atlas=) */}

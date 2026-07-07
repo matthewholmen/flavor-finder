@@ -16,16 +16,48 @@ const RECIPE_SITES = [
   { name: 'Budget Bytes', domain: 'budgetbytes.com' },
 ];
 
+// Query-friendly phrasing for mined dish tags whose strip labels read poorly as
+// search terms ("stir-fries", "tacos & burritos"). Tags not listed are used as-is.
+const DISH_QUERY_TERMS: Record<string, string> = {
+  'stews': 'stew',
+  'tacos & burritos': 'tacos',
+  'grilling & bbq': 'grilled',
+  'marinades': 'marinade',
+  'sauces': 'sauce',
+  'soups': 'soup',
+  'rice dishes': 'rice',
+  'casseroles': 'casserole',
+  'roasts': 'roast',
+  'glazes': 'glaze',
+  'salads': 'salad',
+  'desserts': 'dessert',
+  'baked goods': 'baking',
+  'drinks': 'drink',
+  'sandwiches & burgers': 'sandwich',
+  'fritters & patties': 'fritters',
+  'dips': 'dip',
+  'pickles & preserves': 'pickled',
+  'rubs & seasonings': 'spice rub',
+  'meatballs & meatloaf': 'meatballs',
+  'curries': 'curry',
+  'dressings': 'dressing',
+  'stir-fries': 'stir fry',
+  'pot pies': 'pot pie',
+};
+
 interface RecipeFinderModalProps {
   isOpen: boolean;
   onClose: () => void;
   ingredients: string[];
+  /** Active dish/cuisine steer — folded into the search query as a context term. */
+  dishContext?: { group: 'dish' | 'cuisine'; tag: string } | null;
 }
 
 export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
   isOpen,
   onClose,
   ingredients,
+  dishContext,
 }) => {
   // Which ingredients to include in the search (all by default)
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
@@ -33,6 +65,8 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
   // When on, every selected ingredient is quoted so the search engine
   // treats it as required (rather than optionally dropping uncommon ones)
   const [requireAll, setRequireAll] = useState(true);
+  // Whether the steered dish/cuisine term is part of the query
+  const [includeContext, setIncludeContext] = useState(true);
 
   // Reset selection whenever the modal opens with a new combination
   useEffect(() => {
@@ -40,8 +74,9 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
       setExcluded(new Set());
       setCopied(false);
       setRequireAll(true);
+      setIncludeContext(true);
     }
-  }, [isOpen, ingredients.join(',')]);
+  }, [isOpen, ingredients.join(','), dishContext?.tag]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -59,10 +94,20 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Steered dish/cuisine term, phrased for search ("stir-fries" → "stir fry").
+  // Unquoted: it steers results toward the dish shape without being required.
+  const contextTerm = dishContext
+    ? dishContext.group === 'dish'
+      ? (DISH_QUERY_TERMS[dishContext.tag] ?? dishContext.tag)
+      : dishContext.tag
+    : null;
+
   const terms = requireAll
     ? activeIngredients.map(ing => `"${ing}"`).join(' ')
     : activeIngredients.join(' ');
-  const query = `${terms} recipe`;
+  const query = [terms, includeContext ? contextTerm : null, 'recipe']
+    .filter(Boolean)
+    .join(' ');
 
   const openSearch = (siteDomain?: string) => {
     if (activeIngredients.length === 0) return;
@@ -163,6 +208,27 @@ export const RecipeFinderModal: React.FC<RecipeFinderModalProps> = ({
               </button>
             );
           })}
+          {contextTerm && (
+            <button
+              onClick={() => setIncludeContext(v => !v)}
+              aria-pressed={includeContext}
+              title={
+                dishContext!.group === 'dish'
+                  ? 'Dish type from your current steer'
+                  : 'Cuisine from your current steer'
+              }
+              className={`
+                px-3.5 py-1.5 rounded-full text-sm font-medium
+                border-2 border-dashed transition-all duration-150
+                ${includeContext
+                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                  : 'border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 line-through'
+                }
+              `}
+            >
+              {contextTerm}
+            </button>
+          )}
         </div>
 
         {/* Require-all toggle */}
