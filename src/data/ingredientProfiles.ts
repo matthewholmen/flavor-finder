@@ -7091,7 +7091,7 @@ export const ingredientProfiles: IngredientProfile[] = [
         functions: ["bulk"],
       },
   {
-        name: "szechuan pepper",
+        name: "sichuan pepper",
         category: "Seasonings",
         subcategory: "Spices",
         flavorProfile: {
