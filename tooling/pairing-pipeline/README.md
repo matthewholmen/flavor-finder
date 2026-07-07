@@ -17,8 +17,16 @@ for the provenance schema this feeds.
   method / cuisine tags + top recipe titles ("seen in: …"). Never adds or scores edges.
 - `context-vocab.json` — keyword vocabulary for the context pass (tag names ship to the UI).
 - `merge-context.mjs` — applies display thresholds and writes `src/data/pairingContext.ts`.
+- `flavordb-fetch.mjs` — one-time snapshot of the FlavorDB2 entity dataset into
+  `flavordb-data/` (gitignored). Idempotent; re-runs only fill gaps.
+- `flavordb.mjs` — molecular science-lens pass (Phase 5): maps FlavorDB foods to canonical
+  vocab, scores shared-compound overlap (IDF-weighted cosine), and emits corroborations +
+  surprising pairs + aroma descriptors into `output/`.
+- `merge-flavordb.mjs` — ADDITIVE merge: layers the flavordb artifacts onto the existing
+  `src/data/pairingMeta.ts` (never regenerates it) and writes `src/data/aromaProfiles.ts`.
 - `sample/sample.csv` — tiny fixture for smoke-testing the miners.
-- `output/` — generated `proposed-pairings.json`, `edge-context.json` + reports (gitignored-worthy).
+- `output/` — generated `proposed-pairings.json`, `edge-context.json`, `flavordb-*.json` +
+  reports (gitignored-worthy).
 
 ## Status
 
@@ -29,7 +37,9 @@ for the provenance schema this feeds.
   RecipeNLG can't cover (chili crisp, ssamjang, …). Run via `merge.mjs`.
 - ✅ Dish context: `context.mjs` + `merge-context.mjs` → `src/data/pairingContext.ts`
   (dish/method/cuisine tags + "seen in" titles per edge, from the same RecipeNLG corpus).
-- ⬜ Phase 5: FlavorDB (molecular `flavordb` edges — single whole-foods only).
+- ✅ Phase 5: FlavorDB molecular lens (single whole-foods only). 188 mapped ingredients →
+  1,113 `flavordb` corroborations on existing edges, 320 cross-category "surprising" edges
+  (off by default), and 180 aroma profiles (`src/data/aromaProfiles.ts`). See below.
 
 ## Data hygiene (`normalize.mjs`)
 
@@ -42,6 +52,36 @@ preserving surrounding code. Re-mine + re-merge afterward so `pairingMeta` stays
 `analog.json` maps a too-new ingredient to close culinary sibling(s). `merge.mjs` borrows
 each sibling's top neighbors as `analog`-tagged edges (separate, toggleable source). Edit
 `analog.json` and re-run `node merge.mjs --min-strength 2` to regenerate.
+
+## FlavorDB molecular lens (Phase 5)
+
+A food-science lens, **not** a pairing rule — the shared-compound hypothesis (Ahn et al.
+2011) is culture-dependent, so `flavordb` is a separate, off-by-default source and the UI
+language is "shares aroma compounds," never "should pair." Nothing here relaxes the
+compatibility check.
+
+```bash
+node flavordb-fetch.mjs                 # one-time: snapshot FlavorDB2 → flavordb-data/
+node flavordb.mjs                       # map + score → output/flavordb-{edges,aroma}.json + report
+node merge-flavordb.mjs                 # layer onto src/data/pairingMeta.ts + write aromaProfiles.ts
+```
+
+Design notes:
+- **Whole single foods only.** Composite FlavorDB categories (dishes, essential oils,
+  additives, beverages) are skipped, per the "single whole-foods" scope.
+- **Template artifacts dropped.** FlavorDB assigns some under-characterized foods an
+  identical placeholder molecule set; any set appearing more than once in the snapshot is
+  excluded (two real foods never share a byte-identical molecule list).
+- **Tight name matching.** Exact normalized match to a canonical name / `vocab.json`
+  synonym — the fuzzy recipe matcher would mis-map "Lemon sole" onto "lemon".
+- **IDF-weighted cosine** over shared molecules: distinctive compounds count, the esters
+  every food shares don't. Surprising pairs are additionally cross-category and Jaccard-
+  capped (near-identical profiles are FlavorDB noise, not discoveries).
+- **Additive merge.** `merge-flavordb.mjs` parses and preserves the existing pairingMeta
+  (recipenlg+analog base from `merge.mjs`) and only adds the flavordb layer, so it doesn't
+  depend on the mining corpus and can't regress the shipped graph. Re-runnable/idempotent.
+- Review `output/flavordb-report.md` (coverage, top surprising pairs, aroma samples) before
+  merging.
 
 ## Running the miner
 

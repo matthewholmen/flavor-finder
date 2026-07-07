@@ -13,6 +13,7 @@
 
 import { ingredientProfiles } from '../data/ingredientProfiles.ts';
 import { pairingMeta, pairKey, PairingSource } from '../data/pairingMeta.ts';
+import { aromaProfiles } from '../data/aromaProfiles.ts';
 import { ALL_SOURCES, buildFlavorMap, isChefCanon } from './flavorMap.ts';
 import type { IngredientProfile } from '../types.ts';
 
@@ -24,6 +25,8 @@ export interface AtlasNeighbor {
   isCanon: boolean;
   /** Edge is corpus-confirmed (recipenlg). */
   isCorpus: boolean;
+  /** Edge is attested by the molecular lens (flavordb) — shares aroma compounds. */
+  isMolecular: boolean;
   /** All attesting sources, including implicit flavorbible. */
   sources: PairingSource[];
   profile: IngredientProfile | null;
@@ -41,6 +44,13 @@ export interface AtlasEntry {
   seasoning: { variant: 'season-it' | 'what-it-seasons'; items: AtlasNeighbor[] };
   /** Full neighborhood grouped by category, canonical order, unprofiled last. */
   byCategory: Array<{ category: string; items: AtlasNeighbor[] }>;
+  /** Science lens (FlavorDB): the ingredient's distinctive aroma/flavor descriptors.
+   *  Empty when the ingredient has no molecular data. */
+  aroma: string[];
+  /** Science lens: "surprising pairings" — foods with molecular overlap but NO culinary
+   *  edge (attested by flavordb alone). Hypothesis-tier; shown in a distinct, labeled shelf,
+   *  never mixed into best friends or the neighborhood. Empty when there are none. */
+  surprisingPairs: AtlasNeighbor[];
 }
 
 export const BEST_FRIENDS_PREVIEW = 8;
@@ -121,10 +131,17 @@ const toNeighbor = (ingredient: string, neighbor: string): AtlasNeighbor => {
     strength: meta?.strength,
     isCanon: canon,
     isCorpus: sources.has('recipenlg'),
+    isMolecular: sources.has('flavordb'),
     sources: Array.from(sources),
     profile: getProfile(neighbor),
   };
-};
+}
+
+/** A "surprising pairing": the edge's ONLY attestation is the molecular lens — no chef canon,
+ *  no recipe corpus, no analog. These belong exclusively in the science shelf, so we keep them
+ *  out of best friends and the neighborhood. */
+const isMolecularOnly = (n: AtlasNeighbor): boolean =>
+  n.sources.length === 1 && n.sources[0] === 'flavordb';;
 
 /** Assemble the full Atlas entry for one ingredient. Null when the ingredient is
  *  unknown to both the graph and the profiles (bad deep link). */
@@ -136,9 +153,17 @@ export const getAtlasEntry = (rawName: string): AtlasEntry | null => {
   const neighborSet = graph.get(name);
   if (!profile && !neighborSet) return null;
 
-  const neighbors = Array.from(neighborSet ?? [])
+  const allNeighbors = Array.from(neighborSet ?? [])
     .map(n => toNeighbor(name, n))
     .sort(compareNeighbors);
+
+  // Molecular-only edges (surprising pairings) never enter best friends, seasoning, or the
+  // neighborhood — they get their own clearly-labeled science shelf. Everything culinary
+  // (canon / corpus / analog, possibly also molecular-corroborated) is a "real" neighbor.
+  const neighbors = allNeighbors.filter(n => !isMolecularOnly(n));
+  const surprisingPairs = allNeighbors
+    .filter(isMolecularOnly)
+    .sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0) || a.name.localeCompare(b.name));
 
   const bestFriends = neighbors.slice(0, BEST_FRIENDS_MAX);
 
@@ -174,5 +199,7 @@ export const getAtlasEntry = (rawName: string): AtlasEntry | null => {
       items: groups.get(cat)!.slice().sort((a, b) => a.name.localeCompare(b.name)),
     }));
 
-  return { name, profile, neighbors, bestFriends, seasoning, byCategory };
+  const aroma = aromaProfiles[name] ?? [];
+
+  return { name, profile, neighbors, bestFriends, seasoning, byCategory, aroma, surprisingPairs };
 };

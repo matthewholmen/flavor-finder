@@ -1,3 +1,6 @@
 output/
 *.csv
 !sample/sample.csv
+
+# FlavorDB2 snapshot (large, local-only — re-fetch with flavordb-fetch.mjs)
+flavordb-data/

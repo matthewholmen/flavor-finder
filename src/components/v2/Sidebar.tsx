@@ -19,10 +19,13 @@ const COMPATIBILITY_MODES = [
 ];
 
 // Pairing sources the user can toggle. Keys must match PairingSource in data/pairingMeta.ts.
+// flavordb is off by default: shared aroma compounds are a food-science hypothesis (and a
+// culture-dependent one), not culinary evidence — enabling it is an explicit user choice.
 const PAIRING_SOURCES = [
   { key: 'flavorbible', label: "Chef's Canon", description: 'Classic chef-recommended pairings (The Flavor Bible).' },
   { key: 'recipenlg', label: 'Recipe Data', description: 'Pairings found across 2.2M real-world recipes.' },
   { key: 'analog', label: 'Similar Ingredients', description: 'Borrowed from close culinary cousins, for ingredients too new for recipe data.' },
+  { key: 'flavordb', label: 'Shared Aroma (experimental)', description: 'Foods that share flavor molecules but no culinary tradition (FlavorDB) — a food-science lens, off by default.' },
 ];
 
 // Pairing Sources Content

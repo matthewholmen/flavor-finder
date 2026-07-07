@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, Check, ChevronDown, Link as LinkIcon, UtensilsCrossed, X } from 'lucide-react';
+import { BookOpen, Check, ChevronDown, FlaskConical, Link as LinkIcon, UtensilsCrossed, X } from 'lucide-react';
 import { Pill } from './ui/Pill.tsx';
 import { IconButton } from './ui/IconButton.tsx';
 import {
@@ -60,6 +60,15 @@ const ProvenanceBadges: React.FC<{ neighbor: AtlasNeighbor; recipeCount: number 
       >
         <UtensilsCrossed size={12} strokeWidth={2} aria-hidden="true" />
         {recipeCount != null ? `${recipeCount} recipes` : 'recipes'}
+      </span>
+    )}
+    {neighbor.isMolecular && (
+      <span
+        className="inline-flex items-center gap-1"
+        title="Shares aroma compounds (food-science lens)"
+      >
+        <FlaskConical size={12} strokeWidth={2} aria-hidden="true" />
+        shared aroma
       </span>
     )}
   </span>
@@ -194,6 +203,27 @@ export const IngredientAtlas: React.FC<IngredientAtlasProps> = ({
                     </p>
                   )}
                 </>
+              )}
+              {entry.aroma.length > 0 && (
+                <div className="mt-5">
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                    <FlaskConical size={13} strokeWidth={2} aria-hidden="true" />
+                    aroma notes
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {entry.aroma.map(note => (
+                      <span
+                        key={note}
+                        className="px-2.5 py-1 rounded-full text-xs lowercase bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300"
+                      >
+                        {note}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[11px] leading-snug text-gray-400 dark:text-gray-500">
+                    From shared flavor molecules (FlavorDB) — a food-science lens on what it smells and tastes like.
+                  </p>
+                </div>
               )}
             </div>
           ),
@@ -365,6 +395,44 @@ export const IngredientAtlas: React.FC<IngredientAtlasProps> = ({
                 No pairings recorded for this ingredient yet.
               </p>
             ),
+        },
+        {
+          key: 'surprising',
+          node:
+            entry.surprisingPairs.length > 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 p-4">
+                <SectionHeading>
+                  <span className="inline-flex items-center gap-1.5">
+                    <FlaskConical size={13} strokeWidth={2} aria-hidden="true" />
+                    Surprising pairings
+                  </span>
+                </SectionHeading>
+                <p className="-mt-1 mb-3 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                  These share aroma compounds with{' '}
+                  <span className="lowercase font-medium">{entry.name}</span> but aren't a
+                  traditional pairing. A food-science lens, not a rule — the shared-compound idea
+                  holds in some cuisines and not others. Worth an experiment.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {entry.surprisingPairs.map(item => (
+                    <button
+                      key={item.name}
+                      onClick={() => onNavigate(item.name)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm lowercase bg-gray-50 dark:bg-gray-700/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    >
+                      {item.profile && (
+                        <span
+                          className="inline-block w-1.5 h-1.5 rounded-full"
+                          style={{ backgroundColor: CATEGORY_COLORS[item.profile.category] ?? '#9ca3af' }}
+                          aria-hidden="true"
+                        />
+                      )}
+                      {item.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null,
         },
       ]
     : [];
