@@ -11,6 +11,37 @@ type IngredientSubcategory = {
   Alcohol: "Wine" | "Beer & Cider" | "Spirits" | "Liqueurs";
 }
 
+// Controlled texture vocabulary (P4 data layer). Tags describe the ingredient's
+// TYPICAL SERVED state, not the raw one (acorn squash = creamy, not hard).
+// Ground spices, extracts, and other texture-neutral ingredients carry no tags.
+export const TEXTURES = [
+  'crunchy',  // hard, loud crunch: raw carrot, nuts, toasted seeds
+  'crisp',    // brittle/shattering or refreshing snap: lettuce, apple, bacon, cracker
+  'creamy',   // smooth and rich: avocado, ricotta, cooked squash
+  'tender',   // yields easily: braised meat, roasted vegetables, soft greens
+  'chewy',    // sustained bite: dried fruit, cooked grains, squid
+  'juicy',    // releases liquid when bitten: citrus, tomato, melon, seared steak
+  'flaky',    // separates in layers/flakes: cooked fish, pastry
+  'starchy',  // dense, dry-fluffy body: potato, beans, rice, bread
+  'liquid',   // pourable in served form: oils, vinegars, stocks, sauces
+  'airy',     // light, aerated: whipped cream, meringue, puffed grains
+] as const;
+export type Texture = (typeof TEXTURES)[number];
+
+// Structural roles an ingredient plays in a dish — the mechanism behind
+// dish frames ("a salad needs a crunch-topper and an acid") and substitution.
+export const INGREDIENT_FUNCTIONS = [
+  'acid',          // brightens/cuts: vinegar, citrus, wine, cultured dairy
+  'fat',           // richness/carries flavor: oils, butter, cheese, nuts, avocado
+  'binder',        // holds things together: egg, starches, mayo, cream
+  'bulk',          // the body of the dish: grains, pasta, proteins, hearty veg
+  'fresh-finish',  // raw brightness added at the end: soft herbs, zest, sprouts
+  'crunch-topper', // texture garnish: nuts, seeds, fried alliums
+  'sweetener',     // adds sweetness: honey, sugars, syrups
+  'umami-bomb',    // concentrated savoriness: fish sauce, miso, parmesan, anchovy
+] as const;
+export type IngredientFunction = (typeof INGREDIENT_FUNCTIONS)[number];
+
 export interface IngredientProfile {
   name: string;
   category: keyof IngredientSubcategory;
@@ -25,9 +56,11 @@ export interface IngredientProfile {
     aromatic: number;
   };
   description: string;
+  // P4 data layer — populated by tooling/profile-audit (typical served state)
+  textures?: Texture[];
+  functions?: IngredientFunction[];
   // MVP+
   cookingMethods?: string[];
-  texture?: string[];
   intensity?: number;
   allergen?: string[];
   dietary?: string[];

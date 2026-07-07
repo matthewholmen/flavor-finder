@@ -72,6 +72,7 @@ src/
 │   ├── useTasteLab.ts        # Taste Lab slot state + constants
 │   └── useCompatibility.ts
 └── utils/
+    ├── suggestSubstitutes.ts # Contextual substitution (flavor-map admission, texture/function ranking)
     ├── searchUtils.ts        # Ingredient filtering/search
     ├── categorySearch.ts     # Category-based search
     ├── categoryLabels.ts     # Category key → display label
@@ -119,6 +120,20 @@ The unified `IngredientDisplay` component handles both hero (full-screen) and co
 7 taste dimensions (0-10 scale each):
 - **sweet, salty, sour, umami, fat, spicy**: Basic tastes
 - **aromatic**: Fragrance intensity (herbs score high, neutral ingredients low)
+
+### Textures & Functions (P4 data layer)
+Every profile carries two controlled-vocabulary tags describing its **typical served
+state** (acorn squash = creamy, not hard):
+- **`textures`** (10 terms): crunchy, crisp, creamy, tender, chewy, juicy, flaky,
+  starchy, liquid, airy. Empty array = audited, texture-neutral (ground spices).
+- **`functions`** (8 structural roles): acid, fat, binder, bulk, fresh-finish,
+  crunch-topper, sweetener, umami-bomb — the mechanism behind dish frames and
+  substitution ranking.
+
+Vocabularies live in `types.ts` (`TEXTURES` / `INGREDIENT_FUNCTIONS`); data is
+populated by `tooling/profile-audit/` (extract → proposals → check → merge — offline,
+like the pairing pipeline). Texture/function only ever **rank**; flavor-map
+compatibility alone admits (see `suggestSubstitutes.ts`).
 
 ### Filtering
 - **Category/Subcategory**: Filter by ingredient type

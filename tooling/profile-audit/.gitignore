@@ -1,0 +1,4 @@
+# Regenerable: extract.mjs rebuilds work/, check.mjs + merge.mjs rebuild output/.
+# proposals/ IS committed — it's the reviewed source the merge applies.
+work/
+output/

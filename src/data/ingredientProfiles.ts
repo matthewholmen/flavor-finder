@@ -14,7 +14,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 3
     },
-    description: "Earthy, peppery seasoning with subtle nutty notes and a mild peppery heat, commonly used in Latin American cuisine for both flavor and its distinctive red-orange color"
+    description: "Earthy, peppery seasoning with subtle nutty notes and a mild peppery heat, commonly used in Latin American cuisine for both flavor and its distinctive red-orange color",
+    textures: [],
+    functions: [],
   },
   {
     name: "acorn squash",
@@ -29,7 +31,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Sweet winter squash with nutty undertones and a creamy texture when cooked, ideal for roasting and stuffing"
+    description: "Sweet winter squash with nutty undertones and a creamy texture when cooked, ideal for roasting and stuffing",
+    textures: ["creamy", "tender", "starchy"],
+    functions: ["bulk"],
   },
   {
     name: "aioli",
@@ -44,7 +48,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 0
     },
-    description: "Garlic-flavored mayonnaise with rich, creamy texture and intense garlic notes, traditionally used in Mediterranean cuisine"
+    description: "Garlic-flavored mayonnaise with rich, creamy texture and intense garlic notes, traditionally used in Mediterranean cuisine",
+    textures: ["creamy"],
+    functions: ["fat", "binder"],
   },
   {
     name: "allspice",
@@ -59,7 +65,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 6
     },
-    description: "Complex spice combining notes of cinnamon, nutmeg, and cloves, essential in Caribbean cuisine and holiday baking"
+    description: "Complex spice combining notes of cinnamon, nutmeg, and cloves, essential in Caribbean cuisine and holiday baking",
+    textures: [],
+    functions: [],
   },
   {
     name: "almond",
@@ -74,7 +82,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Versatile tree nut with a sweet, buttery flavor and subtle tannic notes, widely used in both sweet and savory dishes"
+    description: "Versatile tree nut with a sweet, buttery flavor and subtle tannic notes, widely used in both sweet and savory dishes",
+    textures: ["crunchy"],
+    functions: ["fat", "crunch-topper"],
   },
   {
     name: "almond oil",
@@ -89,7 +99,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Delicate, nutty oil with subtle sweet notes, ideal for baking and finishing dishes"
+    description: "Delicate, nutty oil with subtle sweet notes, ideal for baking and finishing dishes",
+    textures: ["liquid"],
+    functions: ["fat"],
   },
   {
     name: "amaretto",
@@ -104,7 +116,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Sweet Italian liqueur with intense almond and stone fruit notes, popular in cocktails and desserts"
+    description: "Sweet Italian liqueur with intense almond and stone fruit notes, popular in cocktails and desserts",
+    textures: ["liquid"],
+    functions: ["sweetener"],
   },
   {
     name: "ancho chili",
@@ -119,7 +133,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 4
     },
-    description: "Dried poblano pepper with rich, fruity flavor and moderate heat, essential in Mexican moles and sauces"
+    description: "Dried poblano pepper with rich, fruity flavor and moderate heat, essential in Mexican moles and sauces",
+    textures: ["chewy"],
+    functions: [],
   },
   {
     name: "anchovy",
@@ -134,7 +150,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-    description: "Intensely savory small fish with high salinity and rich umami character, used to add depth to sauces and dressings"
+    description: "Intensely savory small fish with high salinity and rich umami character, used to add depth to sauces and dressings",
+    textures: ["tender"],
+    functions: ["umami-bomb"],
   },
   {
     name: "angelica",
@@ -149,7 +167,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-    description: "Aromatic herb with celery-like flavor and subtle licorice notes, used in candying and liqueur production"
+    description: "Aromatic herb with celery-like flavor and subtle licorice notes, used in candying and liqueur production",
+    textures: ["tender"],
+    functions: [],
   },
   {
     name: "anise",
@@ -164,7 +184,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 6
     },
-    description: "Distinctive licorice-flavored spice with sweet and aromatic notes, used in both sweet and savory dishes"
+    description: "Distinctive licorice-flavored spice with sweet and aromatic notes, used in both sweet and savory dishes",
+    textures: [],
+    functions: [],
   },
   {
     name: "anise hyssop",
@@ -179,7 +201,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-    description: "Aromatic herb combining anise and mint flavors, popular in teas and garnishes"
+    description: "Aromatic herb combining anise and mint flavors, popular in teas and garnishes",
+    textures: ["tender"],
+    functions: ["fresh-finish"],
   },
   {
     name: "anise seed",
@@ -194,7 +218,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 6
     },
-    description: "Small seeds with intense licorice flavor, commonly used in baking and Mediterranean cuisine"
+    description: "Small seeds with intense licorice flavor, commonly used in baking and Mediterranean cuisine",
+    textures: [],
+    functions: [],
   },
   {
     name: "apple",
@@ -209,7 +235,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-    description: "Crisp, sweet-tart fruit with varieties ranging from sweet to very tart, versatile in both sweet and savory dishes"
+    description: "Crisp, sweet-tart fruit with varieties ranging from sweet to very tart, versatile in both sweet and savory dishes",
+    textures: ["crisp", "juicy"],
+    functions: [],
   },
   {
     name: "apple brandy",
@@ -224,7 +252,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-    description: "Spirit distilled from fermented apples with rich, warming character and pronounced apple notes"
+    description: "Spirit distilled from fermented apples with rich, warming character and pronounced apple notes",
+    textures: ["liquid"],
+    functions: [],
   },
   {
     name: "apricot",
@@ -239,7 +269,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-    description: "Sweet-tart stone fruit with delicate floral notes and honey-like sweetness when ripe"
+    description: "Sweet-tart stone fruit with delicate floral notes and honey-like sweetness when ripe",
+    textures: ["tender", "juicy"],
+    functions: [],
   },
   {
     name: "apricot brandy",
@@ -254,7 +286,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-    description: "Sweet spirit with concentrated apricot flavor and subtle almond notes from the pits"
+    description: "Sweet spirit with concentrated apricot flavor and subtle almond notes from the pits",
+    textures: ["liquid"],
+    functions: [],
   },
   {
     name: "arborio rice",
@@ -269,7 +303,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Short-grain Italian rice with high starch content, ideal for creating creamy risotto dishes"
+    description: "Short-grain Italian rice with high starch content, ideal for creating creamy risotto dishes",
+    textures: ["creamy", "starchy", "chewy"],
+    functions: ["bulk"],
   },
   {
     name: "artichoke",
@@ -284,7 +320,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-    description: "Tender thistle with subtle sweetness and distinctive bitter notes, prized in Mediterranean cuisine"
+    description: "Tender thistle with subtle sweetness and distinctive bitter notes, prized in Mediterranean cuisine",
+    textures: ["tender"],
+    functions: [],
   },
   {
     name: "arugula",
@@ -299,7 +337,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 5
     },
-    description: "Peppery salad green with nutty undertones and pleasant bitter finish"
+    description: "Peppery salad green with nutty undertones and pleasant bitter finish",
+    textures: ["tender", "crisp"],
+    functions: ["fresh-finish"],
   },
   {
     name: "asiago",
@@ -314,7 +354,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Italian cow's milk cheese ranging from mild when fresh to sharp and complex when aged"
+    description: "Italian cow's milk cheese ranging from mild when fresh to sharp and complex when aged",
+    textures: [],
+    functions: ["fat", "umami-bomb"],
   },
   {
     name: "asparagus",
@@ -329,7 +371,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-    description: "Tender spring vegetable with grassy notes and subtle sweetness, versatile in preparation methods"
+    description: "Tender spring vegetable with grassy notes and subtle sweetness, versatile in preparation methods",
+    textures: ["tender", "crisp"],
+    functions: [],
   },
   {
     name: "avocado",
@@ -344,7 +388,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Creamy, buttery fruit with subtle nutty flavor and rich, fatty texture"
+    description: "Creamy, buttery fruit with subtle nutty flavor and rich, fatty texture",
+    textures: ["creamy"],
+    functions: ["fat"],
   },
   {
     name: "avocado oil",
@@ -359,7 +405,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Mild, buttery oil with high smoke point and subtle grassy notes, excellent for high-heat cooking"
+    description: "Mild, buttery oil with high smoke point and subtle grassy notes, excellent for high-heat cooking",
+    textures: ["liquid"],
+    functions: ["fat"],
   },
   {
     name: "bacon",
@@ -374,7 +422,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-    description: "Cured and smoked pork belly with intense savory flavor, rich in salt and fat with sweet-smoky undertones"
+    description: "Cured and smoked pork belly with intense savory flavor, rich in salt and fat with sweet-smoky undertones",
+    textures: ["crisp", "chewy"],
+    functions: ["fat", "umami-bomb", "crunch-topper"],
   },
   {
     name: "balsamic",
@@ -389,7 +439,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-    description: "Complex aged vinegar with sweet-tart profile and grape-like notes, prized for its rich, syrupy texture"
+    description: "Complex aged vinegar with sweet-tart profile and grape-like notes, prized for its rich, syrupy texture",
+    textures: ["liquid"],
+    functions: ["acid"],
   },
   {
     name: "banana",
@@ -404,7 +456,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-    description: "Sweet tropical fruit with creamy texture and distinctive aroma, versatile in both raw and cooked applications"
+    description: "Sweet tropical fruit with creamy texture and distinctive aroma, versatile in both raw and cooked applications",
+    textures: ["creamy", "tender"],
+    functions: [],
   },
   {
     name: "banyuls vinegar",
@@ -419,7 +473,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-    description: "French wine vinegar with complex nutty and cocoa notes, made from fortified Banyuls wine"
+    description: "French wine vinegar with complex nutty and cocoa notes, made from fortified Banyuls wine",
+    textures: ["liquid"],
+    functions: ["acid"],
   },
   {
     name: "bbq",
@@ -434,7 +490,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 1
     },
-    description: "Rich sauce combining sweet, tangy, and smoky elements, used for grilling and as a condiment"
+    description: "Rich sauce combining sweet, tangy, and smoky elements, used for grilling and as a condiment",
+    textures: ["liquid"],
+    functions: ["sweetener", "umami-bomb"],
   },
   {
     name: "barley",
@@ -449,7 +507,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Hearty grain with nutty flavor and chewy texture, commonly used in soups, stews, and breads"
+    description: "Hearty grain with nutty flavor and chewy texture, commonly used in soups, stews, and breads",
+    textures: ["chewy", "starchy"],
+    functions: ["bulk"],
   },
   {
     name: "bass",
@@ -464,7 +524,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-    description: "Mild, sweet-flavored fish with tender, flaky flesh, suitable for various cooking methods"
+    description: "Mild, sweet-flavored fish with tender, flaky flesh, suitable for various cooking methods",
+    textures: ["tender", "flaky"],
+    functions: ["bulk"],
   },
   {
     name: "basil",
@@ -479,7 +541,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-    description: "Aromatic herb with sweet-peppery notes and clove-like undertones, essential in Mediterranean cuisine"
+    description: "Aromatic herb with sweet-peppery notes and clove-like undertones, essential in Mediterranean cuisine",
+    textures: ["tender"],
+    functions: ["fresh-finish"],
   },
   {
     name: "basmati",
@@ -494,7 +558,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-    description: "Aromatic long-grain rice with floral notes and nutty undertones, prized in Indian cuisine"
+    description: "Aromatic long-grain rice with floral notes and nutty undertones, prized in Indian cuisine",
+    textures: ["starchy"],
+    functions: ["bulk"],
   },
   {
     name: "bay leaf",
@@ -509,7 +575,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 6
     },
-    description: "Aromatic leaf with subtle eucalyptus notes, used to add depth to soups, stews, and braises"
+    description: "Aromatic leaf with subtle eucalyptus notes, used to add depth to soups, stews, and braises",
+    textures: [],
+    functions: [],
   },
   {
     name: "beef",
@@ -524,7 +592,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Rich, robust meat with deep savory flavor that intensifies when cooked"
+    description: "Rich, robust meat with deep savory flavor that intensifies when cooked",
+    textures: ["tender", "juicy"],
+    functions: ["bulk"],
   },
   { 
     name: "brisket",
@@ -539,7 +609,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-    description: "Tough cut that becomes tender and intensely flavorful when slow-cooked, popular in barbecue"
+    description: "Tough cut that becomes tender and intensely flavorful when slow-cooked, popular in barbecue",
+    textures: ["tender", "juicy"],
+    functions: ["bulk"],
   },
   {
     name: "beef cheek",
@@ -554,7 +626,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Gelatinous cut that becomes rich and tender when braised, prized for its intense beef flavor"
+    description: "Gelatinous cut that becomes rich and tender when braised, prized for its intense beef flavor",
+    textures: ["tender"],
+    functions: ["bulk"],
   },
   {
     name: "beef roast",
@@ -569,7 +643,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Large cut suitable for roasting, develops rich crust and tender interior when properly cooked"
+    description: "Large cut suitable for roasting, develops rich crust and tender interior when properly cooked",
+    textures: ["tender", "juicy"],
+    functions: ["bulk"],
   },
   {
     name: "beef shank",
@@ -584,7 +660,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Tough cut rich in connective tissue, ideal for slow-cooking and making rich broths"
+    description: "Tough cut rich in connective tissue, ideal for slow-cooking and making rich broths",
+    textures: ["tender"],
+    functions: ["bulk"],
   },
   {
     name: "sirloin",
@@ -599,7 +677,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-    description: "Versatile cut from the rear of the cow, balance of flavor and tenderness"
+    description: "Versatile cut from the rear of the cow, balance of flavor and tenderness",
+    textures: ["tender", "juicy"],
+    functions: ["bulk"],
   },
   {
     name: "beef stock",
@@ -614,7 +694,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Rich cooking liquid made from simmered beef bones and aromatics, foundation for soups and sauces"
+    description: "Rich cooking liquid made from simmered beef bones and aromatics, foundation for soups and sauces",
+    textures: ["liquid"],
+    functions: ["umami-bomb"],
   },
   {
     name: "beer",
@@ -629,7 +711,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-    description: "Fermented grain beverage with complex malt and hop character, varying by style"
+    description: "Fermented grain beverage with complex malt and hop character, varying by style",
+    textures: ["liquid"],
+    functions: [],
   },
   {
     name: "beet",
@@ -644,7 +728,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Sweet root vegetable with earthy mineral notes, versatile in both raw and cooked applications"
+    description: "Sweet root vegetable with earthy mineral notes, versatile in both raw and cooked applications",
+    textures: ["tender", "juicy"],
+    functions: [],
   },
   {
     name: "bell pepper",
@@ -659,7 +745,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-    description: "Crisp, sweet pepper with varying flavors depending on ripeness and color"
+    description: "Crisp, sweet pepper with varying flavors depending on ripeness and color",
+    textures: ["crisp", "juicy"],
+    functions: [],
   },
   {
     name: "bibb lettuce",
@@ -674,7 +762,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-    description: "Tender butterhead lettuce with mild, sweet flavor and delicate texture"
+    description: "Tender butterhead lettuce with mild, sweet flavor and delicate texture",
+    textures: ["crisp", "tender"],
+    functions: ["bulk"],
   },
   {
     name: "mustard greens",
@@ -689,7 +779,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 8
     },
-    description: "General term for leafy greens with a strong, bitter flavor"
+    description: "General term for leafy greens with a strong, bitter flavor",
+    textures: ["tender"],
+    functions: [],
   },
   {
       name: "black bass",
@@ -704,7 +796,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Fresh water fish with firm, white flesh and clean, mild flavor ideal for various cooking methods"
+      description: "Fresh water fish with firm, white flesh and clean, mild flavor ideal for various cooking methods",
+      textures: ["flaky", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "black beans",
@@ -719,7 +813,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Dense, meaty bean with earthy flavor and creamy texture, staple in Latin American cuisine"
+      description: "Dense, meaty bean with earthy flavor and creamy texture, staple in Latin American cuisine",
+      textures: ["creamy", "starchy", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "black cod",
@@ -734,7 +830,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Rich, buttery fish with velvety texture and sweet flavor, excellent for glazing and grilling"
+      description: "Rich, buttery fish with velvety texture and sweet flavor, excellent for glazing and grilling",
+      textures: ["flaky", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "black olive",
@@ -749,7 +847,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Cured olive with intense briny flavor and meaty texture, adds depth to Mediterranean dishes"
+      description: "Cured olive with intense briny flavor and meaty texture, adds depth to Mediterranean dishes",
+      textures: ["chewy", "tender"],
+      functions: ["umami-bomb"],
     },
   {
       name: "black peppercorn",
@@ -764,7 +864,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 4
     },
-      description: "Pungent peppercorn with complex heat and woody notes, fundamental seasoning in global cuisine"
+      description: "Pungent peppercorn with complex heat and woody notes, fundamental seasoning in global cuisine",
+      textures: [],
+      functions: [],
     },
   {
       name: "black sesame seed",
@@ -779,7 +881,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Nutty seeds with intense toasted flavor and rich oil content, common in Asian cuisine"
+      description: "Nutty seeds with intense toasted flavor and rich oil content, common in Asian cuisine",
+      textures: ["crunchy"],
+      functions: ["crunch-topper", "fat"],
     },
   {
       name: "black tea",
@@ -794,7 +898,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Oxidized tea with robust, tannic flavor and malty notes, varying by origin and processing"
+      description: "Oxidized tea with robust, tannic flavor and malty notes, varying by origin and processing",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "black truffle",
@@ -809,7 +915,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 10
     },
-      description: "Prized fungus with intense earthy aroma and complex umami character, used sparingly as a luxury ingredient"
+      description: "Prized fungus with intense earthy aroma and complex umami character, used sparingly as a luxury ingredient",
+      textures: ["tender"],
+      functions: ["umami-bomb"],
     },
   {
       name: "black-eyed peas",
@@ -824,7 +932,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Creamy legumes with earthy flavor and tender texture, traditional in Southern American cuisine"
+      description: "Creamy legumes with earthy flavor and tender texture, traditional in Southern American cuisine",
+      textures: ["creamy", "starchy", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "blackberry",
@@ -839,7 +949,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Deep, complex berry with sweet-tart flavor and wine-like notes when ripe"
+      description: "Deep, complex berry with sweet-tart flavor and wine-like notes when ripe",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "blood orange",
@@ -854,7 +966,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Crimson-fleshed citrus with complex sweet-tart flavor and subtle berry notes"
+      description: "Crimson-fleshed citrus with complex sweet-tart flavor and subtle berry notes",
+      textures: ["juicy"],
+      functions: ["acid", "fresh-finish"],
     },
   {
       name: "blue cheese",
@@ -869,7 +983,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 3
     },
-      description: "Bold, pungent cheese with complex flavor from blue mold and creamy to crumbly texture"
+      description: "Bold, pungent cheese with complex flavor from blue mold and creamy to crumbly texture",
+      textures: ["creamy"],
+      functions: ["fat", "umami-bomb"],
     },
   {
       name: "blueberry",
@@ -884,7 +1000,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Sweet berry with subtle acidity and floral notes, versatile in both sweet and savory dishes"
+      description: "Sweet berry with subtle acidity and floral notes, versatile in both sweet and savory dishes",
+      textures: ["juicy"],
+      functions: [],
     },
   {
       name: "bluefish",
@@ -899,7 +1017,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Rich, full-flavored fish with high oil content, best when fresh and simply prepared"
+      description: "Rich, full-flavored fish with high oil content, best when fresh and simply prepared",
+      textures: ["flaky", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "bok choy",
@@ -914,7 +1034,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Crisp Chinese cabbage with mild, sweet flavor and tender leaves, common in Asian cuisine"
+      description: "Crisp Chinese cabbage with mild, sweet flavor and tender leaves, common in Asian cuisine",
+      textures: ["crisp", "tender", "juicy"],
+      functions: [],
     },
   {
       name: "bouquet garni",
@@ -929,7 +1051,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Classic French herb bundle typically containing parsley, thyme, and bay leaf for flavoring stocks and stews"
+      description: "Classic French herb bundle typically containing parsley, thyme, and bay leaf for flavoring stocks and stews",
+      textures: [],
+      functions: [],
     },
   {
       name: "bourbon",
@@ -944,7 +1068,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-      description: "American whiskey with rich vanilla and caramel notes from new charred oak barrels, minimum 51% corn"
+      description: "American whiskey with rich vanilla and caramel notes from new charred oak barrels, minimum 51% corn",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "boysenberry",
@@ -959,7 +1085,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Complex hybrid berry combining raspberry and blackberry characteristics with intense wine-like notes"
+      description: "Complex hybrid berry combining raspberry and blackberry characteristics with intense wine-like notes",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "brandy",
@@ -974,7 +1102,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-      description: "Distilled wine spirit with concentrated fruit notes and warming character, aged in oak"
+      description: "Distilled wine spirit with concentrated fruit notes and warming character, aged in oak",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "bread",
@@ -989,7 +1119,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Staple food with complex fermented flavors and varying textures depending on type and baking method"
+      description: "Staple food with complex fermented flavors and varying textures depending on type and baking method",
+      textures: ["starchy", "chewy"],
+      functions: ["bulk"],
     },
   {
       name: "bread crumb",
@@ -1004,7 +1136,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Dried, crushed bread used for coating and binding, adds texture and toasted notes to dishes"
+      description: "Dried, crushed bread used for coating and binding, adds texture and toasted notes to dishes",
+      textures: ["crunchy", "crisp"],
+      functions: ["crunch-topper", "binder"],
     },
   {
       name: "brie",
@@ -1019,7 +1153,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Soft-ripened cheese with creamy texture and mild, buttery flavor that intensifies with age"
+      description: "Soft-ripened cheese with creamy texture and mild, buttery flavor that intensifies with age",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "broccoli",
@@ -1034,7 +1170,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Cruciferous vegetable with grassy flavor and slight bitterness, versatile in preparation methods"
+      description: "Cruciferous vegetable with grassy flavor and slight bitterness, versatile in preparation methods",
+      textures: ["tender", "crisp"],
+      functions: ["bulk"],
     },
   {
       name: "broccoli rabe",
@@ -1049,7 +1187,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 2
     },
-      description: "Leafy brassica with pronounced bitter flavor and peppery notes, popular in Italian cuisine"
+      description: "Leafy brassica with pronounced bitter flavor and peppery notes, popular in Italian cuisine",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "broccolini",
@@ -1064,7 +1204,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Hybrid vegetable with sweeter flavor than broccoli and tender stems, mild and versatile"
+      description: "Hybrid vegetable with sweeter flavor than broccoli and tender stems, mild and versatile",
+      textures: ["tender", "crisp"],
+      functions: ["bulk"],
     },
   {
       name: "brown butter",
@@ -1079,7 +1221,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Butter cooked until milk solids caramelize, developing complex nutty and toasted flavors"
+      description: "Butter cooked until milk solids caramelize, developing complex nutty and toasted flavors",
+      textures: ["liquid"],
+      functions: ["fat"],
     },
   {
       name: "brown sugar",
@@ -1094,7 +1238,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Sugar with molasses content, providing deep caramel notes and moisture-retaining properties"
+      description: "Sugar with molasses content, providing deep caramel notes and moisture-retaining properties",
+      textures: [],
+      functions: ["sweetener"],
     },
   {
       name: "brussel sprouts",
@@ -1109,7 +1255,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-      description: "Small cabbage-like vegetable with nutty flavor when roasted, characteristic brassica bitterness"
+      description: "Small cabbage-like vegetable with nutty flavor when roasted, characteristic brassica bitterness",
+      textures: ["tender", "crisp"],
+      functions: ["bulk"],
     },
   {
       name: "bulgur",
@@ -1124,7 +1272,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Parboiled cracked wheat with nutty flavor and chewy texture, common in Middle Eastern cuisine"
+      description: "Parboiled cracked wheat with nutty flavor and chewy texture, common in Middle Eastern cuisine",
+      textures: ["chewy", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "burrata",
@@ -1139,7 +1289,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Fresh mozzarella filled with cream and stracciatella, known for its rich, milky flavor"
+      description: "Fresh mozzarella filled with cream and stracciatella, known for its rich, milky flavor",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "butter",
@@ -1154,7 +1306,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Essential dairy fat with rich, creamy flavor and varying complexity based on culture and aging"
+      description: "Essential dairy fat with rich, creamy flavor and varying complexity based on culture and aging",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "buttermilk",
@@ -1169,7 +1323,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Cultured milk product with tangy flavor and thick consistency, used in baking and marinades"
+      description: "Cultured milk product with tangy flavor and thick consistency, used in baking and marinades",
+      textures: ["liquid", "creamy"],
+      functions: ["acid"],
     },
   {
       name: "butternut squash",
@@ -1184,7 +1340,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sweet winter squash with nutty undertones and smooth texture, versatile in soups and roasts"
+      description: "Sweet winter squash with nutty undertones and smooth texture, versatile in soups and roasts",
+      textures: ["creamy", "tender", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "butterscotch",
@@ -1199,7 +1357,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Confection made from brown sugar and butter, characterized by rich toffee-like flavor"
+      description: "Confection made from brown sugar and butter, characterized by rich toffee-like flavor",
+      textures: ["creamy"],
+      functions: ["sweetener"],
     },
   {
       name: "béarnaise",
@@ -1214,7 +1374,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 1
     },
-      description: "Classical French sauce based on hollandaise with tarragon and shallots, traditionally served with steak"
+      description: "Classical French sauce based on hollandaise with tarragon and shallots, traditionally served with steak",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "béchamel",
@@ -1229,7 +1391,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Classic French white sauce made from milk thickened with roux, base for many other sauces"
+      description: "Classic French white sauce made from milk thickened with roux, base for many other sauces",
+      textures: ["creamy"],
+      functions: ["fat", "binder"],
     },
   {
       name: "cabbage",
@@ -1244,7 +1408,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Versatile brassica with subtle sweetness when cooked, common in slaws and fermented preparations"
+      description: "Versatile brassica with subtle sweetness when cooked, common in slaws and fermented preparations",
+      textures: ["crisp", "tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "cabernet sauvignon",
@@ -1259,7 +1425,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-      description: "Full-bodied red wine with dark fruit notes, firm tannins, and aging potential"
+      description: "Full-bodied red wine with dark fruit notes, firm tannins, and aging potential",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "cake",
@@ -1274,7 +1442,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Sweet baked good with tender crumb and varying flavors depending on type and ingredients"
+      description: "Sweet baked good with tender crumb and varying flavors depending on type and ingredients",
+      textures: ["tender", "airy"],
+      functions: [],
     },
   {
       name: "campari",
@@ -1289,7 +1459,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 9
     },
-      description: "Italian bitter aperitif with complex herbal notes and distinctive red color, essential in classic cocktails"
+      description: "Italian bitter aperitif with complex herbal notes and distinctive red color, essential in classic cocktails",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "cannellini beans",
@@ -1304,7 +1476,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Mild white beans with creamy texture and subtle nutty flavor, staple in Italian cuisine"
+      description: "Mild white beans with creamy texture and subtle nutty flavor, staple in Italian cuisine",
+      textures: ["creamy", "starchy", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "canola oil",
@@ -1319,7 +1493,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Neutral-flavored oil with high smoke point, versatile for cooking and baking"
+      description: "Neutral-flavored oil with high smoke point, versatile for cooking and baking",
+      textures: ["liquid"],
+      functions: ["fat"],
     },
   {
       name: "cantaloupe",
@@ -1334,7 +1510,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Sweet summer melon with floral aroma and tender, juicy flesh"
+      description: "Sweet summer melon with floral aroma and tender, juicy flesh",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "capers",
@@ -1349,7 +1527,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 3
     },
-      description: "Brined flower buds with intense salty and tangy flavor, used as a condiment in Mediterranean cuisine"
+      description: "Brined flower buds with intense salty and tangy flavor, used as a condiment in Mediterranean cuisine",
+      textures: ["tender"],
+      functions: ["acid", "umami-bomb"],
     },
   {
       name: "caramel",
@@ -1364,7 +1544,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Cooked sugar with complex sweet and bitter notes, varying in intensity based on cooking method"
+      description: "Cooked sugar with complex sweet and bitter notes, varying in intensity based on cooking method",
+      textures: ["liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "caraway seed",
@@ -1379,7 +1561,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 5
     },
-      description: "Aromatic seed with anise-like flavor and slight peppery note, common in European cuisine"
+      description: "Aromatic seed with anise-like flavor and slight peppery note, common in European cuisine",
+      textures: [],
+      functions: [],
     },
   {
       name: "cardamom",
@@ -1394,7 +1578,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 7
     },
-      description: "Aromatic spice with complex sweet and floral notes, used in both sweet and savory dishes"
+      description: "Aromatic spice with complex sweet and floral notes, used in both sweet and savory dishes",
+      textures: [],
+      functions: [],
     },
   {
       name: "carrot",
@@ -1409,7 +1595,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sweet root vegetable with earthy undertones, versatile in both raw and cooked applications"
+      description: "Sweet root vegetable with earthy undertones, versatile in both raw and cooked applications",
+      textures: ["crunchy", "juicy", "tender"],
+      functions: [],
     },
   {
       name: "cashew",
@@ -1424,7 +1612,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Creamy nut with subtle sweetness and buttery texture, versatile in both sweet and savory dishes"
+      description: "Creamy nut with subtle sweetness and buttery texture, versatile in both sweet and savory dishes",
+      textures: ["crunchy"],
+      functions: ["fat", "crunch-topper"],
     },
   {
       name: "catfish",
@@ -1439,7 +1629,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Freshwater fish with mild flavor and tender texture, popular in Southern cuisine"
+      description: "Freshwater fish with mild flavor and tender texture, popular in Southern cuisine",
+      textures: ["tender", "flaky"],
+      functions: ["bulk"],
     },
   {
       name: "cauliflower",
@@ -1454,7 +1646,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 1
     },
-      description: "Mild brassica with subtle nutty flavor when roasted, versatile as a vegetable alternative"
+      description: "Mild brassica with subtle nutty flavor when roasted, versatile as a vegetable alternative",
+      textures: ["tender", "crisp"],
+      functions: ["bulk"],
     },
   {
       name: "caviar",
@@ -1469,7 +1663,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Cured fish roe with intense briny flavor and delicate texture, prized luxury ingredient"
+      description: "Cured fish roe with intense briny flavor and delicate texture, prized luxury ingredient",
+      textures: ["juicy", "tender"],
+      functions: ["umami-bomb"],
     },
   {
       name: "cayenne",
@@ -1484,7 +1680,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 9,
       aromatic: 4
     },
-      description: "Hot red pepper powder with clean, sharp heat and subtle fruity notes"
+      description: "Hot red pepper powder with clean, sharp heat and subtle fruity notes",
+      textures: [],
+      functions: [],
     },
   {
       name: "celeriac",
@@ -1499,7 +1697,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Celery-flavored root vegetable with nutty undertones, versatile in soups and purees"
+      description: "Celery-flavored root vegetable with nutty undertones, versatile in soups and purees",
+      textures: ["tender", "starchy", "creamy"],
+      functions: ["bulk"],
     },
   {
       name: "celery",
@@ -1514,7 +1714,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Crisp vegetable with distinctive herbal flavor, essential in mirepoix and stocks"
+      description: "Crisp vegetable with distinctive herbal flavor, essential in mirepoix and stocks",
+      textures: ["crisp", "crunchy", "juicy"],
+      functions: [],
     },
   {
       name: "celery salt",
@@ -1529,7 +1731,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 3
     },
-      description: "Seasoning blend of ground celery seed and salt, adds savory depth to dishes"
+      description: "Seasoning blend of ground celery seed and salt, adds savory depth to dishes",
+      textures: [],
+      functions: [],
     },
   {
       name: "celery seed",
@@ -1544,7 +1748,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-      description: "Concentrated celery flavor in seed form, adds depth to pickling brines and spice blends"
+      description: "Concentrated celery flavor in seed form, adds depth to pickling brines and spice blends",
+      textures: [],
+      functions: [],
     },
   {
       name: "ceviche",
@@ -1559,7 +1765,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 0
     },
-      description: "Latin American dish of citrus-cured seafood with bright, acidic flavor and firm texture"
+      description: "Latin American dish of citrus-cured seafood with bright, acidic flavor and firm texture",
+      textures: ["tender", "juicy"],
+      functions: [],
     },
   {
       name: "chamomile",
@@ -1574,7 +1782,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Gentle herb with floral, apple-like notes and calming properties, common in teas"
+      description: "Gentle herb with floral, apple-like notes and calming properties, common in teas",
+      textures: [],
+      functions: [],
     },
   {
       name: "champagne",
@@ -1589,7 +1799,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Sparkling wine with crisp acidity and fine bubbles, ranging from dry to sweet"
+      description: "Sparkling wine with crisp acidity and fine bubbles, ranging from dry to sweet",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "champagne vinegar",
@@ -1604,7 +1816,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Delicate vinegar made from champagne, lighter and more refined than white wine vinegar"
+      description: "Delicate vinegar made from champagne, lighter and more refined than white wine vinegar",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "chanterelle",
@@ -1619,7 +1833,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 1
     },
-      description: "Golden wild mushroom with fruity aroma and delicate pepper notes, prized in French cuisine"
+      description: "Golden wild mushroom with fruity aroma and delicate pepper notes, prized in French cuisine",
+      textures: ["tender", "chewy"],
+      functions: [],
     },
   {
       name: "chard",
@@ -1634,7 +1850,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Leafy green with earthy mineral notes and mild bitterness, stems provide textural contrast"
+      description: "Leafy green with earthy mineral notes and mild bitterness, stems provide textural contrast",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "chardonnay",
@@ -1649,7 +1867,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Versatile white wine with apple and citrus notes, can be oaked or unoaked"
+      description: "Versatile white wine with apple and citrus notes, can be oaked or unoaked",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "cheddar",
@@ -1664,7 +1884,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Aged cow's milk cheese ranging from mild to sharp, with rich, tangy flavor"
+      description: "Aged cow's milk cheese ranging from mild to sharp, with rich, tangy flavor",
+      textures: [],
+      functions: ["fat", "umami-bomb"],
     },
   {
       name: "cherry",
@@ -1679,7 +1901,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Sweet-tart fruit with deep flavor and varying levels of acidity depending on variety"
+      description: "Sweet-tart fruit with deep flavor and varying levels of acidity depending on variety",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "chervil",
@@ -1694,7 +1918,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-      description: "Delicate herb with subtle anise notes, one of the French fine herbs"
+      description: "Delicate herb with subtle anise notes, one of the French fine herbs",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "chestnut",
@@ -1709,7 +1935,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Sweet, starchy nut with subtle vanilla notes when roasted, popular in European cuisine"
+      description: "Sweet, starchy nut with subtle vanilla notes when roasted, popular in European cuisine",
+      textures: ["starchy", "tender"],
+      functions: [],
     },
   {
       name: "chicken",
@@ -1724,7 +1952,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Versatile poultry with mild flavor that readily takes on seasonings and marinades"
+      description: "Versatile poultry with mild flavor that readily takes on seasonings and marinades",
+      textures: ["tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "chicken fat",
@@ -1739,7 +1969,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Rich poultry fat with intense savory flavor, traditional in Jewish cuisine as schmaltz"
+      description: "Rich poultry fat with intense savory flavor, traditional in Jewish cuisine as schmaltz",
+      textures: ["liquid"],
+      functions: ["fat"],
     },
   {
       name: "chicken liver",
@@ -1754,7 +1986,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Rich organ meat with mineral notes and creamy texture when cooked properly"
+      description: "Rich organ meat with mineral notes and creamy texture when cooked properly",
+      textures: ["creamy", "tender"],
+      functions: [],
     },
   {
       name: "chicken stock",
@@ -1769,7 +2003,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Light but flavorful cooking liquid made from simmered chicken and aromatics"
+      description: "Light but flavorful cooking liquid made from simmered chicken and aromatics",
+      textures: ["liquid"],
+      functions: ["umami-bomb"],
     },
   {
       name: "chickpea",
@@ -1784,7 +2020,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Versatile legume with nutty flavor and creamy texture, staple in Mediterranean cuisine"
+      description: "Versatile legume with nutty flavor and creamy texture, staple in Mediterranean cuisine",
+      textures: ["creamy", "starchy", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "chicory",
@@ -1799,7 +2037,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 7
     },
-      description: "Bitter leafy vegetable with complex flavor, popular in European salads and as coffee substitute"
+      description: "Bitter leafy vegetable with complex flavor, popular in European salads and as coffee substitute",
+      textures: ["crisp", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "chili oil",
@@ -1814,7 +2054,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 4
     },
-      description: "Oil infused with hot peppers, common in Asian cuisine for adding heat and flavor"
+      description: "Oil infused with hot peppers, common in Asian cuisine for adding heat and flavor",
+      textures: ["liquid"],
+      functions: ["fat"],
     },
   {
       name: "chili paste",
@@ -1829,7 +2071,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 8,
       aromatic: 4
     },
-      description: "Concentrated chili condiment with complex flavor and varying heat levels"
+      description: "Concentrated chili condiment with complex flavor and varying heat levels",
+      textures: [],
+      functions: ["umami-bomb"],
     },
   {
       name: "chili pepper",
@@ -1844,7 +2088,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 4
     },
-      description: "Fresh or dried peppers with varying heat levels and fruity to smoky flavors"
+      description: "Fresh or dried peppers with varying heat levels and fruity to smoky flavors",
+      textures: ["crisp", "juicy"],
+      functions: [],
     },
   {
       name: "chili powder",
@@ -1859,7 +2105,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 4
     },
-      description: "Blend of ground chilies and spices, varies in heat level and composition"
+      description: "Blend of ground chilies and spices, varies in heat level and composition",
+      textures: [],
+      functions: [],
     },
   {
       name: "chipotle",
@@ -1874,7 +2122,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 5
     },
-      description: "Smoked jalapeño pepper with deep, complex smoky heat and subtle sweetness"
+      description: "Smoked jalapeño pepper with deep, complex smoky heat and subtle sweetness",
+      textures: ["chewy"],
+      functions: [],
     },
   {
       name: "chive",
@@ -1889,7 +2139,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-      description: "Delicate allium herb with mild onion flavor, often used as fresh garnish"
+      description: "Delicate allium herb with mild onion flavor, often used as fresh garnish",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "chocolate",
@@ -1904,7 +2156,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Complex confection from cacao beans, ranging from bitter dark to sweet milk varieties"
+      description: "Complex confection from cacao beans, ranging from bitter dark to sweet milk varieties",
+      textures: [],
+      functions: ["sweetener"],
     },
   {
       name: "chorizo",
@@ -1919,7 +2173,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 5
     },
-      description: "Spiced pork sausage with paprika and garlic, available fresh or cured"
+      description: "Spiced pork sausage with paprika and garlic, available fresh or cured",
+      textures: ["tender", "chewy", "juicy"],
+      functions: ["bulk", "fat", "umami-bomb"],
     },
   {
       name: "chutney",
@@ -1934,7 +2190,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 1
     },
-      description: "Indian condiment combining fruits or vegetables with spices, sweet and tangy"
+      description: "Indian condiment combining fruits or vegetables with spices, sweet and tangy",
+      textures: [],
+      functions: ["sweetener", "acid"],
     },
   {
       name: "cider",
@@ -1949,7 +2207,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Fermented apple juice ranging from sweet to dry, still or sparkling"
+      description: "Fermented apple juice ranging from sweet to dry, still or sparkling",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "cider vinegar",
@@ -1964,7 +2224,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Vinegar made from fermented apple cider with fruity undertones"
+      description: "Vinegar made from fermented apple cider with fruity undertones",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "cilantro",
@@ -1979,7 +2241,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-      description: "Bright herb with distinctive flavor, essential in Latin American and Asian cuisines"
+      description: "Bright herb with distinctive flavor, essential in Latin American and Asian cuisines",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "cinnamon",
@@ -1994,7 +2258,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 7
     },
-      description: "Sweet, warming spice from tree bark, used in both sweet and savory dishes"
+      description: "Sweet, warming spice from tree bark, used in both sweet and savory dishes",
+      textures: [],
+      functions: [],
     },
   {
       name: "clam",
@@ -2009,7 +2275,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Briny shellfish with sweet, mineral flavor and tender meat when properly cooked"
+      description: "Briny shellfish with sweet, mineral flavor and tender meat when properly cooked",
+      textures: ["tender", "chewy", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "clove",
@@ -2024,7 +2292,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 5,
       aromatic: 7
     },
-      description: "Intense aromatic spice with numbing quality, used sparingly in sweet and savory dishes"
+      description: "Intense aromatic spice with numbing quality, used sparingly in sweet and savory dishes",
+      textures: [],
+      functions: [],
     },
   {
       name: "coconut",
@@ -2039,7 +2309,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Tropical fruit with rich, creamy flesh and sweet, nutty flavor"
+      description: "Tropical fruit with rich, creamy flesh and sweet, nutty flavor",
+      textures: ["chewy", "crunchy"],
+      functions: ["fat"],
     },
   {
       name: "coconut milk",
@@ -2054,7 +2326,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Rich liquid extracted from coconut meat, essential in Southeast Asian cuisine"
+      description: "Rich liquid extracted from coconut meat, essential in Southeast Asian cuisine",
+      textures: ["liquid", "creamy"],
+      functions: ["fat"],
     },
   {
       name: "cod",
@@ -2069,7 +2343,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Mild white fish with flaky texture and subtle sweet flavor"
+      description: "Mild white fish with flaky texture and subtle sweet flavor",
+      textures: ["flaky", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "coffee",
@@ -2084,7 +2360,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 6
     },
-      description: "Complex beverage from roasted beans with varying flavor profiles based on origin and roast"
+      description: "Complex beverage from roasted beans with varying flavor profiles based on origin and roast",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "cognac",
@@ -2099,7 +2377,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-      description: "Aged French brandy with complex vanilla and fruit notes from oak aging"
+      description: "Aged French brandy with complex vanilla and fruit notes from oak aging",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "colby",
@@ -2114,7 +2394,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Mild, creamy American cheese similar to cheddar but softer and moister"
+      description: "Mild, creamy American cheese similar to cheddar but softer and moister",
+      textures: [],
+      functions: ["fat"],
     },
   {
       name: "collard greens",
@@ -2129,7 +2411,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Hearty greens with earthy flavor, traditional in Southern American cuisine"
+      description: "Hearty greens with earthy flavor, traditional in Southern American cuisine",
+      textures: ["tender", "chewy"],
+      functions: [],
     },
   {
       name: "coriander",
@@ -2144,7 +2428,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 1
     },
-      description: "Seeds with citrusy, floral notes, used ground or whole in global cuisines"
+      description: "Seeds with citrusy, floral notes, used ground or whole in global cuisines",
+      textures: [],
+      functions: [],
     },
   {
       name: "corn",
@@ -2159,7 +2445,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sweet grain with versatile applications, from fresh eating to processing"
+      description: "Sweet grain with versatile applications, from fresh eating to processing",
+      textures: ["juicy", "crisp"],
+      functions: [],
     },
   {
       name: "cornichon",
@@ -2174,7 +2462,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Small pickled cucumbers with tart, briny flavor, traditional in French cuisine"
+      description: "Small pickled cucumbers with tart, briny flavor, traditional in French cuisine",
+      textures: ["crunchy", "crisp", "juicy"],
+      functions: ["acid"],
     },
   {
       name: "cornish hen",
@@ -2189,7 +2479,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Small, tender chicken variety with delicate flavor and moist meat"
+      description: "Small, tender chicken variety with delicate flavor and moist meat",
+      textures: ["tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "cornmeal",
@@ -2204,7 +2496,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Ground corn with sweet, earthy flavor, essential in Southern and Italian cooking"
+      description: "Ground corn with sweet, earthy flavor, essential in Southern and Italian cooking",
+      textures: ["starchy", "creamy"],
+      functions: ["bulk"],
     },
   {
       name: "couscous",
@@ -2219,7 +2513,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Tiny pasta made from semolina wheat, neutral flavor absorbs surrounding ingredients"
+      description: "Tiny pasta made from semolina wheat, neutral flavor absorbs surrounding ingredients",
+      textures: ["starchy", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "crab",
@@ -2234,7 +2530,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sweet, delicate shellfish with rich flavor and tender meat"
+      description: "Sweet, delicate shellfish with rich flavor and tender meat",
+      textures: ["tender", "juicy", "flaky"],
+      functions: ["bulk"],
     },
   {
       name: "cranberry",
@@ -2249,7 +2547,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Tart berry with astringent qualities, usually sweetened for consumption"
+      description: "Tart berry with astringent qualities, usually sweetened for consumption",
+      textures: ["juicy"],
+      functions: ["acid"],
     },
   {
       name: "crawfish",
@@ -2264,7 +2564,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Small freshwater crustacean with sweet, delicate flavor similar to lobster"
+      description: "Small freshwater crustacean with sweet, delicate flavor similar to lobster",
+      textures: ["tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "cream",
@@ -2279,7 +2581,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Rich dairy product with smooth, luxurious texture and mild sweet flavor"
+      description: "Rich dairy product with smooth, luxurious texture and mild sweet flavor",
+      textures: ["liquid", "creamy"],
+      functions: ["fat"],
     },
   {
       name: "cream cheese",
@@ -2294,7 +2598,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Fresh, mild cheese with smooth, creamy texture and slight tang"
+      description: "Fresh, mild cheese with smooth, creamy texture and slight tang",
+      textures: ["creamy"],
+      functions: ["fat", "binder"],
     },
   {
       name: "cremini",
@@ -2309,7 +2615,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Brown mushroom with deeper flavor than white button, earthy and meaty"
+      description: "Brown mushroom with deeper flavor than white button, earthy and meaty",
+      textures: ["tender", "chewy", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "crème anglaise",
@@ -2324,7 +2632,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Rich vanilla custard sauce used in French desserts"
+      description: "Rich vanilla custard sauce used in French desserts",
+      textures: ["creamy", "liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "crème fraîche",
@@ -2339,7 +2649,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Cultured cream with subtle tang and rich, silky texture"
+      description: "Cultured cream with subtle tang and rich, silky texture",
+      textures: ["creamy"],
+      functions: ["fat", "acid"],
     },
   {
       name: "cucumber",
@@ -2354,7 +2666,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Crisp, refreshing vegetable with high water content and subtle sweetness"
+      description: "Crisp, refreshing vegetable with high water content and subtle sweetness",
+      textures: ["crisp", "juicy"],
+      functions: ["fresh-finish"],
     },
   {
       name: "cumin",
@@ -2369,7 +2683,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 6
     },
-      description: "Warm, earthy spice essential in many global cuisines"
+      description: "Warm, earthy spice essential in many global cuisines",
+      textures: [],
+      functions: [],
     },
   {
       name: "cured salmon",
@@ -2384,7 +2700,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Salt-cured salmon with concentrated flavor and silky texture"
+      description: "Salt-cured salmon with concentrated flavor and silky texture",
+      textures: ["tender"],
+      functions: ["bulk"],
     },
   {
       name: "currant",
@@ -2399,7 +2717,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Small berries with bright, tart flavor and varying colors"
+      description: "Small berries with bright, tart flavor and varying colors",
+      textures: ["juicy"],
+      functions: [],
     },
   {
       name: "curry",
@@ -2414,7 +2734,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 2
     },
-      description: "Complex spice blend with varying composition, common in Indian cuisine"
+      description: "Complex spice blend with varying composition, common in Indian cuisine",
+      textures: [],
+      functions: [],
     },
   {
       name: "curry leaf",
@@ -2429,7 +2751,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 7
     },
-      description: "Aromatic leaf with unique citrus-nutty flavor, essential in South Indian cuisine"
+      description: "Aromatic leaf with unique citrus-nutty flavor, essential in South Indian cuisine",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "curry paste",
@@ -2444,7 +2768,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 1
     },
-      description: "Concentrated blend of aromatics, spices, and chilies used in Southeast Asian cuisine"
+      description: "Concentrated blend of aromatics, spices, and chilies used in Southeast Asian cuisine",
+      textures: [],
+      functions: ["umami-bomb"],
     },
   {
       name: "custard",
@@ -2459,7 +2785,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Smooth, creamy dessert base made from eggs and dairy"
+      description: "Smooth, creamy dessert base made from eggs and dairy",
+      textures: ["creamy"],
+      functions: [],
     },
   {
       name: "daikon",
@@ -2474,7 +2802,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 2
     },
-      description: "Mild white radish with crisp texture and gentle peppery heat"
+      description: "Mild white radish with crisp texture and gentle peppery heat",
+      textures: ["crisp", "crunchy", "juicy"],
+      functions: [],
     },
   {
       name: "dandelion greens",
@@ -2489,7 +2819,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-      description: "Wild green with pronounced bitterness and mineral notes"
+      description: "Wild green with pronounced bitterness and mineral notes",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "dashi",
@@ -2504,7 +2836,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Japanese stock made from kelp and dried bonito, foundation of Japanese cuisine"
+      description: "Japanese stock made from kelp and dried bonito, foundation of Japanese cuisine",
+      textures: ["liquid"],
+      functions: ["umami-bomb"],
     },
   {
       name: "date",
@@ -2519,7 +2853,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Sweet dried fruit with caramel notes and dense, chewy texture"
+      description: "Sweet dried fruit with caramel notes and dense, chewy texture",
+      textures: ["chewy", "tender"],
+      functions: ["sweetener"],
     },
   {
       name: "dijon",
@@ -2534,7 +2870,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 1
     },
-      description: "Smooth French mustard with sharp, tangy flavor and pronounced heat"
+      description: "Smooth French mustard with sharp, tangy flavor and pronounced heat",
+      textures: [],
+      functions: ["acid", "binder"],
     },
   {
       name: "dill",
@@ -2549,7 +2887,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 6
     },
-      description: "Feathery herb with fresh, grassy-anise flavor"
+      description: "Feathery herb with fresh, grassy-anise flavor",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "dried apricot",
@@ -2564,7 +2904,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Concentrated dried fruit with intense sweet-tart flavor"
+      description: "Concentrated dried fruit with intense sweet-tart flavor",
+      textures: ["chewy"],
+      functions: ["sweetener"],
     },
   {
       name: "dried fig",
@@ -2579,7 +2921,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Sweet dried fruit with jammy texture and honey-like notes"
+      description: "Sweet dried fruit with jammy texture and honey-like notes",
+      textures: ["chewy", "tender"],
+      functions: ["sweetener"],
     },
   {
       name: "duck",
@@ -2594,7 +2938,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Rich poultry with fatty skin and deep, robust flavor"
+      description: "Rich poultry with fatty skin and deep, robust flavor",
+      textures: ["tender", "juicy"],
+      functions: ["bulk", "fat"],
     },
   {
       name: "egg",
@@ -2609,7 +2955,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Versatile protein with rich yolk and neutral white, fundamental in cooking"
+      description: "Versatile protein with rich yolk and neutral white, fundamental in cooking",
+      textures: ["tender", "creamy"],
+      functions: ["binder", "bulk"],
     },
   {
       name: "eggplant",
@@ -2624,7 +2972,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Meaty vegetable with mild flavor that absorbs surrounding ingredients"
+      description: "Meaty vegetable with mild flavor that absorbs surrounding ingredients",
+      textures: ["tender", "creamy"],
+      functions: ["bulk"],
     },
   {
       name: "elderflower",
@@ -2639,7 +2989,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Delicate flower with subtle honey-like sweetness and floral aroma"
+      description: "Delicate flower with subtle honey-like sweetness and floral aroma",
+      textures: [],
+      functions: [],
     },
   {
       name: "swiss cheese",
@@ -2654,7 +3006,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Swiss cheese with characteristic holes, nutty flavor and firm but elastic texture"
+      description: "Swiss cheese with characteristic holes, nutty flavor and firm but elastic texture",
+      textures: ["chewy"],
+      functions: ["fat"],
     },
   {
       name: "endive",
@@ -2669,7 +3023,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 6
     },
-      description: "Crisp chicory with pleasant bitterness and subtle nutty undertones"
+      description: "Crisp chicory with pleasant bitterness and subtle nutty undertones",
+      textures: ["crisp"],
+      functions: ["bulk"],
     },
   {
       name: "epazote",
@@ -2684,7 +3040,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-      description: "Strong Mexican herb with pungent flavor, traditionally used with beans"
+      description: "Strong Mexican herb with pungent flavor, traditionally used with beans",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "escarole",
@@ -2699,7 +3057,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Broad-leafed endive with mild bitterness, versatile in both raw and cooked applications"
+      description: "Broad-leafed endive with mild bitterness, versatile in both raw and cooked applications",
+      textures: ["crisp", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "escolar",
@@ -2714,7 +3074,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Rich, buttery white fish with high oil content, often used in sushi"
+      description: "Rich, buttery white fish with high oil content, often used in sushi",
+      textures: ["tender", "flaky"],
+      functions: ["bulk"],
     },
   {
       name: "espelette pepper",
@@ -2729,7 +3091,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 5,
       aromatic: 4
     },
-      description: "Basque chili pepper with moderate heat and subtle fruity notes"
+      description: "Basque chili pepper with moderate heat and subtle fruity notes",
+      textures: [],
+      functions: [],
     },
   {
       name: "fava beans",
@@ -2744,7 +3108,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Large, creamy bean with nutty flavor and buttery texture when cooked"
+      description: "Large, creamy bean with nutty flavor and buttery texture when cooked",
+      textures: ["creamy", "tender", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "fennel",
@@ -2759,7 +3125,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-      description: "Crisp vegetable with distinctive anise flavor, edible bulb, stalks, and fronds"
+      description: "Crisp vegetable with distinctive anise flavor, edible bulb, stalks, and fronds",
+      textures: ["crisp", "crunchy", "juicy"],
+      functions: [],
     },
   {
       name: "fennel frond",
@@ -2774,7 +3142,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-      description: "Delicate fennel leaves with mild anise flavor, used as herb and garnish"
+      description: "Delicate fennel leaves with mild anise flavor, used as herb and garnish",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "fennel pollen",
@@ -2789,7 +3159,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 4
     },
-      description: "Intense, concentrated fennel flavor known as 'spice of angels'"
+      description: "Intense, concentrated fennel flavor known as 'spice of angels'",
+      textures: [],
+      functions: [],
     },
   {
       name: "fennel seed",
@@ -2804,7 +3176,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 6
     },
-      description: "Aromatic seed with sweet anise flavor, common in Mediterranean cuisine"
+      description: "Aromatic seed with sweet anise flavor, common in Mediterranean cuisine",
+      textures: [],
+      functions: [],
     },
   {
       name: "fenugreek",
@@ -2819,7 +3193,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 6
     },
-      description: "Herb with maple-like aroma and slightly bitter taste, used fresh or dried"
+      description: "Herb with maple-like aroma and slightly bitter taste, used fresh or dried",
+      textures: [],
+      functions: [],
     },
   {
       name: "fenugreek seed",
@@ -2834,7 +3210,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 6
     },
-      description: "Seeds with maple-curry aroma, essential in Indian cuisine"
+      description: "Seeds with maple-curry aroma, essential in Indian cuisine",
+      textures: [],
+      functions: [],
     },
   {
       name: "feta",
@@ -2849,7 +3227,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Briny Greek cheese made from sheep's milk with crumbly texture"
+      description: "Briny Greek cheese made from sheep's milk with crumbly texture",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "fiddlehead fern",
@@ -2864,7 +3244,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 3
     },
-      description: "Young fern fronds with grassy, nutty flavor similar to asparagus"
+      description: "Young fern fronds with grassy, nutty flavor similar to asparagus",
+      textures: ["tender", "crisp"],
+      functions: [],
     },
   {
       name: "fig",
@@ -2879,7 +3261,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Sweet fruit with jammy texture and honeyed flavor when ripe"
+      description: "Sweet fruit with jammy texture and honeyed flavor when ripe",
+      textures: ["tender", "juicy"],
+      functions: [],
     },
   {
       name: "fish sauce",
@@ -2894,7 +3278,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Fermented fish condiment with intense savory-salty flavor, essential in Southeast Asian cuisine"
+      description: "Fermented fish condiment with intense savory-salty flavor, essential in Southeast Asian cuisine",
+      textures: ["liquid"],
+      functions: ["umami-bomb"],
     },
   {
       name: "fish stock",
@@ -2909,7 +3295,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Light seafood stock made from fish bones and aromatics"
+      description: "Light seafood stock made from fish bones and aromatics",
+      textures: ["liquid"],
+      functions: ["umami-bomb"],
     },
   {
       name: "five-spice",
@@ -2924,7 +3312,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 2
     },
-      description: "Chinese spice blend balancing sweet, sour, bitter, pungent, and salty flavors"
+      description: "Chinese spice blend balancing sweet, sour, bitter, pungent, and salty flavors",
+      textures: [],
+      functions: [],
     },
   {
       name: "flageolet beans",
@@ -2939,7 +3329,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Delicate French beans with pale green color and mild, creamy flavor"
+      description: "Delicate French beans with pale green color and mild, creamy flavor",
+      textures: ["creamy", "tender", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "flank steak",
@@ -2954,7 +3346,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Lean beef cut with strong grain and robust flavor"
+      description: "Lean beef cut with strong grain and robust flavor",
+      textures: ["tender", "chewy", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "flounder",
@@ -2969,7 +3363,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Delicate flatfish with mild, sweet flavor and tender flesh"
+      description: "Delicate flatfish with mild, sweet flavor and tender flesh",
+      textures: ["tender", "flaky"],
+      functions: ["bulk"],
     },
   {
       name: "foie gras",
@@ -2984,7 +3380,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Fattened duck or goose liver with rich, buttery texture and complex flavor"
+      description: "Fattened duck or goose liver with rich, buttery texture and complex flavor",
+      textures: ["creamy", "tender"],
+      functions: ["fat"],
     },
   {
       name: "fontina",
@@ -2999,7 +3397,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Italian alpine cheese with nutty flavor and excellent melting properties"
+      description: "Italian alpine cheese with nutty flavor and excellent melting properties",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "frisée",
@@ -3014,7 +3414,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-      description: "Curly endive with distinctive bitter flavor and feathery texture"
+      description: "Curly endive with distinctive bitter flavor and feathery texture",
+      textures: ["crisp"],
+      functions: ["bulk"],
     },
   {
       name: "fruit vinegar",
@@ -3029,7 +3431,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Vinegar made from fermented fruit juice, combining acidity with fruit notes"
+      description: "Vinegar made from fermented fruit juice, combining acidity with fruit notes",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "galangal",
@@ -3044,7 +3448,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 5,
       aromatic: 6
     },
-      description: "Thai rhizome similar to ginger with sharp, citrusy pine notes"
+      description: "Thai rhizome similar to ginger with sharp, citrusy pine notes",
+      textures: [],
+      functions: [],
     },
   {
       name: "game bird",
@@ -3059,7 +3465,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Wild poultry with more intense flavor than domesticated birds"
+      description: "Wild poultry with more intense flavor than domesticated birds",
+      textures: ["tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "garam masala",
@@ -3074,7 +3482,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 2
     },
-      description: "Warming Indian spice blend with complex sweet and savory notes"
+      description: "Warming Indian spice blend with complex sweet and savory notes",
+      textures: [],
+      functions: [],
     },
   {
       name: "garlic",
@@ -3089,7 +3499,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 5
     },
-      description: "Pungent allium with intense flavor that mellows with cooking"
+      description: "Pungent allium with intense flavor that mellows with cooking",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "gin",
@@ -3104,7 +3516,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-      description: "Clear spirit flavored with juniper and botanical aromatics"
+      description: "Clear spirit flavored with juniper and botanical aromatics",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "ginger",
@@ -3119,7 +3533,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 6
     },
-      description: "Pungent rhizome with bright, spicy heat and citrus notes"
+      description: "Pungent rhizome with bright, spicy heat and citrus notes",
+      textures: [],
+      functions: [],
     },
   {
       name: "goat",
@@ -3134,7 +3550,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Gamey meat with distinctive flavor, popular in various global cuisines"
+      description: "Gamey meat with distinctive flavor, popular in various global cuisines",
+      textures: ["tender"],
+      functions: ["bulk"],
     },
   {
       name: "goat cheese",
@@ -3149,7 +3567,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Tangy cheese with distinctive flavor ranging from mild to robust"
+      description: "Tangy cheese with distinctive flavor ranging from mild to robust",
+      textures: ["creamy"],
+      functions: ["fat", "acid"],
     },
   {
       name: "goose",
@@ -3164,7 +3584,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Rich poultry with fatty skin and robust dark meat"
+      description: "Rich poultry with fatty skin and robust dark meat",
+      textures: ["tender", "juicy"],
+      functions: ["bulk", "fat"],
     },
   {
       name: "gooseberry",
@@ -3179,7 +3601,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Tart berry with grape-like texture and bright acidity"
+      description: "Tart berry with grape-like texture and bright acidity",
+      textures: ["juicy"],
+      functions: ["acid"],
     },
   {
       name: "gorgonzola",
@@ -3194,7 +3618,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 3
     },
-      description: "Italian blue cheese with creamy texture and pungent flavor"
+      description: "Italian blue cheese with creamy texture and pungent flavor",
+      textures: ["creamy"],
+      functions: ["fat", "umami-bomb"],
     },
   {
       name: "gouda",
@@ -3209,7 +3635,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Dutch cheese with sweet notes that develops caramel flavor with age"
+      description: "Dutch cheese with sweet notes that develops caramel flavor with age",
+      textures: [],
+      functions: ["fat"],
     },
   {
       name: "grape",
@@ -3224,7 +3652,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Sweet-tart fruit with varying flavor profiles depending on variety"
+      description: "Sweet-tart fruit with varying flavor profiles depending on variety",
+      textures: ["juicy", "crisp"],
+      functions: [],
     },
   {
       name: "grapefruit",
@@ -3239,7 +3669,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Citrus with complex bitter-sweet flavor and bright acidity"
+      description: "Citrus with complex bitter-sweet flavor and bright acidity",
+      textures: ["juicy"],
+      functions: ["acid", "fresh-finish"],
     },
   {
       name: "grapeseed oil",
@@ -3254,7 +3686,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Neutral oil with high smoke point, extracted from grape seeds"
+      description: "Neutral oil with high smoke point, extracted from grape seeds",
+      textures: ["liquid"],
+      functions: ["fat"],
     },
   {
       name: "green beans",
@@ -3269,7 +3703,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Fresh legume pods with grassy flavor and crisp texture when young"
+      description: "Fresh legume pods with grassy flavor and crisp texture when young",
+      textures: ["crisp", "tender", "juicy"],
+      functions: [],
     },
   {
       name: "grenadine",
@@ -3284,7 +3720,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Sweet pomegranate-based syrup used in cocktails and beverages"
+      description: "Sweet pomegranate-based syrup used in cocktails and beverages",
+      textures: ["liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "grits",
@@ -3299,7 +3737,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Ground corn porridge with subtle corn flavor, staple of Southern cuisine"
+      description: "Ground corn porridge with subtle corn flavor, staple of Southern cuisine",
+      textures: ["creamy", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "grouper",
@@ -3314,7 +3754,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Mild white fish with firm, lean flesh and sweet undertones"
+      description: "Mild white fish with firm, lean flesh and sweet undertones",
+      textures: ["tender", "flaky"],
+      functions: ["bulk"],
     },
   {
       name: "gruyère",
@@ -3329,7 +3771,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Swiss alpine cheese with complex nutty flavor and excellent melting properties"
+      description: "Swiss alpine cheese with complex nutty flavor and excellent melting properties",
+      textures: [],
+      functions: ["fat", "umami-bomb"],
     },
   {
       name: "guacamole",
@@ -3344,7 +3788,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 1
     },
-      description: "Avocado-based dip with lime, cilantro, and varying seasonings"
+      description: "Avocado-based dip with lime, cilantro, and varying seasonings",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "guava",
@@ -3359,7 +3805,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Tropical fruit with musky-sweet flavor and floral aroma"
+      description: "Tropical fruit with musky-sweet flavor and floral aroma",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "habanero",
@@ -3374,7 +3822,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 10,
       aromatic: 4
     },
-      description: "Extremely hot chili with fruity-citrus notes beneath intense heat"
+      description: "Extremely hot chili with fruity-citrus notes beneath intense heat",
+      textures: ["crisp", "juicy"],
+      functions: [],
     },
   {
       name: "halibut",
@@ -3389,7 +3839,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Lean white fish with mild, sweet flavor and firm texture"
+      description: "Lean white fish with mild, sweet flavor and firm texture",
+      textures: ["tender", "flaky"],
+      functions: ["bulk"],
     },
   {
       name: "ham",
@@ -3404,7 +3856,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Cured pork leg with varying flavors depending on curing method"
+      description: "Cured pork leg with varying flavors depending on curing method",
+      textures: ["tender", "chewy", "juicy"],
+      functions: ["bulk", "umami-bomb"],
     },
   {
       name: "hanger steak",
@@ -3419,7 +3873,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Intensely flavored beef cut with robust, mineral notes"
+      description: "Intensely flavored beef cut with robust, mineral notes",
+      textures: ["tender", "juicy", "chewy"],
+      functions: ["bulk"],
     },
   {
       name: "havarti",
@@ -3434,7 +3890,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Buttery Danish cheese with mild flavor and smooth texture"
+      description: "Buttery Danish cheese with mild flavor and smooth texture",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "hazelnut",
@@ -3449,7 +3907,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Rich nut with intense flavor that develops when roasted"
+      description: "Rich nut with intense flavor that develops when roasted",
+      textures: ["crunchy"],
+      functions: ["fat", "crunch-topper"],
     },
   {
       name: "hazelnut oil",
@@ -3464,7 +3924,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Aromatic oil with intense nutty flavor, used primarily as finishing oil"
+      description: "Aromatic oil with intense nutty flavor, used primarily as finishing oil",
+      textures: ["liquid"],
+      functions: ["fat"],
     },
   {
       name: "herring",
@@ -3479,7 +3941,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Oily fish often pickled or smoked, with rich, full flavor"
+      description: "Oily fish often pickled or smoked, with rich, full flavor",
+      textures: ["tender"],
+      functions: ["bulk"],
     },
   {
       name: "hoisin",
@@ -3494,7 +3958,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 1
     },
-      description: "Sweet-savory Chinese sauce made from fermented soybeans"
+      description: "Sweet-savory Chinese sauce made from fermented soybeans",
+      textures: ["liquid"],
+      functions: ["sweetener", "umami-bomb"],
     },
   {
       name: "hollandaise",
@@ -3509,7 +3975,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Rich butter-egg sauce with lemon, classic French mother sauce"
+      description: "Rich butter-egg sauce with lemon, classic French mother sauce",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "honey",
@@ -3524,7 +3992,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Natural sweetener with complex flavor varying by floral source"
+      description: "Natural sweetener with complex flavor varying by floral source",
+      textures: ["liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "honeydew",
@@ -3539,7 +4009,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Sweet, pale green melon with subtle honey-like flavor"
+      description: "Sweet, pale green melon with subtle honey-like flavor",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "horseradish",
@@ -3554,7 +4026,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 8,
       aromatic: 2
     },
-      description: "Pungent root with intense sinus-clearing heat when fresh"
+      description: "Pungent root with intense sinus-clearing heat when fresh",
+      textures: [],
+      functions: [],
     },
   {
       name: "huckleberry",
@@ -3569,7 +4043,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Wild berry with intense sweet-tart flavor similar to blueberries"
+      description: "Wild berry with intense sweet-tart flavor similar to blueberries",
+      textures: ["juicy"],
+      functions: [],
     },
   {
       name: "hummus",
@@ -3584,7 +4060,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Middle Eastern chickpea dip with tahini, garlic, and lemon"
+      description: "Middle Eastern chickpea dip with tahini, garlic, and lemon",
+      textures: ["creamy"],
+      functions: [],
     },
   {
       name: "hyssop",
@@ -3599,7 +4077,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-      description: "Mint-family herb with bitter, minty flavor and medicinal notes"
+      description: "Mint-family herb with bitter, minty flavor and medicinal notes",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "ice cream",
@@ -3614,7 +4094,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Frozen dairy dessert with rich, creamy texture and varying flavors"
+      description: "Frozen dairy dessert with rich, creamy texture and varying flavors",
+      textures: ["creamy", "airy"],
+      functions: [],
     },
   {
       name: "monterey jack",
@@ -3629,7 +4111,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Mild, buttery American cheese with slight tang"
+      description: "Mild, buttery American cheese with slight tang",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "jalapeño",
@@ -3644,7 +4128,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 3
     },
-      description: "Medium-hot green chili with bright, grassy flavor"
+      description: "Medium-hot green chili with bright, grassy flavor",
+      textures: ["crisp", "juicy"],
+      functions: [],
     },
   {
       name: "jicama",
@@ -3659,7 +4145,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Crisp root vegetable with sweet, apple-like flavor and watery crunch"
+      description: "Crisp root vegetable with sweet, apple-like flavor and watery crunch",
+      textures: ["crunchy", "crisp", "juicy"],
+      functions: [],
     },
   {
       name: "juniper berry",
@@ -3674,7 +4162,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 6
     },
-      description: "Pine-like berry with resinous flavor, essential in gin production"
+      description: "Pine-like berry with resinous flavor, essential in gin production",
+      textures: [],
+      functions: [],
     },
   {
       name: "kaffir lime",
@@ -3689,7 +4179,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 7
     },
-      description: "Intensely aromatic citrus with distinctive floral-lime flavor"
+      description: "Intensely aromatic citrus with distinctive floral-lime flavor",
+      textures: ["juicy"],
+      functions: ["acid"],
     },
   {
       name: "kaffir lime leaf",
@@ -3704,7 +4196,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-      description: "Aromatic leaf with intense citrus-floral notes, essential in Thai cuisine"
+      description: "Aromatic leaf with intense citrus-floral notes, essential in Thai cuisine",
+      textures: [],
+      functions: [],
     },
   {
       name: "kale",
@@ -3719,7 +4213,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Hearty green with earthy flavor and robust texture"
+      description: "Hearty green with earthy flavor and robust texture",
+      textures: ["chewy", "tender"],
+      functions: ["bulk"],
     },
   {
       name: "kirsch",
@@ -3734,7 +4230,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Clear cherry brandy with intense fruit flavor and subtle almond notes"
+      description: "Clear cherry brandy with intense fruit flavor and subtle almond notes",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "kiwi",
@@ -3749,7 +4247,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Tart-sweet fruit with bright flavor and tender texture"
+      description: "Tart-sweet fruit with bright flavor and tender texture",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "kohlrabi",
@@ -3764,7 +4264,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Crisp brassica with mild, sweet cabbage-like flavor"
+      description: "Crisp brassica with mild, sweet cabbage-like flavor",
+      textures: ["crunchy", "crisp", "juicy"],
+      functions: [],
     },
   {
       name: "kumquat",
@@ -3779,7 +4281,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Tiny citrus eaten whole with sweet rind and tart flesh"
+      description: "Tiny citrus eaten whole with sweet rind and tart flesh",
+      textures: ["juicy"],
+      functions: ["acid"],
     },
   {
       name: "lamb",
@@ -3794,7 +4298,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Young sheep meat with distinctive flavor and tender texture"
+      description: "Young sheep meat with distinctive flavor and tender texture",
+      textures: ["tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "lavender",
@@ -3809,7 +4315,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 9
     },
-      description: "Floral herb with intense aroma, used sparingly in both sweet and savory dishes"
+      description: "Floral herb with intense aroma, used sparingly in both sweet and savory dishes",
+      textures: [],
+      functions: [],
     },
   {
       name: "leek",
@@ -3824,7 +4332,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 4
     },
-      description: "Mild allium with delicate onion flavor and subtle sweetness"
+      description: "Mild allium with delicate onion flavor and subtle sweetness",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "lemon",
@@ -3839,7 +4349,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Bright citrus with intense acidity and aromatic oils in peel"
+      description: "Bright citrus with intense acidity and aromatic oils in peel",
+      textures: ["juicy"],
+      functions: ["acid", "fresh-finish"],
     },
   {
       name: "lemon balm",
@@ -3854,7 +4366,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Lemony herb from mint family with subtle floral notes"
+      description: "Lemony herb from mint family with subtle floral notes",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "lemongrass",
@@ -3869,7 +4383,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-      description: "Aromatic grass with citrus-floral flavor, common in Southeast Asian cuisine"
+      description: "Aromatic grass with citrus-floral flavor, common in Southeast Asian cuisine",
+      textures: [],
+      functions: [],
     },
   {
       name: "lentils",
@@ -3884,7 +4400,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Quick-cooking legumes with earthy flavor and various colors"
+      description: "Quick-cooking legumes with earthy flavor and various colors",
+      textures: ["tender", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "lettuce",
@@ -3899,7 +4417,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Crisp salad green with mild flavor and high water content"
+      description: "Crisp salad green with mild flavor and high water content",
+      textures: ["crisp", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "lime",
@@ -3914,7 +4434,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Intense citrus with sharp acidity and distinctive flavor"
+      description: "Intense citrus with sharp acidity and distinctive flavor",
+      textures: ["juicy"],
+      functions: ["acid", "fresh-finish"],
     },
   {
       name: "liver",
@@ -3929,7 +4451,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Rich organ meat with intense mineral flavor and smooth texture"
+      description: "Rich organ meat with intense mineral flavor and smooth texture",
+      textures: ["tender", "creamy"],
+      functions: ["bulk"],
     },
   {
       name: "lobster",
@@ -3944,7 +4468,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sweet, delicate shellfish with tender meat and rich flavor"
+      description: "Sweet, delicate shellfish with tender meat and rich flavor",
+      textures: ["tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "lotus root",
@@ -3959,7 +4485,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Crisp aquatic root with mild flavor and distinctive appearance"
+      description: "Crisp aquatic root with mild flavor and distinctive appearance",
+      textures: ["crunchy", "crisp", "starchy"],
+      functions: [],
     },
   {
       name: "lovage",
@@ -3974,7 +4502,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Intense herb with celery-like flavor and hints of parsley and anise"
+      description: "Intense herb with celery-like flavor and hints of parsley and anise",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "lychee",
@@ -3989,7 +4519,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Delicate tropical fruit with floral sweetness and grape-like texture"
+      description: "Delicate tropical fruit with floral sweetness and grape-like texture",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "macadamia nut",
@@ -4004,7 +4536,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Rich, buttery nut with subtle sweetness and creamy texture"
+      description: "Rich, buttery nut with subtle sweetness and creamy texture",
+      textures: ["crunchy"],
+      functions: ["fat", "crunch-topper"],
     },
   {
       name: "mace",
@@ -4019,7 +4553,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 6
     },
-      description: "Lacy covering of nutmeg with more delicate, complex flavor"
+      description: "Lacy covering of nutmeg with more delicate, complex flavor",
+      textures: [],
+      functions: [],
     },
   {
       name: "mackerel",
@@ -4034,7 +4570,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Rich, oily fish with pronounced savory flavor"
+      description: "Rich, oily fish with pronounced savory flavor",
+      textures: ["tender", "flaky"],
+      functions: ["bulk", "fat"],
     },
   {
       name: "madeira",
@@ -4049,7 +4587,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Fortified Portuguese wine with complex nutty and caramel notes"
+      description: "Fortified Portuguese wine with complex nutty and caramel notes",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "mahi mahi",
@@ -4064,7 +4604,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Firm white fish with mild, sweet flavor and lean texture"
+      description: "Firm white fish with mild, sweet flavor and lean texture",
+      textures: ["tender", "flaky"],
+      functions: ["bulk"],
     },
   {
       name: "maldon salt",
@@ -4079,7 +4621,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Flaky sea salt with clean flavor and distinctive pyramid-shaped crystals"
+      description: "Flaky sea salt with clean flavor and distinctive pyramid-shaped crystals",
+      textures: ["crunchy"],
+      functions: [],
     },
   {
       name: "malt",
@@ -4094,7 +4638,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sprouted grain with sweet, nutty flavor used in brewing and baking"
+      description: "Sprouted grain with sweet, nutty flavor used in brewing and baking",
+      textures: [],
+      functions: [],
     },
   {
       name: "malt vinegar",
@@ -4109,7 +4655,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Dark vinegar made from malted barley with rich, complex flavor"
+      description: "Dark vinegar made from malted barley with rich, complex flavor",
+      textures: ["liquid"],
+      functions: ["acid"],
     },
   {
       name: "manchego",
@@ -4124,7 +4672,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Spanish sheep's milk cheese with nutty flavor that intensifies with age"
+      description: "Spanish sheep's milk cheese with nutty flavor that intensifies with age",
+      textures: [],
+      functions: ["fat"],
     },
   {
       name: "mandarin orange",
@@ -4139,7 +4689,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Sweet, easy-peeling citrus with bright flavor and low acidity"
+      description: "Sweet, easy-peeling citrus with bright flavor and low acidity",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "mango",
@@ -4154,7 +4706,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Sweet tropical fruit with complex flavor and creamy texture when ripe"
+      description: "Sweet tropical fruit with complex flavor and creamy texture when ripe",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "maple syrup",
@@ -4169,7 +4723,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Tree sap concentrate with complex caramel notes and distinctive flavor"
+      description: "Tree sap concentrate with complex caramel notes and distinctive flavor",
+      textures: ["liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "marjoram",
@@ -4184,7 +4740,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-      description: "Delicate herb similar to oregano but sweeter and less pungent"
+      description: "Delicate herb similar to oregano but sweeter and less pungent",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "marsala",
@@ -4199,7 +4757,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Fortified Sicilian wine with complex flavor, available dry or sweet"
+      description: "Fortified Sicilian wine with complex flavor, available dry or sweet",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "mascarpone",
@@ -4214,7 +4774,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Rich Italian cream cheese with subtle sweetness and silky texture"
+      description: "Rich Italian cream cheese with subtle sweetness and silky texture",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "milk",
@@ -4229,7 +4791,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Basic dairy product with mild sweetness and varying fat content"
+      description: "Basic dairy product with mild sweetness and varying fat content",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "mint",
@@ -4244,7 +4808,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 7
     },
-      description: "Bright, cooling herb with intense aromatic qualities"
+      description: "Bright, cooling herb with intense aromatic qualities",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "mirin",
@@ -4259,7 +4825,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Sweet Japanese cooking wine with subtle umami notes"
+      description: "Sweet Japanese cooking wine with subtle umami notes",
+      textures: ["liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "miso",
@@ -4274,7 +4842,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Fermented soybean paste with intense umami and varying sweetness"
+      description: "Fermented soybean paste with intense umami and varying sweetness",
+      textures: [],
+      functions: ["umami-bomb"],
     },
   {
       name: "molasses",
@@ -4289,7 +4859,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-      description: "Dark sugar syrup with complex bitter-sweet notes"
+      description: "Dark sugar syrup with complex bitter-sweet notes",
+      textures: ["liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "mole",
@@ -4304,7 +4876,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 5,
       aromatic: 3
     },
-      description: "Complex Mexican sauce combining chocolate, chilies, and spices"
+      description: "Complex Mexican sauce combining chocolate, chilies, and spices",
+      textures: ["liquid"],
+      functions: ["umami-bomb"],
     },
   {
       name: "monkfish",
@@ -4319,7 +4893,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Firm white fish with sweet flavor and lobster-like texture"
+      description: "Firm white fish with sweet flavor and lobster-like texture",
+      textures: ["tender", "chewy"],
+      functions: ["bulk"],
     },
   {
       name: "morel",
@@ -4334,7 +4910,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Prized wild mushroom with intense nutty-earthy flavor"
+      description: "Prized wild mushroom with intense nutty-earthy flavor",
+      textures: ["tender", "chewy"],
+      functions: [],
     },
   {
       name: "mostarda",
@@ -4349,7 +4927,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 1
     },
-      description: "Italian condiment of candied fruit with spicy mustard"
+      description: "Italian condiment of candied fruit with spicy mustard",
+      textures: ["chewy"],
+      functions: ["sweetener"],
     },
   {
       name: "mozzarella",
@@ -4364,7 +4944,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Fresh Italian cheese with mild flavor and excellent melting properties"
+      description: "Fresh Italian cheese with mild flavor and excellent melting properties",
+      textures: ["creamy", "tender", "chewy"],
+      functions: ["fat"],
     },
   {
       name: "muenster",
@@ -4379,7 +4961,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Semi-soft cheese with mild flavor and smooth, creamy texture"
+      description: "Semi-soft cheese with mild flavor and smooth, creamy texture",
+      textures: ["creamy"],
+      functions: ["fat"],
     },
   {
       name: "mushroom",
@@ -4394,7 +4978,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Edible fungi with varying textures and earthy flavors"
+      description: "Edible fungi with varying textures and earthy flavors",
+      textures: ["tender", "chewy", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "mussels",
@@ -4409,7 +4995,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sweet shellfish with tender meat and briny flavor"
+      description: "Sweet shellfish with tender meat and briny flavor",
+      textures: ["tender", "chewy", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "mustard",
@@ -4424,7 +5012,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 1
     },
-      description: "Pungent condiment made from ground mustard seeds"
+      description: "Pungent condiment made from ground mustard seeds",
+      textures: [],
+      functions: ["acid", "binder"],
     },
   {
       name: "mustard seed",
@@ -4439,7 +5029,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 5
     },
-      description: "Small seeds with sharp, hot flavor when crushed"
+      description: "Small seeds with sharp, hot flavor when crushed",
+      textures: [],
+      functions: [],
     },
   {
       name: "napa cabbage",
@@ -4454,7 +5046,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Mild Chinese cabbage with delicate flavor and crisp texture"
+      description: "Mild Chinese cabbage with delicate flavor and crisp texture",
+      textures: ["crisp", "tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "nectarine",
@@ -4469,7 +5063,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Smooth-skinned peach variety with sweet-tart flavor"
+      description: "Smooth-skinned peach variety with sweet-tart flavor",
+      textures: ["juicy", "tender"],
+      functions: [],
     },
   {
       name: "nutmeg",
@@ -4484,7 +5080,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 6
     },
-      description: "Warm spice with complex sweet and nutty notes"
+      description: "Warm spice with complex sweet and nutty notes",
+      textures: [],
+      functions: [],
     },
   {
       name: "oats",
@@ -4499,7 +5097,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Hearty grain with mild, nutty flavor"
+      description: "Hearty grain with mild, nutty flavor",
+      textures: ["starchy", "chewy", "creamy"],
+      functions: ["bulk"],
     },
   {
       name: "octopus",
@@ -4514,7 +5114,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Firm seafood with mild flavor that becomes tender when properly cooked"
+      description: "Firm seafood with mild flavor that becomes tender when properly cooked",
+      textures: ["tender", "chewy"],
+      functions: ["bulk"],
     },
   {
       name: "okra",
@@ -4529,7 +5131,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Pod vegetable with grassy flavor and distinctive texture"
+      description: "Pod vegetable with grassy flavor and distinctive texture",
+      textures: ["tender"],
+      functions: [],
     },
   {
       name: "olive",
@@ -4544,7 +5148,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Cured fruit with complex salty and bitter notes"
+      description: "Cured fruit with complex salty and bitter notes",
+      textures: ["tender", "chewy"],
+      functions: ["umami-bomb"],
     },
   {
       name: "olive oil",
@@ -4559,7 +5165,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 3
     },
-      description: "Pressed olive oil with varying intensity and peppery finish"
+      description: "Pressed olive oil with varying intensity and peppery finish",
+      textures: ["liquid"],
+      functions: ["fat"],
     },
   {
       name: "onion",
@@ -4574,7 +5182,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 4
     },
-      description: "Fundamental allium with pungent raw flavor that sweetens when cooked"
+      description: "Fundamental allium with pungent raw flavor that sweetens when cooked",
+      textures: ["tender", "juicy", "crunchy"],
+      functions: [],
     },
   {
       name: "orange",
@@ -4589,7 +5199,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Sweet citrus with balanced acidity and aromatic oils in peel"
+      description: "Sweet citrus with balanced acidity and aromatic oils in peel",
+      textures: ["juicy"],
+      functions: ["acid", "fresh-finish"],
     },
   {
       name: "orange blossom water",
@@ -4604,7 +5216,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 9
     },
-      description: "Fragrant distillation of orange blossoms used in Middle Eastern cuisine"
+      description: "Fragrant distillation of orange blossoms used in Middle Eastern cuisine",
+      textures: ["liquid"],
+      functions: [],
     },
   {
       name: "orange liqueur",
@@ -4619,7 +5233,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Sweet spirit flavored with orange peel and oils"
+      description: "Sweet spirit flavored with orange peel and oils",
+      textures: ["liquid"],
+      functions: ["sweetener"],
     },
   {
       name: "oregano",
@@ -4634,7 +5250,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 7
     },
-      description: "Pungent Mediterranean herb with earthy, slightly bitter flavor"
+      description: "Pungent Mediterranean herb with earthy, slightly bitter flavor",
+      textures: [],
+      functions: [],
     },
   {
       name: "oxtail",
@@ -4649,7 +5267,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Rich beef cut with intense flavor, ideal for slow cooking"
+      description: "Rich beef cut with intense flavor, ideal for slow cooking",
+      textures: ["tender"],
+      functions: ["bulk"],
     },
   {
       name: "oyster",
@@ -4664,7 +5284,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Briny bivalve with complex mineral notes and varying sweetness"
+      description: "Briny bivalve with complex mineral notes and varying sweetness",
+      textures: ["tender", "juicy"],
+      functions: ["bulk"],
     },
   {
       name: "oyster sauce",
@@ -4679,7 +5301,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Rich Asian sauce made from reduced oysters with intense savory flavor"
+      description: "Rich Asian sauce made from reduced oysters with intense savory flavor",
+      textures: ["liquid"],
+      functions: ["umami-bomb"],
     },
   {
       name: "palm sugar",
@@ -4694,7 +5318,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Unrefined sugar with caramel notes and subtle smokiness"
+      description: "Unrefined sugar with caramel notes and subtle smokiness",
+      textures: [],
+      functions: ["sweetener"],
     },
   {
       name: "pancetta",
@@ -4709,7 +5335,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-      description: "Italian cured pork belly with rich, salty flavor"
+      description: "Italian cured pork belly with rich, salty flavor",
+      textures: ["tender", "chewy", "crisp"],
+      functions: ["fat", "umami-bomb"],
     },
   {
       name: "papaya",
@@ -4724,7 +5352,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-      description: "Tropical fruit with sweet, musky flavor and buttery texture when ripe"
+      description: "Tropical fruit with sweet, musky flavor and buttery texture when ripe",
+      textures: ["juicy", "tender", "creamy"],
+      functions: [],
     },
   {
       name: "paprika",
@@ -4739,7 +5369,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 4
     },
-      description: "Ground sweet pepper with varying heat levels and subtle earthiness"
+      description: "Ground sweet pepper with varying heat levels and subtle earthiness",
+      textures: [],
+      functions: [],
     },
   {
       name: "parmesan",
@@ -4754,7 +5386,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-      description: "Aged Italian cheese with intense savory flavor and granular texture"
+      description: "Aged Italian cheese with intense savory flavor and granular texture",
+      textures: [],
+      functions: ["umami-bomb", "fat"],
     },
   {
       name: "parsley",
@@ -4769,7 +5403,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-      description: "Fresh herb with clean, grassy flavor and bright aroma"
+      description: "Fresh herb with clean, grassy flavor and bright aroma",
+      textures: ["tender"],
+      functions: ["fresh-finish"],
     },
   {
       name: "parsnip",
@@ -4784,7 +5420,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-      description: "Sweet root vegetable with nutty flavor that intensifies when roasted"
+      description: "Sweet root vegetable with nutty flavor that intensifies when roasted",
+      textures: ["tender", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "passion fruit",
@@ -4799,7 +5437,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-      description: "Tropical fruit with intense sweet-tart flavor and floral aroma"
+      description: "Tropical fruit with intense sweet-tart flavor and floral aroma",
+      textures: ["juicy"],
+      functions: ["acid"],
     },
   {
       name: "pasta",
@@ -4814,7 +5454,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-      description: "Wheat-based noodles with mild flavor that absorbs surrounding ingredients"
+      description: "Wheat-based noodles with mild flavor that absorbs surrounding ingredients",
+      textures: ["chewy", "tender", "starchy"],
+      functions: ["bulk"],
     },
   {
       name: "peas",
@@ -4829,7 +5471,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-      description: "Sweet legume with bright, fresh flavor when young"
+      description: "Sweet legume with bright, fresh flavor when young",
+      textures: ["tender", "juicy"],
+      functions: [],
     },
   {
         name: "peach",
@@ -4844,7 +5488,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Sweet stone fruit with floral notes and balanced acidity, varies from white to yellow flesh"
+        description: "Sweet stone fruit with floral notes and balanced acidity, varies from white to yellow flesh",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "peanut",
@@ -4859,7 +5505,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Leguminous protein with rich, earthy flavor that intensifies when roasted"
+        description: "Leguminous protein with rich, earthy flavor that intensifies when roasted",
+        textures: ["crunchy"],
+        functions: ["fat", "crunch-topper"],
       },
   {
         name: "peanut oil",
@@ -4874,7 +5522,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "High smoke point oil with subtle nutty flavor, ideal for deep frying"
+        description: "High smoke point oil with subtle nutty flavor, ideal for deep frying",
+        textures: ["liquid"],
+        functions: ["fat"],
       },
   {
         name: "pear",
@@ -4889,7 +5539,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Sweet and juicy fruit with subtle floral notes and grainy texture"
+        description: "Sweet and juicy fruit with subtle floral notes and grainy texture",
+        textures: ["juicy", "crisp", "tender"],
+        functions: [],
       },
   {
         name: "pecan",
@@ -4904,7 +5556,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Rich, buttery nut with sweet undertones and distinct toasted flavor when roasted"
+        description: "Rich, buttery nut with sweet undertones and distinct toasted flavor when roasted",
+        textures: ["crunchy"],
+        functions: ["fat", "crunch-topper"],
       },
   {
         name: "pecan oil",
@@ -4919,7 +5573,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Delicate, nutty oil ideal for finishing dishes and baking"
+        description: "Delicate, nutty oil ideal for finishing dishes and baking",
+        textures: ["liquid"],
+        functions: ["fat"],
       },
   {
         name: "pecorino",
@@ -4934,7 +5590,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Sharp, salty sheep's milk cheese with pronounced umami character"
+        description: "Sharp, salty sheep's milk cheese with pronounced umami character",
+        textures: [],
+        functions: ["umami-bomb", "fat"],
       },
   {
         name: "peppermint",
@@ -4949,7 +5607,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 5,
       aromatic: 7
     },
-        description: "Cool, refreshing herb with intense menthol character"
+        description: "Cool, refreshing herb with intense menthol character",
+        textures: ["tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "persimmon",
@@ -4964,7 +5624,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Sweet fruit with honey-like flavor and subtle spice notes when ripe"
+        description: "Sweet fruit with honey-like flavor and subtle spice notes when ripe",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "pesto",
@@ -4979,7 +5641,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Aromatic sauce combining basil, garlic, pine nuts, and cheese with olive oil"
+        description: "Aromatic sauce combining basil, garlic, pine nuts, and cheese with olive oil",
+        textures: [],
+        functions: ["fat", "umami-bomb"],
       },
   {
         name: "pine nut",
@@ -4994,7 +5658,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Delicate, buttery seed with subtle resinous notes"
+        description: "Delicate, buttery seed with subtle resinous notes",
+        textures: ["crunchy"],
+        functions: ["fat", "crunch-topper"],
       },
   {
         name: "pineapple",
@@ -5009,7 +5675,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Sweet-tart tropical fruit with enzyme properties that tenderize proteins"
+        description: "Sweet-tart tropical fruit with enzyme properties that tenderize proteins",
+        textures: ["juicy"],
+        functions: ["acid"],
       },
   {
         name: "pistachio",
@@ -5024,7 +5692,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Sweet, earthy nut with distinct green color and delicate flavor"
+        description: "Sweet, earthy nut with distinct green color and delicate flavor",
+        textures: ["crunchy"],
+        functions: ["fat", "crunch-topper"],
       },
   {
         name: "pomegranate",
@@ -5039,7 +5709,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Jewel-like seeds with sweet-tart flavor and subtle tannins"
+        description: "Jewel-like seeds with sweet-tart flavor and subtle tannins",
+        textures: ["juicy", "crunchy"],
+        functions: ["fresh-finish", "acid"],
       },
   {
         name: "pomegranate molasses",
@@ -5054,7 +5726,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Concentrated pomegranate syrup with intense sweet-sour flavor and subtle tannins"
+        description: "Concentrated pomegranate syrup with intense sweet-sour flavor and subtle tannins",
+        textures: ["liquid"],
+        functions: ["acid", "sweetener"],
       },
   {
         name: "pomelo",
@@ -5069,7 +5743,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Large citrus fruit with mild sweetness and less acidity than grapefruit"
+        description: "Large citrus fruit with mild sweetness and less acidity than grapefruit",
+        textures: ["juicy"],
+        functions: ["acid", "fresh-finish"],
       },
   {
         name: "ponzu",
@@ -5084,7 +5760,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Citrus-based sauce combining soy sauce with yuzu or sudachi juice"
+        description: "Citrus-based sauce combining soy sauce with yuzu or sudachi juice",
+        textures: ["liquid"],
+        functions: ["acid", "umami-bomb"],
       },
   {
         name: "poppy seed",
@@ -5099,7 +5777,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Tiny seeds with mild nutty flavor and slight crunch"
+        description: "Tiny seeds with mild nutty flavor and slight crunch",
+        textures: ["crunchy"],
+        functions: [],
       },
   {
         name: "porcini",
@@ -5114,7 +5794,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Prized mushroom with intense earthy flavor and meaty texture"
+        description: "Prized mushroom with intense earthy flavor and meaty texture",
+        textures: ["tender", "chewy"],
+        functions: ["umami-bomb"],
       },
   {
         name: "porcini oil",
@@ -5129,7 +5811,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Oil infused with concentrated porcini flavor, ideal for finishing dishes"
+        description: "Oil infused with concentrated porcini flavor, ideal for finishing dishes",
+        textures: ["liquid"],
+        functions: ["fat", "umami-bomb"],
       },
   {
         name: "pork",
@@ -5144,7 +5828,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Versatile meat with balanced fat content and mild flavor"
+        description: "Versatile meat with balanced fat content and mild flavor",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "pork belly",
@@ -5159,7 +5845,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Rich, fatty cut that becomes tender and flavorful when slow-cooked"
+        description: "Rich, fatty cut that becomes tender and flavorful when slow-cooked",
+        textures: ["tender", "juicy", "crisp"],
+        functions: ["bulk", "fat"],
       },
   {
         name: "port wine",
@@ -5174,7 +5862,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Fortified wine with rich, sweet flavor and notes of dried fruit"
+        description: "Fortified wine with rich, sweet flavor and notes of dried fruit",
+        textures: ["liquid"],
+        functions: ["sweetener"],
       },
   {
         name: "portobello",
@@ -5189,7 +5879,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Large, meaty mushroom with robust earthy flavor"
+        description: "Large, meaty mushroom with robust earthy flavor",
+        textures: ["tender", "chewy", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "potato",
@@ -5204,7 +5896,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Starchy root vegetable with mild flavor that takes on seasoning well"
+        description: "Starchy root vegetable with mild flavor that takes on seasoning well",
+        textures: ["starchy", "tender", "creamy"],
+        functions: ["bulk"],
       },
   {
         name: "praline",
@@ -5219,7 +5913,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Caramelized nuts with intense sweet and toasted flavors"
+        description: "Caramelized nuts with intense sweet and toasted flavors",
+        textures: ["crunchy"],
+        functions: ["sweetener", "crunch-topper"],
       },
   {
         name: "preserved lemon",
@@ -5234,7 +5930,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-        description: "Salt-cured lemons with intense citrus flavor and unique fermented character"
+        description: "Salt-cured lemons with intense citrus flavor and unique fermented character",
+        textures: ["tender"],
+        functions: ["acid"],
       },
   {
         name: "prosciutto",
@@ -5249,7 +5947,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Dry-cured ham with sweet-salty flavor and delicate texture"
+        description: "Dry-cured ham with sweet-salty flavor and delicate texture",
+        textures: ["tender", "chewy"],
+        functions: ["umami-bomb", "fat"],
       },
   {
         name: "provolone",
@@ -5264,7 +5964,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Semi-hard cheese with sharp flavor that intensifies with aging"
+        description: "Semi-hard cheese with sharp flavor that intensifies with aging",
+        textures: [],
+        functions: ["fat"],
       },
   {
         name: "prune",
@@ -5279,7 +5981,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Dried plum with concentrated sweetness and complex caramel notes"
+        description: "Dried plum with concentrated sweetness and complex caramel notes",
+        textures: ["chewy", "tender"],
+        functions: ["sweetener"],
       },
   {
         name: "pudding",
@@ -5294,7 +5998,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Creamy dessert with rich, smooth texture and mild dairy flavor"
+        description: "Creamy dessert with rich, smooth texture and mild dairy flavor",
+        textures: ["creamy"],
+        functions: [],
       },
   {
         name: "pumpkin",
@@ -5309,7 +6015,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Sweet winter squash with earthy flavor and smooth texture when cooked"
+        description: "Sweet winter squash with earthy flavor and smooth texture when cooked",
+        textures: ["creamy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "pumpkin seed",
@@ -5324,7 +6032,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Nutritious seed with subtle nutty flavor that intensifies when roasted"
+        description: "Nutritious seed with subtle nutty flavor that intensifies when roasted",
+        textures: ["crunchy"],
+        functions: ["crunch-topper", "fat"],
       },
   {
         name: "pumpkin seed oil",
@@ -5339,7 +6049,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Dark green oil with intense roasted flavor, best used as a finishing oil"
+        description: "Dark green oil with intense roasted flavor, best used as a finishing oil",
+        textures: ["liquid"],
+        functions: ["fat"],
       },
   {
         name: "purslane",
@@ -5354,7 +6066,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Succulent herb with slight lemony taste and crisp texture"
+        description: "Succulent herb with slight lemony taste and crisp texture",
+        textures: ["crisp", "juicy", "tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "quail",
@@ -5369,7 +6083,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Small game bird with delicate, mild flavor and tender meat"
+        description: "Small game bird with delicate, mild flavor and tender meat",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "queso fresco",
@@ -5384,7 +6100,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Fresh, mild white cheese with slight saltiness and crumbly texture"
+        description: "Fresh, mild white cheese with slight saltiness and crumbly texture",
+        textures: ["tender"],
+        functions: ["fat"],
       },
   {
         name: "quince",
@@ -5399,7 +6117,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Aromatic fruit that becomes sweet and floral when cooked"
+        description: "Aromatic fruit that becomes sweet and floral when cooked",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "rabbit",
@@ -5414,7 +6134,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Lean game meat with mild flavor and fine-grained texture"
+        description: "Lean game meat with mild flavor and fine-grained texture",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "radicchio",
@@ -5429,7 +6151,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 7
     },
-        description: "Purple-red chicory with pronounced bitter flavor that mellows when cooked"
+        description: "Purple-red chicory with pronounced bitter flavor that mellows when cooked",
+        textures: ["crisp", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "radish",
@@ -5444,7 +6168,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 5,
       aromatic: 2
     },
-        description: "Crisp root vegetable with peppery heat and sharp flavor"
+        description: "Crisp root vegetable with peppery heat and sharp flavor",
+        textures: ["crunchy", "crisp", "juicy"],
+        functions: ["fresh-finish"],
       },
   {
         name: "raisin",
@@ -5459,7 +6185,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Dried grape with concentrated sweetness and honey-like notes"
+        description: "Dried grape with concentrated sweetness and honey-like notes",
+        textures: ["chewy"],
+        functions: ["sweetener"],
       },
   {
         name: "ramp",
@@ -5474,7 +6202,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 1
     },
-        description: "Wild leek with strong garlic-onion flavor and pungent aroma"
+        description: "Wild leek with strong garlic-onion flavor and pungent aroma",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "rice",
@@ -5489,7 +6219,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Versatile grain with mild flavor and varying textures based on variety"
+        description: "Versatile grain with mild flavor and varying textures based on variety",
+        textures: ["starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "rice pudding",
@@ -5504,7 +6236,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Creamy dessert combining rice with milk, sugar, and often vanilla or spices"
+        description: "Creamy dessert combining rice with milk, sugar, and often vanilla or spices",
+        textures: ["creamy"],
+        functions: [],
       },
   {
         name: "rice vinegar",
@@ -5519,7 +6253,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Mild, slightly sweet vinegar with clean flavor and subtle complexity"
+        description: "Mild, slightly sweet vinegar with clean flavor and subtle complexity",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "rice wine",
@@ -5534,7 +6270,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Fermented rice wine with subtle sweetness and complex umami notes"
+        description: "Fermented rice wine with subtle sweetness and complex umami notes",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "ricotta",
@@ -5549,7 +6287,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Fresh whey cheese with mild, creamy flavor and soft, grainy texture"
+        description: "Fresh whey cheese with mild, creamy flavor and soft, grainy texture",
+        textures: ["creamy"],
+        functions: ["fat"],
       },
   {
         name: "riesling",
@@ -5564,7 +6304,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Aromatic white wine with bright acidity and varying levels of sweetness"
+        description: "Aromatic white wine with bright acidity and varying levels of sweetness",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "romano",
@@ -5579,7 +6321,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Sharp, salty aged cheese with intense savory flavor"
+        description: "Sharp, salty aged cheese with intense savory flavor",
+        textures: [],
+        functions: ["umami-bomb", "fat"],
       },
   {
         name: "rosemary",
@@ -5594,7 +6338,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 7
     },
-        description: "Woody herb with intense piney aroma and resinous flavor"
+        description: "Woody herb with intense piney aroma and resinous flavor",
+        textures: [],
+        functions: [],
       },
   {
         name: "rosé",
@@ -5609,7 +6355,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Pink wine with bright acidity and subtle red fruit notes"
+        description: "Pink wine with bright acidity and subtle red fruit notes",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "rutabaga",
@@ -5624,7 +6372,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-        description: "Root vegetable with subtle sweetness and slight peppery bite"
+        description: "Root vegetable with subtle sweetness and slight peppery bite",
+        textures: ["tender", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "saffron",
@@ -5639,7 +6389,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 10
     },
-        description: "Precious spice with distinctive floral aroma and honey-like flavor"
+        description: "Precious spice with distinctive floral aroma and honey-like flavor",
+        textures: [],
+        functions: [],
       },
   {
         name: "sage",
@@ -5654,7 +6406,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-        description: "Earthy herb with musty aroma and slightly peppery taste"
+        description: "Earthy herb with musty aroma and slightly peppery taste",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "sake",
@@ -5669,7 +6423,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Japanese rice wine with subtle sweetness and complex umami notes"
+        description: "Japanese rice wine with subtle sweetness and complex umami notes",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "salami",
@@ -5684,7 +6440,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 4
     },
-        description: "Cured sausage with rich, spicy flavor and complex fermented notes"
+        description: "Cured sausage with rich, spicy flavor and complex fermented notes",
+        textures: ["chewy", "tender"],
+        functions: ["umami-bomb", "fat"],
       },
   {
         name: "salmon",
@@ -5699,7 +6457,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Rich, fatty fish with distinctive flavor and tender flesh"
+        description: "Rich, fatty fish with distinctive flavor and tender flesh",
+        textures: ["tender", "flaky", "juicy"],
+        functions: ["bulk", "fat"],
       },
   {
         name: "salmon roe",
@@ -5714,7 +6474,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Briny fish eggs with bursting texture and intense marine flavor"
+        description: "Briny fish eggs with bursting texture and intense marine flavor",
+        textures: ["juicy"],
+        functions: ["umami-bomb"],
       },
   {
         name: "sauvignon blanc",
@@ -5729,7 +6491,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Crisp white wine with bright acidity and herbaceous notes"
+        description: "Crisp white wine with bright acidity and herbaceous notes",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "savory",
@@ -5744,7 +6508,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-        description: "Peppery herb with strong thyme-like flavor and intense aromatics"
+        description: "Peppery herb with strong thyme-like flavor and intense aromatics",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "scallion",
@@ -5759,7 +6525,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 4
     },
-        description: "Mild onion with fresh, grassy flavor and crisp texture"
+        description: "Mild onion with fresh, grassy flavor and crisp texture",
+        textures: ["crisp", "tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "scallop",
@@ -5774,7 +6542,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Sweet shellfish with delicate flavor and tender texture"
+        description: "Sweet shellfish with delicate flavor and tender texture",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "scotch",
@@ -5789,7 +6559,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 3
     },
-        description: "Complex whisky with varying levels of smoke and peat"
+        description: "Complex whisky with varying levels of smoke and peat",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "sea bass",
@@ -5804,7 +6576,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Mild white fish with buttery texture and delicate flavor"
+        description: "Mild white fish with buttery texture and delicate flavor",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "sea urchin",
@@ -5819,7 +6593,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Rich, creamy roe with intense ocean flavor and briny sweetness"
+        description: "Rich, creamy roe with intense ocean flavor and briny sweetness",
+        textures: ["creamy"],
+        functions: ["umami-bomb"],
       },
   {
         name: "seaweed",
@@ -5834,7 +6610,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Sea vegetable with intense umami and mineral-rich flavor"
+        description: "Sea vegetable with intense umami and mineral-rich flavor",
+        textures: ["tender", "chewy"],
+        functions: ["umami-bomb"],
       },
   {
         name: "serrano ham",
@@ -5849,7 +6627,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Dry-cured Spanish ham with complex nutty and sweet notes"
+        description: "Dry-cured Spanish ham with complex nutty and sweet notes",
+        textures: ["tender", "chewy"],
+        functions: ["umami-bomb", "fat"],
       },
   {
         name: "sesame oil",
@@ -5864,7 +6644,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Aromatic oil with intense toasted flavor and rich nutty aroma"
+        description: "Aromatic oil with intense toasted flavor and rich nutty aroma",
+        textures: ["liquid"],
+        functions: ["fat"],
       },
   {
         name: "sesame seed",
@@ -5879,7 +6661,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Small seed with subtle nutty flavor that intensifies when toasted"
+        description: "Small seed with subtle nutty flavor that intensifies when toasted",
+        textures: ["crunchy"],
+        functions: ["crunch-topper"],
       },
   {
         name: "shallot",
@@ -5894,7 +6678,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 4
     },
-        description: "Refined allium with delicate onion-garlic flavor"
+        description: "Refined allium with delicate onion-garlic flavor",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "shellfish",
@@ -5909,7 +6695,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Various sea creatures with sweet, briny flavor and tender flesh"
+        description: "Various sea creatures with sweet, briny flavor and tender flesh",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "sherry",
@@ -5924,7 +6712,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Fortified wine with nutty, oxidized character and complex flavor"
+        description: "Fortified wine with nutty, oxidized character and complex flavor",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "smoked fish",
@@ -5939,7 +6729,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Preserved fish with intense smoky flavor and firm texture"
+        description: "Preserved fish with intense smoky flavor and firm texture",
+        textures: ["tender", "flaky"],
+        functions: ["bulk", "umami-bomb"],
       },
   {
         name: "smoked paprika",
@@ -5954,7 +6746,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 4
     },
-        description: "Dried, smoked pepper powder with sweet, complex flavor"
+        description: "Dried, smoked pepper powder with sweet, complex flavor",
+        textures: [],
+        functions: [],
       },
   {
         name: "smoked salmon",
@@ -5969,7 +6763,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Cured, smoked fish with rich, buttery texture and complex flavor"
+        description: "Cured, smoked fish with rich, buttery texture and complex flavor",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "smoked salt",
@@ -5984,7 +6780,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Salt infused with natural smoke flavor"
+        description: "Salt infused with natural smoke flavor",
+        textures: [],
+        functions: [],
       },
   {
         name: "smoked trout",
@@ -5999,7 +6797,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-        description: "Delicate freshwater fish enhanced by smoking process"
+        description: "Delicate freshwater fish enhanced by smoking process",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "snap pea",
@@ -6014,7 +6814,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Sweet, crisp pea pod with tender peas inside"
+        description: "Sweet, crisp pea pod with tender peas inside",
+        textures: ["crisp", "crunchy", "juicy"],
+        functions: [],
       },
   {
         name: "snapper",
@@ -6029,7 +6831,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Lean white fish with sweet, nutty flavor"
+        description: "Lean white fish with sweet, nutty flavor",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "soft-shell crab",
@@ -6044,7 +6848,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Seasonal crab eaten whole with rich, briny flavor"
+        description: "Seasonal crab eaten whole with rich, briny flavor",
+        textures: ["crisp", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "sole",
@@ -6059,7 +6865,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Delicate white fish with mild, sweet flavor"
+        description: "Delicate white fish with mild, sweet flavor",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "sorbet",
@@ -6074,7 +6882,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Frozen dessert made from fruit juice or flavored water"
+        description: "Frozen dessert made from fruit juice or flavored water",
+        textures: ["creamy"],
+        functions: [],
       },
   {
         name: "sorrel",
@@ -6089,7 +6899,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Leafy herb with bright, lemony acidity"
+        description: "Leafy herb with bright, lemony acidity",
+        textures: ["tender"],
+        functions: ["acid", "fresh-finish"],
       },
   {
         name: "sour cream",
@@ -6104,7 +6916,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Cultured cream with tangy flavor and rich texture"
+        description: "Cultured cream with tangy flavor and rich texture",
+        textures: ["creamy"],
+        functions: ["fat", "acid"],
       },
   {
         name: "soy sauce",
@@ -6119,7 +6933,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Fermented soybean sauce with intense umami and salt"
+        description: "Fermented soybean sauce with intense umami and salt",
+        textures: ["liquid"],
+        functions: ["umami-bomb"],
       },
   {
         name: "spaghetti squash",
@@ -6134,7 +6950,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Winter squash with mild flavor and unique stringy texture"
+        description: "Winter squash with mild flavor and unique stringy texture",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "strawberry",
@@ -6149,7 +6967,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Sweet-tart berry with fragrant aroma and bright flavor"
+        description: "Sweet-tart berry with fragrant aroma and bright flavor",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "striped bass",
@@ -6164,7 +6984,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Mild white fish with firm, flaky texture and sweet undertones"
+        description: "Mild white fish with firm, flaky texture and sweet undertones",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "sugar",
@@ -6179,7 +7001,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Pure sweetener that caramelizes when heated"
+        description: "Pure sweetener that caramelizes when heated",
+        textures: [],
+        functions: ["sweetener"],
       },
   {
         name: "sumac",
@@ -6194,7 +7018,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 1
     },
-        description: "Ground berry spice with tart, fruity flavor"
+        description: "Ground berry spice with tart, fruity flavor",
+        textures: [],
+        functions: ["acid"],
       },
   {
         name: "summer squash",
@@ -6209,7 +7035,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Tender squash with delicate flavor and high water content"
+        description: "Tender squash with delicate flavor and high water content",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "sunchoke",
@@ -6224,7 +7052,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Knobby tuber with nutty, artichoke-like flavor"
+        description: "Knobby tuber with nutty, artichoke-like flavor",
+        textures: ["tender", "crisp", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "sweet potato",
@@ -6239,7 +7069,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Starchy root vegetable with pronounced natural sweetness"
+        description: "Starchy root vegetable with pronounced natural sweetness",
+        textures: ["starchy", "tender", "creamy"],
+        functions: ["bulk"],
       },
   {
         name: "swordfish",
@@ -6254,7 +7086,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Firm, meaty fish with mild, sweet flavor"
+        description: "Firm, meaty fish with mild, sweet flavor",
+        textures: ["tender", "chewy"],
+        functions: ["bulk"],
       },
   {
         name: "szechuan pepper",
@@ -6269,7 +7103,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 4
     },
-        description: "Unique spice producing numbing sensation with citrusy notes"
+        description: "Unique spice producing numbing sensation with citrusy notes",
+        textures: [],
+        functions: [],
       },
   {
         name: "tabasco",
@@ -6284,7 +7120,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 8,
       aromatic: 0
     },
-        description: "Fermented hot sauce with vinegar tang and intense heat"
+        description: "Fermented hot sauce with vinegar tang and intense heat",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "tahini",
@@ -6299,7 +7137,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Ground sesame paste with rich, nutty flavor"
+        description: "Ground sesame paste with rich, nutty flavor",
+        textures: ["creamy"],
+        functions: ["fat", "binder"],
       },
   {
         name: "taleggio",
@@ -6314,7 +7154,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Washed-rind cheese with strong aroma and mild, fruity taste"
+        description: "Washed-rind cheese with strong aroma and mild, fruity taste",
+        textures: ["creamy"],
+        functions: ["fat"],
       },
   {
         name: "tamari",
@@ -6329,7 +7171,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Wheat-free soy sauce with rich, complex flavor"
+        description: "Wheat-free soy sauce with rich, complex flavor",
+        textures: ["liquid"],
+        functions: ["umami-bomb"],
       },
   {
         name: "tarragon",
@@ -6344,7 +7188,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-        description: "Aromatic herb with anise-like flavor and subtle vanilla notes"
+        description: "Aromatic herb with anise-like flavor and subtle vanilla notes",
+        textures: ["tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "tea",
@@ -6359,7 +7205,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-        description: "Brewed beverage with varying levels of tannins and complex aromatics"
+        description: "Brewed beverage with varying levels of tannins and complex aromatics",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "tenderloin",
@@ -6374,7 +7222,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Lean, tender cut of meat with mild flavor"
+        description: "Lean, tender cut of meat with mild flavor",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "tequila",
@@ -6389,7 +7239,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 2
     },
-        description: "Agave-based spirit with earthy, peppery notes"
+        description: "Agave-based spirit with earthy, peppery notes",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "teriyaki",
@@ -6404,7 +7256,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Sweet-savory sauce with soy sauce base and caramelized sugar"
+        description: "Sweet-savory sauce with soy sauce base and caramelized sugar",
+        textures: ["liquid"],
+        functions: ["sweetener", "umami-bomb"],
       },
   {
         name: "thai basil",
@@ -6419,7 +7273,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 7
     },
-        description: "Aromatic herb with anise notes and spicy undertones"
+        description: "Aromatic herb with anise notes and spicy undertones",
+        textures: ["tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "thyme",
@@ -6434,7 +7290,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 7
     },
-        description: "Woody herb with floral, peppery notes"
+        description: "Woody herb with floral, peppery notes",
+        textures: [],
+        functions: [],
       },
   {
         name: "tofu",
@@ -6449,7 +7307,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Soy protein with subtle flavor that absorbs surrounding seasonings"
+        description: "Soy protein with subtle flavor that absorbs surrounding seasonings",
+        textures: ["tender", "creamy"],
+        functions: ["bulk"],
       },
   {
         name: "tomatillo",
@@ -6464,7 +7324,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Tart green fruit with bright, citrusy flavor"
+        description: "Tart green fruit with bright, citrusy flavor",
+        textures: ["juicy", "tender"],
+        functions: ["acid"],
       },
   {
         name: "tomato",
@@ -6479,7 +7341,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Versatile fruit with balance of sweet, acid, and umami"
+        description: "Versatile fruit with balance of sweet, acid, and umami",
+        textures: ["juicy", "tender"],
+        functions: ["acid"],
       },
   {
         name: "truffle",
@@ -6494,7 +7358,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 10
     },
-        description: "Prized fungus with intense earthy aroma and complex flavor"
+        description: "Prized fungus with intense earthy aroma and complex flavor",
+        textures: ["tender"],
+        functions: ["umami-bomb"],
       },
   {
         name: "truffle oil",
@@ -6509,7 +7375,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 10
     },
-        description: "Oil infused with truffle essence for finishing dishes"
+        description: "Oil infused with truffle essence for finishing dishes",
+        textures: ["liquid"],
+        functions: ["fat", "umami-bomb"],
       },
   {
         name: "tuna",
@@ -6524,7 +7392,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Meaty fish with rich flavor and firm texture"
+        description: "Meaty fish with rich flavor and firm texture",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "turkey",
@@ -6539,7 +7409,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Lean poultry with mild flavor and varying levels of moisture"
+        description: "Lean poultry with mild flavor and varying levels of moisture",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "turmeric",
@@ -6554,7 +7426,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-        description: "Bright yellow spice with earthy, slightly bitter flavor"
+        description: "Bright yellow spice with earthy, slightly bitter flavor",
+        textures: [],
+        functions: [],
       },
   {
         name: "vegetable stock",
@@ -6569,7 +7443,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Plant-based cooking liquid with balanced savory flavor"
+        description: "Plant-based cooking liquid with balanced savory flavor",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "venison",
@@ -6584,7 +7460,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Lean game meat with rich, earthy flavor"
+        description: "Lean game meat with rich, earthy flavor",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "verbena",
@@ -6599,7 +7477,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Aromatic herb with bright, lemony flavor"
+        description: "Aromatic herb with bright, lemony flavor",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "verjus",
@@ -6614,7 +7494,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Pressed juice from unripe grapes with bright acidity"
+        description: "Pressed juice from unripe grapes with bright acidity",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "vermouth",
@@ -6629,7 +7511,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-        description: "Fortified wine flavored with herbs and spices"
+        description: "Fortified wine flavored with herbs and spices",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "vinegar",
@@ -6644,7 +7528,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Fermented liquid with sharp acidity and varying flavor bases"
+        description: "Fermented liquid with sharp acidity and varying flavor bases",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "vodka",
@@ -6659,7 +7545,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-        description: "Neutral spirit with clean flavor and slight warmth"
+        description: "Neutral spirit with clean flavor and slight warmth",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "wagyu",
@@ -6674,7 +7562,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Highly marbled beef with rich, buttery flavor"
+        description: "Highly marbled beef with rich, buttery flavor",
+        textures: ["tender", "juicy"],
+        functions: ["bulk", "fat"],
       },
   {
         name: "walnut",
@@ -6689,7 +7579,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Rich nut with tannic qualities and buttery flavor"
+        description: "Rich nut with tannic qualities and buttery flavor",
+        textures: ["crunchy"],
+        functions: ["fat", "crunch-topper"],
       },
   {
         name: "walnut oil",
@@ -6704,7 +7596,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Delicate oil with rich nutty flavor, best used unheated"
+        description: "Delicate oil with rich nutty flavor, best used unheated",
+        textures: ["liquid"],
+        functions: ["fat"],
       },
   {
         name: "wasabi",
@@ -6719,7 +7613,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 9,
       aromatic: 2
     },
-        description: "Japanese horseradish with intense nasal heat"
+        description: "Japanese horseradish with intense nasal heat",
+        textures: [],
+        functions: [],
       },
   {
         name: "watercress",
@@ -6734,7 +7630,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 0
     },
-        description: "Peppery green with crisp texture and bright flavor"
+        description: "Peppery green with crisp texture and bright flavor",
+        textures: ["crisp", "tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "watermelon",
@@ -6749,7 +7647,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Refreshing fruit with high water content and sweet flavor"
+        description: "Refreshing fruit with high water content and sweet flavor",
+        textures: ["juicy", "crisp"],
+        functions: [],
       },
   {
         name: "whiskey",
@@ -6764,7 +7664,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 5
     },
-        description: "Grain-based spirit with complex wood and caramel notes"
+        description: "Grain-based spirit with complex wood and caramel notes",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "white truffle",
@@ -6779,7 +7681,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 10
     },
-        description: "Prized fungus with intense garlic-like aroma and complex flavor"
+        description: "Prized fungus with intense garlic-like aroma and complex flavor",
+        textures: ["tender"],
+        functions: ["umami-bomb"],
       },
   {
         name: "white wine",
@@ -6794,7 +7698,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Light, acidic wine with varying levels of fruit and mineral notes"
+        description: "Light, acidic wine with varying levels of fruit and mineral notes",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "white wine vinegar",
@@ -6809,7 +7715,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Crisp vinegar with clean, sharp acidity"
+        description: "Crisp vinegar with clean, sharp acidity",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "wild rice",
@@ -6824,7 +7732,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Nutty aquatic grass seed with firm texture and earthy flavor"
+        description: "Nutty aquatic grass seed with firm texture and earthy flavor",
+        textures: ["chewy", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "winter squash",
@@ -6839,7 +7749,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Dense, sweet squash varieties with firm flesh and rich flavor"
+        description: "Dense, sweet squash varieties with firm flesh and rich flavor",
+        textures: ["creamy", "tender", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "worcestershire",
@@ -6854,7 +7766,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-        description: "Complex fermented sauce with anchovy base and tangy flavor"
+        description: "Complex fermented sauce with anchovy base and tangy flavor",
+        textures: ["liquid"],
+        functions: ["umami-bomb"],
       },
   {
         name: "yogurt",
@@ -6869,7 +7783,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Fermented dairy product with tangy flavor and creamy texture"
+        description: "Fermented dairy product with tangy flavor and creamy texture",
+        textures: ["creamy"],
+        functions: ["acid", "fat"],
       },
   {
         name: "yuzu",
@@ -6884,7 +7800,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 6
     },
-        description: "Japanese citrus with complex floral and tart flavor"
+        description: "Japanese citrus with complex floral and tart flavor",
+        textures: ["juicy"],
+        functions: ["acid", "fresh-finish"],
       },
   {
         name: "zucchini",
@@ -6899,7 +7817,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Mild summer squash with delicate flavor and tender texture"
+        description: "Mild summer squash with delicate flavor and tender texture",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "zucchini blossom",
@@ -6914,7 +7834,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Delicate squash flower with subtle, floral flavor"
+        description: "Delicate squash flower with subtle, floral flavor",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "squid",
@@ -6929,7 +7851,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Slightly sweet, neutral-tasting seafood also known as Calamari"
+        description: "Slightly sweet, neutral-tasting seafood also known as Calamari",
+        textures: ["chewy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "green peppercorn",
@@ -6944,7 +7868,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 4
     },
-        description: "Fresh unripe peppercorns with bright, sharp heat and herbal notes"
+        description: "Fresh unripe peppercorns with bright, sharp heat and herbal notes",
+        textures: [],
+        functions: [],
       },
   {
         name: "lima beans",
@@ -6959,7 +7885,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Large, creamy beans with a mild, buttery flavor and slight sweetness"
+        description: "Large, creamy beans with a mild, buttery flavor and slight sweetness",
+        textures: ["creamy", "starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "mayonnaise",
@@ -6974,7 +7902,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Emulsified sauce with rich, creamy texture and tangy notes"
+        description: "Emulsified sauce with rich, creamy texture and tangy notes",
+        textures: ["creamy"],
+        functions: ["fat", "binder"],
       },
   {
         name: "marrow",
@@ -6989,7 +7919,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Rich, buttery substance found in beef bones with a smooth, custard-like texture"
+        description: "Rich, buttery substance found in beef bones with a smooth, custard-like texture",
+        textures: ["creamy"],
+        functions: ["fat", "umami-bomb"],
       },
   {
         name: "matsutake",
@@ -7004,7 +7936,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Prized mushroom with intense pine-like aroma and rich umami flavor"
+        description: "Prized mushroom with intense pine-like aroma and rich umami flavor",
+        textures: ["tender", "chewy"],
+        functions: ["umami-bomb"],
       },
   {
         name: "meringue",
@@ -7019,7 +7953,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Light, airy confection made from whipped egg whites and sugar"
+        description: "Light, airy confection made from whipped egg whites and sugar",
+        textures: ["airy", "crisp"],
+        functions: ["sweetener"],
       },
   {
         name: "merlot",
@@ -7034,7 +7970,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Medium-bodied red wine with plum and black cherry notes"
+        description: "Medium-bodied red wine with plum and black cherry notes",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "mesclun",
@@ -7049,7 +7987,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-        description: "Mixed young salad greens with varying levels of pepperiness and bitterness"
+        description: "Mixed young salad greens with varying levels of pepperiness and bitterness",
+        textures: ["tender", "crisp"],
+        functions: ["bulk"],
       },
   {
         name: "piquillo pepper",
@@ -7064,7 +8004,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 4
     },
-        description: "Sweet Spanish pepper with subtle heat and smoky notes"
+        description: "Sweet Spanish pepper with subtle heat and smoky notes",
+        textures: ["tender", "juicy"],
+        functions: [],
       },
   {
         name: "pike",
@@ -7079,7 +8021,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Freshwater fish with clean, mild flavor and firm texture"
+        description: "Freshwater fish with clean, mild flavor and firm texture",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "polenta",
@@ -7094,7 +8038,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Ground cornmeal with subtle sweetness and earthy notes"
+        description: "Ground cornmeal with subtle sweetness and earthy notes",
+        textures: ["creamy", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "pork loin",
@@ -7109,7 +8055,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Lean cut with mild pork flavor and tender texture"
+        description: "Lean cut with mild pork flavor and tender texture",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "pork shoulder",
@@ -7124,7 +8072,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Rich, marbled cut with deep pork flavor"
+        description: "Rich, marbled cut with deep pork flavor",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "raspberry",
@@ -7139,7 +8089,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Bright, fragrant berries with sweet-tart flavor"
+        description: "Bright, fragrant berries with sweet-tart flavor",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "red onion",
@@ -7154,7 +8106,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 3,
       aromatic: 4
     },
-        description: "Purple-skinned onion with sweet-sharp flavor"
+        description: "Purple-skinned onion with sweet-sharp flavor",
+        textures: ["crunchy", "juicy"],
+        functions: ["fresh-finish"],
       },
   {
         name: "red pepper",
@@ -7169,7 +8123,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Sweet bell pepper with crisp texture and mild flavor"
+        description: "Sweet bell pepper with crisp texture and mild flavor",
+        textures: ["crisp", "juicy"],
+        functions: [],
       },
   {
         name: "red wine vinegar",
@@ -7184,7 +8140,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Sharp, tangy vinegar with wine-like depth"
+        description: "Sharp, tangy vinegar with wine-like depth",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "rhubarb",
@@ -7199,7 +8157,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Tart stalks with bright, astringent flavor"
+        description: "Tart stalks with bright, astringent flavor",
+        textures: ["tender"],
+        functions: ["acid"],
       },
   {
         name: "roquefort",
@@ -7214,7 +8174,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Strong blue cheese with sharp, tangy flavor"
+        description: "Strong blue cheese with sharp, tangy flavor",
+        textures: ["creamy"],
+        functions: ["fat", "umami-bomb"],
       },
   {
         name: "romaine",
@@ -7229,7 +8191,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Crisp lettuce with mild, slightly sweet flavor"
+        description: "Crisp lettuce with mild, slightly sweet flavor",
+        textures: ["crisp", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "rose",
@@ -7244,7 +8208,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Delicate floral flavor with subtle sweetness"
+        description: "Delicate floral flavor with subtle sweetness",
+        textures: [],
+        functions: [],
       },
   {
         name: "rum",
@@ -7259,7 +8225,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-        description: "Sugarcane-based spirit with caramel and vanilla notes"
+        description: "Sugarcane-based spirit with caramel and vanilla notes",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "salsify",
@@ -7274,7 +8242,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Root vegetable with oyster-like flavor when cooked"
+        description: "Root vegetable with oyster-like flavor when cooked",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "salt cod",
@@ -7289,7 +8259,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Preserved cod with concentrated briny flavor"
+        description: "Preserved cod with concentrated briny flavor",
+        textures: ["tender", "flaky"],
+        functions: ["bulk", "umami-bomb"],
       },
   {
         name: "sauerkraut",
@@ -7304,7 +8276,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Fermented cabbage with tangy, salty flavor"
+        description: "Fermented cabbage with tangy, salty flavor",
+        textures: ["crisp", "tender", "juicy"],
+        functions: ["acid"],
       },
   {
         name: "sausage",
@@ -7319,7 +8293,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 7
     },
-        description: "Seasoned ground meat with rich, savory flavor"
+        description: "Seasoned ground meat with rich, savory flavor",
+        textures: ["tender", "juicy"],
+        functions: ["bulk", "fat", "umami-bomb"],
       },
   {
         name: "shiitake",
@@ -7334,7 +8310,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Meaty mushroom with intense umami and woodsy notes"
+        description: "Meaty mushroom with intense umami and woodsy notes",
+        textures: ["tender", "chewy"],
+        functions: ["umami-bomb", "bulk"],
       },
   {
         name: "shiso leaf",
@@ -7349,7 +8327,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 5
     },
-        description: "Japanese herb with complex mint-basil-citrus flavor"
+        description: "Japanese herb with complex mint-basil-citrus flavor",
+        textures: ["tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "shrimp",
@@ -7364,7 +8344,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Sweet, delicate seafood with mild briny flavor"
+        description: "Sweet, delicate seafood with mild briny flavor",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "skate",
@@ -7379,7 +8361,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Mild white fish with tender, stringy texture"
+        description: "Mild white fish with tender, stringy texture",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "spinach",
@@ -7394,7 +8378,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Tender greens with mineral-rich, slightly bitter flavor"
+        description: "Tender greens with mineral-rich, slightly bitter flavor",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "squash",
@@ -7409,7 +8395,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Sweet, mild vegetable with tender flesh"
+        description: "Sweet, mild vegetable with tender flesh",
+        textures: ["tender", "creamy"],
+        functions: ["bulk"],
       },
   {
         name: "star anise",
@@ -7424,7 +8412,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 7
     },
-        description: "Licorice-like spice with sweet, warming flavor"
+        description: "Licorice-like spice with sweet, warming flavor",
+        textures: [],
+        functions: [],
       },
   {
         name: "stilton cheese",
@@ -7439,7 +8429,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Strong blue cheese with complex, tangy flavor"
+        description: "Strong blue cheese with complex, tangy flavor",
+        textures: ["creamy"],
+        functions: ["fat", "umami-bomb"],
       },
   {
         name: "tamarind",
@@ -7454,7 +8446,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Tropical fruit with sweet-sour, date-like flavor"
+        description: "Tropical fruit with sweet-sour, date-like flavor",
+        textures: [],
+        functions: ["acid"],
       },
   {
         name: "turnip",
@@ -7469,7 +8463,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-        description: "Root vegetable with mild peppery flavor"
+        description: "Root vegetable with mild peppery flavor",
+        textures: ["tender", "crisp"],
+        functions: ["bulk"],
       },
   {
         name: "vanilla",
@@ -7484,7 +8480,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 8
     },
-        description: "Sweet, floral spice with complex woody notes"
+        description: "Sweet, floral spice with complex woody notes",
+        textures: [],
+        functions: [],
       },
   {
         name: "veal",
@@ -7499,7 +8497,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Young beef with delicate, mild flavor"
+        description: "Young beef with delicate, mild flavor",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "veal breast",
@@ -7514,7 +8514,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Rich cut of veal with higher fat content"
+        description: "Rich cut of veal with higher fat content",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "vegetable oil",
@@ -7529,7 +8531,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Neutral cooking oil with minimal flavor"
+        description: "Neutral cooking oil with minimal flavor",
+        textures: ["liquid"],
+        functions: ["fat"],
       },
   {
         name: "white chocolate",
@@ -7544,7 +8548,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-        description: "Sweet confection with vanilla and dairy notes"
+        description: "Sweet confection with vanilla and dairy notes",
+        textures: ["creamy"],
+        functions: ["sweetener"],
       },
   {
         name: "veal shank",
@@ -7559,7 +8565,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Rich cut of veal ideal for slow cooking"
+        description: "Rich cut of veal ideal for slow cooking",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "veal loin",
@@ -7574,7 +8582,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Lean, tender cut with mild veal flavor"
+        description: "Lean, tender cut with mild veal flavor",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "pink peppercorn",
@@ -7589,7 +8599,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 4
     },
-        description: "Mild peppercorn with sweet-spicy flavor and floral notes"
+        description: "Mild peppercorn with sweet-spicy flavor and floral notes",
+        textures: [],
+        functions: [],
       },
   {
         name: "sherry vinegar",
@@ -7604,7 +8616,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Complex vinegar with nutty, caramel notes"
+        description: "Complex vinegar with nutty, caramel notes",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "green olive",
@@ -7619,7 +8633,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Briny, firm olive with grassy notes"
+        description: "Briny, firm olive with grassy notes",
+        textures: ["tender", "chewy"],
+        functions: ["umami-bomb"],
       },
   {
         name: "chili flake",
@@ -7634,7 +8650,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 8,
       aromatic: 4
     },
-        description: "Dried chili flakes with intense heat"
+        description: "Dried chili flakes with intense heat",
+        textures: [],
+        functions: [],
       },
   {
         name: "hard-boiled egg",
@@ -7649,7 +8667,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Cooked egg with rich, creamy yolk"
+        description: "Cooked egg with rich, creamy yolk",
+        textures: ["tender", "creamy"],
+        functions: ["bulk"],
       },
   {
         name: "squab",
@@ -7664,7 +8684,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Young pigeon with rich, dark meat flavor"
+        description: "Young pigeon with rich, dark meat flavor",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "red beans",
@@ -7679,7 +8701,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Hearty bean with mild, earthy flavor"
+        description: "Hearty bean with mild, earthy flavor",
+        textures: ["creamy", "starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "pâté",
@@ -7694,7 +8718,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Rich liver spread with complex, savory notes"
+        description: "Rich liver spread with complex, savory notes",
+        textures: ["creamy"],
+        functions: ["fat", "umami-bomb"],
       },
   {
         name: "green tea",
@@ -7709,7 +8735,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-        description: "Light tea with grassy, slightly bitter flavor"
+        description: "Light tea with grassy, slightly bitter flavor",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "turnip greens",
@@ -7724,7 +8752,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 5
     },
-        description: "Peppery greens with robust, bitter flavor"
+        description: "Peppery greens with robust, bitter flavor",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "pinto beans",
@@ -7739,7 +8769,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Creamy beans with mild, earthy flavor"
+        description: "Creamy beans with mild, earthy flavor",
+        textures: ["creamy", "starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "sweetbreads",
@@ -7754,7 +8786,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Delicate organ meat with subtle, rich flavor"
+        description: "Delicate organ meat with subtle, rich flavor",
+        textures: ["tender", "creamy"],
+        functions: ["bulk"],
       },
   {
         name: "green plantain",
@@ -7769,7 +8803,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Starchy, unripe plantain with neutral flavor"
+        description: "Starchy, unripe plantain with neutral flavor",
+        textures: ["starchy", "crisp"],
+        functions: ["bulk"],
       },
   {
         name: "sweet onion",
@@ -7784,7 +8820,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-        description: "Mild onion with high sugar content"
+        description: "Mild onion with high sugar content",
+        textures: ["juicy", "crunchy", "tender"],
+        functions: [],
       },
   {
         name: "risotto",
@@ -7799,7 +8837,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Creamy Italian rice dish with rich texture"
+        description: "Creamy Italian rice dish with rich texture",
+        textures: ["creamy", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "lemon thyme",
@@ -7814,7 +8854,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-        description: "Citrusy herb with subtle thyme notes"
+        description: "Citrusy herb with subtle thyme notes",
+        textures: ["tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "melon",
@@ -7829,7 +8871,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Sweet, refreshing fruit with floral notes"
+        description: "Sweet, refreshing fruit with floral notes",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "sweet paprika",
@@ -7844,7 +8888,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 4
     },
-        description: "Mild pepper spice with sweet, earthy flavor"
+        description: "Mild pepper spice with sweet, earthy flavor",
+        textures: [],
+        functions: [],
       },
   {
         name: "tropical fruit",
@@ -7859,7 +8905,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Sweet, exotic fruits with bright flavors"
+        description: "Sweet, exotic fruits with bright flavors",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "trout",
@@ -7874,7 +8922,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Delicate freshwater fish with mild flavor"
+        description: "Delicate freshwater fish with mild flavor",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "white sesame seed",
@@ -7889,7 +8939,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Mild seeds with nutty, toasted flavor"
+        description: "Mild seeds with nutty, toasted flavor",
+        textures: ["crunchy"],
+        functions: ["crunch-topper"],
       },
   {
         name: "nori",
@@ -7904,7 +8956,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Dried seaweed with intense umami and briny flavor"
+        description: "Dried seaweed with intense umami and briny flavor",
+        textures: ["crisp"],
+        functions: ["umami-bomb"],
       },
   {
         name: "vinaigrette",
@@ -7919,7 +8973,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Oil and vinegar dressing with bright acidity"
+        description: "Oil and vinegar dressing with bright acidity",
+        textures: ["liquid"],
+        functions: ["acid", "fat"],
       },
   {
         name: "stuffing",
@@ -7934,7 +8990,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Seasoned bread mixture with savory herbs"
+        description: "Seasoned bread mixture with savory herbs",
+        textures: ["tender", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "kidney beans",
@@ -7949,7 +9007,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Large beans with earthy, mineral flavor"
+        description: "Large beans with earthy, mineral flavor",
+        textures: ["creamy", "starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "plum",
@@ -7964,7 +9024,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Sweet-tart stone fruit with juicy flesh"
+        description: "Sweet-tart stone fruit with juicy flesh",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "short rib",
@@ -7979,7 +9041,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Rich, well-marbled beef cut with intense beefy flavor and buttery tenderness when slow-cooked, featuring excellent marbling and deep umami notes"
+        description: "Rich, well-marbled beef cut with intense beefy flavor and buttery tenderness when slow-cooked, featuring excellent marbling and deep umami notes",
+        textures: ["tender", "juicy"],
+        functions: ["bulk", "fat"],
       },
   {
         name: "lemon basil",
@@ -7994,7 +9058,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 7
     },
-        description: "Aromatic herb combining traditional basil's sweet spiciness with bright citrus notes, offering a unique lemony twist to dishes"
+        description: "Aromatic herb combining traditional basil's sweet spiciness with bright citrus notes, offering a unique lemony twist to dishes",
+        textures: ["tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "sardine",
@@ -8009,7 +9075,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Small, oily fish with intense savory flavor, rich in umami and natural saltiness, often used in Mediterranean and Asian cuisines"
+        description: "Small, oily fish with intense savory flavor, rich in umami and natural saltiness, often used in Mediterranean and Asian cuisines",
+        textures: ["tender"],
+        functions: ["bulk", "umami-bomb"],
       },
   {
         name: "white asparagus",
@@ -8024,7 +9092,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-        description: "Delicate, tender asparagus variety with subtle sweetness and mild nutty notes, prized in European cuisine for its refined flavor"
+        description: "Delicate, tender asparagus variety with subtle sweetness and mild nutty notes, prized in European cuisine for its refined flavor",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "white rice",
@@ -8039,7 +9109,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Mild, clean-tasting grain with subtle sweetness and floral aroma, providing a neutral base that readily absorbs other flavors"
+        description: "Mild, clean-tasting grain with subtle sweetness and floral aroma, providing a neutral base that readily absorbs other flavors",
+        textures: ["starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "red cabbage",
@@ -8054,7 +9126,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 2
     },
-        description: "Crisp, colorful cabbage variety with a robust flavor profile, offering a balance of sweet and peppery notes with slight bitterness"
+        description: "Crisp, colorful cabbage variety with a robust flavor profile, offering a balance of sweet and peppery notes with slight bitterness",
+        textures: ["crisp", "crunchy", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "white beans",
@@ -8069,7 +9143,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Creamy, mild-flavored beans with subtle earthiness and natural sweetness, excellent at absorbing surrounding flavors while maintaining texture"
+        description: "Creamy, mild-flavored beans with subtle earthiness and natural sweetness, excellent at absorbing surrounding flavors while maintaining texture",
+        textures: ["creamy", "starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "skirt steak",
@@ -8084,7 +9160,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-        description: "Intensely flavored, long-fibered beef cut with robust beefiness and mineral notes, ideal for quick-cooking methods and marinades"
+        description: "Intensely flavored, long-fibered beef cut with robust beefiness and mineral notes, ideal for quick-cooking methods and marinades",
+        textures: ["chewy", "tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "pheasant",
@@ -8099,7 +9177,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Lean game bird with subtle gamey flavor and delicate meat, offering a more complex and earthier taste than chicken while remaining mild"
+        description: "Lean game bird with subtle gamey flavor and delicate meat, offering a more complex and earthier taste than chicken while remaining mild",
+        textures: ["tender"],
+        functions: ["bulk"],
       },
   {
         name: "veal tenderloin",
@@ -8114,7 +9194,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Delicate cut of young beef with mild flavor, tender texture, and subtle sweetness"
+        description: "Delicate cut of young beef with mild flavor, tender texture, and subtle sweetness",
+        textures: ["tender", "juicy"],
+        functions: ["bulk"],
       },
   {
         name: "red wine",
@@ -8129,7 +9211,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 4
     },
-        description: "Fermented grape wine with complex tannins, dark fruit notes, and varying levels of dryness"
+        description: "Fermented grape wine with complex tannins, dark fruit notes, and varying levels of dryness",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "wine",
@@ -8144,7 +9228,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 4
     },
-        description: "Fermented grape beverage with complex flavors varying by variety and production method"
+        description: "Fermented grape beverage with complex flavors varying by variety and production method",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "pinot noir",
@@ -8159,7 +9245,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 3
     },
-        description: "Light to medium-bodied red wine with red berry notes, silky texture, and elegant complexity"
+        description: "Light to medium-bodied red wine with red berry notes, silky texture, and elegant complexity",
+        textures: ["liquid"],
+        functions: ["acid"],
       },
   {
         name: "pickles",
@@ -8174,7 +9262,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 3
     },
-        description: "Brined cucumber with sharp vinegar tang and crisp texture, common condiment"
+        description: "Brined cucumber with sharp vinegar tang and crisp texture, common condiment",
+        textures: ["crunchy", "crisp", "juicy"],
+        functions: ["acid"],
       },
   {
         name: "turbot",
@@ -8189,7 +9279,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Prized flatfish with delicate, sweet flavor and firm, meaty texture"
+        description: "Prized flatfish with delicate, sweet flavor and firm, meaty texture",
+        textures: ["tender", "flaky"],
+        functions: ["bulk"],
       },
   {
         name: "noodles",
@@ -8204,7 +9296,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Versatile pasta in various forms, providing neutral base for sauces and dishes"
+        description: "Versatile pasta in various forms, providing neutral base for sauces and dishes",
+        textures: ["chewy", "tender", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "tapioca",
@@ -8219,7 +9313,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Neutral starch extracted from cassava root, used in puddings and as a thickener"
+        description: "Neutral starch extracted from cassava root, used in puddings and as a thickener",
+        textures: ["chewy", "starchy"],
+        functions: ["binder"],
       },
   {
         name: "white peppercorn",
@@ -8234,7 +9330,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 6,
       aromatic: 4
     },
-        description: "Fermented, hulled peppercorn with sharp heat and earthy complexity"
+        description: "Fermented, hulled peppercorn with sharp heat and earthy complexity",
+        textures: [],
+        functions: [],
       },
   {
         name: "new potato",
@@ -8249,7 +9347,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Young, freshly harvested potatoes with tender skins and sweet, delicate flavor"
+        description: "Young, freshly harvested potatoes with tender skins and sweet, delicate flavor",
+        textures: ["tender", "starchy"],
+        functions: ["bulk"],
       },
   {
         name: "pernod",
@@ -8264,7 +9364,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 2,
       aromatic: 3
     },
-        description: "French anise-flavored spirit with strong licorice notes, often used in cooking"
+        description: "French anise-flavored spirit with strong licorice notes, often used in cooking",
+        textures: ["liquid"],
+        functions: [],
       },
   {
         name: "navy beans",
@@ -8279,7 +9381,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Small white beans with mild flavor and creamy texture when cooked"
+        description: "Small white beans with mild flavor and creamy texture when cooked",
+        textures: ["creamy", "starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "tangerine",
@@ -8294,7 +9398,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Sweet-tart citrus fruit with bright, floral notes and honey-like sweetness"
+        description: "Sweet-tart citrus fruit with bright, floral notes and honey-like sweetness",
+        textures: ["juicy", "tender"],
+        functions: [],
       },
   {
         name: "poblano",
@@ -8309,7 +9415,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 1
     },
-        description: "Large mild-to-medium heat chile with earthy flavor and subtle fruity notes"
+        description: "Large mild-to-medium heat chile with earthy flavor and subtle fruity notes",
+        textures: ["tender", "juicy", "crisp"],
+        functions: [],
       },
   {
         name: "sprouts",
@@ -8324,7 +9432,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 1,
       aromatic: 3
     },
-        description: "Young vegetable shoots with crisp texture and subtle peppery, nutty flavor"
+        description: "Young vegetable shoots with crisp texture and subtle peppery, nutty flavor",
+        textures: ["crisp", "tender"],
+        functions: ["fresh-finish"],
       },
   {
         name: "lemon verbena",
@@ -8339,7 +9449,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 6
     },
-        description: "Aromatic herb with intense citrusy flavor and floral notes"
+        description: "Aromatic herb with intense citrusy flavor and floral notes",
+        textures: ["tender"],
+        functions: [],
       },
   {
         name: "plantain",
@@ -8354,7 +9466,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-        description: "Starchy cooking banana with subtle sweetness that increases with ripeness"
+        description: "Starchy cooking banana with subtle sweetness that increases with ripeness",
+        textures: ["starchy", "tender"],
+        functions: ["bulk"],
       },
   {
         name: "legumes",
@@ -8369,7 +9483,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 1
     },
-        description: "Plant family including beans, peas, and lentils."
+        description: "Plant family including beans, peas, and lentils.",
+        textures: ["creamy", "starchy", "tender"],
+        functions: ["bulk"],
       },
   {
     name: "meyer lemon",
@@ -8384,7 +9500,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 5
     },
-    description: "Sweet-tart citrus hybrid with floral notes and less acidity than regular lemons, prized for its fragrant peel"
+    description: "Sweet-tart citrus hybrid with floral notes and less acidity than regular lemons, prized for its fragrant peel",
+    textures: ["juicy"],
+    functions: ["acid", "fresh-finish"],
   },
   {
     name: "old bay",
@@ -8399,7 +9517,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 4,
       aromatic: 2
     },
-    description: "Maryland spice blend featuring celery seed, bay leaf, mustard, paprika, and other spices, classic for seafood and regional dishes"
+    description: "Maryland spice blend featuring celery seed, bay leaf, mustard, paprika, and other spices, classic for seafood and regional dishes",
+    textures: [],
+    functions: [],
   },
   {
     name: "pork tenderloin",
@@ -8414,7 +9534,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 2
     },
-    description: "Lean, tender cut of pork with mild flavor and fine grain, versatile for quick-cooking methods and roasting"
+    description: "Lean, tender cut of pork with mild flavor and fine grain, versatile for quick-cooking methods and roasting",
+    textures: ["tender", "juicy"],
+    functions: ["bulk"],
   },
   {
     name: "ribs",
@@ -8429,7 +9551,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-    description: "Rich, fatty cut with connective tissue that becomes tender and flavorful when slow-cooked, ideal for barbecue and braising"
+    description: "Rich, fatty cut with connective tissue that becomes tender and flavorful when slow-cooked, ideal for barbecue and braising",
+    textures: ["tender", "juicy"],
+    functions: ["bulk", "fat"],
   },
   {
     name: "ribeye",
@@ -8444,7 +9568,9 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 0,
       aromatic: 0
     },
-    description: "Premium beef cut with excellent marbling and rich, buttery flavor, prized for grilling and high-heat cooking"
+    description: "Premium beef cut with excellent marbling and rich, buttery flavor, prized for grilling and high-heat cooking",
+    textures: ["tender", "juicy"],
+    functions: ["bulk", "fat"],
   },
   {
     name: "serrano chili",
@@ -8459,308 +9585,396 @@ export const ingredientProfiles: IngredientProfile[] = [
       spicy: 7,
       aromatic: 4
     },
-    description: "Small, thin chili pepper with bright, clean heat and grassy flavor, common in Mexican cuisine and salsas"
+    description: "Small, thin chili pepper with bright, clean heat and grassy flavor, common in Mexican cuisine and salsas",
+    textures: ["crisp", "juicy"],
+    functions: [],
   },
   {
     name: "gochujang",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 4, salty: 7, sour: 1, umami: 8, fat: 1, spicy: 6, aromatic: 5 },
-    description: "Korean fermented chili paste with deep savory-sweet heat and rich umami, foundational to dishes like bibimbap, tteokbokki, and ssamjang"
+    description: "Korean fermented chili paste with deep savory-sweet heat and rich umami, foundational to dishes like bibimbap, tteokbokki, and ssamjang",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "doenjang",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 8, sour: 1, umami: 9, fat: 1, spicy: 0, aromatic: 5 },
-    description: "Korean fermented soybean paste with intense earthy, salty umami, used in stews (jjigae) and as a robust seasoning base"
+    description: "Korean fermented soybean paste with intense earthy, salty umami, used in stews (jjigae) and as a robust seasoning base",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "ssamjang",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 3, salty: 7, sour: 1, umami: 8, fat: 2, spicy: 5, aromatic: 5 },
-    description: "Thick, savory Korean dipping sauce blending doenjang and gochujang, served with grilled meats and lettuce wraps"
+    description: "Thick, savory Korean dipping sauce blending doenjang and gochujang, served with grilled meats and lettuce wraps",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "harissa",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 5, sour: 2, umami: 3, fat: 3, spicy: 8, aromatic: 7 },
-    description: "North African chili paste with smoky roasted-pepper heat layered with garlic, caraway, and coriander, central to Tunisian and Maghrebi cooking"
+    description: "North African chili paste with smoky roasted-pepper heat layered with garlic, caraway, and coriander, central to Tunisian and Maghrebi cooking",
+    textures: [],
+    functions: [],
   },
   {
     name: "sambal oelek",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 5, sour: 3, umami: 3, fat: 0, spicy: 9, aromatic: 4 },
-    description: "Indonesian raw chili paste with clean, fiery heat and bright acidity, a versatile Southeast Asian condiment and cooking base"
+    description: "Indonesian raw chili paste with clean, fiery heat and bright acidity, a versatile Southeast Asian condiment and cooking base",
+    textures: [],
+    functions: [],
   },
   {
     name: "chili crisp",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 1, salty: 6, sour: 0, umami: 6, fat: 6, spicy: 7, aromatic: 6 },
-    description: "Crunchy chili-in-oil condiment with savory, fatty heat and toasted aromatics from garlic, shallot, and Sichuan pepper"
+    description: "Crunchy chili-in-oil condiment with savory, fatty heat and toasted aromatics from garlic, shallot, and Sichuan pepper",
+    textures: ["crunchy"],
+    functions: ["crunch-topper", "fat", "umami-bomb"],
   },
   {
     name: "shrimp paste",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 0, salty: 9, sour: 0, umami: 9, fat: 1, spicy: 0, aromatic: 7 },
-    description: "Intensely pungent fermented seafood paste delivering deep salty umami, a backbone of Southeast Asian curries, sambals, and dips"
+    description: "Intensely pungent fermented seafood paste delivering deep salty umami, a backbone of Southeast Asian curries, sambals, and dips",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "yuzu kosho",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 0, salty: 7, sour: 4, umami: 2, fat: 0, spicy: 7, aromatic: 8 },
-    description: "Japanese paste of fermented chili, salt, and fragrant yuzu zest, lending bright citrus heat to soups, grilled foods, and dressings"
+    description: "Japanese paste of fermented chili, salt, and fragrant yuzu zest, lending bright citrus heat to soups, grilled foods, and dressings",
+    textures: [],
+    functions: ["acid"],
   },
   {
     name: "XO sauce",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 2, salty: 8, sour: 0, umami: 9, fat: 5, spicy: 4, aromatic: 6 },
-    description: "Luxe Hong Kong condiment of dried scallop and shrimp, chili, and garlic, packed with concentrated seafood umami and gentle heat"
+    description: "Luxe Hong Kong condiment of dried scallop and shrimp, chili, and garlic, packed with concentrated seafood umami and gentle heat",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "fermented black beans",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 0, salty: 9, sour: 1, umami: 8, fat: 0, spicy: 0, aromatic: 6 },
-    description: "Salty, pungent fermented soybeans (douchi) prized in Cantonese cooking for deep savory umami in stir-fries and steamed dishes"
+    description: "Salty, pungent fermented soybeans (douchi) prized in Cantonese cooking for deep savory umami in stir-fries and steamed dishes",
+    textures: ["tender"],
+    functions: ["umami-bomb"],
   },
   {
     name: "gochugaru",
     category: "Seasonings",
     subcategory: "Chilis",
     flavorProfile: { sweet: 2, salty: 0, sour: 0, umami: 2, fat: 0, spicy: 6, aromatic: 5 },
-    description: "Korean dried chili flakes with vibrant color, fruity warmth, and moderate heat, essential to kimchi and Korean stews"
+    description: "Korean dried chili flakes with vibrant color, fruity warmth, and moderate heat, essential to kimchi and Korean stews",
+    textures: [],
+    functions: [],
   },
   {
     name: "aleppo pepper",
     category: "Seasonings",
     subcategory: "Chilis",
     flavorProfile: { sweet: 2, salty: 1, sour: 1, umami: 1, fat: 0, spicy: 5, aromatic: 5 },
-    description: "Syrian-Turkish dried chili with mild, slow-building heat and sun-dried, raisin-like fruitiness, a Levantine finishing spice"
+    description: "Syrian-Turkish dried chili with mild, slow-building heat and sun-dried, raisin-like fruitiness, a Levantine finishing spice",
+    textures: [],
+    functions: [],
   },
   {
     name: "urfa biber",
     category: "Seasonings",
     subcategory: "Chilis",
     flavorProfile: { sweet: 3, salty: 1, sour: 1, umami: 3, fat: 0, spicy: 4, aromatic: 6 },
-    description: "Dark Turkish dried chili with smoky, raisin-and-chocolate depth and a gentle, lingering heat"
+    description: "Dark Turkish dried chili with smoky, raisin-and-chocolate depth and a gentle, lingering heat",
+    textures: [],
+    functions: [],
   },
   {
     name: "calabrian chili",
     category: "Seasonings",
     subcategory: "Chilis",
     flavorProfile: { sweet: 2, salty: 2, sour: 1, umami: 2, fat: 1, spicy: 7, aromatic: 5 },
-    description: "Fruity, sharp southern Italian chili, often packed in oil, bringing bright heat to pasta, pizza, and spreads"
+    description: "Fruity, sharp southern Italian chili, often packed in oil, bringing bright heat to pasta, pizza, and spreads",
+    textures: ["tender"],
+    functions: [],
   },
   {
     name: "guajillo",
     category: "Seasonings",
     subcategory: "Chilis",
     flavorProfile: { sweet: 3, salty: 0, sour: 1, umami: 2, fat: 0, spicy: 4, aromatic: 5 },
-    description: "Dried Mexican chili with tangy berry notes and mild-to-medium heat, a cornerstone of moles, adobos, and salsas"
+    description: "Dried Mexican chili with tangy berry notes and mild-to-medium heat, a cornerstone of moles, adobos, and salsas",
+    textures: ["chewy"],
+    functions: [],
   },
   {
     name: "za'atar",
     category: "Seasonings",
     subcategory: "Spice Blends",
     flavorProfile: { sweet: 0, salty: 3, sour: 3, umami: 1, fat: 1, spicy: 0, aromatic: 8 },
-    description: "Levantine herb-and-seed blend of wild thyme, toasted sesame, and tangy sumac, scattered over breads, dips, and roasted vegetables"
+    description: "Levantine herb-and-seed blend of wild thyme, toasted sesame, and tangy sumac, scattered over breads, dips, and roasted vegetables",
+    textures: [],
+    functions: [],
   },
   {
     name: "ras el hanout",
     category: "Seasonings",
     subcategory: "Spice Blends",
     flavorProfile: { sweet: 2, salty: 0, sour: 0, umami: 1, fat: 0, spicy: 3, aromatic: 9 },
-    description: "Complex North African spice blend of warm, floral, and pungent notes, used in tagines, couscous, and grilled meats"
+    description: "Complex North African spice blend of warm, floral, and pungent notes, used in tagines, couscous, and grilled meats",
+    textures: [],
+    functions: [],
   },
   {
     name: "berbere",
     category: "Seasonings",
     subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 1, sour: 0, umami: 2, fat: 0, spicy: 6, aromatic: 8 },
-    description: "Fiery, aromatic Ethiopian spice blend built on chili, fenugreek, and warm spices, central to stews like doro wat"
+    description: "Fiery, aromatic Ethiopian spice blend built on chili, fenugreek, and warm spices, central to stews like doro wat",
+    textures: [],
+    functions: [],
   },
   {
     name: "dukkah",
     category: "Seasonings",
     subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 2, sour: 0, umami: 3, fat: 4, spicy: 1, aromatic: 7 },
-    description: "Egyptian blend of toasted nuts, sesame, and spices with a nutty, crunchy texture, used as a dip with bread and oil"
+    description: "Egyptian blend of toasted nuts, sesame, and spices with a nutty, crunchy texture, used as a dip with bread and oil",
+    textures: ["crunchy"],
+    functions: ["crunch-topper"],
   },
   {
     name: "shichimi togarashi",
     category: "Seasonings",
     subcategory: "Spice Blends",
     flavorProfile: { sweet: 0, salty: 1, sour: 1, umami: 2, fat: 1, spicy: 5, aromatic: 7 },
-    description: "Japanese seven-spice blend of chili, citrus peel, sesame, and seaweed, sprinkled over noodles, rice, and grilled dishes"
+    description: "Japanese seven-spice blend of chili, citrus peel, sesame, and seaweed, sprinkled over noodles, rice, and grilled dishes",
+    textures: [],
+    functions: [],
   },
   {
     name: "furikake",
     category: "Seasonings",
     subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 6, sour: 0, umami: 7, fat: 1, spicy: 0, aromatic: 6 },
-    description: "Japanese rice seasoning of nori, sesame, and dried fish flakes, adding savory, oceanic crunch to rice and vegetables"
+    description: "Japanese rice seasoning of nori, sesame, and dried fish flakes, adding savory, oceanic crunch to rice and vegetables",
+    textures: ["crunchy"],
+    functions: ["umami-bomb", "crunch-topper"],
   },
   {
     name: "curry powder",
     category: "Seasonings",
     subcategory: "Spice Blends",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 2, fat: 0, spicy: 3, aromatic: 9 },
-    description: "Warm, golden blend of turmeric, cumin, coriander, and fenugreek, an Anglo-Indian pantry staple for curries and braises"
+    description: "Warm, golden blend of turmeric, cumin, coriander, and fenugreek, an Anglo-Indian pantry staple for curries and braises",
+    textures: [],
+    functions: [],
   },
   {
     name: "asafoetida",
     category: "Seasonings",
     subcategory: "Spices",
     flavorProfile: { sweet: 0, salty: 0, sour: 0, umami: 4, fat: 0, spicy: 0, aromatic: 9 },
-    description: "Pungent dried resin (hing) that mellows into a savory, onion-garlic depth when cooked, key to Indian dals and tempering"
+    description: "Pungent dried resin (hing) that mellows into a savory, onion-garlic depth when cooked, key to Indian dals and tempering",
+    textures: [],
+    functions: [],
   },
   {
     name: "kombu",
     category: "Pantry",
     subcategory: "Stocks & Bases",
     flavorProfile: { sweet: 1, salty: 4, sour: 0, umami: 9, fat: 0, spicy: 0, aromatic: 3 },
-    description: "Dried kelp rich in natural glutamates, used to build deep oceanic umami in dashi and simmered Japanese dishes"
+    description: "Dried kelp rich in natural glutamates, used to build deep oceanic umami in dashi and simmered Japanese dishes",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "bonito flakes",
     category: "Pantry",
     subcategory: "Stocks & Bases",
     flavorProfile: { sweet: 0, salty: 4, sour: 0, umami: 9, fat: 1, spicy: 0, aromatic: 5 },
-    description: "Smoky shavings of dried, fermented skipjack tuna (katsuobushi) lending intense savory umami to dashi and toppings"
+    description: "Smoky shavings of dried, fermented skipjack tuna (katsuobushi) lending intense savory umami to dashi and toppings",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "halloumi",
     category: "Dairy",
     subcategory: "Cheese",
     flavorProfile: { sweet: 1, salty: 7, sour: 2, umami: 4, fat: 6, spicy: 0, aromatic: 2 },
-    description: "Firm, briny Cypriot cheese with a high melting point, prized for grilling and frying to a golden, squeaky crust"
+    description: "Firm, briny Cypriot cheese with a high melting point, prized for grilling and frying to a golden, squeaky crust",
+    textures: ["chewy", "tender"],
+    functions: ["fat", "bulk"],
   },
   {
     name: "paneer",
     category: "Dairy",
     subcategory: "Cheese",
     flavorProfile: { sweet: 2, salty: 1, sour: 1, umami: 2, fat: 6, spicy: 0, aromatic: 1 },
-    description: "Mild, fresh Indian cheese that holds its shape when cooked, absorbing spices in curries like palak paneer and tikka"
+    description: "Mild, fresh Indian cheese that holds its shape when cooked, absorbing spices in curries like palak paneer and tikka",
+    textures: ["tender", "chewy"],
+    functions: ["bulk"],
   },
   {
     name: "cotija",
     category: "Dairy",
     subcategory: "Cheese",
     flavorProfile: { sweet: 0, salty: 8, sour: 2, umami: 5, fat: 5, spicy: 0, aromatic: 2 },
-    description: "Salty, crumbly aged Mexican cheese used to finish elote, tacos, and beans with a sharp, savory bite"
+    description: "Salty, crumbly aged Mexican cheese used to finish elote, tacos, and beans with a sharp, savory bite",
+    textures: [],
+    functions: ["fat"],
   },
   {
     name: "ricotta salata",
     category: "Dairy",
     subcategory: "Cheese",
     flavorProfile: { sweet: 1, salty: 6, sour: 2, umami: 3, fat: 5, spicy: 0, aromatic: 1 },
-    description: "Pressed, salted, and aged ricotta with a firm, milky-salty character, shaved over pasta and vegetables"
+    description: "Pressed, salted, and aged ricotta with a firm, milky-salty character, shaved over pasta and vegetables",
+    textures: [],
+    functions: ["fat"],
   },
   {
     name: "labneh",
     category: "Dairy",
     subcategory: "Cultured",
     flavorProfile: { sweet: 1, salty: 2, sour: 5, umami: 2, fat: 6, spicy: 0, aromatic: 1 },
-    description: "Thick, tangy strained yogurt cheese from the Levant, served drizzled with olive oil as a dip or spread"
+    description: "Thick, tangy strained yogurt cheese from the Levant, served drizzled with olive oil as a dip or spread",
+    textures: ["creamy"],
+    functions: ["fat", "acid"],
   },
   {
     name: "kefir",
     category: "Dairy",
     subcategory: "Cultured",
     flavorProfile: { sweet: 2, salty: 1, sour: 6, umami: 1, fat: 3, spicy: 0, aromatic: 1 },
-    description: "Effervescent fermented milk drink with bright, yeasty tang, used in smoothies, dressings, and marinades"
+    description: "Effervescent fermented milk drink with bright, yeasty tang, used in smoothies, dressings, and marinades",
+    textures: ["liquid", "creamy"],
+    functions: ["acid"],
   },
   {
     name: "skyr",
     category: "Dairy",
     subcategory: "Cultured",
     flavorProfile: { sweet: 2, salty: 1, sour: 4, umami: 1, fat: 1, spicy: 0, aromatic: 0 },
-    description: "Thick, high-protein Icelandic cultured dairy, milder and less sour than yogurt with a clean, creamy finish"
+    description: "Thick, high-protein Icelandic cultured dairy, milder and less sour than yogurt with a clean, creamy finish",
+    textures: ["creamy"],
+    functions: ["acid"],
   },
   {
     name: "crema",
     category: "Dairy",
     subcategory: "Cultured",
     flavorProfile: { sweet: 2, salty: 2, sour: 4, umami: 1, fat: 6, spicy: 0, aromatic: 0 },
-    description: "Loose, tangy Mexican cultured cream drizzled over tacos, soups, and antojitos to balance heat and spice"
+    description: "Loose, tangy Mexican cultured cream drizzled over tacos, soups, and antojitos to balance heat and spice",
+    textures: ["creamy", "liquid"],
+    functions: ["fat", "acid"],
   },
   {
     name: "jackfruit",
     category: "Fruits",
     subcategory: "Tropical",
     flavorProfile: { sweet: 7, salty: 0, sour: 1, umami: 1, fat: 0, spicy: 0, aromatic: 5 },
-    description: "Large tropical fruit with sweet, fragrant flesh when ripe and a meaty, neutral texture when young, popular as a plant-based pulled-pork stand-in"
+    description: "Large tropical fruit with sweet, fragrant flesh when ripe and a meaty, neutral texture when young, popular as a plant-based pulled-pork stand-in",
+    textures: ["tender", "chewy", "juicy"],
+    functions: ["bulk"],
   },
   {
     name: "dragon fruit",
     category: "Fruits",
     subcategory: "Tropical",
     flavorProfile: { sweet: 4, salty: 0, sour: 1, umami: 0, fat: 0, spicy: 0, aromatic: 2 },
-    description: "Vivid cactus fruit (pitaya) with mildly sweet, refreshing flesh and tiny crunchy seeds, used in bowls and drinks"
+    description: "Vivid cactus fruit (pitaya) with mildly sweet, refreshing flesh and tiny crunchy seeds, used in bowls and drinks",
+    textures: ["juicy", "tender"],
+    functions: [],
   },
   {
     name: "rambutan",
     category: "Fruits",
     subcategory: "Tropical",
     flavorProfile: { sweet: 7, salty: 0, sour: 2, umami: 0, fat: 0, spicy: 0, aromatic: 4 },
-    description: "Sweet, juicy Southeast Asian fruit related to lychee, with floral grape-like flesh inside a hairy red rind"
+    description: "Sweet, juicy Southeast Asian fruit related to lychee, with floral grape-like flesh inside a hairy red rind",
+    textures: ["juicy", "tender"],
+    functions: [],
   },
   {
     name: "coconut cream",
     category: "Pantry",
     subcategory: "Fats & Oils",
     flavorProfile: { sweet: 4, salty: 1, sour: 0, umami: 1, fat: 9, spicy: 0, aromatic: 3 },
-    description: "Thick, rich extraction of coconut with luscious fat and gentle sweetness, used in curries, desserts, and dairy-free sauces"
+    description: "Thick, rich extraction of coconut with luscious fat and gentle sweetness, used in curries, desserts, and dairy-free sauces",
+    textures: ["creamy"],
+    functions: ["fat"],
   },
   {
     name: "kimchi",
     category: "Vegetables",
     subcategory: "Brassicas",
     flavorProfile: { sweet: 1, salty: 6, sour: 6, umami: 7, fat: 0, spicy: 6, aromatic: 6 },
-    description: "Korean fermented napa cabbage with funky, sour, spicy depth, eaten as a staple side and cooked into stews and fried rice"
+    description: "Korean fermented napa cabbage with funky, sour, spicy depth, eaten as a staple side and cooked into stews and fried rice",
+    textures: ["crisp", "tender", "juicy"],
+    functions: ["acid", "umami-bomb"],
   },
   {
     name: "panko",
     category: "Grains",
     subcategory: "Bread",
     flavorProfile: { sweet: 1, salty: 1, sour: 0, umami: 1, fat: 1, spicy: 0, aromatic: 1 },
-    description: "Light, airy Japanese breadcrumbs that fry up exceptionally crisp, used for katsu, coatings, and crunchy toppings"
+    description: "Light, airy Japanese breadcrumbs that fry up exceptionally crisp, used for katsu, coatings, and crunchy toppings",
+    textures: ["crunchy", "crisp", "airy"],
+    functions: ["crunch-topper", "binder"],
   },
   {
     name: "cassava",
     category: "Vegetables",
     subcategory: "Roots & Tubers",
     flavorProfile: { sweet: 3, salty: 0, sour: 0, umami: 1, fat: 0, spicy: 0, aromatic: 1 },
-    description: "Starchy tropical root (yuca) with a mild, nutty flavor, boiled, fried, or ground into flour across Africa, Latin America, and Asia"
+    description: "Starchy tropical root (yuca) with a mild, nutty flavor, boiled, fried, or ground into flour across Africa, Latin America, and Asia",
+    textures: ["starchy", "tender"],
+    functions: ["bulk"],
   },
   {
     name: "black vinegar",
     category: "Pantry",
     subcategory: "Vinegars",
     flavorProfile: { sweet: 3, salty: 1, sour: 7, umami: 4, fat: 0, spicy: 0, aromatic: 5 },
-    description: "Aged Chinese (Chinkiang) vinegar with malty, smoky depth and mellow acidity, used in dipping sauces, braises, and dumplings"
+    description: "Aged Chinese (Chinkiang) vinegar with malty, smoky depth and mellow acidity, used in dipping sauces, braises, and dumplings",
+    textures: ["liquid"],
+    functions: ["acid"],
   },
   {
     name: "shaoxing wine",
     category: "Alcohol",
     subcategory: "Wine",
     flavorProfile: { sweet: 3, salty: 2, sour: 2, umami: 5, fat: 0, spicy: 0, aromatic: 6 },
-    description: "Amber Chinese rice cooking wine with nutty, savory depth, used to deglaze, marinate, and round out stir-fries and braises"
+    description: "Amber Chinese rice cooking wine with nutty, savory depth, used to deglaze, marinate, and round out stir-fries and braises",
+    textures: ["liquid"],
+    functions: [],
   },
   {
     name: "nduja",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: { sweet: 1, salty: 7, sour: 1, umami: 7, fat: 8, spicy: 7, aromatic: 5 },
-    description: "Soft, spreadable spicy Calabrian salumi rich with fat, chili heat, and pork umami, melted into pasta, pizza, and sauces"
+    description: "Soft, spreadable spicy Calabrian salumi rich with fat, chili heat, and pork umami, melted into pasta, pizza, and sauces",
+    textures: ["creamy", "tender"],
+    functions: ["fat", "umami-bomb"],
   },
   // === Common-ingredient gaps (audit pass) ===
   // Profiles only — edges come from mining/analog, never invented.
@@ -8769,216 +9983,278 @@ export const ingredientProfiles: IngredientProfile[] = [
     category: "Grains",
     subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 2, fat: 1, spicy: 0, aromatic: 2 },
-    description: "Nutty, protein-rich seed cooked like a grain, with a light fluffy texture and faintly grassy flavor"
+    description: "Nutty, protein-rich seed cooked like a grain, with a light fluffy texture and faintly grassy flavor",
+    textures: ["starchy", "tender", "airy"],
+    functions: ["bulk"],
   },
   {
     name: "farro",
     category: "Grains",
     subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 3, fat: 1, spicy: 0, aromatic: 2 },
-    description: "Chewy ancient wheat grain with a hearty, nutty flavor, popular in Italian salads and soups"
+    description: "Chewy ancient wheat grain with a hearty, nutty flavor, popular in Italian salads and soups",
+    textures: ["chewy", "starchy"],
+    functions: ["bulk"],
   },
   {
     name: "buckwheat",
     category: "Grains",
     subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 3, fat: 1, spicy: 0, aromatic: 3 },
-    description: "Earthy, robust gluten-free seed milled into flour or made into soba noodles and kasha"
+    description: "Earthy, robust gluten-free seed milled into flour or made into soba noodles and kasha",
+    textures: ["chewy", "starchy"],
+    functions: ["bulk"],
   },
   {
     name: "millet",
     category: "Grains",
     subcategory: "Whole Grains",
     flavorProfile: { sweet: 2, salty: 0, sour: 0, umami: 1, fat: 1, spicy: 0, aromatic: 1 },
-    description: "Tiny, mildly sweet gluten-free grain with a fluffy or creamy texture depending on cooking"
+    description: "Tiny, mildly sweet gluten-free grain with a fluffy or creamy texture depending on cooking",
+    textures: ["starchy", "tender"],
+    functions: ["bulk"],
   },
   {
     name: "rye",
     category: "Grains",
     subcategory: "Whole Grains",
     flavorProfile: { sweet: 1, salty: 0, sour: 2, umami: 2, fat: 0, spicy: 0, aromatic: 3 },
-    description: "Dark, tangy grain with a distinctive earthy depth, central to dense breads and crispbreads"
+    description: "Dark, tangy grain with a distinctive earthy depth, central to dense breads and crispbreads",
+    textures: ["chewy", "starchy"],
+    functions: ["bulk"],
   },
   {
     name: "sourdough",
     category: "Grains",
     subcategory: "Bread",
     flavorProfile: { sweet: 1, salty: 1, sour: 3, umami: 2, fat: 0, spicy: 0, aromatic: 3 },
-    description: "Naturally leavened bread with a tangy crumb and chewy, blistered crust from wild-yeast fermentation"
+    description: "Naturally leavened bread with a tangy crumb and chewy, blistered crust from wild-yeast fermentation",
+    textures: ["chewy", "starchy", "crisp"],
+    functions: ["bulk"],
   },
   {
     name: "ketchup",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 5, salty: 4, sour: 4, umami: 5, fat: 0, spicy: 1, aromatic: 2 },
-    description: "Sweet-tangy tomato condiment balancing sugar, vinegar, and savory tomato umami"
+    description: "Sweet-tangy tomato condiment balancing sugar, vinegar, and savory tomato umami",
+    textures: ["liquid"],
+    functions: ["sweetener", "acid"],
   },
   {
     name: "sriracha",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 3, salty: 5, sour: 3, umami: 3, fat: 0, spicy: 7, aromatic: 3 },
-    description: "Garlicky, tangy chili sauce with bright, building heat, used as an all-purpose hot condiment"
+    description: "Garlicky, tangy chili sauce with bright, building heat, used as an all-purpose hot condiment",
+    textures: ["liquid"],
+    functions: ["acid"],
   },
   {
     name: "tomato paste",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 3, salty: 1, sour: 2, umami: 8, fat: 0, spicy: 0, aromatic: 2 },
-    description: "Concentrated tomato with deep, sweet-savory umami, used to build the base of sauces and braises"
+    description: "Concentrated tomato with deep, sweet-savory umami, used to build the base of sauces and braises",
+    textures: [],
+    functions: ["umami-bomb"],
   },
   {
     name: "sweet chili sauce",
     category: "Pantry",
     subcategory: "Sauces & Condiments",
     flavorProfile: { sweet: 7, salty: 2, sour: 2, umami: 1, fat: 0, spicy: 4, aromatic: 2 },
-    description: "Sticky Thai-style dipping sauce balancing sugar and mild chili heat with a hint of garlic"
+    description: "Sticky Thai-style dipping sauce balancing sugar and mild chili heat with a hint of garlic",
+    textures: ["liquid"],
+    functions: ["sweetener"],
   },
   {
     name: "ghee",
     category: "Pantry",
     subcategory: "Fats & Oils",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 2, fat: 9, spicy: 0, aromatic: 3 },
-    description: "Clarified butter with a rich, nutty aroma and high smoke point, foundational to Indian cooking"
+    description: "Clarified butter with a rich, nutty aroma and high smoke point, foundational to Indian cooking",
+    textures: ["liquid"],
+    functions: ["fat"],
   },
   {
     name: "duck fat",
     category: "Pantry",
     subcategory: "Fats & Oils",
     flavorProfile: { sweet: 0, salty: 1, sour: 0, umami: 4, fat: 9, spicy: 0, aromatic: 2 },
-    description: "Luxurious rendered fat with deep savory flavor, prized for roasting potatoes and confit"
+    description: "Luxurious rendered fat with deep savory flavor, prized for roasting potatoes and confit",
+    textures: ["liquid"],
+    functions: ["fat"],
   },
   {
     name: "lard",
     category: "Pantry",
     subcategory: "Fats & Oils",
     flavorProfile: { sweet: 0, salty: 0, sour: 0, umami: 2, fat: 9, spicy: 0, aromatic: 1 },
-    description: "Rendered pork fat that yields flaky pastry and rich savory depth in traditional cooking"
+    description: "Rendered pork fat that yields flaky pastry and rich savory depth in traditional cooking",
+    textures: [],
+    functions: ["fat"],
   },
   {
     name: "cocoa",
     category: "Pantry",
     subcategory: "Sweeteners",
     flavorProfile: { sweet: 1, salty: 0, sour: 1, umami: 2, fat: 3, spicy: 0, aromatic: 7 },
-    description: "Intense, bitter-edged roasted cacao powder with deep chocolate aroma, used in baking and savory moles"
+    description: "Intense, bitter-edged roasted cacao powder with deep chocolate aroma, used in baking and savory moles",
+    textures: [],
+    functions: [],
   },
   {
     name: "dark chocolate",
     category: "Pantry",
     subcategory: "Sweeteners",
     flavorProfile: { sweet: 5, salty: 0, sour: 1, umami: 2, fat: 5, spicy: 0, aromatic: 6 },
-    description: "Bittersweet chocolate with high cacao content, balancing roasted bitterness and gentle sweetness"
+    description: "Bittersweet chocolate with high cacao content, balancing roasted bitterness and gentle sweetness",
+    textures: [],
+    functions: ["sweetener"],
   },
   {
     name: "agave",
     category: "Pantry",
     subcategory: "Sweeteners",
     flavorProfile: { sweet: 9, salty: 0, sour: 0, umami: 0, fat: 0, spicy: 0, aromatic: 1 },
-    description: "Mild, neutral liquid sweetener from the agave plant, slightly thinner and sweeter than honey"
+    description: "Mild, neutral liquid sweetener from the agave plant, slightly thinner and sweeter than honey",
+    textures: ["liquid"],
+    functions: ["sweetener"],
   },
   {
     name: "date syrup",
     category: "Pantry",
     subcategory: "Sweeteners",
     flavorProfile: { sweet: 9, salty: 0, sour: 0, umami: 1, fat: 0, spicy: 0, aromatic: 3 },
-    description: "Thick, caramel-like syrup pressed from dates, with deep toffee notes used across Middle Eastern cooking"
+    description: "Thick, caramel-like syrup pressed from dates, with deep toffee notes used across Middle Eastern cooking",
+    textures: ["liquid"],
+    functions: ["sweetener"],
   },
   {
     name: "edamame",
     category: "Proteins",
     subcategory: "Soy & Plant-Based",
     flavorProfile: { sweet: 2, salty: 1, sour: 0, umami: 3, fat: 1, spicy: 0, aromatic: 2 },
-    description: "Young green soybeans with a fresh, buttery, mildly sweet flavor, served steamed and salted or shelled in dishes"
+    description: "Young green soybeans with a fresh, buttery, mildly sweet flavor, served steamed and salted or shelled in dishes",
+    textures: ["tender"],
+    functions: ["bulk"],
   },
   {
     name: "tempeh",
     category: "Proteins",
     subcategory: "Soy & Plant-Based",
     flavorProfile: { sweet: 1, salty: 0, sour: 1, umami: 5, fat: 2, spicy: 0, aromatic: 3 },
-    description: "Firm fermented soybean cake with a nutty, savory flavor and meaty bite, a high-protein meat alternative"
+    description: "Firm fermented soybean cake with a nutty, savory flavor and meaty bite, a high-protein meat alternative",
+    textures: ["chewy", "tender"],
+    functions: ["bulk"],
   },
   {
     name: "seitan",
     category: "Proteins",
     subcategory: "Soy & Plant-Based",
     flavorProfile: { sweet: 0, salty: 1, sour: 0, umami: 5, fat: 0, spicy: 0, aromatic: 1 },
-    description: "Chewy wheat-gluten protein with a savory, neutral flavor that absorbs seasonings like a meat substitute"
+    description: "Chewy wheat-gluten protein with a savory, neutral flavor that absorbs seasonings like a meat substitute",
+    textures: ["chewy"],
+    functions: ["bulk"],
   },
   {
     name: "cottage cheese",
     category: "Dairy",
     subcategory: "Cheese",
     flavorProfile: { sweet: 2, salty: 3, sour: 2, umami: 2, fat: 3, spicy: 0, aromatic: 0 },
-    description: "Fresh, lumpy curd cheese with a mild, milky tang and high protein, eaten sweet or savory"
+    description: "Fresh, lumpy curd cheese with a mild, milky tang and high protein, eaten sweet or savory",
+    textures: ["creamy"],
+    functions: [],
   },
   {
     name: "camembert",
     category: "Dairy",
     subcategory: "Cheese",
     flavorProfile: { sweet: 1, salty: 3, sour: 1, umami: 5, fat: 6, spicy: 0, aromatic: 4 },
-    description: "Soft-ripened French cheese with a bloomy rind and earthy, buttery, mushroomy interior that oozes when ripe"
+    description: "Soft-ripened French cheese with a bloomy rind and earthy, buttery, mushroomy interior that oozes when ripe",
+    textures: ["creamy"],
+    functions: ["fat"],
   },
   {
     name: "eel",
     category: "Proteins",
     subcategory: "Seafood",
     flavorProfile: { sweet: 2, salty: 2, sour: 0, umami: 6, fat: 6, spicy: 0, aromatic: 3 },
-    description: "Rich, fatty fish (unagi) with a delicate sweetness, often grilled and glazed with sweet-savory sauce"
+    description: "Rich, fatty fish (unagi) with a delicate sweetness, often grilled and glazed with sweet-savory sauce",
+    textures: ["tender"],
+    functions: ["bulk", "fat"],
   },
   {
     name: "mortadella",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: { sweet: 1, salty: 6, sour: 0, umami: 6, fat: 7, spicy: 0, aromatic: 4 },
-    description: "Silky, finely-ground Bologna pork sausage studded with fat and pistachios, the refined ancestor of bologna"
+    description: "Silky, finely-ground Bologna pork sausage studded with fat and pistachios, the refined ancestor of bologna",
+    textures: ["tender"],
+    functions: ["fat", "umami-bomb"],
   },
   {
     name: "hot dog",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: { sweet: 1, salty: 6, sour: 0, umami: 5, fat: 6, spicy: 0, aromatic: 2 },
-    description: "Smooth, smoky emulsified sausage (frankfurter) served in a bun with a range of condiments"
+    description: "Smooth, smoky emulsified sausage (frankfurter) served in a bun with a range of condiments",
+    textures: ["tender", "juicy"],
+    functions: ["bulk"],
   },
   {
     name: "guanciale",
     category: "Proteins",
     subcategory: "Meat",
     flavorProfile: { sweet: 1, salty: 7, sour: 0, umami: 7, fat: 8, spicy: 0, aromatic: 3 },
-    description: "Cured pork jowl with intense fat and savory depth, essential to pasta carbonara and amatriciana"
+    description: "Cured pork jowl with intense fat and savory depth, essential to pasta carbonara and amatriciana",
+    textures: ["tender", "crisp", "chewy"],
+    functions: ["fat", "umami-bomb"],
   },
   {
     name: "spearmint",
     category: "Seasonings",
     subcategory: "Herbs",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 0, fat: 0, spicy: 0, aromatic: 7 },
-    description: "Cool, sweet, milder mint variety without the sharp menthol of peppermint, common in savory dishes and drinks"
+    description: "Cool, sweet, milder mint variety without the sharp menthol of peppermint, common in savory dishes and drinks",
+    textures: ["tender"],
+    functions: ["fresh-finish"],
   },
   {
     name: "garlic powder",
     category: "Seasonings",
     subcategory: "Spices",
     flavorProfile: { sweet: 1, salty: 0, sour: 0, umami: 4, fat: 0, spicy: 0, aromatic: 7 },
-    description: "Dried, ground garlic with concentrated savory pungency, used in rubs, blends, and seasoning mixes"
+    description: "Dried, ground garlic with concentrated savory pungency, used in rubs, blends, and seasoning mixes",
+    textures: [],
+    functions: [],
   },
   {
     name: "onion powder",
     category: "Seasonings",
     subcategory: "Spices",
     flavorProfile: { sweet: 2, salty: 0, sour: 0, umami: 3, fat: 0, spicy: 0, aromatic: 6 },
-    description: "Dried, ground onion lending sweet-savory depth to seasoning blends, rubs, and dressings"
+    description: "Dried, ground onion lending sweet-savory depth to seasoning blends, rubs, and dressings",
+    textures: [],
+    functions: [],
   },
   {
     name: "sun-dried tomato",
     category: "Vegetables",
     subcategory: "Fruit Vegetables",
     flavorProfile: { sweet: 4, salty: 3, sour: 3, umami: 8, fat: 1, spicy: 0, aromatic: 3 },
-    description: "Intensely concentrated dried tomato with chewy texture and deep sweet-tart umami"
+    description: "Intensely concentrated dried tomato with chewy texture and deep sweet-tart umami",
+    textures: ["chewy"],
+    functions: ["umami-bomb"],
   },
   {
     name: "roasted red pepper",
     category: "Vegetables",
     subcategory: "Fruit Vegetables",
     flavorProfile: { sweet: 5, salty: 1, sour: 1, umami: 3, fat: 1, spicy: 0, aromatic: 2 },
-    description: "Sweet, smoky-soft bell pepper roasted and peeled, used in dips, sauces, and antipasti"
+    description: "Sweet, smoky-soft bell pepper roasted and peeled, used in dips, sauces, and antipasti",
+    textures: ["tender", "juicy"],
+    functions: [],
   }
 ];
