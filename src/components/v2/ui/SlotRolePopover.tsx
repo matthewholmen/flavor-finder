@@ -78,7 +78,11 @@ export const SlotRolePopover = ({
       const reserveTop = 72; // fixed header
       const below = window.innerHeight - anchorRect.bottom - margin * 2;
       const above = anchorRect.top - margin * 2 - reserveTop;
-      const up = below < MENU_CAP && above > below;
+      // Prefer opening downward (away from the hero text the trigger sits
+      // under) — the body scrolls within maxHeight, so flip up only when the
+      // space below is too cramped to be usable, not merely under MENU_CAP.
+      const MIN_DROP = 240;
+      const up = below < MIN_DROP && above > below;
       const space = up ? above : below;
       const centerX = (anchorRect.left + anchorRect.right) / 2;
       const left = Math.min(

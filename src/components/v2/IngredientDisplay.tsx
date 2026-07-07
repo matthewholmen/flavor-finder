@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowRight, ArrowLeftRight } from 'lucide-react';
+import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowRight, ArrowLeftRight, Shapes } from 'lucide-react';
 import { TASTE_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
@@ -182,147 +182,194 @@ const Ingredient = ({
   const iconSize = '0.35em';
   const showControls = isHovered;
 
-  // For locked ingredients in compact mode (drawer open), background is the ingredient color
-  // In dark mode, the background is light so we need dark text for contrast
-  // In light mode, background is the vibrant color so white text works
-  const lockedTextColor = isDarkMode ? '#1f2937' : 'white';
-  const lockedIconColor = isDarkMode ? '#1f2937' : 'white';
+  // Ink for glyphs sitting on the locked highlight bar (the bar is the
+  // ingredient color in light mode, a light tint in dark mode)
+  const lockedInk = isDarkMode ? '#111827' : '#ffffff';
 
-  const iconContainerStyle = {
-    width: iconSize,
-    height: iconSize,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-
-  const renderDesktopIconStack = () => (
+  // Trailing inline slot: persistent state only. The comma yields to the tiny
+  // lock (when locked) and the role indicator (when a role is set) — the
+  // existing lock-replaces-comma pattern. All hover actions live in the
+  // floating toolbar above the name, so this slot never grows on hover.
+  const renderInlineBadges = () => (
     <span
-      className="inline-flex flex-col items-center relative gap-0"
-      style={{ verticalAlign: 'middle', minWidth: iconSize }}
+      className="inline-flex items-center relative"
+      style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}
     >
-      <button
-        onClick={(e) => { e.stopPropagation(); onRemove(); }}
-        className="p-0 transition-opacity"
-        title="Remove ingredient"
-        style={{
-          lineHeight: 0,
-          ...iconContainerStyle,
-          opacity: showControls ? 1 : 0,
-          pointerEvents: showControls ? 'auto' : 'none',
-        }}
+      {!isLocked && !roleIndicator && (
+        <span
+          className={isFaded ? '' : 'text-gray-900 dark:text-white'}
+          style={{
+            color: isFaded ? fadedColor : undefined,
+            fontFamily: "'Fraunces', Georgia, serif",
+            fontStyle: 'italic',
+            fontWeight: 400,
+            position: 'absolute',
+            left: 0,
+          }}
+        >
+          {showComma ? ',' : ' '}
+        </span>
+      )}
+      <span
+        className="inline-flex items-center justify-center"
+        style={{ minWidth: iconSize, gap: '0.08em' }}
       >
-        <X style={{ color: '#9ca3af', width: '100%', height: '100%' }} strokeWidth={2} />
-      </button>
-      <button
-        onClick={(e) => { e.stopPropagation(); onLockToggle(); }}
-        className="p-0 transition-opacity"
-        title={isLocked ? "Unlock ingredient" : "Lock ingredient"}
-        style={{
-          lineHeight: 0,
-          marginTop: '-0.06em',
-          ...iconContainerStyle,
-          opacity: isLocked ? 1 : (showControls ? 1 : 0),
-          pointerEvents: (isLocked || showControls) ? 'auto' : 'none',
-        }}
-      >
-        {isLocked ? (
-          // Sits on the colored highlight bar, so match the locked text color
-          <FilledLock color={isDarkMode ? '#111827' : '#ffffff'} />
-        ) : (
-          <CustomUnlock color="#d1d5db" />
+        {isLocked && (
+          <span
+            style={{
+              width: iconSize,
+              height: iconSize,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              lineHeight: 0,
+            }}
+          >
+            {/* Sits on the colored highlight bar, so match the locked text color */}
+            <FilledLock color={lockedInk} />
+          </span>
         )}
-      </button>
-      {onRoleClick && (
+        {roleIndicator && onRoleClick && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onRoleClick(e.currentTarget.getBoundingClientRect()); }}
+            title="Edit this slot’s role"
+            aria-label="Edit slot role"
+            style={{
+              lineHeight: 0,
+              padding: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {roleIndicator.Icon ? (
+              // Category role: its icon, in locked ink on a highlight bar or
+              // near-white/deep-gray ink against the page.
+              <roleIndicator.Icon
+                size="0.26em"
+                strokeWidth={2.5}
+                style={{ color: isLocked ? lockedInk : (isDarkMode ? '#e5e7eb' : '#4b5563') }}
+              />
+            ) : (
+              // Taste role (colored dot) or exclude-only wild (gray dot).
+              <span
+                style={{
+                  width: '0.2em',
+                  height: '0.2em',
+                  borderRadius: '9999px',
+                  backgroundColor: isLocked ? lockedInk : roleIndicator.color,
+                  display: 'inline-block',
+                }}
+              />
+            )}
+          </button>
+        )}
+      </span>
+    </span>
+  );
+
+  // All per-ingredient actions in one horizontal pill floating above the name.
+  // Fixed pixel sizing (not em) so it reads the same whether the hero type is
+  // 2rem or 6rem. It's a descendant of the hover span — mousing up onto it
+  // keeps it open, and the bottom padding bridges the gap without a dead zone.
+  const toolbarButtonClass =
+    'flex items-center justify-center rounded-full transition-colors ' +
+    'text-gray-400 hover:text-gray-700 hover:bg-gray-100 ' +
+    'dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700';
+  const toolbarButtonStyle = { width: 30, height: 30, lineHeight: 0 };
+
+  const renderHoverToolbar = () => (
+    <span
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        position: 'absolute',
+        // Below the name, not above: the role/swap popovers anchor to these
+        // buttons and open downward, so this keeps them from covering the
+        // ingredient being edited. The inline box bottom sits below the
+        // descenders (font descent), so pull the pill up into that
+        // whitespace; em-based so it tracks hero size.
+        top: 'calc(100% - 0.08em)',
+        left: '50%',
+        paddingTop: 6,
+        display: 'flex',
+        transform: showControls ? 'translate(-50%, 0)' : 'translate(-50%, -4px)',
+        opacity: showControls ? 1 : 0,
+        pointerEvents: showControls ? 'auto' : 'none',
+        transition: 'opacity 150ms ease-out, transform 150ms ease-out',
+        zIndex: 40,
+        lineHeight: 0,
+      }}
+    >
+      <span
+        className="flex items-center gap-0.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 shadow-lg"
+        style={{ padding: '3px 5px' }}
+      >
         <button
-          onClick={(e) => { e.stopPropagation(); onRoleClick(e.currentTarget.getBoundingClientRect()); }}
-          className="p-0 transition-opacity"
-          title={roleIndicator ? 'Edit this slot’s role' : 'Give this slot a role (taste or category)'}
-          aria-label="Edit slot role"
-          style={{
-            lineHeight: 0,
-            marginTop: '0.02em',
-            width: iconSize,
-            height: '0.26em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            // An active role stays visible as the slot's indicator; a wild
-            // slot only reveals the control alongside the other hover controls.
-            opacity: roleIndicator ? 1 : (showControls ? 1 : 0),
-            pointerEvents: (roleIndicator || showControls) ? 'auto' : 'none',
-          }}
+          onClick={(e) => { e.stopPropagation(); onLockToggle(); }}
+          className={isLocked
+            ? toolbarButtonClass.replace('text-gray-400', 'text-gray-800').replace('dark:text-gray-400', 'dark:text-gray-100')
+            : toolbarButtonClass}
+          style={toolbarButtonStyle}
+          title={isLocked ? 'Unlock ingredient' : 'Lock ingredient'}
+          aria-label={isLocked ? `Unlock ${ingredient}` : `Lock ${ingredient}`}
         >
-          {roleIndicator?.Icon ? (
-            // Category role: its icon. On a locked highlight bar, use the
-            // locked ink so it stays legible on the ingredient color;
-            // otherwise near-white/deep-gray ink so it reads clearly against
-            // the page rather than as a muddy mid-gray.
-            <roleIndicator.Icon
-              size="0.26em"
-              strokeWidth={2.5}
-              style={{ color: isLocked ? lockedIconColor : (isDarkMode ? '#e5e7eb' : '#4b5563') }}
-            />
-          ) : (
-            // Taste role (colored dot), exclude-only (wild gray dot), or the
-            // empty outline-circle affordance.
-            <span
-              style={{
-                width: '0.2em',
-                height: '0.2em',
-                borderRadius: '9999px',
-                backgroundColor: roleIndicator
-                  ? (isLocked ? lockedIconColor : roleIndicator.color)
-                  : 'transparent',
-                border: roleIndicator ? 'none' : '0.045em solid #d1d5db',
-                display: 'inline-block',
-              }}
-            />
-          )}
+          {isLocked ? <FilledLock color="currentColor" size={15} /> : <CustomUnlock color="currentColor" size={15} />}
         </button>
-      )}
-      {onOpenAtlas && (
+        {onRoleClick && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onRoleClick(e.currentTarget.getBoundingClientRect()); }}
+            className={toolbarButtonClass}
+            style={toolbarButtonStyle}
+            title={roleIndicator ? 'Edit this slot’s role' : 'Give this slot a role (taste or category)'}
+            aria-label="Edit slot role"
+          >
+            {roleIndicator?.Icon ? (
+              <roleIndicator.Icon size={15} strokeWidth={2.5} />
+            ) : roleIndicator ? (
+              <span style={{ width: 10, height: 10, borderRadius: '9999px', backgroundColor: roleIndicator.color }} />
+            ) : (
+              // No role yet: a generic "pick a type" glyph, not a food-biased
+              // icon — the role can become either a taste or a category.
+              <Shapes size={15} strokeWidth={2.25} />
+            )}
+          </button>
+        )}
+        {onSwapClick && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onSwapClick(e.currentTarget.getBoundingClientRect()); }}
+            className={toolbarButtonClass}
+            style={toolbarButtonStyle}
+            title={`Swap ${ingredient} for something that fits`}
+            aria-label={`Swap ${ingredient}`}
+          >
+            <ArrowLeftRight size={15} strokeWidth={2.25} />
+          </button>
+        )}
+        {onOpenAtlas && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onOpenAtlas(); }}
+            className={toolbarButtonClass}
+            style={toolbarButtonStyle}
+            title={`About ${ingredient}`}
+            aria-label={`Open ingredient page for ${ingredient}`}
+          >
+            <Info size={15} strokeWidth={2.25} />
+          </button>
+        )}
+        <span
+          className="self-center w-px bg-gray-200 dark:bg-gray-600"
+          style={{ height: 16, margin: '0 2px' }}
+        />
         <button
-          onClick={(e) => { e.stopPropagation(); onOpenAtlas(); }}
-          className="p-0 transition-opacity"
-          title={`About ${ingredient}`}
-          aria-label={`Open ingredient page for ${ingredient}`}
-          style={{
-            lineHeight: 0,
-            marginTop: '0.03em',
-            width: iconSize,
-            height: '0.26em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: showControls ? 1 : 0,
-            pointerEvents: showControls ? 'auto' : 'none',
-          }}
+          onClick={(e) => { e.stopPropagation(); onRemove(); }}
+          className="flex items-center justify-center rounded-full transition-colors text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/30"
+          style={toolbarButtonStyle}
+          title="Remove ingredient"
+          aria-label={`Remove ${ingredient}`}
         >
-          <Info size="0.24em" strokeWidth={2.5} style={{ color: '#9ca3af' }} />
+          <X size={15} strokeWidth={2.25} />
         </button>
-      )}
-      {onSwapClick && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onSwapClick(e.currentTarget.getBoundingClientRect()); }}
-          className="p-0 transition-opacity"
-          title={`Swap ${ingredient} for something that fits`}
-          aria-label={`Swap ${ingredient}`}
-          style={{
-            lineHeight: 0,
-            marginTop: '0.03em',
-            width: iconSize,
-            height: '0.26em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: showControls ? 1 : 0,
-            pointerEvents: showControls ? 'auto' : 'none',
-          }}
-        >
-          <ArrowLeftRight size="0.24em" strokeWidth={2.5} style={{ color: '#9ca3af' }} />
-        </button>
-      )}
+      </span>
     </span>
   );
 
@@ -477,30 +524,7 @@ const Ingredient = ({
                     ,
                   </span>
                 )}
-                {!isMobile && (
-                  <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
-                    {/* The comma yields its spot to whichever control is
-                        visible there - the lock (when locked) or the role
-                        indicator (when a role is set) - matching the existing
-                        lock-replaces-comma pattern so nothing overlaps. */}
-                    {!isLocked && !showControls && !roleIndicator && (
-                      <span
-                        className={isFaded ? '' : 'text-gray-900 dark:text-white'}
-                        style={{
-                          color: isFaded ? fadedColor : undefined,
-                          fontFamily: "'Fraunces', Georgia, serif",
-                          fontStyle: 'italic',
-                          fontWeight: 400,
-                          position: 'absolute',
-                          left: 0,
-                        }}
-                      >
-                        {showComma ? ',' : '\u00A0'}
-                      </span>
-                    )}
-                    {renderDesktopIconStack()}
-                  </span>
-                )}
+                {!isMobile && renderInlineBadges()}
               </span>
             );
           }
@@ -530,34 +554,12 @@ const Ingredient = ({
                     ,
                   </span>
                 )}
-                {!isMobile && (
-                  <span className="inline-flex items-center relative" style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}>
-                    {/* The comma yields its spot to whichever control is
-                        visible there - the lock (when locked) or the role
-                        indicator (when a role is set) - matching the existing
-                        lock-replaces-comma pattern so nothing overlaps. */}
-                    {!isLocked && !showControls && !roleIndicator && (
-                      <span
-                        className={isFaded ? '' : 'text-gray-900 dark:text-white'}
-                        style={{
-                          color: isFaded ? fadedColor : undefined,
-                          fontFamily: "'Fraunces', Georgia, serif",
-                          fontStyle: 'italic',
-                          fontWeight: 400,
-                          position: 'absolute',
-                          left: 0,
-                        }}
-                      >
-                        {showComma ? ',' : '\u00A0'}
-                      </span>
-                    )}
-                    {renderDesktopIconStack()}
-                  </span>
-                )}
+                {!isMobile && renderInlineBadges()}
               </span>
             </>
           );
         })()}
+        {!isMobile && renderHoverToolbar()}
       </span>
 
     </span>
