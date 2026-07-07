@@ -46,13 +46,15 @@ src/
 │   │   ├── DietaryFilterPills.tsx  # Active dietary-filter chips
 │   │   ├── RecipeFinderModal.tsx   # "Find recipes" modal (web + curated site search)
 │   │   ├── TasteLabSplit.tsx       # Taste Lab split-slot view
-│   │   ├── PresetGallery.tsx       # Flavor preset gallery
+│   │   ├── PresetGallery.tsx       # Flavor preset gallery (incl. dish frames)
 │   │   ├── OnboardingWizard.tsx    # First-run tour
 │   │   ├── MobileBottomBar.tsx     # Mobile 5-button action bar
 │   │   └── ui/                     # Shared design-system primitives
 │   │       ├── Pill.tsx            # Toggle pill (neutral + data-driven accent)
 │   │       ├── IconButton.tsx      # Icon-only button: 44px hit area + required aria-label
 │   │       ├── Slider.tsx          # Taste range slider (accent thumb + value-fill track)
+│   │       ├── SlotRolePopover.tsx # Per-slot role editor (portal; desktop anchor / mobile sheet)
+│   │       ├── SwapPopover.tsx     # Structural swap suggestions (same portal contract)
 │   │       └── index.ts
 │   └── icons/
 │       └── LockIcons.tsx           # Custom lock/unlock SVG icons
@@ -132,8 +134,21 @@ state** (acorn squash = creamy, not hard):
 
 Vocabularies live in `types.ts` (`TEXTURES` / `INGREDIENT_FUNCTIONS`); data is
 populated by `tooling/profile-audit/` (extract → proposals → check → merge — offline,
-like the pairing pipeline). Texture/function only ever **rank**; flavor-map
-compatibility alone admits (see `suggestSubstitutes.ts`).
+like the pairing pipeline). In substitution, texture/function only ever **rank**;
+flavor-map compatibility alone admits (see `suggestSubstitutes.ts`). As slot
+constraints they may also **narrow a slot's pool** (dish frames) — a pool input
+change, same as taste/category roles; the pairing check is never touched.
+
+### Dish frames & structural swap (P5)
+- **Frames** are `tier: 'frame'` presets in `flavorPresets.ts`: 5-slot structures
+  (Salad, Grain Bowl, Pasta Night, Stir-Fry, Soup) whose slots carry editorial
+  `label`s ("base greens", "the crunch") plus `textures`/`functions` constraints
+  on `SlotTaste`. Prescriptive about structure, permissive about outcome.
+- **Structural swap**: the ⇄ control on a hero ingredient (desktop icon stack;
+  mobile expanded-info "Swap it") lists `suggestSubstitutes` candidates that pair
+  with the rest of the combo, filtered by dietary/pool/excludes and — when the
+  role is pinned — the slot's full role, with shared texture/function chips as
+  ranking receipts.
 
 ### Filtering
 - **Category/Subcategory**: Filter by ingredient type

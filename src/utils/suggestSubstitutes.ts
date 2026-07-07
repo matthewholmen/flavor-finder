@@ -10,8 +10,8 @@
 // Pure and UI-independent: the caller supplies the map (canonical Atlas graph for
 // reference surfaces, the user-filtered map inside generation).
 
-import { IngredientProfile, IngredientFunction, TASTE_PROPERTIES, Texture } from '../types';
-import { getProfile } from './atlas';
+import { IngredientProfile, IngredientFunction, TASTE_PROPERTIES, Texture } from '../types.ts';
+import { getProfile } from './atlas.ts';
 
 export interface SubstituteSuggestion {
   name: string;

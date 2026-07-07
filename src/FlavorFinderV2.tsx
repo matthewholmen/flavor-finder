@@ -4,6 +4,8 @@ import { MobileBottomBar } from './components/v2/MobileBottomBar.tsx';
 import { IngredientDisplay } from './components/v2/IngredientDisplay.tsx';
 import { ComboContextStrip } from './components/v2/ComboContextStrip.tsx';
 import { getLoadedContext, loadContext } from './utils/contextLoader.ts';
+import { suggestSubstitutes } from './utils/suggestSubstitutes.ts';
+import { IngredientProfile } from './types.ts';
 import { IngredientDrawer } from './components/v2/IngredientDrawer.tsx';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
 import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
@@ -21,6 +23,7 @@ import { useCompatibility, CompatibilityMode } from './hooks/useCompatibility.ts
 import {
   useSlots,
   defaultSlots,
+  slotAcceptsStructure,
   MAX_SLOTS,
   TASTE_KEYS,
   TASTE_THRESHOLD,
@@ -416,6 +419,11 @@ export default function FlavorFinderV2() {
         if (c && slot.exclude.includes(c as CategoryKey)) return false;
       }
       if (freeSlots.has(idx)) return true;
+      // Structural frame constraints (textures/functions) are part of the
+      // slot's role: they bite in every mode (a wild "crunch" slot accepts any
+      // crunchy thing that pairs) but a freed slot above escapes them, exactly
+      // like it escapes taste/category.
+      if (!slotAcceptsStructure(slot, profileByName.get(ing.toLowerCase()))) return false;
       if (slot.mode === 'wild') return true; // no constraint — any ingredient
       if (slot.mode === 'category') {
         if (categoryFor(ing) !== slot.category) return false;
@@ -532,6 +540,7 @@ export default function FlavorFinderV2() {
           const profile = profileByName.get(ing.toLowerCase());
           if (!profile) continue;
           if (slot.exclude?.length && profile.category && slot.exclude.includes(profile.category as CategoryKey)) continue;
+          if (!slotAcceptsStructure(slot, profile)) continue;
           const fp = profile.flavorProfile as any;
           if (fp) {
             for (const t of TASTE_KEYS) {
@@ -554,6 +563,16 @@ export default function FlavorFinderV2() {
     slotIndex: number,
     patch: Partial<SlotTaste>
   ) => {
+    // Hand-editing the role (mode/taste/category) overrides a frame's editorial
+    // slot: drop the frame's structural constraints and label along with it, so
+    // "crunch" doesn't silently keep filtering a slot the user re-purposed.
+    // Subcategory/exclude tweaks refine the same role, so they keep the frame.
+    if (patch.mode !== undefined || patch.taste !== undefined || patch.category !== undefined) {
+      const slot = slotTastes[slotIndex];
+      if (slot?.textures?.length || slot?.functions?.length || slot?.label) {
+        patch = { textures: undefined, functions: undefined, label: undefined, ...patch };
+      }
+    }
     // Going wild clears the role: the current ingredient trivially satisfies
     // "no constraint", so keep it in place (no reroll) and drop the role pin —
     // Generate is free to randomize this slot again.
@@ -646,6 +665,51 @@ export default function FlavorFinderV2() {
     }
   };
 
+  // Structural swap (P5): ranked substitutes for one slot's ingredient.
+  // Admission is the flavor-map neighborhood intersection of every OTHER
+  // selected ingredient (suggestSubstitutes — the engine as judge, on the live
+  // user-filtered map); here we additionally respect dietary restrictions, the
+  // themed pool, the slot's excludes, and — when the role is pinned — the
+  // slot's full role, mirroring how Generate treats locked vs freed slots.
+  // Texture/function similarity only orders the list.
+  const getSwapSuggestions = (slotIndex: number) => {
+    const target = selectedIngredients[slotIndex];
+    if (!target) return [];
+    const context = selectedIngredients.filter((ing, j) => j !== slotIndex && !!ing);
+    const poolSet = themedPool ? new Set(themedPool.ingredients.map(s => s.toLowerCase())) : null;
+    const slot = slotTastes[slotIndex];
+    const roleLocked = lockedConstraints.has(slotIndex);
+
+    const fitsRole = (profile: IngredientProfile | undefined) => {
+      if (!slot || !roleLocked) return true;
+      if (!slotAcceptsStructure(slot, profile)) return false;
+      if (slot.mode === 'category') {
+        if (profile?.category !== slot.category) return false;
+        return !slot.subcategories?.length || slot.subcategories.includes(profile?.subcategory as string);
+      }
+      if (slot.mode === 'taste') return (((profile?.flavorProfile as any)?.[slot.taste]) ?? 0) >= TASTE_THRESHOLD;
+      return true;
+    };
+
+    return suggestSubstitutes(target, context, flavorMap, 60)
+      .filter(s => {
+        if (isIngredientRestricted(s.name)) return false;
+        if (poolSet && !poolSet.has(s.name.toLowerCase())) return false;
+        const profile = profileByName.get(s.name.toLowerCase());
+        if (slot?.exclude?.length && profile?.category && slot.exclude.includes(profile.category as CategoryKey)) return false;
+        return fitsRole(profile);
+      })
+      .slice(0, 10);
+  };
+
+  const handleSwapPick = (slotIndex: number, name: string) => {
+    saveToHistory();
+    setSelectedIngredients(prev => prev.map((ing, i) => (i === slotIndex ? name : ing)));
+    // An unpinned role should keep describing what's in the slot (same contract
+    // as Generate's free slots); a pinned role was already enforced above.
+    if (!lockedConstraints.has(slotIndex)) relabelSlotToIngredient(slotIndex, name);
+  };
+
   // Load a Flavor Preset: push its slot roles into the generator, then
   // generate a fresh combo that fits them. The preset is the DNA (tastes /
   // categories), not fixed ingredients — Generate keeps producing new combos
@@ -659,7 +723,12 @@ export default function FlavorFinderV2() {
     // Push each slot's constraint into the hook (state update is async, so we
     // also keep `slots` locally for the immediate generate below).
     slots.forEach((s, i) =>
-      setSlotTaste(i, { mode: s.mode, taste: s.taste, category: s.category, subcategories: s.subcategories, exclude: s.exclude })
+      setSlotTaste(i, {
+        mode: s.mode, taste: s.taste, category: s.category,
+        subcategories: s.subcategories, exclude: s.exclude,
+        // Frame DNA: structural constraints + the editorial role name.
+        textures: s.textures, functions: s.functions, label: s.label,
+      })
     );
 
     // Themed presets confine generation to a pool; others clear any prior pool.
@@ -699,7 +768,7 @@ export default function FlavorFinderV2() {
     const count = selectedIngredients.length;
     const slots = slotTastes.slice(0, count);
     const isPlain =
-      slots.every(s => s.mode === 'wild' && !s.exclude?.length) &&
+      slots.every(s => s.mode === 'wild' && !s.exclude?.length && !s.textures?.length && !s.functions?.length) &&
       lockedConstraints.size === 0 &&
       !themedPool;
     let url: string;
@@ -714,6 +783,9 @@ export default function FlavorFinderV2() {
           c: s.category,
           ...(s.subcategories?.length ? { sc: s.subcategories } : {}),
           ...(s.exclude?.length ? { x: s.exclude } : {}),
+          ...(s.textures?.length ? { tx: s.textures } : {}),
+          ...(s.functions?.length ? { fn: s.functions } : {}),
+          ...(s.label ? { lb: s.label } : {}),
         })),
         i: selectedIngredients.slice(0, count),
         lc: Array.from(lockedConstraints),
@@ -776,6 +848,10 @@ export default function FlavorFinderV2() {
             category: s.c ?? slotTastes[i]?.category ?? 'Proteins',
             subcategories: s.sc ? (Array.isArray(s.sc) ? s.sc : [s.sc]) : undefined,
             exclude: s.x,
+            // Frame DNA (P5); absent in older links.
+            textures: s.tx,
+            functions: s.fn,
+            label: s.lb,
           }));
           decodedSlots.forEach((s, i) => setSlotTaste(i, s));
           setTargetIngredientCount(count);
@@ -1537,6 +1613,8 @@ export default function FlavorFinderV2() {
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
                 onOpenAtlas={openAtlas}
+                onSwapSuggestions={getSwapSuggestions}
+                onSwapPick={handleSwapPick}
               />
             </div>
 
@@ -1581,6 +1659,8 @@ export default function FlavorFinderV2() {
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
                 onOpenAtlas={openAtlas}
+                onSwapSuggestions={getSwapSuggestions}
+                onSwapPick={handleSwapPick}
               />
             </div>
             {/* Mined dish context for the current combo — hero view only, so the

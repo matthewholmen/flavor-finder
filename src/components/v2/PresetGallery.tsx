@@ -57,15 +57,34 @@ const mixHex = (hex: string, target: string, amount: number): string => {
   return `rgb(${mix(0)}, ${mix(2)}, ${mix(4)})`;
 };
 
+// Display tints for frame roles that constrain by FUNCTION rather than taste or
+// category — borrow the taste color the function most evokes so a frame card
+// reads as a palette, not a gray strip. Display-only.
+const FUNCTION_SWATCH_COLORS: Record<string, string> = {
+  acid: TASTE_COLORS.sour,
+  fat: TASTE_COLORS.fat,
+  sweetener: TASTE_COLORS.sweet,
+  'umami-bomb': TASTE_COLORS.umami,
+  'fresh-finish': TASTE_COLORS.aromatic,
+};
+
 // The color + label a slot contributes — its taste tint in taste mode, its
-// category tint in category mode.
+// category tint in category mode. A frame slot's editorial label wins the text;
+// a purely structural (wild + function) slot tints by its first mapped function.
 const slotSwatch = (slot: SlotTaste) => {
-  if (slot.mode === 'wild') return { color: WILD_COLOR, label: 'wild' };
+  let color = WILD_COLOR;
+  let label = 'wild';
   if (slot.mode === 'category') {
     // A narrowed slot shows its subcategory (e.g. "Cheese") in the category color.
-    return { color: CATEGORY_COLORS[slot.category] ?? '#999', label: slot.subcategory || slot.category };
+    color = CATEGORY_COLORS[slot.category] ?? '#999';
+    label = slot.subcategories?.length === 1 ? slot.subcategories[0] : slot.category;
+  } else if (slot.mode === 'taste') {
+    color = TASTE_COLORS[slot.taste as TasteKey] ?? '#999';
+    label = slot.taste;
+  } else if (slot.functions?.length) {
+    color = FUNCTION_SWATCH_COLORS[slot.functions[0]] ?? WILD_COLOR;
   }
-  return { color: TASTE_COLORS[slot.taste as TasteKey] ?? '#999', label: slot.taste };
+  return { color, label: slot.label ?? label };
 };
 
 // The signature palette strip — one tinted segment per slot, labeled. Shared by
@@ -480,7 +499,7 @@ export const PresetGallery = ({
   if (!isOpen) return null;
 
   // Group presets by tier, custom first, preserving declaration order within.
-  const tiers = (['custom', 'classic', 'structural', 'themed'] as PresetTier[])
+  const tiers = (['custom', 'frame', 'classic', 'structural', 'themed'] as PresetTier[])
     .map(tier => ({
       tier,
       presets: tier === 'custom' ? customPresets : FLAVOR_PRESETS.filter(p => p.tier === tier),

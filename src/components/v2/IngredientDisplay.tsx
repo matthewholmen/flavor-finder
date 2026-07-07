@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowRight } from 'lucide-react';
+import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowRight, ArrowLeftRight } from 'lucide-react';
 import { TASTE_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { FilledLock, CustomUnlock } from '../icons/LockIcons.tsx';
 import { getIngredientColor } from '../../utils/ingredientColors.ts';
 import { SlotRolePopover } from './ui/SlotRolePopover.tsx';
+import { SwapPopover } from './ui/SwapPopover.tsx';
 import { CATEGORY_ICONS } from '../../utils/categoryIcons.ts';
 
 // What a slot's role indicator shows. The visual contract: COLOR means taste,
@@ -167,6 +168,8 @@ const Ingredient = ({
   onRoleClick = null,
   // Opens the ingredient's Atlas page (hover-revealed ⓘ in the icon stack).
   onOpenAtlas = null,
+  // Structural swap (hover-revealed ⇄ in the icon stack).
+  onSwapClick = null,
   showComma,
   showAmpersand,
   tightAmpersand = false, // Two-ingredient set: preceding item has no comma, pull & closer
@@ -297,6 +300,27 @@ const Ingredient = ({
           }}
         >
           <Info size="0.24em" strokeWidth={2.5} style={{ color: '#9ca3af' }} />
+        </button>
+      )}
+      {onSwapClick && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onSwapClick(e.currentTarget.getBoundingClientRect()); }}
+          className="p-0 transition-opacity"
+          title={`Swap ${ingredient} for something that fits`}
+          aria-label={`Swap ${ingredient}`}
+          style={{
+            lineHeight: 0,
+            marginTop: '0.03em',
+            width: iconSize,
+            height: '0.26em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: showControls ? 1 : 0,
+            pointerEvents: showControls ? 'auto' : 'none',
+          }}
+        >
+          <ArrowLeftRight size="0.24em" strokeWidth={2.5} style={{ color: '#9ca3af' }} />
         </button>
       )}
     </span>
@@ -593,7 +617,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 };
 
 // Mobile Ingredient Info Component
-const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenAtlas = null }) => {
+const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenAtlas = null, onSwap = null }) => {
   const profile = ingredientProfiles?.find(
     p => p.name.toLowerCase() === ingredient.toLowerCase()
   );
@@ -661,15 +685,28 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
         </div>
       )}
 
-      {/* Handoff to the full Atlas page */}
-      {onOpenAtlas && (
-        <button
-          onClick={() => onOpenAtlas(ingredient)}
-          className="mt-4 inline-flex items-center gap-1.5 text-base font-medium text-gray-700 dark:text-gray-200 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color]"
-        >
-          Full flavor page
-          <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
-        </button>
+      {/* Handoff to the full Atlas page + structural swap */}
+      {(onOpenAtlas || onSwap) && (
+        <div className="mt-4 flex items-center gap-5">
+          {onOpenAtlas && (
+            <button
+              onClick={() => onOpenAtlas(ingredient)}
+              className="inline-flex items-center gap-1.5 text-base font-medium text-gray-700 dark:text-gray-200 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color]"
+            >
+              Full flavor page
+              <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+          )}
+          {onSwap && (
+            <button
+              onClick={onSwap}
+              className="inline-flex items-center gap-1.5 text-base font-medium text-gray-700 dark:text-gray-200 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color]"
+            >
+              Swap it
+              <ArrowLeftRight size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
@@ -697,6 +734,11 @@ export const IngredientDisplay = ({
   // Opens an ingredient's Atlas reference page. Optional — without it neither
   // the desktop ⓘ control nor the mobile "Full flavor page" link renders.
   onOpenAtlas = null,
+  // Structural swap (P5). `onSwapSuggestions(actualIndex)` returns ranked
+  // substitutes that pair with the rest of the combo; `onSwapPick` applies
+  // one. Both optional — without them no swap affordance renders.
+  onSwapSuggestions = null,
+  onSwapPick = null,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState(null);
@@ -710,18 +752,35 @@ export const IngredientDisplay = ({
   const { isMobile } = useScreenSize();
   const { isHighContrast, isDarkMode } = useTheme(); // Force re-render when high contrast changes
 
+  // Which slot's swap popover is open, its desktop anchor, and the suggestions
+  // computed at open time (a swap changes the combo, so they're per-open).
+  const [swapIndex, setSwapIndex] = useState(null);
+  const [swapAnchorRect, setSwapAnchorRect] = useState(null);
+  const [swapSuggestions, setSwapSuggestions] = useState([]);
+
   const rolesEnabled = !!onSlotRoleChange;
   const openRoleEditor = (actualIndex, rect) => {
     setRoleAnchorRect(rect ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right } : null);
     setRoleEditIndex(actualIndex);
   };
 
-  // Close the role editor if its slot's ingredient goes away (remove/undo).
+  const swapEnabled = !!onSwapSuggestions && !!onSwapPick;
+  const openSwap = (actualIndex, rect) => {
+    setSwapSuggestions(onSwapSuggestions(actualIndex) ?? []);
+    setSwapAnchorRect(rect ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right } : null);
+    setSwapIndex(actualIndex);
+  };
+
+  // Close the role editor / swap popover if the slot's ingredient goes away
+  // (remove/undo).
   useEffect(() => {
     if (roleEditIndex !== null && !ingredients[roleEditIndex]) {
       setRoleEditIndex(null);
     }
-  }, [ingredients, roleEditIndex]);
+    if (swapIndex !== null && !ingredients[swapIndex]) {
+      setSwapIndex(null);
+    }
+  }, [ingredients, roleEditIndex, swapIndex]);
 
   const validIngredients = ingredients.filter(Boolean);
   const emptySlotCount = maxSlots - validIngredients.length;
@@ -1035,6 +1094,7 @@ export const IngredientDisplay = ({
                 roleIndicator={roleIndicator}
                 onRoleClick={rolesEnabled ? (rect) => openRoleEditor(actualIndex, rect) : null}
                 onOpenAtlas={onOpenAtlas ? () => onOpenAtlas(ingredient) : null}
+                onSwapClick={swapEnabled ? (rect) => openSwap(actualIndex, rect) : null}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
                 tightAmpersand={(() => {
@@ -1298,6 +1358,7 @@ export const IngredientDisplay = ({
                       isHighContrast={isHighContrast}
                       isDarkMode={isDarkMode}
                       onOpenAtlas={onOpenAtlas}
+                      onSwap={swapEnabled ? () => openSwap(actualIndex, null) : null}
                     />
                   </div>
                   {shouldShowAmpersandAfter && (
@@ -1382,6 +1443,25 @@ export const IngredientDisplay = ({
           isMobile={isMobile}
           isDarkMode={isDarkMode}
           isHighContrast={isHighContrast}
+        />
+      )}
+
+      {/* Structural swap — same portal contract as the role editor. */}
+      {swapEnabled && swapIndex !== null && ingredients[swapIndex] && (
+        <SwapPopover
+          ingredient={ingredients[swapIndex]}
+          suggestions={swapSuggestions}
+          getProfile={(name) =>
+            ingredientProfiles?.find(p => p.name.toLowerCase() === name.toLowerCase()) ?? null
+          }
+          onPick={(name) => {
+            onSwapPick(swapIndex, name);
+            setSwapIndex(null);
+          }}
+          onClose={() => setSwapIndex(null)}
+          anchorRect={swapAnchorRect}
+          isMobile={isMobile}
+          isDarkMode={isDarkMode}
         />
       )}
     </>

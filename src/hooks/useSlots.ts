@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { IngredientProfile, IngredientFunction, Texture } from '../types.ts';
 
 // The 7 taste dimensions an ingredient profile is scored on (0-10 each).
 export type TasteKey =
@@ -70,7 +71,30 @@ export interface SlotTaste {
   // `sweet` slot excluding `Fruits` yields caramelized onion, not strawberry.
   // Empty/undefined means no exclusions.
   exclude?: CategoryKey[];
+  // Structural constraints (dish frames, P5): the ingredient must carry at
+  // least one of these textures AND at least one of these functions (P4 data
+  // layer, typical served state). Like taste/category, they only narrow the
+  // slot's pool — the flavor-map pairing requirement is never relaxed. They
+  // compose with any mode ("wild + crunchy" = any crunchy thing that pairs).
+  textures?: Texture[];
+  functions?: IngredientFunction[];
+  // Editorial role name a frame gives this slot ("base greens", "crunch").
+  // Display-only; cleared when the user overrides the role by hand.
+  label?: string;
 }
+
+// Does an ingredient satisfy a slot's structural (texture/function) constraints?
+// Used by the solver's pool filter and by the structural-swap candidate filter.
+export const slotAcceptsStructure = (
+  slot: Pick<SlotTaste, 'textures' | 'functions'>,
+  profile: IngredientProfile | null | undefined
+): boolean => {
+  if (!slot.textures?.length && !slot.functions?.length) return true;
+  if (!profile) return false;
+  if (slot.textures?.length && !slot.textures.some(t => profile.textures?.includes(t))) return false;
+  if (slot.functions?.length && !slot.functions.some(f => profile.functions?.includes(f))) return false;
+  return true;
+};
 
 // The subcategories available within each top-level category, used to narrow a
 // category-mode slot. Strings must match `ingredientProfiles[].subcategory`.

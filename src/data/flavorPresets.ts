@@ -1,10 +1,16 @@
 import { SlotTaste, TasteKey, CategoryKey } from '../hooks/useSlots.ts';
+import { IngredientFunction, Texture } from '../types.ts';
 
 // A Flavor Preset is the *DNA* of a pairing, not a fixed set of ingredients: an
 // ordered list of slot constraints (each a dominant taste or a category) that
 // Taste Lab loads and then generates a fresh, mutually-compatible combo for.
 // Load "Sweet & Salty" and Generate keeps handing you new sweet+salty pairs.
-export type PresetTier = 'custom' | 'classic' | 'structural' | 'themed';
+//
+// `frame` presets (P5) are dish frames: the app takes an editorial point of
+// view on a dish's STRUCTURE (named roles — "base greens", "the crunch") while
+// the engine supplies compatible content. Prescriptive about structure,
+// permissive about outcome; the pairing rule is untouched.
+export type PresetTier = 'custom' | 'frame' | 'classic' | 'structural' | 'themed';
 
 export interface FlavorPreset {
   id: string;
@@ -40,9 +46,24 @@ const cat = (category: CategoryKey, taste: TasteKey = 'umami'): SlotTaste => ({
 // arbitrary defaults for if the user toggles it off wild.
 const wild = (): SlotTaste => ({ mode: 'wild', taste: 'umami', category: 'Vegetables' });
 
+// A dish-frame slot: an editorial role name over any base constraint, plus
+// optional structural (texture/function) narrowing from the P4 data layer.
+// Defaults to wild mode — most frame roles are structural, not categorical.
+const frameSlot = (
+  label: string,
+  constraints: Partial<SlotTaste> & { textures?: Texture[]; functions?: IngredientFunction[] } = {}
+): SlotTaste => ({
+  mode: 'wild',
+  taste: 'umami',
+  category: 'Vegetables',
+  label,
+  ...constraints,
+});
+
 // Human-friendly labels for the tier section headers in the gallery.
 export const TIER_LABELS: Record<PresetTier, string> = {
   custom: 'Your pairings',
+  frame: 'Dish frames',
   classic: 'Classic contrasts',
   structural: 'Structural templates',
   themed: 'Themed pools',
@@ -105,6 +126,76 @@ const MEZZE_POOL = [
 ];
 
 export const FLAVOR_PRESETS: FlavorPreset[] = [
+  // ── Dish frames: a dish's structure as named roles (P5). The frame says
+  //    what a salad NEEDS; the engine says what fits. Roles lean on the P4
+  //    texture/function layer, so "the crunch" means crunchy things that pair,
+  //    whatever category they come from. ─────────────────────────────────────
+  {
+    id: 'frame-salad',
+    name: 'Salad',
+    description: 'Greens, crunch, something sweet, a fat, and an acid — a whole salad by structure.',
+    tier: 'frame',
+    slots: [
+      frameSlot('base greens', { mode: 'category', category: 'Vegetables', subcategories: ['Leafy Greens'] }),
+      frameSlot('the crunch', { textures: ['crunchy', 'crisp'] }),
+      frameSlot('something sweet', { mode: 'taste', taste: 'sweet', category: 'Fruits' }),
+      frameSlot('the fat', { functions: ['fat'] }),
+      frameSlot('the acid', { functions: ['acid'] }),
+    ],
+  },
+  {
+    id: 'frame-grain-bowl',
+    name: 'Grain Bowl',
+    description: 'A base grain, a substantial protein, a vegetable, a sauce, and a finish.',
+    tier: 'frame',
+    slots: [
+      frameSlot('the base', { mode: 'category', category: 'Grains' }),
+      frameSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      frameSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      frameSlot('the sauce', { functions: ['fat', 'umami-bomb'] }),
+      frameSlot('the finish', { functions: ['fresh-finish', 'crunch-topper'] }),
+    ],
+  },
+  {
+    id: 'frame-pasta',
+    name: 'Pasta Night',
+    description: 'The pasta, a body, richness, savory depth, and a fresh finish.',
+    tier: 'frame',
+    slots: [
+      frameSlot('the pasta', { mode: 'category', category: 'Grains', subcategories: ['Pasta'] }),
+      frameSlot('the body', { functions: ['bulk'], exclude: ['Grains'] }),
+      frameSlot('the richness', { functions: ['fat'] }),
+      frameSlot('the depth', { functions: ['umami-bomb'] }),
+      frameSlot('the finish', { functions: ['fresh-finish'] }),
+    ],
+  },
+  {
+    id: 'frame-stir-fry',
+    name: 'Stir-Fry',
+    description: 'Protein, a crisp vegetable, aromatics, an umami sauce, and a base.',
+    tier: 'frame',
+    slots: [
+      frameSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      frameSlot('the crisp veg', { mode: 'category', category: 'Vegetables', textures: ['crisp', 'crunchy'] }),
+      frameSlot('the aromatics', { mode: 'taste', taste: 'aromatic', category: 'Seasonings' }),
+      frameSlot('the sauce', { functions: ['umami-bomb'] }),
+      frameSlot('the base', { mode: 'category', category: 'Grains' }),
+    ],
+  },
+  {
+    id: 'frame-soup',
+    name: 'Soup',
+    description: 'A broth, a body, aromatics, richness, and a fresh finish.',
+    tier: 'frame',
+    slots: [
+      frameSlot('the broth', { mode: 'category', category: 'Pantry', subcategories: ['Stocks & Bases'] }),
+      frameSlot('the body', { functions: ['bulk'] }),
+      frameSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
+      frameSlot('the richness', { functions: ['fat'] }),
+      frameSlot('the finish', { functions: ['fresh-finish'] }),
+    ],
+  },
+
   // ── Classic contrasts: two tastes playing off each other ──────────────────
   {
     id: 'sweet-salty',
@@ -239,7 +330,9 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
   },
   {
     id: 'stir-fry',
-    name: 'Stir-Fry',
+    // "Stir-Fry" proper is now the dish frame above; this themed pool keeps the
+    // curated wok pantry under a name that says what it is.
+    name: 'Wok Pantry',
     description: 'Protein, vegetable, and an umami sauce from the wok.',
     tier: 'themed',
     slots: [cat('Proteins'), cat('Vegetables'), taste('umami', 'Pantry')],
