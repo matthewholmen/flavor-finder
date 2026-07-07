@@ -450,7 +450,15 @@ const Ingredient = ({
     <span
       data-ingredient
       className="relative inline items-baseline hero-rise"
-      style={{ animationDelay: `${stagger * 55}ms` }}
+      style={{
+        animationDelay: `${stagger * 55}ms`,
+        // hero-rise (fill-mode: both) keeps every ingredient span a stacking
+        // context, so the toolbar's own z-index can't escape it. When the
+        // combo wraps, the pill overlaps the next line's hover box — lift the
+        // hovered span above its siblings or the later ingredient steals
+        // hover/clicks from the pill.
+        zIndex: isHovered ? 30 : 'auto',
+      }}
       onMouseEnter={!isMobile ? onHover : undefined}
       onMouseLeave={!isMobile ? onHoverEnd : undefined}
     >
