@@ -5,6 +5,13 @@ import { Pill } from './ui/Pill.tsx';
 import { getLoadedContext, loadContext } from '../../utils/contextLoader.ts';
 import { ingredientProfiles } from '../../data/ingredientProfiles.ts';
 import { CATEGORY_COLORS } from '../../utils/colors.ts';
+import {
+  parseLandingQuery,
+  parsedEntityCount,
+  ParsedComposite,
+  LandingLexicon,
+} from '../../utils/parseLandingQuery.ts';
+import { tagDisplayLabel } from '../../utils/tagLabels.ts';
 
 // The app's front door and its empty state: a single centered search with
 // cycling suggestions and one Generate button beneath it. Shown whenever the
@@ -27,6 +34,11 @@ interface LandingSurfaceProps {
   allIngredients: string[];
   onPickTag: (group: LandingTagGroup, tag: string) => void;
   onPickIngredient: (name: string) => void;
+  /** Multi-entity query ("spinach and apple salad") — anchors + a steer. */
+  onCompose: (parsed: ParsedComposite) => void;
+  /** Whether a steer can actually host the typed ingredients (else it's a
+   *  combo that doesn't exist — don't offer it with that tag). */
+  canSteer: (ingredients: string[], group: LandingTagGroup, tag: string) => boolean;
   /** Seed a random combo — the "just cook something" path. */
   onGenerate: () => void;
   /** Open an ingredient's Atlas reference page (ⓘ on ingredient search hits). */
@@ -34,8 +46,10 @@ interface LandingSurfaceProps {
 }
 
 interface SearchHit {
-  kind: LandingTagGroup | 'ingredient';
+  kind: LandingTagGroup | 'ingredient' | 'compose';
   label: string;
+  /** Present on a 'compose' hit — the parsed entities to hand to onCompose. */
+  parsed?: ParsedComposite;
 }
 
 const ROTATE_MS = 3000;
@@ -49,6 +63,8 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
   allIngredients,
   onPickTag,
   onPickIngredient,
+  onCompose,
+  canSteer,
   onGenerate,
   onOpenAtlas,
 }) => {
@@ -92,11 +108,41 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
     return () => clearInterval(id);
   }, [suggestions, term]);
 
+  // Lexicon for the multi-entity parser: the app's own vocabularies, so every
+  // parsed entity is fulfillable. Rebuilt only when the tag data lands.
+  const lexicon = useMemo((): LandingLexicon => ({
+    ingredients: allIngredients,
+    dishTags: tagCounts ? tagCounts.dish.map(t => t.tag) : [],
+    cuisineTags: tagCounts ? tagCounts.cuisine.map(t => t.tag) : [],
+  }), [allIngredients, tagCounts]);
+
   // Search across all three pools. "french cuisine" should still find French.
   const hits = useMemo((): SearchHit[] => {
     const q = term.trim().toLowerCase().replace(/\s+cuisine\s*$/, '');
     if (!q) return [];
     const out: SearchHit[] = [];
+
+    // A query naming more than one thing ("spinach and apple salad") gets a
+    // synthesized composite result on top — the single-entry substring search
+    // below would find nothing for it. Only when ≥2 entities parse and at least
+    // one is an ingredient (a bare "salad soup" is better served by tag hits).
+    const raw = parseLandingQuery(term, lexicon);
+    // Drop a steer the graph can't actually fulfil for these ingredients, so we
+    // never offer a combo that then loads without its tag. Dish takes precedence
+    // (mirrors the handler); if it can't hold, fall back to a viable cuisine.
+    let dishTag = raw.dishTag && canSteer(raw.ingredients, 'dish', raw.dishTag) ? raw.dishTag : null;
+    let cuisineTag = raw.cuisineTag && canSteer(raw.ingredients, 'cuisine', raw.cuisineTag) ? raw.cuisineTag : null;
+    if (dishTag) cuisineTag = null; // one steer at a time; dish wins
+    const parsed: ParsedComposite = { ...raw, dishTag, cuisineTag };
+    if (parsedEntityCount(parsed) >= 2 && parsed.ingredients.length >= 1) {
+      const parts = [
+        ...parsed.ingredients,
+        ...(dishTag ? [tagDisplayLabel(dishTag)] : []),
+        ...(cuisineTag ? [tagDisplayLabel(cuisineTag)] : []),
+      ];
+      out.push({ kind: 'compose', label: parts.join(' + '), parsed });
+    }
+
     if (tagCounts) {
       tagCounts.cuisine.forEach(({ tag }) => {
         if (tag.toLowerCase().includes(q)) out.push({ kind: 'cuisine', label: tag });
@@ -118,17 +164,19 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
       out.push({ kind: 'ingredient', label: ing })
     );
     return out;
-  }, [term, tagCounts, allIngredients]);
+  }, [term, tagCounts, allIngredients, lexicon, canSteer]);
 
   const pickHit = (hit: SearchHit) => {
-    if (hit.kind === 'ingredient') onPickIngredient(hit.label);
-    else onPickTag(hit.kind, hit.label);
+    if (hit.kind === 'compose' && hit.parsed) onCompose(hit.parsed);
+    else if (hit.kind === 'ingredient') onPickIngredient(hit.label);
+    else if (hit.kind !== 'compose') onPickTag(hit.kind, hit.label);
   };
 
   const kindLabel: Record<SearchHit['kind'], string> = {
     cuisine: 'cuisine',
     dish: 'dish type',
     ingredient: 'ingredient',
+    compose: 'combo',
   };
 
   const tagSection = (
@@ -256,7 +304,10 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
                         aria-hidden="true"
                       />
                     )}
-                    <span className="truncate">{hit.label}</span>
+                    {hit.kind === 'compose' && (
+                      <Sparkles size={15} className="shrink-0 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+                    )}
+                    <span className={`truncate ${hit.kind === 'compose' ? 'font-semibold' : ''}`}>{hit.label}</span>
                   </button>
                   {hit.kind === 'ingredient' && onOpenAtlas ? (
                     <button

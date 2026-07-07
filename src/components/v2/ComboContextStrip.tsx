@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Pill } from './ui/Pill.tsx';
 import { getLoadedContext, loadContext } from '../../utils/contextLoader.ts';
+import { tagDisplayLabel } from '../../utils/tagLabels.ts';
 
 // A quiet two-liner beneath the hero combo answering "what am I looking at?" —
 // dish-type/cuisine/method tags plus concrete recipe receipts, all mined offline
@@ -77,9 +78,9 @@ export const ComboContextStrip = ({
                 active
                 onClick={() => onSteerChange?.(null)}
                 className="!px-2.5 !py-0.5 !text-xs"
-                aria-label={`Stop steering toward ${steer.tag}`}
+                aria-label={`Stop steering toward ${tagDisplayLabel(steer.tag)}`}
               >
-                {steer.tag}
+                {tagDisplayLabel(steer.tag)}
                 <X size={12} strokeWidth={2.5} />
               </Pill>
             )}
@@ -90,12 +91,12 @@ export const ComboContextStrip = ({
                   <button
                     onClick={() => onSteerChange({ group: it.group, tag: it.tag })}
                     className="underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color] duration-200"
-                    title={`Steer Generate toward ${it.tag}`}
+                    title={`Steer Generate toward ${tagDisplayLabel(it.tag)}`}
                   >
-                    {it.tag}
+                    {tagDisplayLabel(it.tag)}
                   </button>
                 ) : (
-                  <span>{it.tag}</span>
+                  <span>{tagDisplayLabel(it.tag)}</span>
                 )}
               </React.Fragment>
             ))}

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import React, { useMemo, useEffect, useState, useRef, useCallback } from 'react';
 import { MinimalHeader } from './components/v2/MinimalHeader.tsx';
 import { MobileBottomBar } from './components/v2/MobileBottomBar.tsx';
 import { IngredientDisplay } from './components/v2/IngredientDisplay.tsx';
@@ -15,6 +15,7 @@ import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
 import { PresetGallery } from './components/v2/PresetGallery.tsx';
 import { IngredientAtlas } from './components/v2/IngredientAtlas.tsx';
 import { LandingSurface, LandingTagGroup } from './components/v2/LandingSurface.tsx';
+import { ParsedComposite } from './utils/parseLandingQuery.ts';
 import { FlavorPreset } from './data/flavorPresets.ts';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
@@ -70,6 +71,24 @@ const getEnabledSources = (): PairingSource[] => {
     .map(s => s.trim())
     .filter((s): s is PairingSource => (ALL_SOURCES as string[]).includes(s));
   return requested.length > 0 ? requested : DEFAULT_SOURCES;
+};
+
+// Largest ordered subset of `anchors` that is mutually compatible in `map` (and
+// present in it). Greedy prefix keep — preserves the typed order, so an earlier
+// ingredient is never dropped for a later one. Shared by the composite landing
+// handler and its pre-check: because a combo made of exactly these anchors is
+// always fillable in `map` (all slots pre-placed, every pair compatible), a full
+// keep === anchors is a SOUND guarantee the steer can host them.
+const compatibleAnchorSubset = (
+  map: Map<string, Set<string>>,
+  anchors: string[]
+): string[] => {
+  const keep: string[] = [];
+  for (const a of anchors) {
+    if (!map.has(a)) continue;
+    if (keep.every(k => map.get(a)?.has(k))) keep.push(a);
+  }
+  return keep;
 };
 
 export default function FlavorFinderV2() {
@@ -1034,6 +1053,138 @@ export default function FlavorFinderV2() {
     setSelectedIngredients(computeCombo(slots.slice(0, 2), {}, new Set(), null, { mode: 'perfect' }));
   };
 
+  // Landing composite entry: a query naming more than one thing ("spinach and
+  // apple salad" → two ingredients + a dish tag). The parser (parseLandingQuery)
+  // only splits the string into entities the app already owns; the actual combo
+  // is still built by computeCombo under the untouched flavor-map rule.
+  //
+  // Contract, in priority order: keep every typed ingredient that CAN be placed,
+  // then the dish/cuisine steer, then a fuller combo. Because computeCombo only
+  // vets the pairing of OPEN slots against the anchors (not anchors against each
+  // other in perfect mode), we pre-reduce the anchors to a mutually-compatible
+  // subset ourselves — otherwise two incompatible typed ingredients could slip
+  // through as an invalid combo. That keeps the inviolable rule intact.
+  // Lowercase ingredient name → exact flavor-map key. Rebuilt only when the base
+  // graph changes; used to resolve parsed/typed names to real anchors.
+  const keyByLower = useMemo(() => {
+    const m = new Map<string, string>();
+    baseFlavorMap.forEach((_v, k) => m.set(k.toLowerCase(), k));
+    return m;
+  }, [baseFlavorMap]);
+
+  // Cache of steered subgraphs (built lazily, keyed by group:tag) so the landing
+  // can pre-check a steer without rebuilding the filtered map on every keystroke.
+  const steeredMapCache = useRef(new Map<string, Map<string, Set<string>>>());
+  const getSteeredMap = useCallback((group: 'dish' | 'cuisine', tag: string) => {
+    const mod = steerModule ?? getLoadedContext();
+    if (!mod) return null;
+    const cacheKey = `${group}:${tag}`;
+    let m = steeredMapCache.current.get(cacheKey);
+    if (!m) { m = mod.filterFlavorMapByTag(baseFlavorMap, group, tag); steeredMapCache.current.set(cacheKey, m); }
+    return m;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseFlavorMap, steerModule]);
+
+  // Would a steer actually survive if we anchored these typed ingredients on it?
+  // The landing calls this before offering a composite hit, so it never promises
+  // a "sandwiches" combo the graph can't fulfil (it would otherwise load with the
+  // steer silently dropped). Sound by construction: all anchors present and
+  // mutually compatible in the subgraph ⇒ the combo of exactly those anchors is
+  // valid, so the handler will keep the steer.
+  const canComposeSteer = useCallback((ingredients: string[], group: 'dish' | 'cuisine', tag: string): boolean => {
+    if (ingredients.length === 0) return false;
+    const m = getSteeredMap(group, tag);
+    if (!m) return true; // context not loaded yet — don't block; handler re-checks
+    const anchors = ingredients
+      .map(n => keyByLower.get(n.toLowerCase()))
+      .filter((n): n is string => !!n);
+    if (anchors.length !== ingredients.length) return false; // a name isn't even in the graph
+    return compatibleAnchorSubset(m, anchors).length === anchors.length;
+  }, [getSteeredMap, keyByLower]);
+
+  const handleLandingCompose = (parsed: ParsedComposite) => {
+    const mod = steerModule ?? getLoadedContext();
+
+    // Resolve parsed ingredient names to exact flavor-map keys (case-insensitive),
+    // capping at the slot budget. Names with no key are pairless — dropped here.
+    const wanted = parsed.ingredients
+      .map(n => keyByLower.get(n.toLowerCase()))
+      .filter((n): n is string => !!n)
+      .slice(0, MAX_SLOTS);
+
+    // A dish tag takes precedence over a cuisine tag for the steer (it's the more
+    // structural "what am I making"); only one steer is active at a time.
+    const steer: { group: LandingTagGroup; tag: string } | null =
+      parsed.dishTag ? { group: 'dish', tag: parsed.dishTag }
+      : parsed.cuisineTag ? { group: 'cuisine', tag: parsed.cuisineTag }
+      : null;
+
+    // Try to fill a perfect combo on `map` anchored by `keep`, largest size
+    // first. Composite loads aim for a compact 3 (bigger feels over-prescribed),
+    // expanding only if more ingredients were typed. Returns the combo + the
+    // anchors actually used, or null.
+    const tryPlan = (
+      map: Map<string, Set<string>>,
+      anchors: string[]
+    ): { combo: string[]; keep: string[] } | null => {
+      const keep = compatibleAnchorSubset(map, anchors);
+      if (keep.length === 0 && anchors.length > 0) return null;
+      const slots = defaultSlots();
+      const floor = Math.max(keep.length, 2);
+      const aim = Math.min(MAX_SLOTS, Math.max(keep.length, 3));
+      for (let size = aim; size >= floor; size--) {
+        const anchorRec: Record<number, string> = {};
+        keep.forEach((ing, i) => { anchorRec[i] = ing; });
+        const free = new Set<number>();
+        for (let i = 0; i < size; i++) if (!(i in anchorRec)) free.add(i);
+        const combo = computeCombo(slots.slice(0, size), anchorRec, free, null, {
+          mode: 'perfect',
+          mapOverride: map,
+        });
+        if (combo.length === size) return { combo, keep };
+      }
+      return null;
+    };
+
+    // Plan S keeps the steer; Plan B drops it to recover any ingredient the
+    // steered subgraph couldn't host. Prefer whichever keeps MORE typed
+    // ingredients; on a tie, prefer the steered plan (richer context).
+    const steeredMap = steer ? getSteeredMap(steer.group, steer.tag) : null;
+    const planS = steeredMap ? tryPlan(steeredMap, wanted) : null;
+    const planB = tryPlan(baseFlavorMap, wanted);
+
+    let chosen: { combo: string[]; keep: string[]; steer: typeof steer } | null = null;
+    if (planS && (!planB || planS.keep.length >= planB.keep.length)) {
+      chosen = { ...planS, steer };
+    } else if (planB) {
+      chosen = { ...planB, steer: null };
+    } else if (planS) {
+      chosen = { ...planS, steer };
+    }
+
+    if (!chosen || chosen.combo.length === 0) {
+      // Nothing placeable (e.g. every typed ingredient pairless) — fall back to a
+      // plain steer if we have one, else surprise. Never fabricate a combo.
+      if (steer && mod) { handleLandingTag(steer.group, steer.tag); return; }
+      seedFreshCombo();
+      return;
+    }
+
+    // Commit as a clean-slate entry (mirrors handleLandingTag — reached only from
+    // the empty landing, so there's no prior combo worth saving): reset
+    // roles/pool, set the steer, lock the typed ingredients so a later Generate
+    // keeps them and rerolls only the filler slots.
+    const slots = defaultSlots();
+    setSlotTastes(slots);
+    setLockedConstraints(new Set());
+    setThemedPool(null);
+    if (chosen.steer && mod && !steerModule) setSteerModule(mod);
+    setContextSteer(chosen.steer);
+    setTargetIngredientCount(chosen.combo.length);
+    setSelectedIngredients(chosen.combo);
+    setLockedIngredients(new Set(chosen.keep.map((_ing, i) => i)));
+  };
+
   // Landing "Generate": seed a fresh combo (Classic by default). Filling the
   // combo hides the landing on its own — it's the empty state.
   const handleLandingGenerate = () => {
@@ -1617,6 +1768,8 @@ export default function FlavorFinderV2() {
             allIngredients={allIngredients}
             onPickTag={handleLandingTag}
             onPickIngredient={handleIngredientSelect}
+            onCompose={handleLandingCompose}
+            canSteer={canComposeSteer}
             onGenerate={handleLandingGenerate}
             onOpenAtlas={openAtlas}
           />
