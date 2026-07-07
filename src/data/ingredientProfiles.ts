@@ -556,7 +556,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 1,
       fat: 0,
       spicy: 0,
-      aromatic: 0
+      aromatic: 4
     },
     description: "Aromatic long-grain rice with floral notes and nutty undertones, prized in Indian cuisine",
     textures: ["starchy"],
@@ -776,8 +776,8 @@ export const ingredientProfiles: IngredientProfile[] = [
       sour: 1,
       umami: 1,
       fat: 0,
-      spicy: 0,
-      aromatic: 8
+      spicy: 3,
+      aromatic: 5
     },
     description: "General term for leafy greens with a strong, bitter flavor",
     textures: ["tender"],
@@ -1508,7 +1508,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 0,
       fat: 0,
       spicy: 0,
-      aromatic: 0
+      aromatic: 4
     },
       description: "Sweet summer melon with floral aroma and tender, juicy flesh",
       textures: ["juicy", "tender"],
@@ -2035,7 +2035,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 1,
       fat: 0,
       spicy: 0,
-      aromatic: 7
+      aromatic: 3
     },
       description: "Bitter leafy vegetable with complex flavor, popular in European salads and as coffee substitute",
       textures: ["crisp", "tender"],
@@ -2426,7 +2426,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 0,
       fat: 0,
       spicy: 2,
-      aromatic: 1
+      aromatic: 5
     },
       description: "Seeds with citrusy, floral notes, used ground or whole in global cuisines",
       textures: [],
@@ -2817,7 +2817,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 2,
       fat: 0,
       spicy: 1,
-      aromatic: 7
+      aromatic: 3
     },
       description: "Wild green with pronounced bitterness and mineral notes",
       textures: ["tender"],
@@ -3021,7 +3021,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 1,
       fat: 0,
       spicy: 0,
-      aromatic: 6
+      aromatic: 3
     },
       description: "Crisp chicory with pleasant bitterness and subtle nutty undertones",
       textures: ["crisp"],
@@ -3344,7 +3344,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 7,
       fat: 4,
       spicy: 0,
-      aromatic: 5
+      aromatic: 1
     },
       description: "Lean beef cut with strong grain and robust flavor",
       textures: ["tender", "chewy", "juicy"],
@@ -3412,7 +3412,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 1,
       fat: 0,
       spicy: 1,
-      aromatic: 5
+      aromatic: 2
     },
       description: "Curly endive with distinctive bitter flavor and feathery texture",
       textures: ["crisp"],
@@ -3871,7 +3871,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 8,
       fat: 5,
       spicy: 0,
-      aromatic: 5
+      aromatic: 1
     },
       description: "Intensely flavored beef cut with robust, mineral notes",
       textures: ["tender", "juicy", "chewy"],
@@ -4517,7 +4517,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 0,
       fat: 0,
       spicy: 0,
-      aromatic: 0
+      aromatic: 4
     },
       description: "Delicate tropical fruit with floral sweetness and grape-like texture",
       textures: ["juicy", "tender"],
@@ -6149,7 +6149,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 1,
       fat: 0,
       spicy: 0,
-      aromatic: 7
+      aromatic: 3
     },
         description: "Purple-red chicory with pronounced bitter flavor that mellows when cooked",
         textures: ["crisp", "tender"],
@@ -7934,7 +7934,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 8,
       fat: 0,
       spicy: 0,
-      aromatic: 2
+      aromatic: 7
     },
         description: "Prized mushroom with intense pine-like aroma and rich umami flavor",
         textures: ["tender", "chewy"],
@@ -8291,7 +8291,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 6,
       fat: 7,
       spicy: 2,
-      aromatic: 7
+      aromatic: 4
     },
         description: "Seasoned ground meat with rich, savory flavor",
         textures: ["tender", "juicy"],
@@ -9158,7 +9158,7 @@ export const ingredientProfiles: IngredientProfile[] = [
       umami: 7,
       fat: 5,
       spicy: 0,
-      aromatic: 5
+      aromatic: 1
     },
         description: "Intensely flavored, long-fibered beef cut with robust beefiness and mineral notes, ideal for quick-cooking methods and marinades",
         textures: ["chewy", "tender", "juicy"],

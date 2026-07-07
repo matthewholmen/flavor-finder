@@ -80,13 +80,16 @@ for (const file of batchFiles) {
         continue;
       }
       const current = byName.get(e.name).flavorProfile[flag.dim] ?? 0;
-      if (flag.current !== current) errors.push(`${where}: flag says current ${flag.dim}=${flag.current}, file has ${current}`);
       if (!Number.isInteger(flag.suggested) || flag.suggested < 0 || flag.suggested > 10) {
         errors.push(`${where}: suggested ${flag.dim}=${flag.suggested} out of 0–10 range`);
       }
-      if (flag.suggested === current) errors.push(`${where}: flag for ${flag.dim} suggests no change`);
       if (!flag.reason) errors.push(`${where}: taste flag missing reason`);
-      flags.push({ name: e.name, ...flag });
+      const alreadyApplied = current === flag.suggested; // apply-flags.mjs ran after review
+      if (!alreadyApplied) {
+        if (flag.current !== current) errors.push(`${where}: flag says current ${flag.dim}=${flag.current}, file has ${current}`);
+        if (flag.suggested === current) errors.push(`${where}: flag for ${flag.dim} suggests no change`);
+      }
+      flags.push({ name: e.name, ...flag, applied: alreadyApplied });
     }
   }
 }
