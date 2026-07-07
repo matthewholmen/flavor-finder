@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Lock, Search, Bookmark, UtensilsCrossed, X } from 'lucide-react';
+import {
+  Sparkles,
+  Lock,
+  Search,
+  Bookmark,
+  UtensilsCrossed,
+  X,
+  ArrowLeftRight,
+  Info,
+} from 'lucide-react';
 
 interface OnboardingWizardProps {
   isOpen: boolean;
@@ -28,17 +37,37 @@ const LOCK_PARTNERS: string[][] = [
   ['Fennel', 'Tarragon'],
 ];
 
-const TOTAL_STEPS = 4;
+// Dish-frame demo: the Salad frame's editorial slot labels with canned fills.
+// Same disclaimer as DEMO_COMBOS — illustrative only, not the real solver.
+const FRAME_LABELS = ['base greens', 'the crunch', 'something sweet', 'the fat', 'the acid'];
+const FRAME_FILLS: string[][] = [
+  ['Arugula', 'Walnut', 'Pear', 'Goat Cheese', 'Lemon'],
+  ['Spinach', 'Almond', 'Strawberry', 'Feta', 'Balsamic Vinegar'],
+  ['Kale', 'Pepitas', 'Apple', 'Parmesan', 'Sherry Vinegar'],
+];
+
+// Swap step demo: Dill's slot cycles through herbs that still pair with the
+// rest of the combo, while Salmon and Cucumber hold still.
+const SWAP_COMBO_ANCHORS: [string, string] = ['Salmon', 'Cucumber'];
+const SWAP_CANDIDATES = ['Dill', 'Tarragon', 'Chive', 'Mint', 'Fennel Frond'];
+
+const TOTAL_STEPS = 6;
 // How many times the user must press Generate before the Next button unlocks.
 const GENERATE_GOAL = 3;
 
-const Pill: React.FC<{ label: string; locked?: boolean }> = ({ label, locked }) => (
+const Pill: React.FC<{ label: string; locked?: boolean; highlight?: boolean }> = ({
+  label,
+  locked,
+  highlight,
+}) => (
   <span
     className={`
       inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[15px] border transition-colors
       ${locked
         ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700'
-        : 'bg-gray-100 dark:bg-gray-700/60 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-600'
+        : highlight
+          ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-700'
+          : 'bg-gray-100 dark:bg-gray-700/60 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-600'
       }
     `}
   >
@@ -47,11 +76,23 @@ const Pill: React.FC<{ label: string; locked?: boolean }> = ({ label, locked }) 
   </span>
 );
 
+// A frame slot: tiny editorial role label stacked over the ingredient pill.
+const FrameSlot: React.FC<{ label: string; ingredient: string }> = ({ label, ingredient }) => (
+  <div className="flex flex-col items-center gap-1">
+    <span className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+      {label}
+    </span>
+    <Pill label={ingredient} />
+  </div>
+);
+
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState(0);
   const [genCount, setGenCount] = useState(0);
   const [comboIndex, setComboIndex] = useState(0);
   const [lockIndex, setLockIndex] = useState(0);
+  const [frameIndex, setFrameIndex] = useState(0);
+  const [swapIndex, setSwapIndex] = useState(0);
 
   // Reset to the beginning each time the wizard is opened.
   useEffect(() => {
@@ -60,6 +101,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
       setGenCount(0);
       setComboIndex(0);
       setLockIndex(0);
+      setFrameIndex(0);
+      setSwapIndex(0);
     }
   }, [isOpen]);
 
@@ -87,6 +130,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
   // Reshuffle the unlocked partners on the Lock step while Scallop stays put.
   const handleLockReshuffle = () => {
     setLockIndex(i => (i + 1) % LOCK_PARTNERS.length);
+  };
+
+  const handleFrameReshuffle = () => {
+    setFrameIndex(i => (i + 1) % FRAME_FILLS.length);
+  };
+
+  const handleSwap = () => {
+    setSwapIndex(i => (i + 1) % SWAP_CANDIDATES.length);
   };
 
   const handleNext = () => {
@@ -148,7 +199,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
                 Welcome to Flavor Finder
               </h2>
               <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed max-w-[320px] mx-auto">
-                Discover ingredients that taste great together. Takes about 20 seconds — let's play.
+                Discover ingredients that taste great together. Takes about 30 seconds — let's play.
               </p>
             </div>
           )}
@@ -225,6 +276,70 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
           {step === 3 && (
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5 font-display tracking-tight">
+                Start from a dish
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Dish frames give every slot a job. This is the Salad frame — Generate fills each role with ingredients that still all pair.
+              </p>
+
+              <div className="flex flex-wrap gap-x-2 gap-y-3 justify-center my-4 min-h-[64px]">
+                {FRAME_LABELS.map((label, i) => (
+                  <FrameSlot
+                    key={`${frameIndex}-${label}`}
+                    label={label}
+                    ingredient={FRAME_FILLS[frameIndex][i]}
+                  />
+                ))}
+              </div>
+
+              <div className="text-center">
+                <button
+                  onClick={handleFrameReshuffle}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-[15px] font-medium bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:opacity-90 active:scale-[0.98] transition-all"
+                >
+                  <Sparkles size={17} strokeWidth={2} />
+                  Generate
+                </button>
+                <p className="text-xs mt-3 text-gray-400 dark:text-gray-500">
+                  Salad, Grain Bowl, Pasta Night, Stir-Fry, Soup — all under Flavor Presets.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5 font-display tracking-tight">
+                Swap without breaking it
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Not feeling one ingredient? The swap control trades it for something that still pairs with everything else. Try swapping the herb.
+              </p>
+
+              <div className="flex flex-wrap gap-2 justify-center items-center my-5 min-h-[44px]">
+                <Pill label={SWAP_COMBO_ANCHORS[0]} />
+                <Pill key={swapIndex} label={SWAP_CANDIDATES[swapIndex]} highlight />
+                <Pill label={SWAP_COMBO_ANCHORS[1]} />
+              </div>
+
+              <div className="text-center">
+                <button
+                  onClick={handleSwap}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-[15px] font-medium bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:opacity-90 active:scale-[0.98] transition-all"
+                >
+                  <ArrowLeftRight size={17} strokeWidth={2} />
+                  Swap it
+                </button>
+                <p className="text-xs mt-3 text-gray-400 dark:text-gray-500">
+                  In the app: hover an ingredient for ⇄, or tap it on mobile.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1.5 font-display tracking-tight">
                 Build your own
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -234,14 +349,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
                 <Search size={18} className="text-gray-400 dark:text-gray-500" />
                 <span className="text-[15px] text-gray-400 dark:text-gray-500">Try "tomato"…</span>
               </div>
-              <div className="flex gap-4 mt-6 justify-center">
-                <div className="text-center max-w-[130px]">
+              <div className="flex gap-3 mt-6 justify-center">
+                <div className="text-center max-w-[110px]">
+                  <Info size={22} className="mx-auto text-gray-700 dark:text-gray-300" strokeWidth={1.75} />
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 leading-snug">
+                    Tap ⓘ to learn any ingredient
+                  </p>
+                </div>
+                <div className="text-center max-w-[110px]">
                   <UtensilsCrossed size={22} className="mx-auto text-gray-700 dark:text-gray-300" strokeWidth={1.75} />
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 leading-snug">
                     Find recipes for any combo
                   </p>
                 </div>
-                <div className="text-center max-w-[130px]">
+                <div className="text-center max-w-[110px]">
                   <Bookmark size={22} className="mx-auto text-gray-700 dark:text-gray-300" strokeWidth={1.75} />
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 leading-snug">
                     Save combos you love
