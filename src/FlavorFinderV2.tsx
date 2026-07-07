@@ -714,9 +714,23 @@ export default function FlavorFinderV2() {
   // generate a fresh combo that fits them. The preset is the DNA (tastes /
   // categories), not fixed ingredients — Generate keeps producing new combos
   // for it.
-  const handleLoadPreset = (preset: FlavorPreset) => {
+  const handleLoadPreset = async (preset: FlavorPreset) => {
     const slots = preset.slots;
     const count = Math.min(Math.max(slots.length, 1), MAX_SLOTS);
+
+    // Frames that name a mined dish tag lock generation into that tag's
+    // subgraph, so a Salad frame's combos and "seen in" receipts agree with
+    // its structure (no stew suggestions under a salad). The pinned steer
+    // pill in the context strip doubles as the "what am I making" reminder.
+    // Presets without a tag clear any prior steer — loading a preset is a
+    // clean-slate entry, same as it already is for pools and locks.
+    let steeredMap: typeof baseFlavorMap | null = null;
+    if (preset.steerTag) {
+      const mod = steerModule ?? (await loadContext());
+      if (!steerModule) setSteerModule(mod);
+      steeredMap = mod.filterFlavorMapByTag(baseFlavorMap, 'dish', preset.steerTag);
+    }
+    setContextSteer(preset.steerTag ? { group: 'dish', tag: preset.steerTag } : null);
 
     saveToHistory();
 
@@ -743,11 +757,28 @@ export default function FlavorFinderV2() {
     setTargetIngredientCount(count);
 
     // A few attempts — a tight 4-slot preset can miss on an unlucky shuffle.
-    // Pass the pool explicitly since setThemedPool hasn't flushed yet. Presets
-    // are curated against the full pairing rule, so they load in perfect mode.
+    // Pass the pool AND the map explicitly since neither state update has
+    // flushed yet (without mapOverride this would run against the PREVIOUS
+    // steer's map). Presets are curated against the full pairing rule, so
+    // they load in perfect mode.
     let combo: string[] = [];
     for (let attempt = 0; attempt < 12 && combo.length < count; attempt++) {
-      combo = computeCombo(slots.slice(0, count), {}, new Set(), preset.pool ?? null, { mode: 'perfect' });
+      combo = computeCombo(slots.slice(0, count), {}, new Set(), preset.pool ?? null, {
+        mode: 'perfect',
+        mapOverride: steeredMap ?? baseFlavorMap,
+      });
+    }
+
+    // The steered subgraph can be too sparse for the frame's slot count —
+    // fall back to the full map and drop the steer rather than toast a miss.
+    if (combo.length < count && steeredMap) {
+      setContextSteer(null);
+      for (let attempt = 0; attempt < 12 && combo.length < count; attempt++) {
+        combo = computeCombo(slots.slice(0, count), {}, new Set(), preset.pool ?? null, {
+          mode: 'perfect',
+          mapOverride: baseFlavorMap,
+        });
+      }
     }
 
     if (combo.length === count) {
@@ -1460,7 +1491,7 @@ export default function FlavorFinderV2() {
         <div
           ref={poolBannerRef}
           className={`
-            fixed left-1/2 -translate-x-1/2 z-40 w-max max-w-[min(92vw,28rem)]
+            fixed left-1/2 -translate-x-1/2 z-[55] w-max max-w-[min(92vw,28rem)]
             ${isMobile ? 'top-[72px]' : 'top-[100px]'}
             rounded-2xl
             bg-gray-900/90 dark:bg-white/90 backdrop-blur

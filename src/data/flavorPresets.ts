@@ -26,6 +26,12 @@ export interface FlavorPreset {
   // (e.g. a pizza pantry). Slots still apply their own taste/category on top, so
   // "pizza · cheese" picks within the pizza pool. Omitted = the full library.
   pool?: string[];
+  // Dish-tag steer to lock on load (a CONTEXT_DISH_TYPES entry). Frames use it
+  // so the Salad frame generates inside the "salads" subgraph and its receipts
+  // agree with the structure instead of suggesting a stew. Steering is a map
+  // SUBSET — a pool input change, never a pairing relaxation. Omit when the
+  // mined vocabulary has no honest match (Grain Bowl).
+  steerTag?: string;
 }
 
 // Slot builders. A slot always carries BOTH a taste and a category so toggling
@@ -135,6 +141,7 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
     name: 'Salad',
     description: 'Greens, crunch, something sweet, a fat, and an acid — a whole salad by structure.',
     tier: 'frame',
+    steerTag: 'salads',
     slots: [
       frameSlot('base greens', { mode: 'category', category: 'Vegetables', subcategories: ['Leafy Greens'] }),
       frameSlot('the crunch', { textures: ['crunchy', 'crisp'] }),
@@ -161,6 +168,7 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
     name: 'Pasta Night',
     description: 'The pasta, a body, richness, savory depth, and a fresh finish.',
     tier: 'frame',
+    steerTag: 'pasta',
     slots: [
       frameSlot('the pasta', { mode: 'category', category: 'Grains', subcategories: ['Pasta'] }),
       frameSlot('the body', { functions: ['bulk'], exclude: ['Grains'] }),
@@ -174,6 +182,7 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
     name: 'Stir-Fry',
     description: 'Protein, a crisp vegetable, aromatics, an umami sauce, and a base.',
     tier: 'frame',
+    steerTag: 'stir-fries',
     slots: [
       frameSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
       frameSlot('the crisp veg', { mode: 'category', category: 'Vegetables', textures: ['crisp', 'crunchy'] }),
@@ -187,6 +196,7 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
     name: 'Soup',
     description: 'A broth, a body, aromatics, richness, and a fresh finish.',
     tier: 'frame',
+    steerTag: 'soups',
     slots: [
       frameSlot('the broth', { mode: 'category', category: 'Pantry', subcategories: ['Stocks & Bases'] }),
       frameSlot('the body', { functions: ['bulk'] }),
