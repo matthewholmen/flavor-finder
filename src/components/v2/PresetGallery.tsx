@@ -499,7 +499,7 @@ export const PresetGallery = ({
   if (!isOpen) return null;
 
   // Group presets by tier, custom first, preserving declaration order within.
-  const tiers = (['custom', 'frame', 'classic', 'structural', 'themed'] as PresetTier[])
+  const tiers = (['custom', 'dish', 'classic', 'structural'] as PresetTier[])
     .map(tier => ({
       tier,
       presets: tier === 'custom' ? customPresets : FLAVOR_PRESETS.filter(p => p.tier === tier),
@@ -538,7 +538,7 @@ export const PresetGallery = ({
       {/* Panel */}
       <div
         role="dialog"
-        aria-label="Flavor presets"
+        aria-label="Build a Dish"
         className={`relative w-full max-h-[85vh] flex flex-col rounded-3xl bg-white dark:bg-gray-900 shadow-2xl overflow-hidden transition-[max-width] duration-200 animate-modal-in ${
           view === 'create' ? 'max-w-xl' : 'max-w-4xl'
         }`}
@@ -555,10 +555,10 @@ export const PresetGallery = ({
             <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 shrink-0">
               <div>
                 <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight font-display">
-                  Flavor Presets
+                  Build a Dish
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                  Pick a flavor DNA — Generate keeps producing fresh combinations that fit it.
+                  Pick a dish or a flavor DNA — Generate keeps producing fresh combinations that fit it.
                 </p>
               </div>
               <button

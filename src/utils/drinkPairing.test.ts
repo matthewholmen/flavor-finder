@@ -25,8 +25,8 @@ describe('computeDishProfile', () => {
     expect(asSalad.acidity).toBeGreaterThan(asPizza.acidity); // raw reads brighter
   });
 
-  it('accepts frame-preset ids as served-as aliases', () => {
-    expect(computeDishProfile(MARGHERITA, 'frame-salad'))
+  it('accepts dish-preset ids as served-as aliases', () => {
+    expect(computeDishProfile(MARGHERITA, 'dish-salad'))
       .toEqual(computeDishProfile(MARGHERITA, 'salad'));
   });
 

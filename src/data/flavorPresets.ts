@@ -6,11 +6,14 @@ import { IngredientFunction, Texture } from '../types.ts';
 // Taste Lab loads and then generates a fresh, mutually-compatible combo for.
 // Load "Sweet & Salty" and Generate keeps handing you new sweet+salty pairs.
 //
-// `frame` presets (P5) are dish frames: the app takes an editorial point of
-// view on a dish's STRUCTURE (named roles — "base greens", "the crunch") while
-// the engine supplies compatible content. Prescriptive about structure,
-// permissive about outcome; the pairing rule is untouched.
-export type PresetTier = 'custom' | 'frame' | 'classic' | 'structural' | 'themed';
+// `dish` presets are the "Build a Dish" surface: one entry per "served as"
+// dish type (data/dishTypes.ts), taking an editorial point of view on a dish's
+// STRUCTURE (named roles — "base greens", "the crunch") while the engine
+// supplies compatible content. Cuisine-bound dishes (pizza, tacos) additionally
+// carry a curated `pool` — the old "themed pools" folded into the same concept.
+// Prescriptive about structure, permissive about outcome; the pairing rule is
+// untouched.
+export type PresetTier = 'custom' | 'dish' | 'classic' | 'structural';
 
 export interface FlavorPreset {
   id: string;
@@ -22,15 +25,16 @@ export interface FlavorPreset {
   // Slot indices whose constraint is pinned on load (Generate stays within them).
   // Omitted / empty = "wide open", every slot free to reroll its taste/category.
   lockedConstraints?: number[];
-  // Themed presets constrain EVERY slot to a curated whitelist of ingredients
-  // (e.g. a pizza pantry). Slots still apply their own taste/category on top, so
-  // "pizza · cheese" picks within the pizza pool. Omitted = the full library.
+  // A cuisine-bound dish constrains EVERY slot to a curated whitelist of
+  // ingredients (e.g. a pizza pantry). Slots still apply their own taste/category
+  // on top, so "pizza · cheese" picks within the pizza pool. Omitted = the full
+  // library (most dishes lean on structure + steer instead of a pool).
   pool?: string[];
-  // Dish-tag steer to lock on load (a CONTEXT_DISH_TYPES entry). Frames use it
-  // so the Salad frame generates inside the "salads" subgraph and its receipts
+  // Dish-tag steer to lock on load (a CONTEXT_DISH_TYPES entry). Dishes use it
+  // so the Salad dish generates inside the "salads" subgraph and its receipts
   // agree with the structure instead of suggesting a stew. Steering is a map
   // SUBSET — a pool input change, never a pairing relaxation. Omit when the
-  // mined vocabulary has no honest match (Grain Bowl).
+  // mined vocabulary has no honest match (Grain Bowl, Sushi, Cheese Board).
   steerTag?: string;
 }
 
@@ -48,14 +52,10 @@ const cat = (category: CategoryKey, taste: TasteKey = 'umami'): SlotTaste => ({
   taste,
   category,
 });
-// A wild slot — no taste/category constraint. The remembered taste/category are
-// arbitrary defaults for if the user toggles it off wild.
-const wild = (): SlotTaste => ({ mode: 'wild', taste: 'umami', category: 'Vegetables' });
-
-// A dish-frame slot: an editorial role name over any base constraint, plus
-// optional structural (texture/function) narrowing from the P4 data layer.
-// Defaults to wild mode — most frame roles are structural, not categorical.
-const frameSlot = (
+// A dish slot: an editorial role name over any base constraint, plus optional
+// structural (texture/function) narrowing from the P4 data layer. Defaults to
+// wild mode — many roles are purely structural, not categorical.
+const dishSlot = (
   label: string,
   constraints: Partial<SlotTaste> & { textures?: Texture[]; functions?: IngredientFunction[] } = {}
 ): SlotTaste => ({
@@ -69,14 +69,14 @@ const frameSlot = (
 // Human-friendly labels for the tier section headers in the gallery.
 export const TIER_LABELS: Record<PresetTier, string> = {
   custom: 'Your pairings',
-  frame: 'Dish frames',
+  dish: 'Dishes',
   classic: 'Classic contrasts',
   structural: 'Structural templates',
-  themed: 'Themed pools',
 };
 
-// Curated ingredient pools for themed presets. Each is a cross-category whitelist
-// of real library ingredients; the solver finds a mutually-compatible subset.
+// Curated ingredient pools for cuisine-bound dishes. Each is a cross-category
+// whitelist of real library ingredients; the solver finds a mutually-compatible
+// subset. (The old stand-alone "themed pools" now live as dishes below.)
 
 // Every cheese in the library — a big pool gives the solver more nodes/edges so
 // a themed preset doesn't feel one-note.
@@ -117,13 +117,6 @@ const CHEESE_BOARD_POOL = [
   'dried apricot', 'prosciutto', 'salami', 'mortadella', 'cornichon', 'mostarda',
   'sourdough', 'pear', 'apple',
 ];
-const STIR_FRY_POOL = [
-  'soy sauce', 'tamari', 'oyster sauce', 'hoisin', 'sesame oil', 'ginger', 'garlic',
-  'scallion', 'chili oil', 'chili crisp', 'shiitake', 'bok choy', 'napa cabbage',
-  'snap pea', 'bell pepper', 'carrot', 'broccoli', 'broccolini', 'tofu', 'tempeh',
-  'beef', 'chicken', 'pork', 'shrimp', 'rice', 'noodles', 'sriracha', 'sambal oelek',
-  'gochujang', 'five-spice', 'shaoxing wine', 'edamame',
-];
 const MEZZE_POOL = [
   'feta', 'halloumi', 'olive oil', 'black olive', 'green olive', 'lemon', 'garlic',
   'chickpea', 'hummus', 'tahini', 'cucumber', 'tomato', 'parsley', 'mint', 'dill',
@@ -132,77 +125,326 @@ const MEZZE_POOL = [
 ];
 
 export const FLAVOR_PRESETS: FlavorPreset[] = [
-  // ── Dish frames: a dish's structure as named roles (P5). The frame says
-  //    what a salad NEEDS; the engine says what fits. Roles lean on the P4
-  //    texture/function layer, so "the crunch" means crunchy things that pair,
-  //    whatever category they come from. ─────────────────────────────────────
+  // ── Dishes: one per "served as" type (data/dishTypes.ts). Each says what a
+  //    dish NEEDS as named roles; the engine says what fits. Roles lean on the
+  //    P4 texture/function layer, so "the crunch" means crunchy things that
+  //    pair, whatever category they come from. Cuisine-bound dishes also carry a
+  //    curated `pool`. ─────────────────────────────────────────────────────────
   {
-    id: 'frame-salad',
+    id: 'dish-salad',
     name: 'Salad',
     description: 'Greens, crunch, something sweet, a fat, and an acid — a whole salad by structure.',
-    tier: 'frame',
+    tier: 'dish',
     steerTag: 'salads',
     slots: [
-      frameSlot('base greens', { mode: 'category', category: 'Vegetables', subcategories: ['Leafy Greens'] }),
-      frameSlot('the crunch', { textures: ['crunchy', 'crisp'] }),
-      frameSlot('something sweet', { mode: 'taste', taste: 'sweet', category: 'Fruits' }),
-      frameSlot('the fat', { functions: ['fat'] }),
-      frameSlot('the acid', { functions: ['acid'] }),
+      dishSlot('base greens', { mode: 'category', category: 'Vegetables', subcategories: ['Leafy Greens'] }),
+      dishSlot('the crunch', { textures: ['crunchy', 'crisp'] }),
+      dishSlot('something sweet', { mode: 'taste', taste: 'sweet', category: 'Fruits' }),
+      dishSlot('the fat', { functions: ['fat'] }),
+      dishSlot('the acid', { functions: ['acid'] }),
     ],
   },
   {
-    id: 'frame-grain-bowl',
+    id: 'dish-grain-bowl',
     name: 'Grain Bowl',
     description: 'A base grain, a substantial protein, a vegetable, a sauce, and a finish.',
-    tier: 'frame',
+    tier: 'dish',
     slots: [
-      frameSlot('the base', { mode: 'category', category: 'Grains' }),
-      frameSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
-      frameSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
-      frameSlot('the sauce', { functions: ['fat', 'umami-bomb'] }),
-      frameSlot('the finish', { functions: ['fresh-finish', 'crunch-topper'] }),
+      dishSlot('the base', { mode: 'category', category: 'Grains' }),
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the sauce', { functions: ['fat', 'umami-bomb'] }),
+      dishSlot('the finish', { functions: ['fresh-finish', 'crunch-topper'] }),
     ],
   },
   {
-    id: 'frame-pasta',
+    id: 'dish-pasta',
     name: 'Pasta Night',
     description: 'The pasta, a body, richness, savory depth, and a fresh finish.',
-    tier: 'frame',
+    tier: 'dish',
     steerTag: 'pasta',
     slots: [
-      frameSlot('the pasta', { mode: 'category', category: 'Grains', subcategories: ['Pasta'] }),
-      frameSlot('the body', { functions: ['bulk'], exclude: ['Grains'] }),
-      frameSlot('the richness', { functions: ['fat'] }),
-      frameSlot('the depth', { functions: ['umami-bomb'] }),
-      frameSlot('the finish', { functions: ['fresh-finish'] }),
+      dishSlot('the pasta', { mode: 'category', category: 'Grains', subcategories: ['Pasta'] }),
+      dishSlot('the body', { functions: ['bulk'], exclude: ['Grains'] }),
+      dishSlot('the richness', { functions: ['fat'] }),
+      dishSlot('the depth', { functions: ['umami-bomb'] }),
+      dishSlot('the finish', { functions: ['fresh-finish'] }),
     ],
   },
   {
-    id: 'frame-stir-fry',
-    name: 'Stir-Fry',
-    description: 'Protein, a crisp vegetable, aromatics, an umami sauce, and a base.',
-    tier: 'frame',
-    steerTag: 'stir-fries',
+    id: 'dish-pizza',
+    name: 'Pizza',
+    description: 'Cheese, a vegetable, a meaty topping, and aromatics — from the pizza pantry.',
+    tier: 'dish',
+    steerTag: 'pizza',
+    pool: PIZZA_POOL,
     slots: [
-      frameSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
-      frameSlot('the crisp veg', { mode: 'category', category: 'Vegetables', textures: ['crisp', 'crunchy'] }),
-      frameSlot('the aromatics', { mode: 'taste', taste: 'aromatic', category: 'Seasonings' }),
-      frameSlot('the sauce', { functions: ['umami-bomb'] }),
-      frameSlot('the base', { mode: 'category', category: 'Grains' }),
+      dishSlot('the cheese', { mode: 'category', category: 'Dairy', subcategories: ['Cheese'] }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the meat', { mode: 'category', category: 'Proteins' }),
+      dishSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
     ],
   },
   {
-    id: 'frame-soup',
+    id: 'dish-soup',
     name: 'Soup',
     description: 'A broth, a body, aromatics, richness, and a fresh finish.',
-    tier: 'frame',
+    tier: 'dish',
     steerTag: 'soups',
     slots: [
-      frameSlot('the broth', { mode: 'category', category: 'Pantry', subcategories: ['Stocks & Bases'] }),
-      frameSlot('the body', { functions: ['bulk'] }),
-      frameSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
-      frameSlot('the richness', { functions: ['fat'] }),
-      frameSlot('the finish', { functions: ['fresh-finish'] }),
+      dishSlot('the broth', { mode: 'category', category: 'Pantry', subcategories: ['Stocks & Bases'] }),
+      dishSlot('the body', { functions: ['bulk'] }),
+      dishSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
+      dishSlot('the richness', { functions: ['fat'] }),
+      dishSlot('the finish', { functions: ['fresh-finish'] }),
+    ],
+  },
+  {
+    id: 'dish-stir-fry',
+    name: 'Stir-Fry',
+    description: 'Protein, a crisp vegetable, aromatics, an umami sauce, and a base.',
+    tier: 'dish',
+    steerTag: 'stir-fries',
+    slots: [
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the crisp veg', { mode: 'category', category: 'Vegetables', textures: ['crisp', 'crunchy'] }),
+      dishSlot('the aromatics', { mode: 'taste', taste: 'aromatic', category: 'Seasonings' }),
+      dishSlot('the sauce', { functions: ['umami-bomb'] }),
+      dishSlot('the base', { mode: 'category', category: 'Grains' }),
+    ],
+  },
+  {
+    id: 'dish-roast',
+    name: 'Roast',
+    description: 'A roast, root vegetables, herbs, a fat, and a bright finish.',
+    tier: 'dish',
+    steerTag: 'roasts',
+    slots: [
+      dishSlot('the roast', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the root veg', { mode: 'category', category: 'Vegetables', subcategories: ['Roots & Tubers'] }),
+      dishSlot('the herbs', { mode: 'taste', taste: 'aromatic', category: 'Seasonings' }),
+      dishSlot('the fat', { functions: ['fat'] }),
+      dishSlot('the bright finish', { functions: ['acid'] }),
+    ],
+  },
+  {
+    id: 'dish-grill',
+    name: 'Grill & BBQ',
+    description: 'A protein, a char vegetable, a spice rub, a sauce, and something bright.',
+    tier: 'dish',
+    steerTag: 'grilling & bbq',
+    slots: [
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the char veg', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the rub', { mode: 'category', category: 'Seasonings', subcategories: ['Spices', 'Spice Blends'] }),
+      dishSlot('the sauce', { functions: ['umami-bomb'] }),
+      dishSlot('the bright finish', { functions: ['acid'] }),
+    ],
+  },
+  {
+    id: 'dish-tacos',
+    name: 'Tacos',
+    description: 'A protein, a vegetable, heat, and a bright finish — from the taqueria.',
+    tier: 'dish',
+    steerTag: 'tacos & burritos',
+    pool: TACO_POOL,
+    slots: [
+      dishSlot('the protein', { mode: 'category', category: 'Proteins' }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the heat', { mode: 'category', category: 'Seasonings' }),
+      dishSlot('the bright finish', { functions: ['fresh-finish'] }),
+    ],
+  },
+  {
+    id: 'dish-curry',
+    name: 'Curry',
+    description: 'A protein, a vegetable, warm spices, richness, and a fresh finish.',
+    tier: 'dish',
+    steerTag: 'curries',
+    slots: [
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the spices', { mode: 'category', category: 'Seasonings', subcategories: ['Spices', 'Spice Blends'] }),
+      dishSlot('the richness', { functions: ['fat'] }),
+      dishSlot('the finish', { functions: ['fresh-finish'] }),
+    ],
+  },
+  {
+    id: 'dish-stew',
+    name: 'Stew & Braise',
+    description: 'A braise, root vegetables, a braising liquid, aromatics, and savory depth.',
+    tier: 'dish',
+    steerTag: 'stews',
+    slots: [
+      dishSlot('the braise', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the root veg', { mode: 'category', category: 'Vegetables', subcategories: ['Roots & Tubers'] }),
+      dishSlot('the liquid', { mode: 'category', category: 'Pantry', subcategories: ['Stocks & Bases'] }),
+      dishSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
+      dishSlot('the depth', { functions: ['umami-bomb'] }),
+    ],
+  },
+  {
+    id: 'dish-noodles',
+    name: 'Noodles',
+    description: 'Noodles, a protein, a vegetable, an umami sauce, and aromatics.',
+    tier: 'dish',
+    steerTag: 'noodles',
+    slots: [
+      dishSlot('the noodles', { mode: 'category', category: 'Grains', subcategories: ['Pasta'] }),
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the sauce', { functions: ['umami-bomb'] }),
+      dishSlot('the aromatics', { mode: 'taste', taste: 'aromatic', category: 'Seasonings' }),
+    ],
+  },
+  {
+    id: 'dish-rice',
+    name: 'Rice Dish',
+    description: 'A rice base, a protein, a vegetable, aromatics, and a fresh finish.',
+    tier: 'dish',
+    steerTag: 'rice dishes',
+    slots: [
+      dishSlot('the rice', { mode: 'category', category: 'Grains', subcategories: ['Rice'] }),
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
+      dishSlot('the finish', { functions: ['fresh-finish'] }),
+    ],
+  },
+  {
+    id: 'dish-casserole',
+    name: 'Casserole',
+    description: 'A base, a protein, a vegetable, a rich binder, and a crunchy topping.',
+    tier: 'dish',
+    steerTag: 'casseroles',
+    slots: [
+      dishSlot('the base', { mode: 'category', category: 'Grains' }),
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the binder', { functions: ['fat'] }),
+      dishSlot('the topping', { functions: ['crunch-topper'] }),
+    ],
+  },
+  {
+    id: 'dish-sandwich',
+    name: 'Sandwich',
+    description: 'Bread, a filling, a cheese, a crunch, and a bright spread.',
+    tier: 'dish',
+    steerTag: 'sandwiches & burgers',
+    slots: [
+      dishSlot('the bread', { mode: 'category', category: 'Grains', subcategories: ['Bread'] }),
+      dishSlot('the filling', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the cheese', { mode: 'category', category: 'Dairy', subcategories: ['Cheese'] }),
+      dishSlot('the crunch', { textures: ['crunchy', 'crisp'] }),
+      dishSlot('the spread', { functions: ['acid'] }),
+    ],
+  },
+  {
+    id: 'dish-burger',
+    name: 'Burger',
+    description: 'A patty, a bun, a cheese, crisp toppings, and a sauce.',
+    tier: 'dish',
+    steerTag: 'sandwiches & burgers',
+    slots: [
+      dishSlot('the patty', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the bun', { mode: 'category', category: 'Grains', subcategories: ['Bread'] }),
+      dishSlot('the cheese', { mode: 'category', category: 'Dairy', subcategories: ['Cheese'] }),
+      dishSlot('the toppings', { mode: 'category', category: 'Vegetables', textures: ['crisp', 'crunchy'] }),
+      dishSlot('the sauce', { functions: ['umami-bomb'] }),
+    ],
+  },
+  {
+    id: 'dish-skewers',
+    name: 'Skewers',
+    description: 'A protein, a vegetable, a fatty marinade, a spice, and a bright finish.',
+    tier: 'dish',
+    steerTag: 'skewers',
+    slots: [
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables', subcategories: ['Fruit Vegetables', 'Allium'] }),
+      dishSlot('the marinade', { functions: ['fat'] }),
+      dishSlot('the spice', { mode: 'category', category: 'Seasonings', subcategories: ['Spices', 'Spice Blends'] }),
+      dishSlot('the bright finish', { functions: ['acid'] }),
+    ],
+  },
+  {
+    id: 'dish-dumplings',
+    name: 'Dumplings',
+    description: 'A filling, aromatics, a vegetable, and a dipping sauce.',
+    tier: 'dish',
+    slots: [
+      dishSlot('the filling', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
+      dishSlot('the vegetable', { mode: 'category', category: 'Vegetables' }),
+      dishSlot('the dipping sauce', { functions: ['umami-bomb'] }),
+    ],
+  },
+  {
+    id: 'dish-sushi',
+    name: 'Sushi & Crudo',
+    description: 'The fish, a rice base, something bright, a little heat, and a finish.',
+    tier: 'dish',
+    slots: [
+      dishSlot('the fish', { mode: 'category', category: 'Proteins', subcategories: ['Seafood'] }),
+      dishSlot('the base', { mode: 'category', category: 'Grains', subcategories: ['Rice'] }),
+      dishSlot('the bright', { functions: ['acid'] }),
+      dishSlot('the heat', { mode: 'category', category: 'Seasonings' }),
+      dishSlot('the finish', { functions: ['fresh-finish'] }),
+    ],
+  },
+  {
+    id: 'dish-breakfast',
+    name: 'Breakfast',
+    description: 'A protein, a starch, some fruit, a fat, and something sweet.',
+    tier: 'dish',
+    steerTag: 'breakfast',
+    slots: [
+      dishSlot('the protein', { mode: 'category', category: 'Proteins', functions: ['bulk'] }),
+      dishSlot('the starch', { mode: 'category', category: 'Grains' }),
+      dishSlot('the fruit', { mode: 'category', category: 'Fruits' }),
+      dishSlot('the fat', { functions: ['fat'] }),
+      dishSlot('something sweet', { functions: ['sweetener'] }),
+    ],
+  },
+  {
+    id: 'dish-dessert',
+    name: 'Dessert',
+    description: 'Something sweet, a dairy, fruit, an aromatic, and a crunch.',
+    tier: 'dish',
+    steerTag: 'desserts',
+    slots: [
+      dishSlot('something sweet', { functions: ['sweetener'] }),
+      dishSlot('the dairy', { mode: 'category', category: 'Dairy' }),
+      dishSlot('the fruit', { mode: 'category', category: 'Fruits', taste: 'sweet' }),
+      dishSlot('the aromatic', { mode: 'taste', taste: 'aromatic', category: 'Seasonings' }),
+      dishSlot('the crunch', { textures: ['crunchy'] }),
+    ],
+  },
+  {
+    id: 'dish-dips',
+    name: 'Dips & Snacks',
+    description: 'A rich dip, a crunch, something bright, and aromatics — a mezze spread.',
+    tier: 'dish',
+    steerTag: 'dips',
+    pool: MEZZE_POOL,
+    slots: [
+      dishSlot('the dip', { functions: ['fat'] }),
+      dishSlot('the crunch', { textures: ['crunchy', 'crisp'] }),
+      dishSlot('the bright', { functions: ['acid'] }),
+      dishSlot('the aromatics', { mode: 'category', category: 'Seasonings' }),
+    ],
+  },
+  {
+    id: 'dish-board',
+    name: 'Cheese Board',
+    description: 'A cheese, something sweet, a cured meat, and a crunch.',
+    tier: 'dish',
+    pool: CHEESE_BOARD_POOL,
+    slots: [
+      dishSlot('the cheese', { mode: 'category', category: 'Dairy', subcategories: ['Cheese'] }),
+      dishSlot('something sweet', { mode: 'taste', taste: 'sweet', category: 'Fruits' }),
+      dishSlot('the cured meat', { mode: 'category', category: 'Proteins' }),
+      dishSlot('the crunch', { textures: ['crunchy'] }),
     ],
   },
 
@@ -311,50 +553,6 @@ export const FLAVOR_PRESETS: FlavorPreset[] = [
     description: 'Sweetness without the fruit — caramelized onion, roots, squash.',
     tier: 'structural',
     slots: [taste('sweet', 'Vegetables', ['Fruits']), taste('salty', 'Proteins')],
-  },
-
-  // ── Themed pools: every slot is drawn from a curated ingredient set ────────
-  {
-    id: 'pizza-night',
-    name: 'Pizza Night',
-    description: 'Cheese, a vegetable, and a meaty topping — all from the pizza pantry.',
-    tier: 'themed',
-    slots: [cat('Dairy'), cat('Vegetables'), cat('Proteins')],
-    pool: PIZZA_POOL,
-  },
-  {
-    id: 'taco-bar',
-    name: 'Taco Bar',
-    description: 'Protein, vegetable, and heat from the taqueria.',
-    tier: 'themed',
-    slots: [cat('Proteins'), cat('Vegetables'), taste('spicy', 'Seasonings')],
-    pool: TACO_POOL,
-  },
-  {
-    id: 'cheese-board',
-    name: 'Cheese Board',
-    description: 'A cheese, something sweet, and an accompaniment.',
-    tier: 'themed',
-    slots: [cat('Dairy'), taste('sweet', 'Fruits'), wild()],
-    pool: CHEESE_BOARD_POOL,
-  },
-  {
-    id: 'stir-fry',
-    // "Stir-Fry" proper is now the dish frame above; this themed pool keeps the
-    // curated wok pantry under a name that says what it is.
-    name: 'Wok Pantry',
-    description: 'Protein, vegetable, and an umami sauce from the wok.',
-    tier: 'themed',
-    slots: [cat('Proteins'), cat('Vegetables'), taste('umami', 'Pantry')],
-    pool: STIR_FRY_POOL,
-  },
-  {
-    id: 'mezze',
-    name: 'Mediterranean Mezze',
-    description: 'A cheese, a vegetable, and a bright herb.',
-    tier: 'themed',
-    slots: [cat('Dairy'), cat('Vegetables'), taste('aromatic', 'Seasonings')],
-    pool: MEZZE_POOL,
   },
 ];
 

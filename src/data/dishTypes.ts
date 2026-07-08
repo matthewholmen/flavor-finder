@@ -32,7 +32,7 @@ export interface DishType {
   label: string;
   tier: 'primary' | 'more';
   context: FrameContext;
-  /** Generative dish-frame preset (flavorPresets tier 'frame'), when one exists. */
+  /** Generative dish preset (flavorPresets tier 'dish'), when one exists. */
   frameId?: string;
   /** Corpus dish tag for receipt-backed steering, when the corpus supports it. */
   steerTag?: string;
@@ -44,31 +44,31 @@ const ctx = (
 
 export const DISH_TYPES: DishType[] = [
   // ── primary: the default pill row ──────────────────────────────────────────
-  { id: 'salad',      label: 'Salad',       tier: 'primary', context: ctx(2.0, false, 0.7,  1.15), frameId: 'frame-salad',    steerTag: 'salads' },
-  { id: 'pizza',      label: 'Pizza',       tier: 'primary', context: ctx(7.0, true,  1.15, 0.9),                             steerTag: 'pizza' },
-  { id: 'pasta',      label: 'Pasta',       tier: 'primary', context: ctx(6.0, true,  1.1,  0.95), frameId: 'frame-pasta',    steerTag: 'pasta' },
-  { id: 'soup',       label: 'Soup',        tier: 'primary', context: ctx(4.0, true,  0.9,  1.0),  frameId: 'frame-soup',     steerTag: 'soups' },
-  { id: 'stir-fry',   label: 'Stir-fry',    tier: 'primary', context: ctx(4.5, true,  1.0,  1.0),  frameId: 'frame-stir-fry', steerTag: 'stir-fries' },
-  { id: 'grain-bowl', label: 'Grain bowl',  tier: 'primary', context: ctx(5.0, true,  0.9,  1.0),  frameId: 'frame-grain-bowl' },
-  { id: 'roast',      label: 'Roast',       tier: 'primary', context: ctx(6.0, true,  1.0,  0.95),                            steerTag: 'roasts' },
-  { id: 'grill',      label: 'Grill & BBQ', tier: 'primary', context: ctx(6.0, true,  1.0,  1.0),                             steerTag: 'grilling & bbq' },
-  { id: 'tacos',      label: 'Tacos',       tier: 'primary', context: ctx(4.5, true,  1.0,  1.1),                             steerTag: 'tacos & burritos' },
-  { id: 'curry',      label: 'Curry',       tier: 'primary', context: ctx(5.5, true,  1.15, 0.9),                             steerTag: 'curries' },
+  { id: 'salad',      label: 'Salad',       tier: 'primary', context: ctx(2.0, false, 0.7,  1.15), frameId: 'dish-salad',      steerTag: 'salads' },
+  { id: 'pizza',      label: 'Pizza',       tier: 'primary', context: ctx(7.0, true,  1.15, 0.9),  frameId: 'dish-pizza',      steerTag: 'pizza' },
+  { id: 'pasta',      label: 'Pasta',       tier: 'primary', context: ctx(6.0, true,  1.1,  0.95), frameId: 'dish-pasta',      steerTag: 'pasta' },
+  { id: 'soup',       label: 'Soup',        tier: 'primary', context: ctx(4.0, true,  0.9,  1.0),  frameId: 'dish-soup',       steerTag: 'soups' },
+  { id: 'stir-fry',   label: 'Stir-fry',    tier: 'primary', context: ctx(4.5, true,  1.0,  1.0),  frameId: 'dish-stir-fry',   steerTag: 'stir-fries' },
+  { id: 'grain-bowl', label: 'Grain bowl',  tier: 'primary', context: ctx(5.0, true,  0.9,  1.0),  frameId: 'dish-grain-bowl' },
+  { id: 'roast',      label: 'Roast',       tier: 'primary', context: ctx(6.0, true,  1.0,  0.95), frameId: 'dish-roast',      steerTag: 'roasts' },
+  { id: 'grill',      label: 'Grill & BBQ', tier: 'primary', context: ctx(6.0, true,  1.0,  1.0),  frameId: 'dish-grill',      steerTag: 'grilling & bbq' },
+  { id: 'tacos',      label: 'Tacos',       tier: 'primary', context: ctx(4.5, true,  1.0,  1.1),  frameId: 'dish-tacos',      steerTag: 'tacos & burritos' },
+  { id: 'curry',      label: 'Curry',       tier: 'primary', context: ctx(5.5, true,  1.15, 0.9),  frameId: 'dish-curry',      steerTag: 'curries' },
 
   // ── more: behind the expander ──────────────────────────────────────────────
-  { id: 'stew',       label: 'Stew & braise', tier: 'more', context: ctx(7.0, true,  1.1,  0.85),                             steerTag: 'stews' },
-  { id: 'sandwich',   label: 'Sandwich',      tier: 'more', context: ctx(5.0, false, 1.0,  1.0),                              steerTag: 'sandwiches & burgers' },
-  { id: 'burger',     label: 'Burger',        tier: 'more', context: ctx(6.5, true,  1.1,  0.95),                             steerTag: 'sandwiches & burgers' },
-  { id: 'noodles',    label: 'Noodles',       tier: 'more', context: ctx(5.0, true,  1.0,  1.0),                              steerTag: 'noodles' },
-  { id: 'rice-dish',  label: 'Rice dish',     tier: 'more', context: ctx(5.5, true,  1.05, 0.95),                             steerTag: 'rice dishes' },
-  { id: 'casserole',  label: 'Casserole',     tier: 'more', context: ctx(6.5, true,  1.1,  0.9),                              steerTag: 'casseroles' },
-  { id: 'skewers',    label: 'Skewers',       tier: 'more', context: ctx(5.0, true,  1.0,  1.0),                              steerTag: 'skewers' },
-  { id: 'dumplings',  label: 'Dumplings',     tier: 'more', context: ctx(4.5, true,  1.0,  1.0) },
-  { id: 'raw-seafood', label: 'Sushi & crudo', tier: 'more', context: ctx(3.0, false, 0.9, 1.15) },
-  { id: 'breakfast',  label: 'Breakfast',     tier: 'more', context: ctx(4.5, true,  1.05, 1.0),                              steerTag: 'breakfast' },
-  { id: 'dessert',    label: 'Dessert',       tier: 'more', context: ctx(4.0, true,  1.1,  0.9),                              steerTag: 'desserts' },
-  { id: 'dips',       label: 'Dips & snacks', tier: 'more', context: ctx(3.0, false, 1.0,  1.0),                              steerTag: 'dips' },
-  { id: 'board',      label: 'Cheese board',  tier: 'more', context: ctx(4.0, false, 1.1,  1.0) },
+  { id: 'stew',       label: 'Stew & braise', tier: 'more', context: ctx(7.0, true,  1.1,  0.85), frameId: 'dish-stew',       steerTag: 'stews' },
+  { id: 'sandwich',   label: 'Sandwich',      tier: 'more', context: ctx(5.0, false, 1.0,  1.0),  frameId: 'dish-sandwich',   steerTag: 'sandwiches & burgers' },
+  { id: 'burger',     label: 'Burger',        tier: 'more', context: ctx(6.5, true,  1.1,  0.95), frameId: 'dish-burger',     steerTag: 'sandwiches & burgers' },
+  { id: 'noodles',    label: 'Noodles',       tier: 'more', context: ctx(5.0, true,  1.0,  1.0),  frameId: 'dish-noodles',    steerTag: 'noodles' },
+  { id: 'rice-dish',  label: 'Rice dish',     tier: 'more', context: ctx(5.5, true,  1.05, 0.95), frameId: 'dish-rice',       steerTag: 'rice dishes' },
+  { id: 'casserole',  label: 'Casserole',     tier: 'more', context: ctx(6.5, true,  1.1,  0.9),  frameId: 'dish-casserole',  steerTag: 'casseroles' },
+  { id: 'skewers',    label: 'Skewers',       tier: 'more', context: ctx(5.0, true,  1.0,  1.0),  frameId: 'dish-skewers',    steerTag: 'skewers' },
+  { id: 'dumplings',  label: 'Dumplings',     tier: 'more', context: ctx(4.5, true,  1.0,  1.0),  frameId: 'dish-dumplings' },
+  { id: 'raw-seafood', label: 'Sushi & crudo', tier: 'more', context: ctx(3.0, false, 0.9, 1.15), frameId: 'dish-sushi' },
+  { id: 'breakfast',  label: 'Breakfast',     tier: 'more', context: ctx(4.5, true,  1.05, 1.0),  frameId: 'dish-breakfast',  steerTag: 'breakfast' },
+  { id: 'dessert',    label: 'Dessert',       tier: 'more', context: ctx(4.0, true,  1.1,  0.9),  frameId: 'dish-dessert',    steerTag: 'desserts' },
+  { id: 'dips',       label: 'Dips & snacks', tier: 'more', context: ctx(3.0, false, 1.0,  1.0),  frameId: 'dish-dips',       steerTag: 'dips' },
+  { id: 'board',      label: 'Cheese board',  tier: 'more', context: ctx(4.0, false, 1.1,  1.0),  frameId: 'dish-board' },
 ];
 
 export const DISH_TYPE_BY_ID: Record<string, DishType> = Object.fromEntries(

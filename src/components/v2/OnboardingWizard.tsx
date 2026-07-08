@@ -301,7 +301,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
                   Generate
                 </button>
                 <p className="text-xs mt-3 text-gray-400 dark:text-gray-500">
-                  Salad, Grain Bowl, Pasta Night, Stir-Fry, Soup — all under Flavor Presets.
+                  Salad, Pizza, Curry, Tacos, and more — all under Build a Dish.
                 </p>
               </div>
             </div>
