@@ -72,17 +72,25 @@ export type SteerGroup = 'dish' | 'cuisine';
 
 // Runtime title classifier, rebuilt from CONTEXT_TAG_KEYWORDS with the IDENTICAL regex
 // construction the pipeline uses (lib.mjs loadTitleClassifier): `(?:^|[^a-z])`…`(?:e?s)?`
-// plural, `(?=[^a-z]|$)` boundary. Because merge-time pruning and this filter share the
-// same keywords + construction, they can never disagree about which tag a title carries.
+// plural, `(?=[^a-z]|$)` boundary. Keyword entries prefixed with "!" are exclusions —
+// the tag fires only when a positive keyword matches AND no exclusion phrase does
+// ("pie" tags desserts, "!pot pie" keeps Chicken Pot Pie out). Because merge-time
+// pruning and this filter share the same keywords + construction, they can never
+// disagree about which tag a title carries.
 // Lazily compiled + memoized — the keyword tables ride in the lazy context chunk.
-let compiledTagRes: Record<SteerGroup, Map<string, RegExp>> | null = null;
-const getTagClassifier = (): Record<SteerGroup, Map<string, RegExp>> => {
+interface TagRes { pos: RegExp; neg: RegExp | null }
+let compiledTagRes: Record<SteerGroup, Map<string, TagRes>> | null = null;
+const getTagClassifier = (): Record<SteerGroup, Map<string, TagRes>> => {
   if (compiledTagRes) return compiledTagRes;
   const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const alternation = (kws: string[]) =>
+    new RegExp(`(?:^|[^a-z])(?:${kws.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`);
   const compile = (group: Record<string, string[]>) => {
-    const m = new Map<string, RegExp>();
-    for (const [tag, keywords] of Object.entries(group)) {
-      m.set(tag, new RegExp(`(?:^|[^a-z])(?:${keywords.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`));
+    const m = new Map<string, TagRes>();
+    for (const [tag, entries] of Object.entries(group)) {
+      const pos = entries.filter(k => !k.startsWith('!'));
+      const neg = entries.filter(k => k.startsWith('!')).map(k => k.slice(1));
+      m.set(tag, { pos: alternation(pos), neg: neg.length ? alternation(neg) : null });
     }
     return m;
   };
@@ -95,8 +103,10 @@ const getTagClassifier = (): Record<SteerGroup, Map<string, RegExp>> => {
 
 /** Does this receipt title itself carry the steered tag? (Same test the pipeline pruned by.) */
 export const titleCarriesTag = (title: string, group: SteerGroup, tag: string): boolean => {
-  const re = getTagClassifier()[group].get(tag);
-  return re ? re.test(title.toLowerCase()) : false;
+  const res = getTagClassifier()[group].get(tag);
+  if (!res) return false;
+  const lower = title.toLowerCase();
+  return res.pos.test(lower) && !(res.neg && res.neg.test(lower));
 };
 
 // The same dish reaches a combo from several edges under different spellings ("Muffuletta"

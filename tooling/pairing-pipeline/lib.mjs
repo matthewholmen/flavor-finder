@@ -36,17 +36,27 @@ export const loadTitleClassifier = () => {
     fs.readFileSync(path.join(PIPELINE_DIR, 'context-vocab.json'), 'utf8'),
   );
   const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const alternation = (kws) =>
+    new RegExp(`(?:^|[^a-z])(?:${kws.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`);
+  // Keyword entries prefixed with "!" are EXCLUSIONS: the tag fires only when a positive
+  // keyword matches AND no exclusion phrase appears anywhere in the text. This is how
+  // "pie" tags desserts without "Chicken Pot Pie" riding along. The client
+  // (src/utils/pairingContext.ts getTagClassifier) and check-context-invariant.mjs
+  // rebuild this exact construction from CONTEXT_TAG_KEYWORDS — keep all three in sync.
   const compileGroup = (group) =>
-    Object.entries(group).map(([tag, keywords]) => [
-      tag,
-      new RegExp(`(?:^|[^a-z])(?:${keywords.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`),
-    ]);
+    Object.entries(group).map(([tag, entries]) => {
+      const pos = entries.filter((k) => !k.startsWith('!'));
+      const neg = entries.filter((k) => k.startsWith('!')).map((k) => k.slice(1));
+      return [tag, alternation(pos), neg.length ? alternation(neg) : null];
+    });
   const DISH = compileGroup(vocab.dishTypes);
   const METHOD = compileGroup(vocab.methods);
   const CUISINE = compileGroup(vocab.cuisines);
   const tagsFor = (compiled, text) => {
     const out = [];
-    for (const [tag, re] of compiled) if (re.test(text)) out.push(tag);
+    for (const [tag, re, negRe] of compiled) {
+      if (re.test(text) && !(negRe && negRe.test(text))) out.push(tag);
+    }
     return out;
   };
   return { DISH, METHOD, CUISINE, tagsFor, vocab };

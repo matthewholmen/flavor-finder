@@ -297,7 +297,7 @@ const outPath = path.join(REPO_ROOT, 'src', 'data', 'pairingContext.ts');
 const rawKb = (Buffer.byteLength(file) / 1024).toFixed(0);
 const gz = zlib.gzipSync(Buffer.from(file));
 const gzKb = (gz.length / 1024).toFixed(0);
-const BASELINE_GZ = 335; // shipped pairingContext chunk, July 2 (see plan)
+const BASELINE_GZ = 468; // shipped pairingContext chunk, July 8 (post classifier-precision re-mine)
 
 // ---- in-process steer-receipt invariant: every shipped tag has a backing receipt ----
 // (check-context-invariant.mjs re-derives this from the emitted TS as an independent gate.)

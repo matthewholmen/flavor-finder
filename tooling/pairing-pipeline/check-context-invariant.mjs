@@ -62,19 +62,25 @@ const KEYWORDS = extractJson('export const CONTEXT_TAG_KEYWORDS');
 const CTX = extractJson('export const pairingContext');
 
 // Rebuild the classifier — byte-for-byte the same construction as lib.mjs / the client.
+// "!"-prefixed keyword entries are exclusions: tag fires only when a positive keyword
+// matches AND no exclusion phrase does.
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const alternation = (kws) =>
+  new RegExp(`(?:^|[^a-z])(?:${kws.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`);
 const compile = (group) => {
   const m = new Map();
-  for (const [tag, kws] of Object.entries(group)) {
-    m.set(tag, new RegExp(`(?:^|[^a-z])(?:${kws.map(esc).join('|')})(?:e?s)?(?=[^a-z]|$)`));
+  for (const [tag, entries] of Object.entries(group)) {
+    const pos = entries.filter((k) => !k.startsWith('!'));
+    const neg = entries.filter((k) => k.startsWith('!')).map((k) => k.slice(1));
+    m.set(tag, { pos: alternation(pos), neg: neg.length ? alternation(neg) : null });
   }
   return m;
 };
 const dishRe = compile(KEYWORDS.dish);
 const cuisineRe = compile(KEYWORDS.cuisine);
 const carries = (reMap, tag, titleLower) => {
-  const re = reMap.get(tag);
-  return re ? re.test(titleLower) : false;
+  const res = reMap.get(tag);
+  return res ? res.pos.test(titleLower) && !(res.neg && res.neg.test(titleLower)) : false;
 };
 
 let failures = 0;
