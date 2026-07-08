@@ -318,7 +318,7 @@ export const Sidebar = ({
             >
               <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold text-base">
                 <LayoutGrid size={16} strokeWidth={2} className="text-gray-500 dark:text-gray-400" />
-                Flavor Presets
+                Build a Dish
               </span>
               <ChevronRight size={20} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
             </button>
