@@ -100,7 +100,7 @@ const PaletteStrip = ({ slots, className = 'h-20' }: { slots: SlotTaste[]; class
           style={{ backgroundColor: color }}
         >
           <span
-            className="text-[10px] font-bold uppercase tracking-wide capitalize px-1 truncate"
+            className="text-[10px] font-bold uppercase tracking-wide capitalize px-1 text-center leading-[1.1] line-clamp-2"
             style={{ color: contrastText(color) }}
           >
             {label}
@@ -585,7 +585,11 @@ export const PresetGallery = ({
                   <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">
                     {TIER_LABELS[tier]}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {/* Dishes cap at 2 columns so all five slot labels stay
+                      readable; the shorter classic/structural cards take 3. */}
+                  <div className={`grid grid-cols-1 gap-3 ${
+                    tier === 'dish' ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'
+                  }`}>
                     {presets.map(preset => (
                       <PresetCard
                         key={preset.id}
