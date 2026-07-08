@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowRight, ArrowLeftRight, Shapes } from 'lucide-react';
+import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowLeftRight, Shapes } from 'lucide-react';
 import { TASTE_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
@@ -627,7 +627,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 };
 
 // Mobile Ingredient Info Component
-const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenAtlas = null, onSwap = null }) => {
+const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenAtlas = null, onSwap = null, roleIndicator = null, onEditRole = null }) => {
   const profile = ingredientProfiles?.find(
     p => p.name.toLowerCase() === ingredient.toLowerCase()
   );
@@ -650,31 +650,37 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
   const tasteTags = getTasteTags(profile);
   const nonPairingIngredients = getNonPairingIngredients(ingredient);
 
+  // Icon+label action pill, echoing the desktop hover-toolbar vocabulary
+  // (Shapes = role, ⇄ = swap, ⓘ = Atlas page) so both surfaces read the same.
+  const actionButtonClass =
+    'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border ' +
+    'border-gray-300 dark:border-gray-600 text-sm font-semibold ' +
+    'text-gray-700 dark:text-gray-200 active:bg-gray-100 dark:active:bg-gray-800 transition-colors';
+
   return (
-    <div className="px-1 pt-3 pb-2">
+    // The hero container sets Fraunces/font-black/tracking-tight inline for the
+    // ingredient names — this panel is UI, not display, so reset to the Inter voice.
+    <div className="px-1 pt-3 pb-2 font-sans font-normal tracking-normal leading-normal">
       {/* Category & Subcategory */}
       {profile && (
-        <p className="text-gray-500 dark:text-gray-400 mb-2 tracking-wide" style={{ fontWeight: 400, fontSize: '17px', lineHeight: '1.3' }}>
-          {profile.category.toLowerCase()}
-          {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          {profile.category}
+          {profile.subcategory && ` — ${profile.subcategory}`}
         </p>
       )}
 
       {/* Description */}
       {profile?.description && (
-        <p
-          className={`${tasteTags.length > 0 ? 'mb-4' : 'mb-0'} text-gray-700 dark:text-gray-300`}
-          style={{ fontWeight: 400, fontSize: '16px', lineHeight: '1.4', letterSpacing: '0' }}
-        >
+        <p className={`${tasteTags.length > 0 ? 'mb-3' : 'mb-0'} text-[15px] leading-relaxed text-gray-700 dark:text-gray-300`}>
           {profile.description}
         </p>
       )}
 
       {/* Non-pairing warning */}
       {nonPairingIngredients.length > 0 && (
-        <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
-          <p className="text-base text-amber-800 dark:text-amber-200 font-light">
-            <span className="font-medium">Not a suggested pairing with: </span>
+        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            <span className="font-semibold">Not a suggested pairing with: </span>
             {nonPairingIngredients.join(', ')}
           </p>
         </div>
@@ -682,11 +688,11 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
 
       {/* Taste Tags */}
       {tasteTags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {tasteTags.map((taste) => (
             <span
               key={taste}
-              className="px-4 py-1 rounded-full text-sm font-medium capitalize tracking-wide"
+              className="px-3 py-1 rounded-full text-xs font-semibold capitalize"
               style={{ backgroundColor: getIngredientColorWithContrast(TASTE_COLORS[taste], isHighContrast, isDarkMode), color: isDarkMode ? '#131823' : 'white' }}
             >
               {taste}
@@ -695,25 +701,34 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
         </div>
       )}
 
-      {/* Handoff to the full Atlas page + structural swap */}
-      {(onOpenAtlas || onSwap) && (
-        <div className="mt-4 flex items-center gap-5">
-          {onOpenAtlas && (
-            <button
-              onClick={() => onOpenAtlas(ingredient)}
-              className="inline-flex items-center gap-1.5 text-base font-medium text-gray-700 dark:text-gray-200 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color]"
-            >
-              Full flavor page
-              <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+      {/* Actions: slot role editor, structural swap, full Atlas page */}
+      {(onEditRole || onSwap || onOpenAtlas) && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {onEditRole && (
+            <button onClick={onEditRole} className={actionButtonClass}>
+              {roleIndicator?.Icon ? (
+                <roleIndicator.Icon size={15} strokeWidth={2.5} aria-hidden="true" />
+              ) : roleIndicator ? (
+                <span
+                  aria-hidden="true"
+                  style={{ width: 10, height: 10, borderRadius: '9999px', backgroundColor: roleIndicator.color, display: 'inline-block' }}
+                />
+              ) : (
+                <Shapes size={15} strokeWidth={2.25} aria-hidden="true" />
+              )}
+              Role
             </button>
           )}
           {onSwap && (
-            <button
-              onClick={onSwap}
-              className="inline-flex items-center gap-1.5 text-base font-medium text-gray-700 dark:text-gray-200 underline decoration-transparent hover:decoration-current underline-offset-4 transition-[text-decoration-color]"
-            >
-              Swap it
-              <ArrowLeftRight size={16} strokeWidth={2} aria-hidden="true" />
+            <button onClick={onSwap} className={actionButtonClass}>
+              <ArrowLeftRight size={15} strokeWidth={2.25} aria-hidden="true" />
+              Swap
+            </button>
+          )}
+          {onOpenAtlas && (
+            <button onClick={() => onOpenAtlas(ingredient)} className={actionButtonClass}>
+              <Info size={15} strokeWidth={2.25} aria-hidden="true" />
+              Flavor page
             </button>
           )}
         </div>
@@ -836,12 +851,13 @@ export const IngredientDisplay = ({
     }
   }, [isDrawerOpen]);
 
-  // Clear expanded info when the ingredient is unlocked or removed
+  // Clear expanded info when the ingredient is removed (expansion is
+  // independent of lock state — the chevron is available on every row)
   useEffect(() => {
-    if (expandedInfoIndex !== null && !lockedIngredients.has(expandedInfoIndex)) {
+    if (expandedInfoIndex !== null && !ingredients[expandedInfoIndex]) {
       setExpandedInfoIndex(null);
     }
-  }, [lockedIngredients, expandedInfoIndex]);
+  }, [ingredients, expandedInfoIndex]);
 
   // Click outside handler for mobile
   useEffect(() => {
@@ -1262,8 +1278,11 @@ export const IngredientDisplay = ({
                                 );
                               })()}
                             </span>
-                            {/* Chevron button to expand/collapse info - only visible when locked */}
-                            {/* Uses position:absolute so it doesn't affect text layout */}
+                            {/* Chevron — the row's single always-present affordance.
+                                Expands the info panel (description, taste tags, and
+                                the Role/Swap/Flavor-page actions) for any row, locked
+                                or not. Uses position:absolute so it doesn't affect
+                                text layout. */}
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -1281,25 +1300,22 @@ export const IngredientDisplay = ({
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                opacity: isLocked ? 1 : 0,
-                                pointerEvents: isLocked ? 'auto' : 'none',
-                                transition: 'opacity 250ms ease-out',
                               }}
                               aria-label={isExpanded ? "Collapse ingredient info" : "Expand ingredient info"}
                             >
                               {isExpanded ? (
-                                <ChevronUp size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
+                                <ChevronUp size="0.55em" style={{ color: isLocked ? lockedTextColor : '#9ca3af', transition: 'color 250ms ease-out' }} strokeWidth={2.5} />
                               ) : (
-                                <ChevronDown size="0.55em" style={{ color: lockedTextColor }} strokeWidth={2.5} />
+                                <ChevronDown size="0.55em" style={{ color: isLocked ? lockedTextColor : '#9ca3af', transition: 'color 250ms ease-out' }} strokeWidth={2.5} />
                               )}
                             </button>
-                            {/* Role control — quiet right-edge affordance opening
-                                the role editor (bottom sheet). A taste role is a
-                                colored dot, a category role its icon, wild a faint
-                                outline. On a locked (color-filled) row everything
-                                renders in the locked ink for contrast. Shifts left
-                                of the info chevron when the row is locked. */}
-                            {rolesEnabled && (
+                            {/* Role indicator — only rendered once a role is set (a
+                                taste paints a dot, a category shows its icon); the
+                                role-less entry point lives in the expanded panel's
+                                labeled "Role" button instead of a cryptic empty
+                                circle. Sits left of the chevron; on a locked
+                                (color-filled) row it renders in the locked ink. */}
+                            {rolesEnabled && roleIndicator && (
                               <button
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -1309,7 +1325,7 @@ export const IngredientDisplay = ({
                                 aria-label="Edit slot role"
                                 style={{
                                   position: 'absolute',
-                                  right: isLocked ? '0.85em' : 0,
+                                  right: '0.85em',
                                   top: '50%',
                                   transform: 'translateY(-50%)',
                                   background: 'none',
@@ -1318,10 +1334,9 @@ export const IngredientDisplay = ({
                                   cursor: 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  transition: 'right 250ms ease-out',
                                 }}
                               >
-                                {roleIndicator?.Icon ? (
+                                {roleIndicator.Icon ? (
                                   <roleIndicator.Icon
                                     size="0.3em"
                                     strokeWidth={2.5}
@@ -1333,12 +1348,7 @@ export const IngredientDisplay = ({
                                       width: '0.22em',
                                       height: '0.22em',
                                       borderRadius: '9999px',
-                                      backgroundColor: roleIndicator
-                                        ? (isLocked ? lockedTextColor : roleIndicator.color)
-                                        : 'transparent',
-                                      border: roleIndicator
-                                        ? 'none'
-                                        : `0.045em solid ${isLocked ? lockedTextColor : (isDarkMode ? '#4b5563' : '#d1d5db')}`,
+                                      backgroundColor: isLocked ? lockedTextColor : roleIndicator.color,
                                       display: 'inline-block',
                                     }}
                                   />
@@ -1355,8 +1365,8 @@ export const IngredientDisplay = ({
                     style={{
                       width: '100%',
                       overflow: 'hidden',
-                      maxHeight: (isLocked && isExpanded) ? '300px' : '0px',
-                      opacity: (isLocked && isExpanded) ? 1 : 0,
+                      maxHeight: isExpanded ? '420px' : '0px',
+                      opacity: isExpanded ? 1 : 0,
                       transition: 'max-height 300ms ease-out, opacity 200ms ease-out',
                     }}
                   >
@@ -1369,6 +1379,8 @@ export const IngredientDisplay = ({
                       isDarkMode={isDarkMode}
                       onOpenAtlas={onOpenAtlas}
                       onSwap={swapEnabled ? () => openSwap(actualIndex, null) : null}
+                      roleIndicator={roleIndicator}
+                      onEditRole={rolesEnabled ? () => openRoleEditor(actualIndex, null) : null}
                     />
                   </div>
                   {shouldShowAmpersandAfter && (
