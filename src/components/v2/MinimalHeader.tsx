@@ -135,7 +135,11 @@ export const MinimalHeader = ({
     );
   }
 
-  // Desktop: full header with controls
+  // Desktop: full header with controls.
+  // Below lg the side columns size naturally (justify-between keeps Generate
+  // roughly centered); at lg+ they get flex-1 so Generate is perfectly centered.
+  // The symmetric flex-1 forces each side to the wider side's width, so applying
+  // it only at lg keeps the tablet band (768–1023) from overflowing/wrapping.
   return (
     <header
       className="
@@ -143,12 +147,12 @@ export const MinimalHeader = ({
         flex items-center justify-between
         bg-white dark:bg-gray-900
         z-50
-        px-8 py-5
+        px-4 lg:px-8 py-5
         transition-colors duration-300
       "
     >
       {/* Logo — opens the menu */}
-      <div className="flex-1">
+      <div className="lg:flex-1">
         <button
           onClick={onLogoClick}
           className="group flex items-center cursor-pointer bg-transparent border-none p-0"
@@ -167,7 +171,7 @@ export const MinimalHeader = ({
       </div>
 
       {/* Center Controls: -, Generate, + */}
-      <div className={`flex items-center gap-3 ${dimClass}`}>
+      <div className={`flex items-center gap-2 lg:gap-3 ${dimClass}`}>
         {/* Decrement Target Button */}
         <button
           onClick={onDecrementTarget}
@@ -177,7 +181,7 @@ export const MinimalHeader = ({
             rounded-full
             border-2
             transition-all duration-200
-            w-14 h-14
+            w-11 h-11 lg:w-14 lg:h-14
             ${canDecrement
               ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
               : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
@@ -199,11 +203,11 @@ export const MinimalHeader = ({
             rounded-full
             border-2 border-gray-900 dark:border-white
             text-gray-900 dark:text-white
-            font-medium
+            font-medium whitespace-nowrap
             transition-all duration-200
             hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900
             active:bg-gray-800 active:text-white dark:active:bg-gray-200 dark:active:text-gray-900
-            px-10 py-3.5 text-lg
+            px-6 lg:px-10 py-3 lg:py-3.5 text-base lg:text-lg
             ${isGeneratePulsing ? 'animate-pulse shadow-lg scale-105' : ''}
           `}
         >
@@ -225,7 +229,7 @@ export const MinimalHeader = ({
             rounded-full
             border-2
             transition-all duration-200
-            w-14 h-14
+            w-11 h-11 lg:w-14 lg:h-14
             ${canIncrement
               ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
               : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
@@ -239,13 +243,13 @@ export const MinimalHeader = ({
       </div>
 
       {/* Right-side actions */}
-      <div className={`flex-1 flex justify-end items-center gap-3 ${dimClass}`}>
+      <div className={`lg:flex-1 flex justify-end items-center gap-2 lg:gap-3 ${dimClass}`}>
         {/* Share deep-link */}
         <button
           onClick={handleShare}
           className={`
             flex items-center justify-center
-            w-12 h-12 rounded-full border-2
+            w-11 h-11 lg:w-12 lg:h-12 rounded-full border-2
             transition-all duration-200
             ${shareCopied
               ? 'border-transparent text-green-600 dark:text-green-400'
@@ -265,8 +269,8 @@ export const MinimalHeader = ({
           onClick={onSaveClick}
           className={`
             flex items-center gap-1.5
-            px-5 py-2.5 rounded-full border-2
-            font-semibold text-base
+            px-3.5 lg:px-5 py-2 lg:py-2.5 rounded-full border-2
+            font-semibold text-base whitespace-nowrap
             transition-all duration-200
             ${isSaved
               ? ''
@@ -287,17 +291,19 @@ export const MinimalHeader = ({
           onClick={onRecipesClick}
           className="
             flex items-center gap-1.5
-            px-5 py-2.5 rounded-full
+            px-3.5 lg:px-5 py-2 lg:py-2.5 rounded-full
             bg-gray-900 dark:bg-white
             text-white dark:text-gray-900
-            font-semibold text-base
+            font-semibold text-base whitespace-nowrap
             hover:bg-gray-700 dark:hover:bg-gray-200
             transition-all duration-200
           "
           title="Find recipes with these ingredients"
           aria-label="Find recipes"
         >
-          Find recipes
+          {/* Shorten to "Recipes" in the tighter tablet band. */}
+          <span className="lg:hidden">Recipes</span>
+          <span className="hidden lg:inline">Find recipes</span>
           <ArrowUpRight size={18} strokeWidth={2.5} />
         </button>
       </div>
