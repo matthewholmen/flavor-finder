@@ -1,4 +1,22 @@
-# Profile audit pipeline (P4)
+# Profile audit pipeline (P4 → P6)
+
+## P6 full-profile audit (July 2026)
+
+Second pass over all 638 profiles (P4 batches archived in `proposals/p4-archive/`).
+Each P6 proposal entry carries:
+
+- **`intensity`** (required, 1–10) — how loudly the ingredient announces itself at
+  typical quantity (habanero 10, jalapeño 6, chicken breast 2). Data-only for now.
+- **`cookingMethods`** (required) — from the `COOKING_METHODS` vocab; methods the
+  ingredient genuinely suits. Empty = audited, not applicable (vinegars, extracts).
+- **`description`** (optional) — full rewrite; merge.mjs replaces the line in place.
+  Only present when the rewrite is a genuine improvement. Max 260 chars, no `"`.
+- **`textures` / `functions`** (optional) — omitted entries carry the current P4
+  values forward unchanged; include only to correct a P4 tag.
+- **`tasteFlags`** (optional, sparse) — same contract as P4; applied only via
+  `apply-flags.mjs` after review.
+
+
 
 Offline, ad-hoc tooling in the `pairing-pipeline` style: generate proposals → review →
 merge. Nothing here runs in the app.

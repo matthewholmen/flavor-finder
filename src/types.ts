@@ -42,6 +42,32 @@ export const INGREDIENT_FUNCTIONS = [
 ] as const;
 export type IngredientFunction = (typeof INGREDIENT_FUNCTIONS)[number];
 
+// Controlled cooking-method vocabulary (P6 audit pass). Methods the ingredient
+// genuinely suits — not every method it survives. Empty array = audited, not
+// applicable (vinegars, extracts, most liquids). Mirrors COOKING_METHODS in
+// tooling/profile-audit/vocab.mjs; the audit's check.mjs enforces sync.
+export const COOKING_METHODS = [
+  'raw',
+  'roasted',
+  'grilled',
+  'seared',
+  'sautéed',
+  'stir-fried',
+  'fried',
+  'baked',
+  'braised',
+  'simmered',
+  'steamed',
+  'poached',
+  'blanched',
+  'cured',
+  'pickled',
+  'fermented',
+  'smoked',
+  'toasted',
+] as const;
+export type CookingMethod = (typeof COOKING_METHODS)[number];
+
 export interface IngredientProfile {
   name: string;
   category: keyof IngredientSubcategory;
@@ -59,9 +85,10 @@ export interface IngredientProfile {
   // P4 data layer — populated by tooling/profile-audit (typical served state)
   textures?: Texture[];
   functions?: IngredientFunction[];
-  // MVP+
-  cookingMethods?: string[];
-  intensity?: number;
+  // P6 audit pass — populated by tooling/profile-audit
+  cookingMethods?: CookingMethod[];
+  intensity?: number; // 1–10: how loudly it announces itself at typical quantity (habanero 10, jalapeño 6, chicken breast 2)
+  // MVP+ (unpopulated)
   allergen?: string[];
   dietary?: string[];
   

@@ -139,6 +139,17 @@ flavor-map compatibility alone admits (see `suggestSubstitutes.ts`). As slot
 constraints they may also **narrow a slot's pool** (dish frames) — a pool input
 change, same as taste/category roles; the pairing check is never touched.
 
+### Intensity & cooking methods (P6 audit, July 2026)
+A second profile-audit pass populated two more fields on all 638 profiles, rewrote
+flat early-model descriptions (~560), and applied 27 reviewed taste corrections:
+- **`intensity`** (1–10): how loudly the ingredient announces itself at typical
+  quantity — habanero 10, jalapeño 6, chicken breast 2. Data-only so far (no
+  pairing/UI consumer); candidate uses are Atlas display, steering rank, and
+  dish-frame balance. Never a pairing filter.
+- **`cookingMethods`**: `COOKING_METHODS` vocab in `types.ts` (18 terms) — methods
+  the ingredient genuinely suits; empty array = audited, not applicable
+  (vinegars, extracts, condiments).
+
 ### Dish frames & structural swap (P5)
 - **Frames** are `tier: 'frame'` presets in `flavorPresets.ts`: 5-slot structures
   (Salad, Grain Bowl, Pasta Night, Stir-Fry, Soup) whose slots carry editorial

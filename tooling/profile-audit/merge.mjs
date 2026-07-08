@@ -1,34 +1,38 @@
 #!/usr/bin/env node
 // Applies reviewed proposals to src/data/ingredientProfiles.ts IN PLACE:
-// inserts `textures:` / `functions:` lines after each profile's description,
+// replaces the `description:` line when a rewrite is proposed, then inserts
+// `textures:` / `functions:` / `cookingMethods:` / `intensity:` lines after it,
 // preserving all surrounding code. Idempotent — existing generated lines are
 // stripped and re-inserted, so re-running with updated proposals is safe.
+// When a proposal omits textures/functions, the current values from
+// work/profiles.json are carried forward unchanged (P4 layer can't drift).
 //
 // Taste flags are NEVER applied here. They are written to output/taste-audit.md
-// for hand review — taste values feed filters and slot roles, so changing them
-// is a behavior change and gets reviewed as such.
+// for review, then applied via apply-flags.mjs — taste values feed filters and
+// slot roles, so changing them is a behavior change and gets reviewed as such.
 //
 //   node extract.mjs && node check.mjs && node merge.mjs
 
 import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { TEXTURES, FUNCTIONS } from './vocab.mjs';
+import { TEXTURES, FUNCTIONS, COOKING_METHODS } from './vocab.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..');
 const TARGET = join(ROOT, 'src', 'data', 'ingredientProfiles.ts');
 
 const profiles = JSON.parse(readFileSync(join(HERE, 'work', 'profiles.json'), 'utf8'));
-const known = new Set(profiles.map((p) => p.name));
+const byName = new Map(profiles.map((p) => [p.name, p]));
 
 const proposals = new Map();
 const flags = [];
 for (const file of readdirSync(join(HERE, 'proposals')).filter((f) => f.endsWith('.json')).sort()) {
   for (const e of JSON.parse(readFileSync(join(HERE, 'proposals', file), 'utf8'))) {
-    if (!known.has(e.name)) throw new Error(`Unknown ingredient '${e.name}' — run check.mjs first`);
-    for (const t of e.textures) if (!TEXTURES.includes(t)) throw new Error(`Unknown texture '${t}' on ${e.name}`);
-    for (const f of e.functions) if (!FUNCTIONS.includes(f)) throw new Error(`Unknown function '${f}' on ${e.name}`);
+    if (!byName.has(e.name)) throw new Error(`Unknown ingredient '${e.name}' — run check.mjs first`);
+    for (const t of e.textures ?? []) if (!TEXTURES.includes(t)) throw new Error(`Unknown texture '${t}' on ${e.name}`);
+    for (const f of e.functions ?? []) if (!FUNCTIONS.includes(f)) throw new Error(`Unknown function '${f}' on ${e.name}`);
+    for (const m of e.cookingMethods ?? []) if (!COOKING_METHODS.includes(m)) throw new Error(`Unknown method '${m}' on ${e.name}`);
     proposals.set(e.name, e);
     for (const flag of e.tasteFlags ?? []) flags.push({ name: e.name, ...flag });
   }
@@ -38,7 +42,12 @@ const source = readFileSync(TARGET, 'utf8');
 const lines = source.split('\n');
 
 // Strip previously generated lines so the merge is idempotent.
-const kept = lines.filter((l) => !/^\s*(textures|functions): \[[^\]]*\],?\s*$/.test(l));
+const kept = lines.filter(
+  (l) => !/^\s*(textures|functions|cookingMethods): \[[^\]]*\],?\s*$/.test(l)
+    && !/^\s*intensity: \d+,?\s*$/.test(l)
+);
+
+const quote = (arr) => arr.map((x) => `"${x}"`).join(', ');
 
 const out = [];
 let currentName = null;
@@ -51,9 +60,15 @@ for (const line of kept) {
   if (descMatch && currentName && proposals.has(currentName)) {
     const indent = descMatch[1];
     const p = proposals.get(currentName);
-    out.push(line.trimEnd().endsWith(',') ? line : `${line.trimEnd()},`);
-    out.push(`${indent}textures: [${p.textures.map((t) => `"${t}"`).join(', ')}],`);
-    out.push(`${indent}functions: [${p.functions.map((f) => `"${f}"`).join(', ')}],`);
+    const existing = byName.get(currentName);
+    const descLine = p.description !== undefined
+      ? `${indent}description: "${p.description}",`
+      : (line.trimEnd().endsWith(',') ? line : `${line.trimEnd()},`);
+    out.push(descLine);
+    out.push(`${indent}textures: [${quote(p.textures ?? existing.textures ?? [])}],`);
+    out.push(`${indent}functions: [${quote(p.functions ?? existing.functions ?? [])}],`);
+    out.push(`${indent}cookingMethods: [${quote(p.cookingMethods ?? [])}],`);
+    if (p.intensity !== undefined) out.push(`${indent}intensity: ${p.intensity},`);
     applied++;
     currentName = null;
     continue;
@@ -61,28 +76,22 @@ for (const line of kept) {
   out.push(line);
 }
 
-const unapplied = [...proposals.keys()].filter((n) => {
-  // crude but sufficient: every applied entry now has a textures line right after its description
-  return !out.some((l, i) => l.includes(`name: "${n}"`));
-});
-if (unapplied.length) throw new Error(`Profiles not found in target file: ${unapplied.join(', ')}`);
 if (applied !== proposals.size) {
   throw new Error(`Applied ${applied}/${proposals.size} — some profiles have no matchable single-line description`);
 }
 
 writeFileSync(TARGET, out.join('\n'));
-console.log(`Applied textures/functions to ${applied} profiles in src/data/ingredientProfiles.ts`);
+console.log(`Applied proposals to ${applied} profiles in src/data/ingredientProfiles.ts`);
 
-// Taste-audit report (hand review only — nothing below changes app data).
+// Taste-audit report (review artifact — apply via apply-flags.mjs after review).
 mkdirSync(join(HERE, 'output'), { recursive: true });
 flags.sort((a, b) => Math.abs(b.suggested - b.current) - Math.abs(a.suggested - a.current));
 const report = [
   '# Taste-profile audit — flagged outliers',
   '',
-  'All 638 original taste profiles were early-Sonnet output (v0 estimates). This pass',
-  'flags values that look wrong; it does NOT apply them. Review each row and hand-edit',
-  'src/data/ingredientProfiles.ts (or reject the flag) — taste values feed filters and',
-  'slot roles, so every change here is a behavior change.',
+  'Flags are proposals, not applied by merge.mjs. Review each row, then run',
+  'apply-flags.mjs to apply approved flags (it skips anything hand-edited since) —',
+  'taste values feed filters and slot roles, so every change is a behavior change.',
   '',
   `${flags.length} flags across ${new Set(flags.map((f) => f.name)).size} ingredients.`,
   '',
@@ -92,4 +101,4 @@ const report = [
   '',
 ].join('\n');
 writeFileSync(join(HERE, 'output', 'taste-audit.md'), report);
-console.log(`Wrote ${flags.length} taste flags → output/taste-audit.md (hand review; not applied)`);
+console.log(`Wrote ${flags.length} taste flags → output/taste-audit.md (apply with apply-flags.mjs after review)`);
