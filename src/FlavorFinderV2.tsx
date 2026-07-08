@@ -9,6 +9,8 @@ import { IngredientProfile } from './types.ts';
 import { IngredientDrawer } from './components/v2/IngredientDrawer.tsx';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
 import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
+import { DrinkPairingPanel } from './components/v2/DrinkPairingPanel.tsx';
+import { DISH_TYPES } from './data/dishTypes.ts';
 import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
 import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
@@ -162,6 +164,7 @@ export default function FlavorFinderV2() {
     combinations,
     saveCombination,
     deleteCombination,
+    updateCombination,
   } = useSavedCombinations();
 
   const { customPresets, addCustomPreset, deleteCustomPreset } = useCustomPresets();
@@ -215,6 +218,16 @@ export default function FlavorFinderV2() {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [noMatchToast, setNoMatchToast] = useState(false);
   const [saveToast, setSaveToast] = useState<'saved' | 'removed' | null>(null);
+
+  // The drink panel (menu level): open for the current combo right after saving
+  // (toast action) or for any saved combo (sidebar glass). savedId lets the
+  // served-as choice and lazy rename persist back onto the saved dish.
+  const [drinkPanel, setDrinkPanel] = useState<{
+    savedId: string | null;
+    ingredients: string[];
+    name: string;
+    servedAs?: string;
+  } | null>(null);
 
   // Pairing sources, toggleable from the sidebar (initial value can come from ?sources=).
   const [enabledSources, setEnabledSources] = useState<PairingSource[]>(() => getEnabledSources());
@@ -1410,6 +1423,13 @@ export default function FlavorFinderV2() {
     return match ? match.id : null;
   }, [combinations, selectedIngredients]);
 
+  // The dish type this combo would carry if saved right now — inferred from an
+  // active dish steer (which is also how frame presets announce themselves).
+  const inferredDishTypeId = useMemo(() => {
+    if (contextSteer?.group !== 'dish') return undefined;
+    return DISH_TYPES.find(d => d.steerTag === contextSteer.tag)?.id;
+  }, [contextSteer]);
+
   // Toggle saving the current combination from the header bookmark button
   const handleSaveToggle = () => {
     if (selectedIngredients.length === 0) return;
@@ -1417,9 +1437,24 @@ export default function FlavorFinderV2() {
       deleteCombination(currentSavedId);
       setSaveToast('removed');
     } else {
-      saveCombination(selectedIngredients.join(', '), selectedIngredients);
+      saveCombination(
+        selectedIngredients.join(', '), selectedIngredients,
+        undefined, undefined, inferredDishTypeId
+      );
       setSaveToast('saved');
     }
+  };
+
+  // Zoom out from the just-saved combo to its dish-level surface.
+  const openDrinkPanelForCurrent = () => {
+    setSaveToast(null);
+    const combo = currentSavedId ? combinations.find(c => c.id === currentSavedId) : undefined;
+    setDrinkPanel({
+      savedId: currentSavedId,
+      ingredients: [...selectedIngredients],
+      name: combo?.name ?? selectedIngredients.join(', '),
+      servedAs: combo?.dishTypeId ?? inferredDishTypeId,
+    });
   };
 
   // Load a saved combination into the workspace (from the sidebar)
@@ -1435,7 +1470,8 @@ export default function FlavorFinderV2() {
   // Auto-dismiss the save/remove confirmation toast
   useEffect(() => {
     if (!saveToast) return;
-    const timer = setTimeout(() => setSaveToast(null), 2200);
+    // The saved toast carries the drink-panel action, so it lingers longer.
+    const timer = setTimeout(() => setSaveToast(null), saveToast === 'saved' ? 5000 : 2200);
     return () => clearTimeout(timer);
   }, [saveToast]);
 
@@ -1632,7 +1668,19 @@ export default function FlavorFinderV2() {
             text-sm font-medium text-center leading-snug shadow-lg
           `}
         >
-          {saveToast === 'saved' ? 'Saved to your combinations' : 'Removed from saved'}
+          {saveToast === 'saved' ? (
+            <span className="inline-flex items-center gap-3">
+              Saved
+              <button
+                onClick={openDrinkPanelForCurrent}
+                className="px-2.5 py-1 -my-0.5 rounded-full text-xs font-semibold bg-white/20 dark:bg-gray-900/15 hover:bg-white/30 dark:hover:bg-gray-900/25 transition-colors whitespace-nowrap"
+              >
+                What to drink with this?
+              </button>
+            </span>
+          ) : (
+            'Removed from saved'
+          )}
         </div>
       )}
 
@@ -1948,7 +1996,42 @@ export default function FlavorFinderV2() {
         savedCombinations={combinations}
         onLoadCombination={handleLoadCombination}
         onDeleteCombination={deleteCombination}
+        onDrinkPairing={combo => {
+          setIsSidebarOpen(false);
+          setDrinkPanel({
+            savedId: combo.id,
+            ingredients: [...combo.ingredients],
+            name: combo.name,
+            servedAs: combo.dishTypeId,
+          });
+        }}
       />
+
+      {/* Drink pairing panel (menu level) */}
+      {drinkPanel && (
+        <DrinkPairingPanel
+          ingredients={drinkPanel.ingredients}
+          dishName={drinkPanel.name}
+          servedAs={drinkPanel.servedAs}
+          onServedAsChange={id => {
+            setDrinkPanel(p => (p ? { ...p, servedAs: id } : p));
+            if (drinkPanel.savedId) updateCombination(drinkPanel.savedId, { dishTypeId: id });
+          }}
+          onRename={
+            drinkPanel.savedId
+              ? name => {
+                  updateCombination(drinkPanel.savedId!, { name });
+                  setDrinkPanel(p => (p ? { ...p, name } : p));
+                }
+              : undefined
+          }
+          nonAlcoholicOnly={Object.entries(dietaryRestrictions).some(
+            ([key, allowed]) => key.startsWith('Alcohol:') && allowed === false
+          )}
+          onClose={() => setDrinkPanel(null)}
+          isMobile={isMobile}
+        />
+      )}
 
       {/* Ingredient Filters Modal */}
       <IngredientFiltersModal

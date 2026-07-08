@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Compass, Sparkles, Keyboard, Layers, LayoutGrid } from 'lucide-react';
+import { ChevronRight, ChevronDown, Moon, Sun, SlidersHorizontal, Bookmark, Trash2, Wine, Compass, Sparkles, Keyboard, Layers, LayoutGrid } from 'lucide-react';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { Toggle } from './ui/index.ts';
@@ -172,6 +172,7 @@ const SavedCombinationsContent = ({
   savedCombinations,
   onLoadCombination,
   onDeleteCombination,
+  onDrinkPairing,
 }) => {
   if (savedCombinations.length === 0) {
     return (
@@ -206,6 +207,14 @@ const SavedCombinationsContent = ({
             </div>
           </button>
           <button
+            onClick={() => onDrinkPairing(combo)}
+            className="shrink-0 p-2 mt-1 text-gray-300 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            aria-label="What to drink with this"
+            title="What to drink"
+          >
+            <Wine size={15} strokeWidth={1.75} />
+          </button>
+          <button
             onClick={() => onDeleteCombination(combo.id)}
             className="shrink-0 p-2 mt-1 mr-1 text-gray-300 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
             aria-label="Delete saved combination"
@@ -234,6 +243,7 @@ export const Sidebar = ({
   savedCombinations = [],
   onLoadCombination = () => {},
   onDeleteCombination = () => {},
+  onDrinkPairing = () => {},
 }) => {
   const { isMobile } = useScreenSize();
   const [openSections, setOpenSections] = useState({ saved: false, generation: false, sources: false, shortcuts: false });
@@ -324,6 +334,7 @@ export const Sidebar = ({
                 savedCombinations={savedCombinations}
                 onLoadCombination={onLoadCombination}
                 onDeleteCombination={onDeleteCombination}
+                onDrinkPairing={onDrinkPairing}
               />
             </CollapsibleSection>
 

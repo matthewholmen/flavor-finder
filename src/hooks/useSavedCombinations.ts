@@ -8,6 +8,9 @@ export interface SavedCombination {
   lastUsed: Date;
   tags?: string[];
   notes?: string;
+  /** "Served as" dish type (data/dishTypes.ts) — set from the drink panel's
+   *  pills or inferred from the frame/steer the combo was generated under. */
+  dishTypeId?: string;
 }
 
 export const useSavedCombinations = () => {
@@ -41,7 +44,7 @@ export const useSavedCombinations = () => {
     localStorage.setItem('flavorFinderCombinations', JSON.stringify(combinations));
   }, [combinations, hasLoaded]);
 
-  const saveCombination = (name: string, ingredients: string[], tags?: string[], notes?: string) => {
+  const saveCombination = (name: string, ingredients: string[], tags?: string[], notes?: string, dishTypeId?: string) => {
     const newCombination: SavedCombination = {
       id: Date.now().toString(),
       name: name.trim() || `Combination ${combinations.length + 1}`,
@@ -49,7 +52,8 @@ export const useSavedCombinations = () => {
       createdAt: new Date(),
       lastUsed: new Date(),
       tags,
-      notes
+      notes,
+      dishTypeId
     };
     setCombinations(prev => [newCombination, ...prev]);
     return newCombination.id;
