@@ -32,8 +32,8 @@ export interface DrinkSuggestion {
 }
 
 export interface SuggestDrinksOptions {
-  /** Dish-frame preset id (flavorPresets tier 'frame') for served-state context. */
-  frameId?: string;
+  /** "Served as" dish-type id (data/dishTypes.ts) or frame-preset id. */
+  servedAs?: string;
   /** Restrict to non-alcoholic suggestions (alcohol-free dietary filter). */
   nonAlcoholicOnly?: boolean;
   limit?: number;
@@ -141,8 +141,8 @@ export const suggestDrinks = (
   ingredients: string[],
   options: SuggestDrinksOptions = {},
 ): DrinkSuggestion[] => {
-  const { frameId, nonAlcoholicOnly = false, limit = 8 } = options;
-  const dish = computeDishProfile(ingredients, frameId);
+  const { servedAs, nonAlcoholicOnly = false, limit = 8 } = options;
+  const dish = computeDishProfile(ingredients, servedAs);
   const evidence = collectEvidence(ingredients);
 
   const suggestions: DrinkSuggestion[] = [];

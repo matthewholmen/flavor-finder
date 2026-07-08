@@ -1,7 +1,10 @@
-import { computeDishProfile, dishDescriptors, FRAME_CONTEXTS } from './dishProfile';
+import { computeDishProfile, dishDescriptors } from './dishProfile';
 import { suggestDrinks } from './drinkPairing';
 import { INGREDIENT_DRINK_PAIRINGS } from '../data/drinkPairings';
 import { DRINK_STYLE_ATTRS } from '../data/drinkStyles';
+import { DISH_TYPES, resolveDishType } from '../data/dishTypes';
+import { CONTEXT_TAG_KEYWORDS } from '../data/pairingContext';
+import { FLAVOR_PRESETS } from '../data/flavorPresets';
 import { getProfile } from './atlas';
 
 // Every test dish is mutually compatible per the flavor map (verified against
@@ -14,24 +17,29 @@ const GINGER_SLAW = ['ginger', 'lime', 'cilantro', 'peanut'];
 const SALMON_BUTTER = ['salmon', 'butter', 'lemon', 'asparagus'];
 
 describe('computeDishProfile', () => {
-  it('disambiguates the same ingredients through the frame', () => {
-    const asPasta = computeDishProfile(MARGHERITA, 'frame-pasta');
-    const asSalad = computeDishProfile(MARGHERITA, 'frame-salad');
-    expect(asSalad.weight).toBeLessThan(asPasta.weight);
-    expect(asSalad.richness).toBeLessThan(asPasta.richness); // fat as dressing, not melted
-    expect(asSalad.acidity).toBeGreaterThan(asPasta.acidity); // raw reads brighter
+  it('disambiguates the same ingredients through the dish type', () => {
+    const asPizza = computeDishProfile(MARGHERITA, 'pizza');
+    const asSalad = computeDishProfile(MARGHERITA, 'salad');
+    expect(asSalad.weight).toBeLessThan(asPizza.weight);
+    expect(asSalad.richness).toBeLessThan(asPizza.richness); // fat as dressing, not melted
+    expect(asSalad.acidity).toBeGreaterThan(asPizza.acidity); // raw reads brighter
   });
 
-  it('mellows non-chili heat in cooked frames (ginger) but not in raw ones', () => {
-    const cooked = computeDishProfile(STIR_FRY, 'frame-stir-fry');
-    const raw = computeDishProfile(GINGER_SLAW, 'frame-salad');
+  it('accepts frame-preset ids as served-as aliases', () => {
+    expect(computeDishProfile(MARGHERITA, 'frame-salad'))
+      .toEqual(computeDishProfile(MARGHERITA, 'salad'));
+  });
+
+  it('mellows non-chili heat in cooked dishes (ginger) but not in raw ones', () => {
+    const cooked = computeDishProfile(STIR_FRY, 'stir-fry');
+    const raw = computeDishProfile(GINGER_SLAW, 'salad');
     const gingerSpice = getProfile('ginger')!.flavorProfile.spicy;
     expect(raw.heat).toBe(gingerSpice); // raw ginger keeps its full bite
     expect(cooked.heat).toBeLessThan(gingerSpice);
   });
 
   it('damps condiment contributions so soy sauce does not set the salt level', () => {
-    const dish = computeDishProfile(STIR_FRY, 'frame-stir-fry');
+    const dish = computeDishProfile(STIR_FRY, 'stir-fry');
     const soySalt = getProfile('soy sauce')!.flavorProfile.salty;
     expect(dish.salt).toBeLessThan(soySalt);
   });
@@ -43,7 +51,7 @@ describe('computeDishProfile', () => {
   });
 
   it('produces display descriptors', () => {
-    const salad = computeDishProfile(MARGHERITA, 'frame-salad');
+    const salad = computeDishProfile(MARGHERITA, 'salad');
     expect(dishDescriptors(salad)).toContain('light');
   });
 });
@@ -56,14 +64,14 @@ describe('suggestDrinks', () => {
   });
 
   it('reaches for aromatic whites on raw heat, with the rule as receipt', () => {
-    const top = suggestDrinks(GINGER_SLAW, { frameId: 'frame-salad', limit: 5 });
+    const top = suggestDrinks(GINGER_SLAW, { servedAs: 'salad', limit: 5 });
     const aromatic = top.filter(s => s.drink.style === 'aromatic white');
     expect(aromatic.length).toBeGreaterThan(0);
     expect(aromatic[0].rules).toContain('cools the heat');
   });
 
   it('warns when tannin or alcohol would amplify heat', () => {
-    const all = suggestDrinks(GINGER_SLAW, { frameId: 'frame-salad', limit: 100 });
+    const all = suggestDrinks(GINGER_SLAW, { servedAs: 'salad', limit: 100 });
     const boldRed = all.find(s => s.drink.style === 'bold red');
     const whiskey = all.find(s => s.drink.style === 'whiskey');
     expect(boldRed!.warnings).toContain('tannin amplifies the heat');
@@ -82,8 +90,8 @@ describe('suggestDrinks', () => {
   });
 
   it('is deterministic', () => {
-    const a = suggestDrinks(STIR_FRY, { frameId: 'frame-stir-fry' }).map(s => s.drink.name);
-    const b = suggestDrinks(STIR_FRY, { frameId: 'frame-stir-fry' }).map(s => s.drink.name);
+    const a = suggestDrinks(STIR_FRY, { servedAs: 'stir-fry' }).map(s => s.drink.name);
+    const b = suggestDrinks(STIR_FRY, { servedAs: 'stir-fry' }).map(s => s.drink.name);
     expect(a).toEqual(b);
   });
 });
@@ -105,9 +113,23 @@ describe('drink pairing data invariants', () => {
     }
   });
 
-  it('covers every frame preset with a frame context', () => {
-    for (const id of ['frame-salad', 'frame-grain-bowl', 'frame-pasta', 'frame-stir-fry', 'frame-soup']) {
-      expect(FRAME_CONTEXTS[id]).toBeDefined();
+  it('resolves every generative frame preset to a dish type', () => {
+    for (const preset of FLAVOR_PRESETS.filter(p => p.tier === 'frame')) {
+      expect(resolveDishType(preset.id)).toBeDefined();
     }
+  });
+
+  it('points every dish-type steerTag at a real corpus dish tag', () => {
+    for (const dt of DISH_TYPES) {
+      if (dt.steerTag) {
+        expect(CONTEXT_TAG_KEYWORDS.dish[dt.steerTag]).toBeDefined();
+      }
+    }
+  });
+
+  it('keeps dish-type ids unique and the primary tier uncluttered', () => {
+    const ids = DISH_TYPES.map(d => d.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(DISH_TYPES.filter(d => d.tier === 'primary').length).toBeLessThanOrEqual(10);
   });
 });

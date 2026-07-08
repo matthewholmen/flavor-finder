@@ -143,9 +143,28 @@ because the heuristics are already codified.
    attenuation (chilis exempt), protein-weighted evidence.
 3. ~~**Drink style table**~~ — DONE: authored `src/data/drinkStyles.ts` (37 styles ×
    6 attrs). Draft numbers — tune against golden dishes.
-4. **UI**: Save→Dish naming pass, dish cards with profile chips, drink panel.
-5. **Re-mine tooling** for weights + dish entries (improves receipts, doesn't block 4).
-6. **Dish-to-dish balance** — separate follow-on.
+4. ~~**"Served as" taxonomy**~~ — DONE: `src/data/dishTypes.ts`. 23 dish types in two
+   tiers (10 primary pills, 13 behind "more"), derived from the corpus dish tags so
+   `steerTag` links to receipt-backed steering where the corpus supports it
+   (grain bowl / dumplings / sushi & crudo / cheese board are profile-only — fine).
+   Labels are plain nouns ("Pasta", not "Pasta Night"). Frame-preset ids resolve
+   as aliases (`resolveDishType`), so frame-generated combos answer "served as"
+   for free.
+5. **UI — the "Pair it" panel**, designed to grow into the menu builder:
+   - Save stays one-tap; the save toast gains "What to drink with this?".
+   - Panel header = dish identity: lazy-editable name, served-as pills
+     (primary tier + "more" expander), descriptor chips.
+   - Suggestion card = hero + **prev/next chevrons with position ("2 of 8")** —
+     browsing a small ranked list, deliberately NOT the Generate randomizer feel —
+     receipts always visible (book/rule/warning chips), tappable list below.
+   - The card anatomy is the contract: dish-to-dish ("On the side") arrives later
+     as a sibling section in the same panel with identical anatomy — hero,
+     chevrons, receipts — so the menu builder is the same UX, one level up.
+   - Sidebar saved rows get a glass icon as the second entry point; alcohol-free
+     dietary filter auto-sets `nonAlcoholicOnly`.
+6. **Re-mine tooling** for weights + dish entries (improves receipts, doesn't block 5).
+7. **Dish-to-dish balance** — the "On the side" section; needs authored contrast
+   rules over DishProfile pairs (complement weight/richness, echo nothing).
 
 ### Edge-case ledger (high-variance watch list)
 

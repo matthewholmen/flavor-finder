@@ -5,10 +5,11 @@
 // tags into a 0–10 DishProfile — how the dish EATS, not what's in it.
 //
 // Ingredients alone underdetermine a dish (the same five ingredients make a
-// pizza or a caprese), so the frame carries the missing context: a FrameContext
-// sets the structural weight baseline, whether the dish is cooked (cooked
-// aromatics read less spicy — ginger in a stir-fry vs a slaw), and how fat
-// functions (dressing vs structural richness).
+// pizza or a caprese), so the dish type ("served as", data/dishTypes.ts)
+// carries the missing context: a FrameContext sets the structural weight
+// baseline, whether the dish is cooked (cooked aromatics read less spicy —
+// ginger in a stir-fry vs a slaw), and how fat functions (dressing vs
+// structural richness).
 //
 // Known limit, by design: ingredient lists carry no quantities, so attributes
 // are estimates with diminishing returns, not sums. When slot assignments are
@@ -18,6 +19,9 @@
 // the engine already produced.
 
 import { getProfile } from './atlas.ts';
+import { resolveDishType, FrameContext } from '../data/dishTypes.ts';
+
+export type { FrameContext };
 
 export interface DishProfile {
   /** Fat/cream heft — the thing acid, tannin, and bubbles cut. */
@@ -32,26 +36,6 @@ export interface DishProfile {
   /** Light ↔ hearty: structural heft from grains, proteins, starch. */
   weight: number;
 }
-
-export interface FrameContext {
-  /** Structural weight baseline the ingredients build on (salad 2, pizza 7). */
-  weightBase: number;
-  /** Cooked dishes mellow non-chili heat and marry fats. */
-  cooked: boolean;
-  /** How fat reads: dressing (<1) vs structural/melted (>1). */
-  fatMult: number;
-  /** Raw/fresh frames push brightness forward. */
-  acidMult: number;
-}
-
-// Keyed by dish-frame preset id (flavorPresets tier: 'frame').
-export const FRAME_CONTEXTS: Record<string, FrameContext> = {
-  'frame-salad':      { weightBase: 2.0, cooked: false, fatMult: 0.7, acidMult: 1.15 },
-  'frame-grain-bowl': { weightBase: 5.0, cooked: true,  fatMult: 0.9, acidMult: 1.0 },
-  'frame-pasta':      { weightBase: 6.0, cooked: true,  fatMult: 1.1, acidMult: 0.95 },
-  'frame-stir-fry':   { weightBase: 4.5, cooked: true,  fatMult: 1.0, acidMult: 1.0 },
-  'frame-soup':       { weightBase: 4.0, cooked: true,  fatMult: 0.9, acidMult: 1.0 },
-};
 
 export const DEFAULT_FRAME_CONTEXT: FrameContext = {
   weightBase: 4.0, cooked: false, fatMult: 1.0, acidMult: 1.0,
@@ -74,11 +58,13 @@ const CONDIMENT_SUBCATEGORIES = new Set([
 ]);
 const CONDIMENT_DAMP = 0.6;
 
+// `servedAs` accepts a dish-type id ('pizza') or a frame-preset id
+// ('frame-salad') — resolveDishType handles both.
 export const computeDishProfile = (
   ingredients: string[],
-  frameId?: string,
+  servedAs?: string,
 ): DishProfile => {
-  const frame = (frameId && FRAME_CONTEXTS[frameId]) || DEFAULT_FRAME_CONTEXT;
+  const frame = resolveDishType(servedAs)?.context ?? DEFAULT_FRAME_CONTEXT;
 
   const fats: number[] = [];
   const sours: number[] = [];
