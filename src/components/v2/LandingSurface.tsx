@@ -58,6 +58,23 @@ const MAX_INGREDIENT_HITS = 6;
 const shufflePick = <T,>(arr: T[], n: number): T[] =>
   [...arr].sort(() => Math.random() - 0.5).slice(0, n);
 
+// The landing headline — a random one shows on each load, for a bit of
+// personality. Kept short so it fits the display type on one/two lines.
+const HEADLINES = [
+  'What do you want to make?',
+  'What are we cooking today?',
+  'What sounds good?',
+  "What's cooking, good looking?",
+  "Hungry? Let's fix that.",
+  "What'll it be, chef?",
+  'What tastes good together?',
+  "Let's pair something up.",
+  'Give me a flavor to chase.',
+  'Dream up a dish.',
+  'What should we throw together?',
+  'Where should we start?',
+];
+
 export const LandingSurface: React.FC<LandingSurfaceProps> = ({
   isMobile,
   allIngredients,
@@ -76,6 +93,9 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
   const [term, setTerm] = useState('');
   const [browsing, setBrowsing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Pick one headline per mount (fresh each load).
+  const headline = useMemo(() => HEADLINES[Math.floor(Math.random() * HEADLINES.length)], []);
 
   // Steerable tags, richest subgraph first.
   const tagCounts = useMemo(() => (mod ? mod.getSteerTagCounts() : null), [mod]);
@@ -221,7 +241,7 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
         className="mx-auto w-full max-w-xl flex flex-col items-center py-6"
       >
         <h2 className={`font-display font-black tracking-tight text-gray-900 dark:text-white text-center ${isMobile ? 'text-3xl' : 'text-4xl'}`}>
-          What do you want to make?
+          {headline}
         </h2>
 
         {/* The search — the one thing to focus on */}
