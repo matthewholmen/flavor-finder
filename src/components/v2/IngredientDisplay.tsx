@@ -1038,18 +1038,24 @@ export const IngredientDisplay = ({
   // This allows the page to scroll when ingredient info is expanded
   const usesFlowLayout = isMobile && layoutMode === 'full';
 
-  // Desktop hero: a 5-ingredient combo in the full-width (90vw) box tends to
-  // pack 4 names on the first line and drop the 5th as a lone "widow". Giving
-  // just the 5-combo a narrower box makes the centered flex row PREFER a more
-  // even wrap (≈3+2) without forcing an exact split, so long names like
-  // "white chocolate" still lay out sanely. ≤4-ingredient combos keep the
-  // roomy width and stay on one line.
-  // The rem cap matters: the font caps at 6rem once the viewport passes ~1600px
-  // (6vw = 96px), so without capping the box too, an ever-wider 70vw box would
-  // fit 4 names on line one again and the widow returns. 70rem = 70vw at 1600px,
-  // so the box and font stop scaling together and the 3+2 split holds on
-  // ultrawide displays.
-  const desktopHeroMaxWidth = validIngredients.length === 5 ? 'min(70vw, 70rem)' : '90vw';
+  // Desktop hero: a 5-ingredient combo in the full-width (90vw) box packs 4
+  // names on the first line and drops the 5th as a lone "widow". A *fixed*
+  // narrower box can't fix this: narrow enough to break short names ("sorrel")
+  // into 3+2 also shatters long-name combos ("black peppercorn") into a
+  // widowed 1+2+1+1. So we size the box from the combo's OWN text length —
+  // estimate each name's width in em (Fraunces black ≈ 0.55em/char, plus
+  // comma+gap overhead) and cap the box near half the total. Line one then
+  // takes the majority and line two the rest, landing ~3+2 / 2+3 whether the
+  // names are short or long. em-based, so it scales with the vw font and the
+  // split holds at every width; min(90vw, …) keeps it on-screen when a
+  // long-name combo's half still exceeds the viewport. ≤4-ingredient combos
+  // keep the roomy width and stay on one line.
+  const desktopHeroMaxWidth = (() => {
+    if (validIngredients.length !== 5) return '90vw';
+    const totalEm =
+      validIngredients.reduce((sum, name) => sum + name.length * 0.55 + 0.5, 0) + 0.7;
+    return `min(90vw, ${(totalEm * 0.55).toFixed(1)}em)`;
+  })();
 
   return (
     <>
