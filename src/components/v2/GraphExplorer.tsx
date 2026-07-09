@@ -51,6 +51,8 @@ interface SimNode extends SimulationNodeDatum {
 }
 interface SimLink extends SimulationLinkDatum<SimNode> {
   toCenter: boolean;
+  /** Rim ties (partner↔partner / candidate↔candidate): drawn only for the active node. */
+  rim: boolean;
 }
 
 /** Dominant-taste color for the taste lens: the highest flavor dimension, or neutral gray
@@ -86,9 +88,14 @@ const partnerRadius = (degree: number): number => 10 + Math.min(8, Math.sqrt(deg
 const groupKeyOf = (profile: IngredientProfile | null, lens: Lens): string =>
   lens === 'taste' ? dominantTasteColor(profile) : profile?.category ?? 'Other';
 
+/** Anchor pull per node role. The center is held firmly mid-canvas (strong enough to
+ *  rubber-band back from a drag, soft enough to feel organic — it replaces the old hard
+ *  fx/fy pin); picks cluster near the middle; partners drift gently to their group. */
+const anchorStrength = (n: SimNode): number => (n.isCenter ? 0.5 : n.isPick ? 0.2 : 0.09);
+
 interface GraphModel {
   nodes: Array<{ name: string; isCenter: boolean; isPick: boolean; profile: IngredientProfile | null; degree: number }>;
-  edges: Array<{ source: string; target: string; toCenter: boolean }>;
+  edges: Array<{ source: string; target: string; toCenter: boolean; rim: boolean }>;
   /** Partner/candidate count before any degree cap. */
   total: number;
   /** Names dropped by the degree cap (the "+N more" list). */
@@ -193,14 +200,16 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       // Anchor-to-anchor edges: the picks form a mutually-compatible clique by construction.
       for (let i = 0; i < picks.length; i++) {
         for (let j = i + 1; j < picks.length; j++) {
-          edges.push({ source: picks[i], target: picks[j], toCenter: true });
+          edges.push({ source: picks[i], target: picks[j], toCenter: true, rim: false });
         }
       }
       // Each candidate pairs with every pick (that's what the intersection guarantees).
       // intersectNeighborhoods already excludes the picks themselves, so candidates and
       // picks never overlap.
       candidates.forEach(c => {
-        picks.forEach(p => edges.push({ source: c, target: p, toCenter: false }));
+        // Structural, not rim: the candidate↔pick spokes are the receipt that a
+        // candidate matches the whole combo, so they stay visible at rest.
+        picks.forEach(p => edges.push({ source: c, target: p, toCenter: false, rim: false }));
       });
       // Rim edges among the candidates themselves — same as explore mode's partner-to-
       // partner edges. They reveal cluster structure and make hovering a candidate show
@@ -213,7 +222,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           const key = c < n ? `${c} ${n}` : `${n} ${c}`;
           if (seenRim.has(key)) return;
           seenRim.add(key);
-          edges.push({ source: c, target: n, toCenter: false });
+          edges.push({ source: c, target: n, toCenter: false, rim: true });
         });
       });
       return { nodes, edges, total, hidden };
@@ -228,7 +237,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         profile: n.profile,
         degree: n.degree,
       })),
-      edges: net.edges,
+      edges: net.edges.map(e => ({ ...e, rim: !e.toCenter })),
       total: net.totalPartners,
       hidden: net.hiddenPartners,
     };
@@ -286,6 +295,10 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       const s = l.source as SimNode;
       const t = l.target as SimNode;
       if (s.x == null || t.x == null) return;
+      // Rim ties draw only for the active node: at rest the view shows just the
+      // structural spokes; hover (or tap-focus on mobile) reveals a node's own web.
+      // This is what keeps ~700 cross-edges from reading as a hairball.
+      if (l.rim && !(active && (s.id === active || t.id === active))) return;
       const lit = !dim || s.id === active || t.id === active;
       ctx.beginPath();
       ctx.moveTo(s.x, s.y);
@@ -293,7 +306,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       ctx.strokeStyle = lit
         ? l.toCenter
           ? 'rgba(120,120,130,0.55)'
-          : 'rgba(150,150,160,0.32)'
+          : l.rim
+            ? 'rgba(150,150,160,0.5)' // revealed on hover — the payoff, so draw it clearly
+            : 'rgba(150,150,160,0.32)'
         : 'rgba(150,150,160,0.06)';
       ctx.lineWidth = lit && l.toCenter ? 1.4 : 1;
       ctx.stroke();
@@ -390,15 +405,15 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         r: n.isCenter ? 26 : n.isPick ? 18 : partnerRadius(n.degree),
         x: prev?.x ?? cx + (Math.random() - 0.5) * 240,
         y: prev?.y ?? cy + (Math.random() - 0.5) * 240,
-        // Pin the center so the graph doesn't drift off-screen.
-        fx: n.isCenter && !buildMode ? cx : undefined,
-        fy: n.isCenter && !buildMode ? cy : undefined,
+        // No hard pin on the center — a strong anchor (see anchorStrength) holds it
+        // mid-canvas AND rubber-bands it back after a drag instead of letting the
+        // user strand it in a corner.
       };
     });
     const byId = new Map(simNodes.map(n => [n.id, n]));
     const simLinks: SimLink[] = model.edges
       .filter(e => byId.has(e.source) && byId.has(e.target))
-      .map(e => ({ source: e.source, target: e.target, toCenter: e.toCenter }));
+      .map(e => ({ source: e.source, target: e.target, toCenter: e.toCenter, rim: e.rim }));
 
     nodesRef.current = simNodes;
     linksRef.current = simLinks;
@@ -465,8 +480,14 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           .distance(l => (l.toCenter ? 150 : 110) * spread)
           .strength(l => (l.toCenter ? 0.12 : 0.02))
       )
-      .force('x', forceX<SimNode>(n => layoutRef.current!.anchor(n).x).strength(0.08))
-      .force('y', forceY<SimNode>(n => layoutRef.current!.anchor(n).y).strength(0.1))
+      .force(
+        'x',
+        forceX<SimNode>(n => layoutRef.current!.anchor(n).x).strength(anchorStrength)
+      )
+      .force(
+        'y',
+        forceY<SimNode>(n => layoutRef.current!.anchor(n).y).strength(anchorStrength)
+      )
       .force('collide', forceCollide<SimNode>(n => n.r + 18))
       .on('tick', () => {
         // Clamp to the canvas so no node (or its label) drifts out of view — matters
@@ -475,7 +496,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         simNodes.forEach(n => {
           if (n.x == null || n.y == null) return;
           if (cw > 0 && ch > 0) {
-            n.x = Math.max(n.r + 10, Math.min(cw - n.r - 10, n.x));
+            // Side padding is generous because labels are centered under nodes and
+            // wider than the node itself — "chicken stock" needs the elbow room.
+            n.x = Math.max(n.r + 30, Math.min(cw - n.r - 30, n.x));
             n.y = Math.max(n.r + 10, Math.min(ch - n.r - 24, n.y)); // room for the label below
           }
           positionsRef.current.set(n.id, { x: n.x, y: n.y });
@@ -521,18 +544,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       canvas.height = Math.round(rect.height * dpr);
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
-      const cx = rect.width / 2;
-      const cy = rect.height / 2;
       const sim = simRef.current;
       if (sim) {
         // Retarget the cluster anchors to the new canvas — never poke the x/y forces
         // directly, that would replace their per-node anchor accessors with a constant.
         buildLayoutRef.current?.(rect.width, rect.height);
-        const c = nodesRef.current.find(n => n.isCenter);
-        if (c && !buildMode) {
-          c.fx = cx;
-          c.fy = cy;
-        }
         sim.alpha(0.4).restart();
       }
       draw();
@@ -573,7 +589,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       dragging: !!n,
     };
     if (n) {
-      canvasRef.current?.setPointerCapture(e.pointerId);
+      try {
+        canvasRef.current?.setPointerCapture(e.pointerId);
+      } catch {
+        // Capture can fail for exotic pointer states; the drag still works without it.
+      }
       n.fx = n.x;
       n.fy = n.y;
       simRef.current?.alphaTarget(0.15).restart();
@@ -605,12 +625,12 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     const p = pointer.current;
     const n = p.downId ? nodesRef.current.find(nn => nn.id === p.downId) : null;
     if (n) {
-      // Release the pin unless it's the pinned center.
-      if (!(n.isCenter && !buildMode)) {
-        n.fx = undefined;
-        n.fy = undefined;
-      }
+      n.fx = undefined;
+      n.fy = undefined;
       simRef.current?.alphaTarget(0);
+      // After a real drag, reheat so the anchors tug the node back toward its spot —
+      // partway for partners, firmly for the center — instead of stranding it.
+      if (p.moved) simRef.current?.alpha(0.3).restart();
     }
     if (n && !p.moved) handleTap(n.id);
     pointer.current = { downId: null, downX: 0, downY: 0, moved: false, dragging: false };
@@ -774,12 +794,37 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
 
       {/* Body: graph + info panel */}
       <div className={`flex-1 min-h-0 flex ${isMobile ? 'flex-col' : 'flex-row'}`}>
-        {/* Graph canvas */}
+        {/* Graph column: legend row / canvas / stats row. The legend and counts live in
+            normal flow (NOT overlaid on the canvas) so chrome never covers a node —
+            on a phone the floating version sat right on top of ingredients. */}
         {/* min-w-0 + absolutely-positioned canvas: the canvas carries a fixed pixel width
             (set by the resize observer), and without these the flex container refuses to
             shrink below it — squeezing the window then pushes the info panel off-screen
             instead of shrinking the graph. */}
-        <div ref={containerRef} className="relative flex-1 min-h-0 min-w-0 bg-gray-50 dark:bg-gray-900/40 touch-none">
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+          {/* Lens legend — only the colors present in this view. One scrollable line on
+              mobile (wrapping would eat canvas height), wrapping on desktop. */}
+          <div
+            className={`shrink-0 px-4 sm:px-6 py-2 flex gap-x-3 gap-y-1 ${
+              isMobile ? 'flex-nowrap overflow-x-auto' : 'flex-wrap'
+            }`}
+          >
+            {legend.map(item => (
+              <span
+                key={item.label}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+              >
+                <span
+                  className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: item.color }}
+                  aria-hidden="true"
+                />
+                {item.label}
+              </span>
+            ))}
+          </div>
+
+          <div ref={containerRef} className="relative flex-1 min-h-0 bg-gray-50 dark:bg-gray-900/40 touch-none">
           <canvas
             ref={canvasRef}
             onPointerDown={handlePointerDown}
@@ -791,62 +836,23 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             }}
             className="absolute inset-0"
           />
-          {/* Lens legend — only the colors present in this view */}
-          <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-x-3 gap-y-1 pointer-events-none">
-            {legend.map(item => (
-              <span
-                key={item.label}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300"
+          {/* Dead-end guidance stays overlaid: it's a transient warning, not chrome,
+              and only appears when the candidate ring is empty anyway. */}
+          {buildMode && candidateCount === 0 && picks.length < MAX_PICKS && (
+            <span className="absolute bottom-3 left-3 max-w-[240px] px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-xs text-amber-800 dark:text-amber-200 shadow-sm">
+              Nothing pairs with all {picks.length}. Try removing{' '}
+              <button
+                className="underline font-medium lowercase"
+                onClick={() => {
+                  const worst = mostConstrainingPick(graph, picks);
+                  if (worst) setPicks(prev => prev.filter(p => p !== worst));
+                }}
               >
-                <span
-                  className="inline-block w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: item.color }}
-                  aria-hidden="true"
-                />
-                {item.label}
-              </span>
-            ))}
-          </div>
-
-          {/* Counts + database scale (mockup footer) */}
-          <div className="absolute bottom-3 left-3 right-3 flex flex-col gap-2 items-start">
-            {buildMode && candidateCount === 0 && picks.length < MAX_PICKS && (
-              <span className="max-w-[240px] px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-xs text-amber-800 dark:text-amber-200 shadow-sm">
-                Nothing pairs with all {picks.length}. Try removing{' '}
-                <button
-                  className="underline font-medium lowercase"
-                  onClick={() => {
-                    const worst = mostConstrainingPick(graph, picks);
-                    if (worst) setPicks(prev => prev.filter(p => p !== worst));
-                  }}
-                >
-                  {mostConstrainingPick(graph, picks)}
-                </button>
-                .
-              </span>
-            )}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm tabular-nums">
-                {buildMode
-                  ? `${candidateCount} compatible`
-                  : model.hidden.length > 0
-                    ? `${model.total - model.hidden.length} of ${model.total} partners shown`
-                    : `${model.total} partner${model.total === 1 ? '' : 's'}`}
-              </span>
-              {model.hidden.length > 0 && (
-                <button
-                  onClick={() => setMorePanelOpen(o => !o)}
-                  className="px-3 py-1 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur text-xs font-medium text-gray-600 dark:text-gray-300 shadow-sm hover:text-gray-900 dark:hover:text-white"
-                >
-                  +{model.hidden.length} more
-                </button>
-              )}
-              <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
-                {dbStats.ingredients} ingredients · {dbStats.pairings.toLocaleString()} pairings
-                in the map
-              </span>
-            </div>
-          </div>
+                {mostConstrainingPick(graph, picks)}
+              </button>
+              .
+            </span>
+          )}
 
           {/* "+N more" list */}
           {morePanelOpen && model.hidden.length > 0 && (
@@ -881,6 +887,30 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                   .filter(n => !n.isCenter)
                   .map(n => n.name)
                   .join(', ')}.`}
+          </div>
+          </div>
+
+          {/* Counts + database scale, in flow below the canvas (mockup footer) */}
+          <div className="shrink-0 px-4 sm:px-6 py-2 flex flex-wrap items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-200 tabular-nums">
+              {buildMode
+                ? `${candidateCount} compatible`
+                : model.hidden.length > 0
+                  ? `${model.total - model.hidden.length} of ${model.total} partners shown`
+                  : `${model.total} partner${model.total === 1 ? '' : 's'}`}
+            </span>
+            {model.hidden.length > 0 && (
+              <button
+                onClick={() => setMorePanelOpen(o => !o)}
+                className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                +{model.hidden.length} more
+              </button>
+            )}
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
+              {dbStats.ingredients} ingredients · {dbStats.pairings.toLocaleString()} pairings
+              in the map
+            </span>
           </div>
         </div>
 
