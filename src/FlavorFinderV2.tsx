@@ -1245,12 +1245,14 @@ export default function FlavorFinderV2() {
     }
   };
 
-  // Graph Explorer "Use this combo" handoff: the build-mode picks (1–5, mutually
-  // compatible by construction) become the main app selection, resetting roles/pool/steer
-  // exactly like loading a saved combo. Everything downstream (Save/Share/Generate/Recipes)
-  // then behaves as if they were picked in Classic mode.
+  // Graph Explorer "Use this combo" handoff: the build-mode picks (mutually compatible
+  // by construction) become the main app selection, resetting roles/pool/steer exactly
+  // like loading a saved combo. Everything downstream (Save/Share/Generate/Recipes)
+  // then behaves as if they were picked in Classic mode. Graph picks are unlimited but
+  // the slot system is not — the graph disables the handoff past MAX_SLOTS, and the
+  // guard here backstops that so an oversized combo can never corrupt the slots.
   const useComboFromGraph = (ingredients: string[]) => {
-    if (ingredients.length === 0) return;
+    if (ingredients.length === 0 || ingredients.length > MAX_SLOTS) return;
     saveToHistory();
     const slots = defaultSlots();
     setSlotTastes(slots);

@@ -20,6 +20,7 @@ import {
   DEFAULT_DEGREE_CAP,
 } from '../../utils/graphExplorer.ts';
 import { getAtlasGraph, getProfile } from '../../utils/atlas.ts';
+import { MAX_SLOTS } from '../../hooks/useSlots.ts';
 import { CATEGORY_COLORS, TASTE_COLORS } from '../../utils/colors.ts';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { ingredientProfiles } from '../../data/ingredientProfiles.ts';
@@ -38,7 +39,11 @@ import type { IngredientProfile } from '../../types.ts';
 
 const TASTE_KEYS = ['sweet', 'salty', 'sour', 'umami', 'fat', 'spicy', 'aromatic'] as const;
 const NEUTRAL_NODE = '#9aa3b2';
-const MAX_PICKS = 5;
+/** Build-mode picks are unlimited — every added pick only tightens the intersection
+ *  pool (and the dead-end guidance catches an empty one). Only the Classic-mode handoff
+ *  is capped: the main app's slot system (roles, sliders, hero display, generation) is
+ *  built around MAX_SLOTS slots, so "Use this combo" needs the picks to fit. */
+const HANDOFF_MAX = MAX_SLOTS;
 type Lens = 'category' | 'taste';
 
 interface SimNode extends SimulationNodeDatum {
@@ -645,7 +650,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           const next = prev.filter(p => p !== name);
           return next.length ? next : prev;
         }
-        if (prev.length >= MAX_PICKS) return prev;
         return [...prev, name];
       });
       setFocusName(name);
@@ -838,7 +842,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           />
           {/* Dead-end guidance stays overlaid: it's a transient warning, not chrome,
               and only appears when the candidate ring is empty anyway. */}
-          {buildMode && candidateCount === 0 && picks.length < MAX_PICKS && (
+          {buildMode && candidateCount === 0 && (
             <span className="absolute bottom-3 left-3 max-w-[240px] px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-xs text-amber-800 dark:text-amber-200 shadow-sm">
               Nothing pairs with all {picks.length}. Try removing{' '}
               <button
@@ -924,7 +928,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             {buildMode ? (
               <div className="mb-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
-                  Your combo · {picks.length}/{MAX_PICKS}
+                  Your combo · {picks.length}
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {picks.map(name => (
@@ -945,7 +949,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                     onClick={() => {
                       onUseCombo(picks);
                     }}
-                    disabled={picks.length < 1}
+                    disabled={picks.length < 1 || picks.length > HANDOFF_MAX}
                     className="flex-1 py-2.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity"
                   >
                     Use this combo
@@ -957,6 +961,12 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                     Cancel
                   </button>
                 </div>
+                {picks.length > HANDOFF_MAX && (
+                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                    Keep exploring — but the main app fits {HANDOFF_MAX} ingredients, so
+                    remove {picks.length - HANDOFF_MAX} to use this combo.
+                  </p>
+                )}
                 <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
                   Tap a node to add or remove it. The pool is every ingredient that pairs
                   with all your picks.
