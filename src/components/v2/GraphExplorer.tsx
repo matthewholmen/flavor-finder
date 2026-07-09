@@ -149,6 +149,10 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const model: GraphModel = useMemo(() => {
     if (!center) return { nodes: [], edges: [], total: 0, hidden: [] };
 
+    // Desktop has room for a fuller neighborhood than a phone (Matt's call after using
+    // both); the "+N more" list still catches the overflow either way.
+    const degreeCap = isMobile ? DEFAULT_DEGREE_CAP : 40;
+
     if (buildMode) {
       const candidateSet = intersectNeighborhoods(graph, picks);
       // Cap the candidate ring for readability, keeping the highest-degree (most
@@ -158,9 +162,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       );
       const total = candidates.length;
       let hidden: string[] = [];
-      if (candidates.length > DEFAULT_DEGREE_CAP) {
-        hidden = candidates.slice(DEFAULT_DEGREE_CAP).sort((a, b) => a.localeCompare(b));
-        candidates = candidates.slice(0, DEFAULT_DEGREE_CAP);
+      if (candidates.length > degreeCap) {
+        hidden = candidates.slice(degreeCap).sort((a, b) => a.localeCompare(b));
+        candidates = candidates.slice(0, degreeCap);
       }
 
       const nodes = [
@@ -193,10 +197,24 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       candidates.forEach(c => {
         picks.forEach(p => edges.push({ source: c, target: p, toCenter: false }));
       });
+      // Rim edges among the candidates themselves — same as explore mode's partner-to-
+      // partner edges. They reveal cluster structure and make hovering a candidate show
+      // its mutual connections instead of dimming everything else out.
+      const candidateVisible = new Set(candidates);
+      const seenRim = new Set<string>();
+      candidates.forEach(c => {
+        graph.get(c)?.forEach(n => {
+          if (!candidateVisible.has(n)) return;
+          const key = c < n ? `${c} ${n}` : `${n} ${c}`;
+          if (seenRim.has(key)) return;
+          seenRim.add(key);
+          edges.push({ source: c, target: n, toCenter: false });
+        });
+      });
       return { nodes, edges, total, hidden };
     }
 
-    const net = computeEgoNetworkCanonical(center, { degreeCap: DEFAULT_DEGREE_CAP });
+    const net = computeEgoNetworkCanonical(center, { degreeCap });
     return {
       nodes: net.nodes.map(n => ({
         name: n.name,
@@ -209,7 +227,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       total: net.totalPartners,
       hidden: net.hiddenPartners,
     };
-  }, [center, buildMode, picks, graph]);
+  }, [center, buildMode, picks, graph, isMobile]);
 
   // --- Canvas + d3-force simulation ----------------------------------------------------
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -221,10 +239,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const sizeRef = useRef({ w: 0, h: 0 });
 
   // Live view state read inside the render loop / pointer handlers without re-subscribing.
-  const viewRef = useRef({ lens, focusName, isDarkMode, hovered: null as string | null });
+  const viewRef = useRef({ lens, focusName, isDarkMode, isMobile, hovered: null as string | null });
   viewRef.current.lens = lens;
   viewRef.current.focusName = focusName;
   viewRef.current.isDarkMode = isDarkMode;
+  viewRef.current.isMobile = isMobile;
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -236,8 +255,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, w, h);
 
-    const { lens: L, focusName: focus, hovered, isDarkMode: dark } = viewRef.current;
-    const active = hovered ?? focus;
+    const { lens: L, focusName: focus, hovered, isDarkMode: dark, isMobile: mobile } = viewRef.current;
+    // Desktop dimming follows the LIVE hover only — hover off a node and the graph
+    // returns to fully lit (the info panel still remembers the last ingredient). Mobile
+    // has no hover, so the tap-focus drives the highlight there instead.
+    const active = hovered ?? (mobile ? focus : null);
     const activeNeighbors = new Set<string>();
     if (active) {
       linksRef.current.forEach(l => {
@@ -374,13 +396,16 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     simRef.current?.stop();
     // Tuned to the validated mockup's spacing: strong repulsion + generous link lengths
     // + a collide radius that reserves room for the always-on label under each node.
+    // `spread` stretches link lengths on large canvases so a big desktop window gets a
+    // filled-out constellation instead of a tight knot in the middle.
+    const spread = Math.max(1, Math.min(1.7, Math.min(w, h) / 620));
     const sim = forceSimulation<SimNode>(simNodes)
-      .force('charge', forceManyBody<SimNode>().strength(-420))
+      .force('charge', forceManyBody<SimNode>().strength(-420 * spread))
       .force(
         'link',
         forceLink<SimNode, SimLink>(simLinks)
           .id(n => n.id)
-          .distance(l => (l.toCenter ? 140 : 100))
+          .distance(l => (l.toCenter ? 140 : 100) * spread)
           .strength(0.25)
       )
       .force('center', forceCenter(cx, cy).strength(0.04))
@@ -684,7 +709,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       {/* Body: graph + info panel */}
       <div className={`flex-1 min-h-0 flex ${isMobile ? 'flex-col' : 'flex-row'}`}>
         {/* Graph canvas */}
-        <div ref={containerRef} className="relative flex-1 min-h-0 bg-gray-50 dark:bg-gray-900/40 touch-none">
+        {/* min-w-0 + absolutely-positioned canvas: the canvas carries a fixed pixel width
+            (set by the resize observer), and without these the flex container refuses to
+            shrink below it — squeezing the window then pushes the info panel off-screen
+            instead of shrinking the graph. */}
+        <div ref={containerRef} className="relative flex-1 min-h-0 min-w-0 bg-gray-50 dark:bg-gray-900/40 touch-none">
           <canvas
             ref={canvasRef}
             onPointerDown={handlePointerDown}
@@ -694,7 +723,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
               viewRef.current.hovered = null;
               draw();
             }}
-            className="block"
+            className="absolute inset-0"
           />
           {/* Lens legend — only the colors present in this view */}
           <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-x-3 gap-y-1 pointer-events-none">

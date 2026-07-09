@@ -235,3 +235,17 @@ edge clutter above ~30 nodes, legend/lens-toggle placement.
   resize effect's deps so it re-runs when the canvas mounts, plus the simulation effect
   now measures the container directly if `sizeRef` is still zero. Verified on the exact
   reported path: home combo → ingredient info → Explore the map.
+- **2026-07-09 (round 4, Matt's desktop feedback)** — four refinements:
+  - Build mode now draws **rim edges among candidates** (real pairings, deduped), so
+    hovering a candidate highlights its mutual connections exactly like explore mode
+    instead of dimming everything but the picks.
+  - **Hover-off un-dims**: desktop dimming follows the live hover only (`hovered`, not
+    `hovered ?? focus`); leave a node and the graph returns to fully lit while the info
+    panel keeps the last ingredient. Mobile keeps tap-focus-driven highlight (no hover).
+  - **Desktop shows more**: degree cap is now 40 on desktop / 24 on mobile (component
+    passes it; `DEFAULT_DEGREE_CAP` stays 24), and link lengths scale up to 1.7× with
+    canvas size so large windows get a filled-out constellation, not a center knot.
+  - **Responsive fix**: the canvas carries a fixed pixel width, and flexbox's default
+    `min-width:auto` let it hold the row open — shrinking the window pushed the info
+    panel off-screen. `min-w-0` on the graph container + `absolute inset-0` canvas lets
+    the graph shrink freely; panel stays visible at any width.
