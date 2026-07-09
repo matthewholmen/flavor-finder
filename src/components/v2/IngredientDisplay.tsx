@@ -993,7 +993,7 @@ export const IngredientDisplay = ({
       // Mobile: smaller font when in compact mode so text fits in the strip
       return layoutMode === 'compact' ? '1.25rem' : '3rem'; // 20px when open, 48px when closed
     }
-    // Desktop: use clamp for responsive sizing
+    // Desktop: use clamp for responsive sizing.
     return layoutMode === 'compact'
       ? 'clamp(1.5rem, 4vw, 3rem)'
       : 'clamp(2.25rem, 6vw, 6rem)';
@@ -1038,6 +1038,19 @@ export const IngredientDisplay = ({
   // This allows the page to scroll when ingredient info is expanded
   const usesFlowLayout = isMobile && layoutMode === 'full';
 
+  // Desktop hero: a 5-ingredient combo in the full-width (90vw) box tends to
+  // pack 4 names on the first line and drop the 5th as a lone "widow". Giving
+  // just the 5-combo a narrower box makes the centered flex row PREFER a more
+  // even wrap (≈3+2) without forcing an exact split, so long names like
+  // "white chocolate" still lay out sanely. ≤4-ingredient combos keep the
+  // roomy width and stay on one line.
+  // The rem cap matters: the font caps at 6rem once the viewport passes ~1600px
+  // (6vw = 96px), so without capping the box too, an ever-wider 70vw box would
+  // fit 4 names on line one again and the widow returns. 70rem = 70vw at 1600px,
+  // so the box and font stop scaling together and the 3+2 split holds on
+  // ultrawide displays.
+  const desktopHeroMaxWidth = validIngredients.length === 5 ? 'min(70vw, 70rem)' : '90vw';
+
   return (
     <>
       <div
@@ -1080,6 +1093,9 @@ export const IngredientDisplay = ({
             justifyContent: usesFlowLayout ? 'flex-start' : 'center',
             alignItems: 'baseline',
             gap: isMobile ? '0 0.2em' : '0 0.15em',
+            // Desktop only: count-aware max-width to encourage an even 5-combo
+            // wrap. Mobile keeps its className-driven width.
+            ...(isMobile ? {} : { maxWidth: desktopHeroMaxWidth }),
           }}
         >
           {validIngredients.map((ingredient, displayIndex) => {
