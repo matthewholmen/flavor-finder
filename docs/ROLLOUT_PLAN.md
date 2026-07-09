@@ -82,3 +82,11 @@ are legitimate and stay. `tooling/` is the offline data pipeline — never archi
 - 2026-07-08 — Phase 1 executed: archived my-app/, FlavorFinder-iOS-2.9/, iOS_plan/;
   deleted flavor-finder.js + 4 stray test scripts; moved 7 planning docs +
   refactor_notes/ into docs/. Build passes, pushed to main.
+- 2026-07-08 — Phase 2 executed: Vercel Web Analytics wired (base + 3 custom events:
+  generate, save_combo, recipe_search_open) and confirmed collecting on the
+  flavor-finder/kappa project. OG/Twitter social-preview tags added. Duplicate
+  flavor-finder-69 project kept per Matt — share ONLY the kappa URL so analytics
+  stay in one dashboard.
+- 2026-07-09 — Phase 2 CLOSED. Feedback link deliberately skipped: testers are
+  close friends who will text directly. Revisit a feedback channel only if the
+  app goes in front of strangers. NEXT: Phase 3 — the five-person test.
