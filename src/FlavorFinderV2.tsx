@@ -17,6 +17,7 @@ import { Sidebar } from './components/v2/Sidebar.tsx';
 import { OnboardingWizard } from './components/v2/OnboardingWizard.tsx';
 import { PresetGallery } from './components/v2/PresetGallery.tsx';
 import { IngredientAtlas } from './components/v2/IngredientAtlas.tsx';
+import { GraphExplorer } from './components/v2/GraphExplorer.tsx';
 import { LandingSurface, LandingTagGroup } from './components/v2/LandingSurface.tsx';
 import { ParsedComposite } from './utils/parseLandingQuery.ts';
 import { FlavorPreset } from './data/flavorPresets.ts';
@@ -37,6 +38,7 @@ import {
 } from './hooks/useSlots.ts';
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
 import { useAtlasRoute } from './hooks/useAtlasRoute.ts';
+import { useGraphRoute } from './hooks/useGraphRoute.ts';
 import { useCustomPresets } from './hooks/useCustomPresets.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { buildFlavorMap, ALL_SOURCES } from './utils/flavorMap.ts';
@@ -99,6 +101,8 @@ export default function FlavorFinderV2() {
 
   // Ingredient Atlas overlay routing (?atlas=<name>, pushState/popstate).
   const { atlasIngredient, openAtlas, closeAtlas } = useAtlasRoute();
+  // Graph Explorer overlay routing (?graph=<name>, pushState/popstate).
+  const { graphIngredient, openGraph, closeGraph } = useGraphRoute();
 
   // Use custom hooks for state management
   const {
@@ -980,7 +984,12 @@ export default function FlavorFinderV2() {
   // above the drawer and owns Escape (its own listener closes it).
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isDrawerOpen && !atlasIngredient) {
+      // The Graph Explorer sits above the drawer and owns Escape while it's open.
+      if (e.key === 'Escape' && graphIngredient) {
+        closeGraph();
+        return;
+      }
+      if (e.key === 'Escape' && isDrawerOpen && !atlasIngredient && !graphIngredient) {
         setIsDrawerOpen(false);
         // Blur the active element (search input) so shortcuts work
         if (document.activeElement instanceof HTMLElement) {
@@ -990,7 +999,7 @@ export default function FlavorFinderV2() {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isDrawerOpen, atlasIngredient]);
+  }, [isDrawerOpen, atlasIngredient, graphIngredient, closeGraph]);
 
   // Handle Generate — rerolls into exactly targetIngredientCount ingredients.
   // Each slot is either pinned (ingredient lock = exact; role lock = within
@@ -1233,6 +1242,24 @@ export default function FlavorFinderV2() {
       setSelectedIngredients([ingredient]);
       setLockedIngredients(new Set());
     }
+  };
+
+  // Graph Explorer "Use this combo" handoff: the build-mode picks (1–5, mutually
+  // compatible by construction) become the main app selection, resetting roles/pool/steer
+  // exactly like loading a saved combo. Everything downstream (Save/Share/Generate/Recipes)
+  // then behaves as if they were picked in Classic mode.
+  const useComboFromGraph = (ingredients: string[]) => {
+    if (ingredients.length === 0) return;
+    saveToHistory();
+    const slots = defaultSlots();
+    setSlotTastes(slots);
+    setLockedConstraints(new Set());
+    setThemedPool(null);
+    setContextSteer(null);
+    setLockedIngredients(new Set());
+    setSelectedIngredients([...ingredients]);
+    setTargetIngredientCount(ingredients.length);
+    closeGraph();
   };
 
   // Wrap handleIngredientSelect to clear search term and keep slot roles
@@ -1966,6 +1993,18 @@ export default function FlavorFinderV2() {
         dishContext={contextSteer}
       />
 
+      {/* Graph Explorer — the flavor map made visible (deep-linked via ?graph=).
+          Rendered before the Atlas so "Full details" can stack the Atlas on top as a
+          drill-down; closing the Atlas drops back to the graph underneath. */}
+      <GraphExplorer
+        ingredient={graphIngredient}
+        onClose={closeGraph}
+        onNavigate={openGraph}
+        onUseCombo={useComboFromGraph}
+        onOpenAtlas={name => openAtlas(name)}
+        isMobile={isMobile}
+      />
+
       {/* Ingredient Atlas — per-ingredient reference page (deep-linked via ?atlas=) */}
       <IngredientAtlas
         ingredient={atlasIngredient}
@@ -1974,6 +2013,10 @@ export default function FlavorFinderV2() {
         onStartPairing={name => {
           startPairingFrom(name);
           closeAtlas();
+        }}
+        onOpenGraph={name => {
+          closeAtlas();
+          openGraph(name);
         }}
         isMobile={isMobile}
       />

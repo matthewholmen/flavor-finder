@@ -60,6 +60,8 @@ src/
 │   │   ├── Sidebar.tsx             # Mode toggle, generation options, pairing sources, saved combos
 │   │   ├── DietaryFilterPills.tsx  # Active dietary-filter chips
 │   │   ├── RecipeFinderModal.tsx   # "Find recipes" modal (web + curated site search)
+│   │   ├── IngredientAtlas.tsx     # Read-only per-ingredient reference page (?atlas=)
+│   │   ├── GraphExplorer.tsx       # Force-graph "Atlas view": ego network + build-by-pruning (?graph=)
 │   │   ├── TasteLabSplit.tsx       # Taste Lab split-slot view
 │   │   ├── PresetGallery.tsx       # Flavor preset gallery (incl. dish frames)
 │   │   ├── OnboardingWizard.tsx    # First-run tour
@@ -87,9 +89,13 @@ src/
 │   ├── useIngredientSelection.ts
 │   ├── useFilters.ts
 │   ├── useTasteLab.ts        # Taste Lab slot state + constants
+│   ├── useAtlasRoute.ts      # ?atlas=<name> overlay routing (pushState/popstate)
+│   ├── useGraphRoute.ts      # ?graph=<name> Graph Explorer routing (mirrors useAtlasRoute)
 │   └── useCompatibility.ts
 └── utils/
     ├── suggestSubstitutes.ts # Contextual substitution (flavor-map admission, texture/function ranking)
+    ├── atlas.ts             # Read-only aggregation for the Ingredient Atlas + canonical getAtlasGraph()
+    ├── graphExplorer.ts     # Pure ego-network + build-prune math for GraphExplorer (reads flavor map only)
     ├── searchUtils.ts        # Ingredient filtering/search
     ├── categorySearch.ts     # Category-based search
     ├── categoryLabels.ts     # Category key → display label

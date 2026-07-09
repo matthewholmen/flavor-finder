@@ -185,3 +185,26 @@ edge clutter above ~30 nodes, legend/lens-toggle placement.
   secondary mode, build-by-pruning + info panel + taste/aroma lenses are the wishlist.
   Execution deferred until after the rollout-plan user test; likely handed to another
   agent with this doc as the brief.
+- **2026-07-09** — **G1 + G2 + taste lens built** (not yet committed). Pieces:
+  - `src/utils/graphExplorer.ts` — pure, unit-tested (`.test.ts`, 11 cases): ego network
+    with the strongest-cluster degree cap, `intersectNeighborhoods` (build-mode pruning),
+    `mostConstrainingPick` (dead-end guidance). Reads the canonical `getAtlasGraph()` — all
+    sources, generator quality gates — so it's identical for everyone. Only ever reads the
+    map; every edge is a real pairing.
+  - `src/components/v2/GraphExplorer.tsx` — full-screen overlay, `d3-force` (newly added
+    dep) + custom canvas renderer. Explore mode (ego network, hover/drag/tap, click-to-hop,
+    search-to-jump, "+N more" hub list, category **and** taste lenses, info panel with
+    profile/taste-bars/textures/functions/intensity/methods) and build mode (tap anchors,
+    live intersection prune with count, anchor chips, honest dead-end message, "Use this
+    combo" → main selection). Offscreen live-region mirror for a11y.
+  - `src/hooks/useGraphRoute.ts` — `?graph=<name>` routing, mirrors `useAtlasRoute`.
+  - Wired into `FlavorFinderV2`: `useComboFromGraph` handoff (resets roles/pool/steer like
+    loading a saved combo), Escape handling, and cross-links — Atlas "Explore the map" →
+    graph, graph "Full details" → Atlas stacked on top as a drill-down (graph rendered
+    before Atlas so the Atlas wins z-order; closing Atlas drops back to the graph).
+  - Verified in-browser: acorn squash ego network, garlic hub (301→40 + "+261 more"),
+    sage prune 26→15 (all survivors pair with both), taste-lens recolor, combo handoff
+    lands "acorn squash & sage" in the main app, Atlas↔graph round-trip clean, no console
+    errors. Deferred: G3 substitution/intensity lenses, G4 aroma spike, dietary/pool node
+    filtering, prune fade-out animation, dedicated top-level entry (open question #1 — only
+    entry today is the Atlas "Explore the map" button).

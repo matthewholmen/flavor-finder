@@ -30,6 +30,8 @@ interface IngredientAtlasProps {
   onNavigate: (name: string) => void;
   /** "Start a pairing from here" — seeds the generator with this ingredient locked. */
   onStartPairing: (name: string) => void;
+  /** "Explore the map" — open the Graph Explorer centered on this ingredient. */
+  onOpenGraph?: (name: string) => void;
   isMobile: boolean;
 }
 
@@ -100,6 +102,7 @@ export const IngredientAtlas: React.FC<IngredientAtlasProps> = ({
   onClose,
   onNavigate,
   onStartPairing,
+  onOpenGraph,
   isMobile,
 }) => {
   const entry = useMemo(() => (ingredient ? getAtlasEntry(ingredient) : null), [ingredient]);
@@ -515,12 +518,22 @@ export const IngredientAtlas: React.FC<IngredientAtlasProps> = ({
             className="shrink-0 px-4 sm:px-6 py-3 border-t border-gray-100 dark:border-gray-700/60"
             style={isMobile ? { paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' } : undefined}
           >
-            <button
-              onClick={() => onStartPairing(entry.name)}
-              className="w-full py-3 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold hover:opacity-90 transition-opacity"
-            >
-              Start a pairing with <span className="font-display italic lowercase">{entry.name}</span>
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onStartPairing(entry.name)}
+                className="flex-1 py-3 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold hover:opacity-90 transition-opacity"
+              >
+                Start a pairing with <span className="font-display italic lowercase">{entry.name}</span>
+              </button>
+              {onOpenGraph && (
+                <button
+                  onClick={() => onOpenGraph(entry.name)}
+                  className="shrink-0 px-4 py-3 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  Explore the map
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
