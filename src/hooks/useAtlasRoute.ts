@@ -11,6 +11,7 @@
 // strips the param via replaceState instead of navigating back out of the app.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { OVERLAY_ROUTE_SYNC } from './overlayRouteSync.ts';
 
 const ATLAS_PARAM = 'atlas';
 
@@ -38,8 +39,21 @@ export const useAtlasRoute = (): AtlasRoute => {
       pushDepth.current = Math.max(0, pushDepth.current - 1);
       setAtlasIngredient(readAtlasParam());
     };
+    // Overlay handoffs (swapOverlayParam) rewrite the URL via replaceState, which fires
+    // no popstate — re-read the param when told to. If our param was swapped away, the
+    // current entry now belongs to the other overlay, so forget our pushed-entry count
+    // (a later close must not history.go() past entries we no longer own).
+    const onSync = () => {
+      const value = readAtlasParam();
+      if (value === null) pushDepth.current = 0;
+      setAtlasIngredient(value);
+    };
     window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
+    window.addEventListener(OVERLAY_ROUTE_SYNC, onSync);
+    return () => {
+      window.removeEventListener('popstate', onPopState);
+      window.removeEventListener(OVERLAY_ROUTE_SYNC, onSync);
+    };
   }, []);
 
   const openAtlas = useCallback((name: string) => {

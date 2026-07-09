@@ -39,6 +39,7 @@ import {
 import { useSavedCombinations } from './hooks/useSavedCombinations.ts';
 import { useAtlasRoute } from './hooks/useAtlasRoute.ts';
 import { useGraphRoute } from './hooks/useGraphRoute.ts';
+import { swapOverlayParam } from './hooks/overlayRouteSync.ts';
 import { useCustomPresets } from './hooks/useCustomPresets.ts';
 import { ingredientProfiles } from './data/ingredientProfiles.ts';
 import { buildFlavorMap, ALL_SOURCES } from './utils/flavorMap.ts';
@@ -2015,8 +2016,10 @@ export default function FlavorFinderV2() {
           closeAtlas();
         }}
         onOpenGraph={name => {
-          closeAtlas();
-          openGraph(name);
+          // One synchronous history swap (?atlas= → ?graph=). Never closeAtlas() +
+          // openGraph(): an in-app close runs an async history.go() that races the
+          // push and dumps the user back on the home page.
+          swapOverlayParam('atlas', 'graph', name);
         }}
         isMobile={isMobile}
       />

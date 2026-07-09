@@ -13,6 +13,7 @@ import {
 } from 'd3-force';
 import { Search, Sparkles, X } from 'lucide-react';
 import { IconButton } from './ui/IconButton.tsx';
+import { useTheme } from '../../contexts/ThemeContext.tsx';
 import {
   computeEgoNetworkCanonical,
   intersectNeighborhoods,
@@ -76,6 +77,10 @@ const nodeColor = (node: SimNode, lens: Lens): string => {
   return (cat && CATEGORY_COLORS[cat]) || NEUTRAL_NODE;
 };
 
+/** Partner-node radius, gently degree-scaled like the validated mockup — versatile hubs
+ *  (parmesan) read bigger than one-note loners (brown butter) without dwarfing them. */
+const partnerRadius = (degree: number): number => 10 + Math.min(8, Math.sqrt(degree) * 0.5);
+
 interface GraphModel {
   nodes: Array<{ name: string; isCenter: boolean; isPick: boolean; profile: IngredientProfile | null; degree: number }>;
   edges: Array<{ source: string; target: string; toCenter: boolean }>;
@@ -107,6 +112,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   isMobile,
 }) => {
   const center = ingredient ? ingredient.trim().toLowerCase() : null;
+  const { isDarkMode } = useTheme();
 
   const [lens, setLens] = useState<Lens>('category');
   const [buildMode, setBuildMode] = useState(false);
@@ -215,9 +221,10 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const sizeRef = useRef({ w: 0, h: 0 });
 
   // Live view state read inside the render loop / pointer handlers without re-subscribing.
-  const viewRef = useRef({ lens, focusName, hovered: null as string | null });
+  const viewRef = useRef({ lens, focusName, isDarkMode, hovered: null as string | null });
   viewRef.current.lens = lens;
   viewRef.current.focusName = focusName;
+  viewRef.current.isDarkMode = isDarkMode;
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -229,7 +236,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, w, h);
 
-    const { lens: L, focusName: focus, hovered } = viewRef.current;
+    const { lens: L, focusName: focus, hovered, isDarkMode: dark } = viewRef.current;
     const active = hovered ?? focus;
     const activeNeighbors = new Set<string>();
     if (active) {
@@ -271,49 +278,49 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
+      const ringColor = dark ? '#f9fafb' : '#ffffff';
       if (n.isPick) {
         ctx.lineWidth = 3;
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = ringColor;
         ctx.stroke();
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = color;
         ctx.stroke();
       } else if (n.isCenter) {
         ctx.lineWidth = 3;
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = ringColor;
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
 
-      // Labels: always the center/picks and the active node; others only in sparse graphs.
-      const showLabel =
-        n.isCenter || n.isPick || isActive || (nodesRef.current.length <= 26 && lit);
-      if (showLabel) {
-        const big = n.isCenter || n.isPick || isActive;
-        ctx.font = `${big ? 600 : 400} ${big ? 13 : 11}px ui-sans-serif, system-ui, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.globalAlpha = lit ? 1 : 0.25;
-        const label = n.id;
-        const y = n.y + n.r + 3;
-        // Halo for legibility over edges.
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-        ctx.strokeText(label, n.x, y);
-        ctx.fillStyle = big ? '#1f2430' : '#4b5563';
-        ctx.fillText(label, n.x, y);
-        ctx.globalAlpha = 1;
-      }
+      // Labels: every node gets one — the degree cap keeps the view at mockup density,
+      // and an unlabeled dot is useless to a cook. Theme-aware ink with a background-
+      // colored halo so labels stay legible over edge clutter in both modes.
+      const big = n.isCenter || n.isPick || isActive;
+      ctx.font = `${big ? 600 : 400} ${big ? 13 : 12}px ui-sans-serif, system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.globalAlpha = lit ? 1 : 0.15;
+      const label = n.id;
+      const y = n.y + n.r + 4;
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = dark ? 'rgba(17,24,39,0.85)' : 'rgba(255,255,255,0.88)';
+      ctx.strokeText(label, n.x, y);
+      ctx.fillStyle = big
+        ? dark ? '#f9fafb' : '#1f2430'
+        : dark ? '#d1d5db' : '#4b5563';
+      ctx.fillText(label, n.x, y);
+      ctx.globalAlpha = 1;
     });
 
     ctx.restore();
   }, []);
 
-  // The simulation only repaints while it's warm (alpha > 0). Lens and focus changes must
-  // repaint on their own once the graph has settled, so redraw whenever they change.
+  // The simulation only repaints while it's warm (alpha > 0). Lens, focus, and theme
+  // changes must repaint on their own once the graph has settled.
   useEffect(() => {
     draw();
-  }, [lens, focusName, draw]);
+  }, [lens, focusName, isDarkMode, draw]);
 
   // (Re)build the simulation whenever the model changes. Positions of surviving nodes are
   // preserved so a prune reads as the pool settling, not a full reshuffle.
@@ -337,9 +344,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         isPick: n.isPick,
         profile: n.profile,
         degree: n.degree,
-        r: n.isCenter ? 22 : n.isPick ? 15 : 9,
-        x: prev?.x ?? cx + (Math.random() - 0.5) * 120,
-        y: prev?.y ?? cy + (Math.random() - 0.5) * 120,
+        r: n.isCenter ? 26 : n.isPick ? 18 : partnerRadius(n.degree),
+        x: prev?.x ?? cx + (Math.random() - 0.5) * 240,
+        y: prev?.y ?? cy + (Math.random() - 0.5) * 240,
         // Pin the center so the graph doesn't drift off-screen.
         fx: n.isCenter && !buildMode ? cx : undefined,
         fy: n.isCenter && !buildMode ? cy : undefined,
@@ -354,22 +361,32 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     linksRef.current = simLinks;
 
     simRef.current?.stop();
+    // Tuned to the validated mockup's spacing: strong repulsion + generous link lengths
+    // + a collide radius that reserves room for the always-on label under each node.
     const sim = forceSimulation<SimNode>(simNodes)
-      .force('charge', forceManyBody<SimNode>().strength(-220))
+      .force('charge', forceManyBody<SimNode>().strength(-420))
       .force(
         'link',
         forceLink<SimNode, SimLink>(simLinks)
           .id(n => n.id)
-          .distance(l => (l.toCenter ? 80 : 60))
-          .strength(0.4)
+          .distance(l => (l.toCenter ? 140 : 100))
+          .strength(0.25)
       )
-      .force('center', forceCenter(cx, cy).strength(0.05))
-      .force('x', forceX(cx).strength(0.04))
-      .force('y', forceY(cy).strength(0.04))
-      .force('collide', forceCollide<SimNode>(n => n.r + 6))
+      .force('center', forceCenter(cx, cy).strength(0.04))
+      .force('x', forceX(cx).strength(0.02))
+      .force('y', forceY(cy).strength(0.02))
+      .force('collide', forceCollide<SimNode>(n => n.r + 18))
       .on('tick', () => {
+        // Clamp to the canvas so no node (or its label) drifts out of view — matters
+        // most on small screens where the repulsion outguns the container.
+        const { w: cw, h: ch } = sizeRef.current;
         simNodes.forEach(n => {
-          if (n.x != null && n.y != null) positionsRef.current.set(n.id, { x: n.x, y: n.y });
+          if (n.x == null || n.y == null) return;
+          if (cw > 0 && ch > 0) {
+            n.x = Math.max(n.r + 10, Math.min(cw - n.r - 10, n.x));
+            n.y = Math.max(n.r + 10, Math.min(ch - n.r - 24, n.y)); // room for the label below
+          }
+          positionsRef.current.set(n.id, { x: n.x, y: n.y });
         });
         draw();
       });
@@ -527,6 +544,41 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const focusProfile = focusName ? getProfile(focusName) : null;
   const focusDegree = focusName ? graph.get(focusName)?.size ?? 0 : 0;
 
+  // Legend for the active lens: only the colors actually present in the view, most
+  // frequent first — a key to what's on screen, not a taxonomy poster.
+  const legend = useMemo(() => {
+    const counts = new Map<string, { color: string; count: number }>();
+    model.nodes.forEach(n => {
+      let label: string;
+      let color: string;
+      if (lens === 'taste') {
+        color = dominantTasteColor(n.profile);
+        const entry = TASTE_KEYS.find(k => TASTE_COLORS[k] === color);
+        label = entry ?? 'neutral';
+      } else {
+        const cat = n.profile?.category;
+        label = cat ? categoryLabel(cat) : 'Other';
+        color = (cat && CATEGORY_COLORS[cat]) || NEUTRAL_NODE;
+      }
+      const cur = counts.get(label);
+      if (cur) cur.count += 1;
+      else counts.set(label, { color, count: 1 });
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([label, v]) => ({ label, color: v.color }));
+  }, [model, lens]);
+
+  // Whole-database scale, for the mockup's "1 of 638 ingredients · 14,800 pairings"
+  // footer. Edge count = half the sum of neighborhood sizes (each edge counted twice).
+  const dbStats = useMemo(() => {
+    let edges = 0;
+    graph.forEach(set => {
+      edges += set.size;
+    });
+    return { ingredients: graph.size, pairings: Math.round(edges / 2) };
+  }, [graph]);
+
   if (!ingredient) return null;
 
   const candidateCount = model.total;
@@ -548,7 +600,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         </div>
         <div className="flex items-center gap-1">
           {/* Lens toggle */}
-          <div className="hidden sm:flex items-center rounded-full bg-gray-100 dark:bg-gray-800 p-0.5 text-xs font-medium mr-1">
+          <div className="flex items-center rounded-full bg-gray-100 dark:bg-gray-800 p-0.5 text-xs font-medium mr-1">
             {(['category', 'taste'] as Lens[]).map(l => (
               <button
                 key={l}
@@ -626,23 +678,27 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             }}
             className="block"
           />
-          {/* Count / degree-cap chip */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2 items-start">
-            <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm tabular-nums">
-              {buildMode
-                ? `${candidateCount} compatible`
-                : `${model.total} partner${model.total === 1 ? '' : 's'}`}
-            </span>
-            {model.hidden.length > 0 && (
-              <button
-                onClick={() => setMorePanelOpen(o => !o)}
-                className="px-3 py-1 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur text-xs font-medium text-gray-600 dark:text-gray-300 shadow-sm hover:text-gray-900 dark:hover:text-white"
+          {/* Lens legend — only the colors present in this view */}
+          <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-x-3 gap-y-1 pointer-events-none">
+            {legend.map(item => (
+              <span
+                key={item.label}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300"
               >
-                +{model.hidden.length} more
-              </button>
-            )}
+                <span
+                  className="inline-block w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                  aria-hidden="true"
+                />
+                {item.label}
+              </span>
+            ))}
+          </div>
+
+          {/* Counts + database scale (mockup footer) */}
+          <div className="absolute bottom-3 left-3 right-3 flex flex-col gap-2 items-start">
             {buildMode && candidateCount === 0 && picks.length < MAX_PICKS && (
-              <span className="max-w-[220px] px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-xs text-amber-800 dark:text-amber-200 shadow-sm">
+              <span className="max-w-[240px] px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-xs text-amber-800 dark:text-amber-200 shadow-sm">
                 Nothing pairs with all {picks.length}. Try removing{' '}
                 <button
                   className="underline font-medium lowercase"
@@ -656,6 +712,27 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                 .
               </span>
             )}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm tabular-nums">
+                {buildMode
+                  ? `${candidateCount} compatible`
+                  : model.hidden.length > 0
+                    ? `${model.total - model.hidden.length} of ${model.total} partners shown`
+                    : `${model.total} partner${model.total === 1 ? '' : 's'}`}
+              </span>
+              {model.hidden.length > 0 && (
+                <button
+                  onClick={() => setMorePanelOpen(o => !o)}
+                  className="px-3 py-1 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur text-xs font-medium text-gray-600 dark:text-gray-300 shadow-sm hover:text-gray-900 dark:hover:text-white"
+                >
+                  +{model.hidden.length} more
+                </button>
+              )}
+              <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
+                {dbStats.ingredients} ingredients · {dbStats.pairings.toLocaleString()} pairings
+                in the map
+              </span>
+            </div>
           </div>
 
           {/* "+N more" list */}

@@ -208,3 +208,20 @@ edge clutter above ~30 nodes, legend/lens-toggle placement.
     errors. Deferred: G3 substitution/intensity lenses, G4 aroma spike, dietary/pool node
     filtering, prune fade-out animation, dedicated top-level entry (open question #1 — only
     entry today is the Atlas "Explore the map" button).
+- **2026-07-09 (round 2, after Matt's first hands-on)** — two fixes:
+  - **"Explore the map" bounced to the home page.** Root cause: the Atlas→graph handoff
+    was `closeAtlas()` then `openGraph()`. When the Atlas was opened *in-app*, its close
+    runs an asynchronous `history.go(-n)` that races the graph's `pushState` and unwinds
+    it. (The original verification cold-opened `?atlas=` links, whose close path is a
+    synchronous `replaceState` — so the race never showed.) Fix:
+    `hooks/overlayRouteSync.ts` — `swapOverlayParam()` does the whole handoff as ONE
+    synchronous `replaceState` (drop `atlas`, set `graph`) plus a custom event both route
+    hooks listen to (replaceState fires no popstate). Rule of thumb recorded: never
+    sequence an overlay close() with another overlay's open().
+  - **Density didn't match the approved mockup.** Partner labels only drew at ≤26 nodes —
+    acorn squash's network is 27, so every label vanished; and the layout was too tight.
+    Now: labels always on (theme-aware ink + background halo), `DEFAULT_DEGREE_CAP`
+    40 → 24 (mockup showed ~22 — Matt's preferred density), degree-scaled node radii,
+    stronger repulsion + longer links + label-aware collide, positions clamped to the
+    canvas (mobile), lens legend top-left, mockup-style footer ("24 of 301 partners
+    shown · 623 ingredients · 19,557 pairings in the map"), lens toggle now on mobile too.
