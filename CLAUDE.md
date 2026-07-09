@@ -10,6 +10,21 @@ The flavor-map pairing/compatibility algorithm is the entire point of this app. 
 - A `wild` slot is allowed: it drops a slot's taste/category filter but still enforces flavor-map pairing. That is not a relaxation.
 - The pairing data/algorithm itself may be deliberately changed or improved when that is the explicit goal — but never avoided as a shortcut.
 
+## Current status & rollout plan (July 2026)
+
+The app is **live on Vercel** (URL in `docs/ROLLOUT_PLAN.md`; deploys from GitHub main).
+Feature phases P1–P6 are done. The active work is **rollout readiness** — repo cleanup,
+analytics, then a 5-person user test — per [docs/ROLLOUT_PLAN.md](docs/ROLLOUT_PLAN.md).
+New feature work (including `docs/RECIPE_SYSTEM_PLAN.md`) is paused until testing
+evidence exists.
+
+- The iOS app (`FlavorFinder-iOS-2.9/`) is **abandoned** — archived out of the repo
+  per the rollout plan; don't build on it.
+- `my-app/` (Next.js experiment) is likewise abandoned/archived.
+- Matt (the owner) is nontechnical: explain technical tradeoffs in plain language
+  and handle git/GitHub/Vercel mechanics end-to-end. Commit and push straight to
+  main — no branches or PRs unless asked.
+
 ## Tech Stack
 
 - **Framework**: React 18 with Create React App

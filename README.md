@@ -1,70 +1,35 @@
-# Getting Started with Create React App
+# Flavor Finder
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web app for discovering compatible flavor pairings. Pick ingredients, generate
+combinations that are guaranteed mutually compatible per a curated flavor map of
+638 audited ingredient profiles, steer by cuisine or dish, and find recipes.
 
-## Available Scripts
+Live on Vercel (URL noted in `docs/ROLLOUT_PLAN.md`). Built by Matt Holmen with
+Claude Code, November 2024 → present.
 
-In the project directory, you can run:
+## Current status (July 2026)
 
-### `npm start`
+Feature phases P1–P6 are complete. The current focus is rollout: cleanup,
+analytics, and first real user testing. See [docs/ROLLOUT_PLAN.md](docs/ROLLOUT_PLAN.md)
+for the active plan. New feature work (including the recipe system) is paused
+until user-testing evidence is in.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Commands
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+npm start          # Development server at http://localhost:3000
+npm run build      # Production build
+npm test           # Run tests
+```
 
-### `npm test`
+## Where things live
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- `src/` — the React app. Architecture and conventions are documented in [CLAUDE.md](CLAUDE.md).
+- `src/data/` — the flavor map: pairings, ingredient profiles, provenance, presets.
+- `tooling/` — offline data pipelines (pairing mining, profile audits). Not part of the app build.
+- `docs/` — plans and working notes.
 
-### `npm run build`
+## The one rule
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The pairing/compatibility algorithm is the point of the app and is never relaxed
+or bypassed to make a feature work. Details in [CLAUDE.md](CLAUDE.md).
