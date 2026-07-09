@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  forceCenter,
   forceCollide,
   forceLink,
   forceManyBody,
@@ -80,6 +79,12 @@ const nodeColor = (node: SimNode, lens: Lens): string => {
 /** Partner-node radius, gently degree-scaled like the validated mockup — versatile hubs
  *  (parmesan) read bigger than one-note loners (brown butter) without dwarfing them. */
 const partnerRadius = (degree: number): number => 10 + Math.min(8, Math.sqrt(degree) * 0.5);
+
+/** Cluster key for the active lens: same bucketing as the node color, so nodes gather
+ *  with the neighbors they share a color with (category groups, or dominant-taste
+ *  groups under the taste lens). Purely a layout hint — never a pairing statement. */
+const groupKeyOf = (profile: IngredientProfile | null, lens: Lens): string =>
+  lens === 'taste' ? dominantTasteColor(profile) : profile?.category ?? 'Other';
 
 interface GraphModel {
   nodes: Array<{ name: string; isCenter: boolean; isPick: boolean; profile: IngredientProfile | null; degree: number }>;
@@ -237,6 +242,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const linksRef = useRef<SimLink[]>([]);
   const positionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const sizeRef = useRef({ w: 0, h: 0 });
+  // Cluster layout: per-node anchor targets (group centroids on a wide ellipse). Read
+  // dynamically by the force accessors via this ref so resize can retarget in place;
+  // rebuilt by the sim effect (owns the node list) and refreshed by resize().
+  const layoutRef = useRef<{ anchor: (n: SimNode) => { x: number; y: number } } | null>(null);
+  const buildLayoutRef = useRef<((w: number, h: number) => void) | null>(null);
 
   // Live view state read inside the render loop / pointer handlers without re-subscribing.
   const viewRef = useRef({ lens, focusName, isDarkMode, isMobile, hovered: null as string | null });
@@ -393,24 +403,70 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     nodesRef.current = simNodes;
     linksRef.current = simLinks;
 
+    // --- Cluster layout: like gathers with like -----------------------------------------
+    // Each node is pulled gently toward its lens-group's anchor (category groups by
+    // default, dominant-taste groups under the taste lens). Anchors sit on a wide
+    // ellipse — deliberately wider than tall, so a desktop window spreads horizontally
+    // instead of knotting in the middle. Groups are ordered biggest-first around the
+    // ellipse. This is layout only: every edge is still a real pairing, and clusters
+    // never imply compatibility on their own.
+    const buildLayout = (bw: number, bh: number) => {
+      const bcx = bw / 2 || 300;
+      const bcy = bh / 2 || 300;
+      // Read the lens live (viewRef, not the closed-over prop) so the lens-change
+      // effect can rebuild anchors without recreating the whole simulation.
+      const liveLens = viewRef.current.lens;
+      const counts = new Map<string, number>();
+      simNodes.forEach(n => {
+        if (n.isCenter || n.isPick) return;
+        const g = groupKeyOf(n.profile, liveLens);
+        counts.set(g, (counts.get(g) ?? 0) + 1);
+      });
+      const ordered = Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([g]) => g);
+      const rx = Math.max(150, bw * 0.34);
+      const ry = Math.max(110, bh * 0.28);
+      const anchors = new Map<string, { x: number; y: number }>();
+      ordered.forEach((g, i) => {
+        const angle = -Math.PI / 2 + (i / Math.max(1, ordered.length)) * Math.PI * 2;
+        anchors.set(g, { x: bcx + rx * Math.cos(angle), y: bcy + ry * Math.sin(angle) });
+      });
+      layoutRef.current = {
+        anchor: n =>
+          n.isCenter || n.isPick
+            ? { x: bcx, y: bcy }
+            : anchors.get(groupKeyOf(n.profile, liveLens)) ?? { x: bcx, y: bcy },
+      };
+    };
+    buildLayout(w, h);
+    // d3's forceX/forceY sample their accessor once per node at initialization and
+    // cache the targets — so retargeting a live sim (lens switch, resize) must re-set
+    // the accessors, not just rebuild layoutRef.
+    buildLayoutRef.current = (bw, bh) => {
+      buildLayout(bw, bh);
+      const s = simRef.current;
+      (s?.force('x') as any)?.x((n: SimNode) => layoutRef.current!.anchor(n).x);
+      (s?.force('y') as any)?.y((n: SimNode) => layoutRef.current!.anchor(n).y);
+    };
+
     simRef.current?.stop();
-    // Tuned to the validated mockup's spacing: strong repulsion + generous link lengths
-    // + a collide radius that reserves room for the always-on label under each node.
-    // `spread` stretches link lengths on large canvases so a big desktop window gets a
-    // filled-out constellation instead of a tight knot in the middle.
+    // Spacing: strong repulsion + generous link lengths + a collide radius that reserves
+    // room for the always-on label. `spread` stretches distances on large canvases.
+    // Rim links (partner↔partner / candidate↔candidate) get almost no pull — they're
+    // receipts to see, not springs; the cluster anchors own the layout.
     const spread = Math.max(1, Math.min(1.7, Math.min(w, h) / 620));
     const sim = forceSimulation<SimNode>(simNodes)
-      .force('charge', forceManyBody<SimNode>().strength(-420 * spread))
+      .force('charge', forceManyBody<SimNode>().strength(-380 * spread))
       .force(
         'link',
         forceLink<SimNode, SimLink>(simLinks)
           .id(n => n.id)
-          .distance(l => (l.toCenter ? 140 : 100) * spread)
-          .strength(0.25)
+          .distance(l => (l.toCenter ? 150 : 110) * spread)
+          .strength(l => (l.toCenter ? 0.12 : 0.02))
       )
-      .force('center', forceCenter(cx, cy).strength(0.04))
-      .force('x', forceX(cx).strength(0.02))
-      .force('y', forceY(cy).strength(0.02))
+      .force('x', forceX<SimNode>(n => layoutRef.current!.anchor(n).x).strength(0.08))
+      .force('y', forceY<SimNode>(n => layoutRef.current!.anchor(n).y).strength(0.1))
       .force('collide', forceCollide<SimNode>(n => n.r + 18))
       .on('tick', () => {
         // Clamp to the canvas so no node (or its label) drifts out of view — matters
@@ -433,6 +489,17 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model, center, buildMode]);
+
+  // Lens switch = same nodes, new grouping (category ↔ dominant taste). Rebuild the
+  // anchors in place and reheat gently so the clusters glide to their new arrangement
+  // instead of the whole simulation restarting from scratch.
+  useEffect(() => {
+    const { w, h } = sizeRef.current;
+    if (buildLayoutRef.current && w > 0 && h > 0) {
+      buildLayoutRef.current(w, h);
+      simRef.current?.alpha(0.5).restart();
+    }
+  }, [lens]);
 
   // Size the canvas to its container (dpr-aware) and keep the center pinned on resize.
   //
@@ -458,10 +525,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       const cy = rect.height / 2;
       const sim = simRef.current;
       if (sim) {
-        (sim.force('center') as any)?.x?.(cx);
-        (sim.force('center') as any)?.y?.(cy);
-        (sim.force('x') as any)?.x?.(cx);
-        (sim.force('y') as any)?.y?.(cy);
+        // Retarget the cluster anchors to the new canvas — never poke the x/y forces
+        // directly, that would replace their per-node anchor accessors with a constant.
+        buildLayoutRef.current?.(rect.width, rect.height);
         const c = nodesRef.current.find(n => n.isCenter);
         if (c && !buildMode) {
           c.fx = cx;
