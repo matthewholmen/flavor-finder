@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect, useState, useRef, useCallback } from 'react';
+import { track } from '@vercel/analytics';
 import { MinimalHeader } from './components/v2/MinimalHeader.tsx';
 import { MobileBottomBar } from './components/v2/MobileBottomBar.tsx';
 import { IngredientDisplay } from './components/v2/IngredientDisplay.tsx';
@@ -1022,6 +1023,7 @@ export default function FlavorFinderV2() {
     }
     saveToHistory();
     setSelectedIngredients(combo);
+    track('generate', { size: count });
 
     // Relabel each free slot to match what Generate landed on.
     freeSlots.forEach(i => relabelSlotToIngredient(i, combo[i]));
@@ -1411,6 +1413,7 @@ export default function FlavorFinderV2() {
   const handleRecipeSearch = () => {
     if (selectedIngredients.length === 0) return;
     setIsRecipeModalOpen(true);
+    track('recipe_search_open', { size: selectedIngredients.length });
   };
 
   // Find a saved combination matching the current selection (order-independent)
@@ -1442,6 +1445,7 @@ export default function FlavorFinderV2() {
         undefined, undefined, inferredDishTypeId
       );
       setSaveToast('saved');
+      track('save_combo', { size: selectedIngredients.length });
     }
   };
 
