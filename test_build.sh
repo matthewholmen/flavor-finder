@@ -1,1 +1,0 @@
-#!/bin/bash\ncd \"/Users/coolmatt/Claude Apps/flavor-finder\"\nnpm start 2>&1 | head -20"

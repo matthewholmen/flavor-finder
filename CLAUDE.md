@@ -12,7 +12,7 @@ The flavor-map pairing/compatibility algorithm is the entire point of this app. 
 
 ## Current status & rollout plan (July 2026)
 
-The app is **live on Vercel** (URL in `docs/ROLLOUT_PLAN.md`; deploys from GitHub main).
+The app is **live on Vercel** at https://flavor-finder-69.vercel.app/ (deploys from GitHub main).
 Feature phases P1–P6 are done. The active work is **rollout readiness** — repo cleanup,
 analytics, then a 5-person user test — per [docs/ROLLOUT_PLAN.md](docs/ROLLOUT_PLAN.md).
 New feature work (including `docs/RECIPE_SYSTEM_PLAN.md`) is paused until testing
