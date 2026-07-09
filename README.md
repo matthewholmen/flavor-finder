@@ -4,7 +4,7 @@ A web app for discovering compatible flavor pairings. Pick ingredients, generate
 combinations that are guaranteed mutually compatible per a curated flavor map of
 638 audited ingredient profiles, steer by cuisine or dish, and find recipes.
 
-Live at **https://flavor-finder-69.vercel.app/**. Built by Matt Holmen with
+Live at **https://flavor-finder-kappa.vercel.app/**. Built by Matt Holmen with
 Claude Code, November 2024 → present.
 
 ## Current status (July 2026)

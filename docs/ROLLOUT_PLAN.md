@@ -2,7 +2,7 @@
 
 Written 2026-07-08. Context: after ~20 months of feature phases (P1–P6), the priority
 is now getting the app in front of real users. The app is already live on Vercel
-at **https://flavor-finder-69.vercel.app/**. No analytics or user testing exists yet.
+at **https://flavor-finder-kappa.vercel.app/**. No analytics or user testing exists yet.
 The pivot: **stop building features, start collecting evidence.** The recipe system
 plan (`docs/RECIPE_SYSTEM_PLAN.md`) is paused until Phase 3 produces evidence.
 
@@ -48,7 +48,7 @@ are legitimate and stay. `tooling/` is the offline data pipeline — never archi
 
 ## Phase 2 — Rollout readiness (a few days)
 
-1. Vercel URL recorded (https://flavor-finder-69.vercel.app/); confirm auto-deploy from GitHub main.
+1. Vercel URL recorded (https://flavor-finder-kappa.vercel.app/); confirm auto-deploy from GitHub main.
 2. Add analytics — Vercel Analytics is the default choice (already on the host).
    Events to track: generate clicked, ingredient locked, combo saved, recipe search
    opened, mode used (Classic vs Taste Lab), landing tag picked.
@@ -78,7 +78,7 @@ are legitimate and stay. `tooling/` is the offline data pipeline — never archi
 ## Status log
 
 - 2026-07-08 — Plan written and approved. Phase 1 ready to execute.
-- 2026-07-08 — Vercel URL recorded: https://flavor-finder-69.vercel.app/
+- 2026-07-08 — Vercel URL recorded: https://flavor-finder-kappa.vercel.app/
 - 2026-07-08 — Phase 1 executed: archived my-app/, FlavorFinder-iOS-2.9/, iOS_plan/;
   deleted flavor-finder.js + 4 stray test scripts; moved 7 planning docs +
   refactor_notes/ into docs/. Build passes, pushed to main.
