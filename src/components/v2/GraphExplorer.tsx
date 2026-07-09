@@ -332,7 +332,18 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       draw();
       return;
     }
-    const { w, h } = sizeRef.current;
+    // sizeRef can be stale-zero on the very first in-app open (the resize effect hasn't
+    // fired for the freshly-mounted canvas yet) — measure the container directly so the
+    // simulation never seeds around a phantom 300×300 origin in an unsized canvas.
+    let { w, h } = sizeRef.current;
+    if ((!w || !h) && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        w = rect.width;
+        h = rect.height;
+        sizeRef.current = { w, h };
+      }
+    }
     const cx = w / 2 || 300;
     const cy = h / 2 || 300;
 
@@ -399,6 +410,13 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   }, [model, center, buildMode]);
 
   // Size the canvas to its container (dpr-aware) and keep the center pinned on resize.
+  //
+  // `center` MUST be a dependency: while the overlay is closed the component renders
+  // null, so on the first in-app open this effect has already run (and bailed) against
+  // null refs — without re-running when the canvas mounts, it stays at the 300×150
+  // default and the whole graph draws as a smeared blob in the top-left corner. Deep
+  // links never hit this (the overlay is open from the very first render), which is
+  // how it slipped past initial verification.
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
@@ -432,7 +450,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     const ro = new ResizeObserver(resize);
     ro.observe(container);
     return () => ro.disconnect();
-  }, [draw, buildMode]);
+  }, [draw, buildMode, center]);
 
   // --- Pointer interaction (hover / drag / tap) ----------------------------------------
   const pointer = useRef({ downId: null as string | null, downX: 0, downY: 0, moved: false, dragging: false });

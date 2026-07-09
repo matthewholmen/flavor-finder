@@ -225,3 +225,13 @@ edge clutter above ~30 nodes, legend/lens-toggle placement.
     stronger repulsion + longer links + label-aware collide, positions clamped to the
     canvas (mobile), lens legend top-left, mockup-style footer ("24 of 301 partners
     shown · 623 ingredients · 19,557 pairings in the map"), lens toggle now on mobile too.
+- **2026-07-09 (round 3, Matt hit it live)** — **corner-blob glitch on first in-app
+  open fixed.** While closed, the component renders null, so the canvas-sizing effect
+  had already run (and bailed) against null refs; when the overlay first opened
+  in-session, nothing re-sized the canvas — it stayed at the 300×150 default and the
+  whole graph drew as a smeared blob in the top-left. A page refresh "fixed" it because
+  cold opens mount with the overlay already present. (This was also the real cause of
+  the blank canvas earlier misdiagnosed as an HMR artifact.) Fix: `center` added to the
+  resize effect's deps so it re-runs when the canvas mounts, plus the simulation effect
+  now measures the container directly if `sizeRef` is still zero. Verified on the exact
+  reported path: home combo → ingredient info → Explore the map.
