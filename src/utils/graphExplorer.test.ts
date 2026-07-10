@@ -71,6 +71,27 @@ describe('computeEgoNetwork', () => {
     expect(net.edges).toHaveLength(0);
     expect(net.totalPartners).toBe(0);
   });
+
+  it('include narrows drawn partners but totalPartners stays the map truth', () => {
+    const g = mock();
+    const net = computeEgoNetwork('c', g, { include: n => n === 'p1' || n === 'p4' });
+    const partners = net.nodes.filter(n => !n.isCenter).map(n => n.name);
+    expect(partners.sort()).toEqual(['p1', 'p4']);
+    expect(net.totalPartners).toBe(4); // unfiltered count — the footer's honest total
+    expect(net.hiddenPartners).toEqual([]); // nothing capped within the filter
+    // Filtered views still only ever draw real pairings.
+    for (const e of net.edges) {
+      expect(g.get(e.source)!.has(e.target)).toBe(true);
+    }
+  });
+
+  it('include runs before the cap, digging deeper into the chosen group', () => {
+    // Cap 1 without a filter keeps the best-clustered partner (p2). Filtering to the
+    // loner p4 must still surface p4 — the filter narrows the pool BEFORE the cap.
+    const net = computeEgoNetwork('c', mock(), { degreeCap: 1, include: n => n === 'p4' });
+    const partners = net.nodes.filter(n => !n.isCenter).map(n => n.name);
+    expect(partners).toEqual(['p4']);
+  });
 });
 
 describe('intersectNeighborhoods', () => {

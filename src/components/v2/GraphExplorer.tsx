@@ -12,6 +12,7 @@ import {
 } from 'd3-force';
 import { Search, Sparkles, X } from 'lucide-react';
 import { IconButton } from './ui/IconButton.tsx';
+import { Pill } from './ui/Pill.tsx';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import {
   computeEgoNetworkCanonical,
@@ -138,6 +139,10 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const [search, setSearch] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [morePanelOpen, setMorePanelOpen] = useState(false);
+  // Legend filter: tapped legend groups (lens-specific keys from groupKeyOf). Empty =
+  // show everything. Narrows which partners/candidates are DRAWN — a view filter over
+  // pool inputs, never a change to the pairing math.
+  const [groupFilter, setGroupFilter] = useState<Set<string>>(new Set());
 
   // Reset transient view state whenever the center changes (a hop or a fresh open).
   useEffect(() => {
@@ -145,6 +150,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     setMorePanelOpen(false);
     setSearch('');
     setSearchOpen(false);
+    setGroupFilter(new Set());
   }, [center]);
 
   // Leaving build mode clears the anchors; entering seeds it with the current center.
@@ -162,6 +168,12 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
 
   const graph = getAtlasGraph();
 
+  // Stable memo key for the filter: a Set's identity changes on every toggle, and the
+  // group keys only mean anything under the lens that minted them.
+  const filterKey = groupFilter.size
+    ? `${lens}|${Array.from(groupFilter).sort().join('|')}`
+    : '';
+
   // --- The graph model: ego network (explore) or picks + pruned candidates (build) -----
   const model: GraphModel = useMemo(() => {
     if (!center) return { nodes: [], edges: [], total: 0, hidden: [] };
@@ -170,14 +182,24 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     // both); the "+N more" list still catches the overflow either way.
     const degreeCap = isMobile ? DEFAULT_DEGREE_CAP : 40;
 
+    // Tapped legend groups narrow the drawn pool BEFORE the degree cap, so filtering
+    // to "Fruits" surfaces fruits the default mix never had room for.
+    const include =
+      groupFilter.size > 0
+        ? (n: string) => groupFilter.has(groupKeyOf(getProfile(n), lens))
+        : undefined;
+
     if (buildMode) {
       const candidateSet = intersectNeighborhoods(graph, picks);
+      // `total` stays the unfiltered pool size — the honest "N compatible" number.
+      const total = candidateSet.size;
       // Cap the candidate ring for readability, keeping the highest-degree (most
       // versatile) candidates; the rest live behind the "+N more" list.
-      let candidates = Array.from(candidateSet).sort(
-        (a, b) => (graph.get(b)?.size ?? 0) - (graph.get(a)?.size ?? 0) || a.localeCompare(b)
-      );
-      const total = candidates.length;
+      let candidates = Array.from(candidateSet)
+        .filter(n => !include || include(n))
+        .sort(
+          (a, b) => (graph.get(b)?.size ?? 0) - (graph.get(a)?.size ?? 0) || a.localeCompare(b)
+        );
       let hidden: string[] = [];
       if (candidates.length > degreeCap) {
         hidden = candidates.slice(degreeCap).sort((a, b) => a.localeCompare(b));
@@ -233,7 +255,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       return { nodes, edges, total, hidden };
     }
 
-    const net = computeEgoNetworkCanonical(center, { degreeCap });
+    const net = computeEgoNetworkCanonical(center, { degreeCap, include });
     return {
       nodes: net.nodes.map(n => ({
         name: n.name,
@@ -246,7 +268,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       total: net.totalPartners,
       hidden: net.hiddenPartners,
     };
-  }, [center, buildMode, picks, graph, isMobile]);
+    // groupFilter + lens enter via filterKey (a Set's identity churns every toggle).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center, buildMode, picks, graph, isMobile, filterKey]);
 
   // --- Canvas + d3-force simulation ----------------------------------------------------
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -677,30 +701,39 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const focusProfile = focusName ? getProfile(focusName) : null;
   const focusDegree = focusName ? graph.get(focusName)?.size ?? 0 : 0;
 
-  // Legend for the active lens: only the colors actually present in the view, most
-  // frequent first — a key to what's on screen, not a taxonomy poster.
+  // Legend for the active lens, most frequent group first. Now that the chips are tap-
+  // to-filter controls, they're computed from the UNFILTERED pool (every partner /
+  // candidate, not just the nodes on screen) — so a group never vanishes from the
+  // legend because it missed the degree cap or because another chip is active.
   const legend = useMemo(() => {
-    const counts = new Map<string, { color: string; count: number }>();
-    model.nodes.forEach(n => {
+    const names = buildMode
+      ? Array.from(intersectNeighborhoods(graph, picks))
+      : center
+        ? Array.from(graph.get(center) ?? [])
+        : [];
+    const counts = new Map<string, { label: string; color: string; count: number }>();
+    names.forEach(n => {
+      const profile = getProfile(n);
+      const key = groupKeyOf(profile, lens);
       let label: string;
       let color: string;
       if (lens === 'taste') {
-        color = dominantTasteColor(n.profile);
+        color = key; // under the taste lens the group key IS the dominant-taste color
         const entry = TASTE_KEYS.find(k => TASTE_COLORS[k] === color);
         label = entry ?? 'neutral';
       } else {
-        const cat = n.profile?.category;
+        const cat = profile?.category;
         label = cat ? categoryLabel(cat) : 'Other';
         color = (cat && CATEGORY_COLORS[cat]) || NEUTRAL_NODE;
       }
-      const cur = counts.get(label);
+      const cur = counts.get(key);
       if (cur) cur.count += 1;
-      else counts.set(label, { color, count: 1 });
+      else counts.set(key, { label, color, count: 1 });
     });
     return Array.from(counts.entries())
-      .sort((a, b) => b[1].count - a[1].count)
-      .map(([label, v]) => ({ label, color: v.color }));
-  }, [model, lens]);
+      .sort((a, b) => b[1].count - a[1].count || a[1].label.localeCompare(b[1].label))
+      .map(([key, v]) => ({ key, label: v.label, color: v.color, count: v.count }));
+  }, [graph, center, buildMode, picks, lens]);
 
   // Whole-database scale, for the mockup's "1 of 638 ingredients · 14,800 pairings"
   // footer. Edge count = half the sum of neighborhood sizes (each edge counted twice).
@@ -737,7 +770,13 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             {(['category', 'taste'] as Lens[]).map(l => (
               <button
                 key={l}
-                onClick={() => setLens(l)}
+                onClick={() => {
+                  setLens(l);
+                  // Filter keys are lens-specific — clear in the same render so the
+                  // model never evaluates category keys under the taste lens (or
+                  // vice versa), which would flash an empty graph.
+                  setGroupFilter(new Set());
+                }}
                 className={`px-3 py-1 rounded-full capitalize transition-colors ${
                   lens === l
                     ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
@@ -806,26 +845,41 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             shrink below it — squeezing the window then pushes the info panel off-screen
             instead of shrinking the graph. */}
         <div className="flex-1 min-h-0 min-w-0 flex flex-col">
-          {/* Lens legend — only the colors present in this view. One scrollable line on
-              mobile (wrapping would eat canvas height), wrapping on desktop. */}
+          {/* Lens legend — every group in the (unfiltered) pool, and each chip is a
+              tap-to-filter toggle: active chips fill with their group color and the
+              graph narrows to those groups. One scrollable line on mobile (wrapping
+              would eat canvas height), wrapping on desktop. */}
           <div
-            className={`shrink-0 px-4 sm:px-6 py-2 flex gap-x-3 gap-y-1 ${
+            className={`shrink-0 px-4 sm:px-6 py-2 flex items-center gap-x-1.5 gap-y-1.5 ${
               isMobile ? 'flex-nowrap overflow-x-auto' : 'flex-wrap'
             }`}
           >
             {legend.map(item => (
-              <span
-                key={item.label}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+              <Pill
+                key={item.key}
+                active={groupFilter.has(item.key)}
+                accent={item.color}
+                className="!px-2.5 !py-1 !text-xs whitespace-nowrap shrink-0"
+                onClick={() =>
+                  setGroupFilter(prev => {
+                    const next = new Set(prev);
+                    if (next.has(item.key)) next.delete(item.key);
+                    else next.add(item.key);
+                    return next;
+                  })
+                }
               >
-                <span
-                  className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ backgroundColor: item.color }}
-                  aria-hidden="true"
-                />
                 {item.label}
-              </span>
+              </Pill>
             ))}
+            {groupFilter.size > 0 && (
+              <button
+                onClick={() => setGroupFilter(new Set())}
+                className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline underline-offset-2 whitespace-nowrap shrink-0 px-1"
+              >
+                show all
+              </button>
+            )}
           </div>
 
           <div ref={containerRef} className="relative flex-1 min-h-0 bg-gray-50 dark:bg-gray-900/40 touch-none">
@@ -897,11 +951,19 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           {/* Counts + database scale, in flow below the canvas (mockup footer) */}
           <div className="shrink-0 px-4 sm:px-6 py-2 flex flex-wrap items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-200 tabular-nums">
-              {buildMode
-                ? `${candidateCount} compatible`
-                : model.hidden.length > 0
-                  ? `${model.total - model.hidden.length} of ${model.total} partners shown`
-                  : `${model.total} partner${model.total === 1 ? '' : 's'}`}
+              {(() => {
+                // Count what's actually drawn: the cap AND the legend filter both
+                // shrink the view, and "18 of 301 partners shown" stays honest for both.
+                const drawn = model.nodes.filter(n => !n.isCenter && !n.isPick).length;
+                if (buildMode) {
+                  return drawn < candidateCount
+                    ? `${drawn} of ${candidateCount} compatible shown`
+                    : `${candidateCount} compatible`;
+                }
+                return drawn < model.total
+                  ? `${drawn} of ${model.total} partners shown`
+                  : `${model.total} partner${model.total === 1 ? '' : 's'}`;
+              })()}
             </span>
             {model.hidden.length > 0 && (
               <button
