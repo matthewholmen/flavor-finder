@@ -1007,20 +1007,31 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                 +{model.hidden.length} more
               </button>
             )}
-            {/* Staples toggle: hide the garlic-tier hubs so distinctive partners
-                get the room. View filter only — the pairing math never changes. */}
-            <Pill
-              active={hideStaples}
-              onClick={() => setHideStaples(v => !v)}
-              className="!px-3 !py-1 !text-xs !border"
-              title={
-                hideStaples
-                  ? 'Showing distinctive partners only — tap to bring the staples back'
-                  : 'Hide pantry staples (garlic, lemon, olive oil…) that pair with almost everything'
-              }
-            >
-              Hide staples
-            </Pill>
+            {/* Mood lens: two peer modes, not a cleanup toggle. Everyday keeps the
+                pantry staples (the connectors — maximum buildability); Adventurous
+                mutes the garlic-tier hubs so deep cuts get the spotlight. Same
+                segmented shape as the Category|Taste switcher — this is a lens over
+                WHO is drawn. View filter only; the pairing math never changes. */}
+            <div className="flex items-center rounded-full bg-gray-100 dark:bg-gray-800 p-0.5 text-xs font-medium">
+              {([
+                ['everyday', false, 'The whole map, pantry staples included — everything on screen builds with everything'],
+                ['adventurous', true, 'Mute the ubiquitous staples (garlic, lemon, olive oil…) and spotlight the deep cuts'],
+              ] as Array<[string, boolean, string]>).map(([label, staplesHidden, hint]) => (
+                <button
+                  key={label}
+                  onClick={() => setHideStaples(staplesHidden)}
+                  title={hint}
+                  aria-pressed={hideStaples === staplesHidden}
+                  className={`px-3 py-1 rounded-full capitalize transition-colors ${
+                    hideStaples === staplesHidden
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
               {dbStats.ingredients} ingredients · {dbStats.pairings.toLocaleString()} pairings
               in the map
