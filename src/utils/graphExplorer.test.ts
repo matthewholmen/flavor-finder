@@ -2,6 +2,7 @@ import {
   computeEgoNetwork,
   computeEgoNetworkCanonical,
   intersectNeighborhoods,
+  isStaple,
   mostConstrainingPick,
 } from './graphExplorer';
 import { getAtlasGraph } from './atlas';
@@ -145,5 +146,18 @@ describe('canonical graph integrity', () => {
     survivors.forEach(s => {
       picks.forEach(p => expect(graph.get(p)?.has(s)).toBe(true));
     });
+  });
+
+  it('isStaple catches the ubiquitous hubs and spares distinctive ingredients', () => {
+    const graph = getAtlasGraph();
+    // The examples the "hide staples" toggle was designed around.
+    for (const hub of ['rice', 'lemon', 'garlic', 'olive oil', 'potato']) {
+      expect(isStaple(graph, hub)).toBe(true);
+    }
+    for (const distinct of ['sumac', 'goose', 'chickpea', 'escolar']) {
+      expect(isStaple(graph, distinct)).toBe(false);
+    }
+    // Unknown names are simply not staples, never a crash.
+    expect(isStaple(graph, 'not-an-ingredient')).toBe(false);
   });
 });

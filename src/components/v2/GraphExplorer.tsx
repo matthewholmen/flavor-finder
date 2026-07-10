@@ -17,6 +17,7 @@ import { useTheme } from '../../contexts/ThemeContext.tsx';
 import {
   computeEgoNetworkCanonical,
   intersectNeighborhoods,
+  isStaple,
   mostConstrainingPick,
   DEFAULT_DEGREE_CAP,
 } from '../../utils/graphExplorer.ts';
@@ -138,8 +139,13 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const center = ingredient ? ingredient.trim().toLowerCase() : null;
   const { isDarkMode } = useTheme();
 
-  const [lens, setLens] = useState<Lens>('category');
+  // Taste is the default lens — it matches how the standard view sorts ingredients.
+  const [lens, setLens] = useState<Lens>('taste');
   const [buildMode, setBuildMode] = useState(false);
+  // "Hide staples": drop ubiquitous hubs (garlic, lemon, olive oil…) from the DRAWN
+  // pool so distinctive partners get the room. Persists across hops and mode switches
+  // (unlike the legend filter) — it's a noise preference, not a per-view query.
+  const [hideStaples, setHideStaples] = useState(false);
   const [picks, setPicks] = useState<string[]>([]);
   const [focusName, setFocusName] = useState<string | null>(center);
   const [search, setSearch] = useState('');
@@ -209,11 +215,14 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     // both); the "+N more" list still catches the overflow either way.
     const degreeCap = isMobile ? DEFAULT_DEGREE_CAP : 40;
 
-    // Tapped legend groups narrow the drawn pool BEFORE the degree cap, so filtering
-    // to "Fruits" surfaces fruits the default mix never had room for.
+    // Tapped legend groups and the staples toggle narrow the drawn pool BEFORE the
+    // degree cap, so filtering digs deeper into what's left (hiding garlic-tier hubs
+    // surfaces partners the default mix never had room for).
     const include =
-      groupFilter.size > 0
-        ? (n: string) => groupFilter.has(groupKeyOf(getProfile(n), lens))
+      groupFilter.size > 0 || hideStaples
+        ? (n: string) =>
+            (!hideStaples || !isStaple(graph, n)) &&
+            (groupFilter.size === 0 || groupFilter.has(groupKeyOf(getProfile(n), lens)))
         : undefined;
 
     if (buildMode) {
@@ -297,7 +306,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     };
     // groupFilter + lens enter via filterKey (a Set's identity churns every toggle).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center, buildMode, picks, graph, isMobile, filterKey]);
+  }, [center, buildMode, picks, graph, isMobile, filterKey, hideStaples]);
 
   // --- Canvas + d3-force simulation ----------------------------------------------------
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -998,6 +1007,20 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                 +{model.hidden.length} more
               </button>
             )}
+            {/* Staples toggle: hide the garlic-tier hubs so distinctive partners
+                get the room. View filter only — the pairing math never changes. */}
+            <Pill
+              active={hideStaples}
+              onClick={() => setHideStaples(v => !v)}
+              className="!px-3 !py-1 !text-xs !border"
+              title={
+                hideStaples
+                  ? 'Showing distinctive partners only — tap to bring the staples back'
+                  : 'Hide pantry staples (garlic, lemon, olive oil…) that pair with almost everything'
+              }
+            >
+              Hide staples
+            </Pill>
             <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
               {dbStats.ingredients} ingredients · {dbStats.pairings.toLocaleString()} pairings
               in the map
