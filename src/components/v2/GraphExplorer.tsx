@@ -51,9 +51,6 @@ interface SimNode extends SimulationNodeDatum {
   id: string;
   isCenter: boolean;
   isPick: boolean;
-  /** Build-mode candidate (not yet picked): drawn hollow — stroked, background fill —
-   *  so selected-vs-available reads at a glance. Explore-mode partners stay filled. */
-  isCandidate: boolean;
   profile: IngredientProfile | null;
   degree: number;
   r: number;
@@ -382,23 +379,18 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       ctx.globalAlpha = lit ? 1 : 0.18;
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-      if (n.isCandidate) {
-        // Available, not chosen: hollow — background fill (masks edges passing
-        // underneath) with a colored stroke. Solid = in your combo.
+      // One fill grammar across both modes: solid = "in your hand" (the explore
+      // center, or a build-mode pick), hollow = compatible possibility (partner or
+      // candidate). The hollow background fill masks edges passing underneath.
+      if (n.isCenter || n.isPick) {
+        ctx.fillStyle = color;
+        ctx.fill();
+      } else {
         ctx.fillStyle = dark ? '#111827' : '#f9fafb';
         ctx.fill();
         ctx.lineWidth = isActive ? 2.5 : 2;
         ctx.strokeStyle = color;
         ctx.stroke();
-      } else {
-        ctx.fillStyle = color;
-        ctx.fill();
-        if (n.isCenter && !n.isPick) {
-          // Explore mode's "you are here" ring (build-mode picks read by fill alone).
-          ctx.lineWidth = 3;
-          ctx.strokeStyle = dark ? '#f9fafb' : '#ffffff';
-          ctx.stroke();
-        }
       }
       ctx.globalAlpha = 1;
 
@@ -462,8 +454,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         id: n.name,
         isCenter: n.isCenter,
         isPick: n.isPick,
-        // In build mode every node is a pick or a candidate; explore has neither.
-        isCandidate: buildMode && !n.isPick,
         profile: n.profile,
         degree: n.degree,
         r: n.isCenter ? 26 : n.isPick ? 18 : partnerRadius(n.degree),
