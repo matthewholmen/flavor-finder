@@ -215,15 +215,16 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     // both); the "+N more" list still catches the overflow either way.
     const degreeCap = isMobile ? DEFAULT_DEGREE_CAP : 40;
 
-    // Tapped legend groups and the staples toggle narrow the drawn pool BEFORE the
-    // degree cap, so filtering digs deeper into what's left (hiding garlic-tier hubs
-    // surfaces partners the default mix never had room for).
+    // Tapped legend groups narrow the drawn pool (a hard filter — the user picked those
+    // categories); it runs BEFORE the cap so filtering digs deeper into the chosen group.
     const include =
-      groupFilter.size > 0 || hideStaples
-        ? (n: string) =>
-            (!hideStaples || !isStaple(graph, n)) &&
-            (groupFilter.size === 0 || groupFilter.has(groupKeyOf(getProfile(n), lens)))
+      groupFilter.size > 0
+        ? (n: string) => groupFilter.has(groupKeyOf(getProfile(n), lens))
         : undefined;
+    // Adventurous downranks staples rather than dropping them: deep cuts fill the cap
+    // first, staples backfill only when there aren't enough. So a hub like chicken loses
+    // its staples to the overflow, but pike (4 partners, all staples) still shows all 4.
+    const deprioritize = hideStaples ? (n: string) => isStaple(graph, n) : undefined;
 
     if (buildMode) {
       const candidateSet = intersectNeighborhoods(graph, picks);
@@ -233,9 +234,15 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       // versatile) candidates; the rest live behind the "+N more" list.
       let candidates = Array.from(candidateSet)
         .filter(n => !include || include(n))
-        .sort(
-          (a, b) => (graph.get(b)?.size ?? 0) - (graph.get(a)?.size ?? 0) || a.localeCompare(b)
-        );
+        .sort((a, b) => {
+          // Staples sink below deep cuts (Adventurous), so they only fill leftover
+          // slots after the cap takes the distinctive candidates — mirrors selectPartners.
+          if (deprioritize) {
+            const sink = (deprioritize(a) ? 1 : 0) - (deprioritize(b) ? 1 : 0);
+            if (sink) return sink;
+          }
+          return (graph.get(b)?.size ?? 0) - (graph.get(a)?.size ?? 0) || a.localeCompare(b);
+        });
       let hidden: string[] = [];
       if (candidates.length > degreeCap) {
         hidden = candidates.slice(degreeCap).sort((a, b) => a.localeCompare(b));
@@ -291,7 +298,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       return { nodes, edges, total, hidden };
     }
 
-    const net = computeEgoNetworkCanonical(center, { degreeCap, include });
+    const net = computeEgoNetworkCanonical(center, { degreeCap, include, deprioritize });
     return {
       nodes: net.nodes.map(n => ({
         name: n.name,

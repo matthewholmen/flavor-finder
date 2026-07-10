@@ -93,6 +93,39 @@ describe('computeEgoNetwork', () => {
     const partners = net.nodes.filter(n => !n.isCenter).map(n => n.name);
     expect(partners).toEqual(['p4']);
   });
+
+  it('deprioritize sinks matching partners below the cap without dropping them', () => {
+    // Cap 2, mark the best-clustered partners (p1,p2) as staples: they sink, so the
+    // deep cuts p3,p4 take the slots instead. A rank penalty, not a filter.
+    const net = computeEgoNetwork('c', mock(), {
+      degreeCap: 2,
+      deprioritize: n => n === 'p1' || n === 'p2',
+    });
+    const partners = net.nodes.filter(n => !n.isCenter).map(n => n.name);
+    expect(partners.sort()).toEqual(['p3', 'p4']);
+    expect(net.hiddenPartners).toEqual(['p1', 'p2']); // staples overflow to +N more
+  });
+
+  it('deprioritize never empties a small network — staples backfill (the pike case)', () => {
+    // Every partner is a staple and the whole neighborhood fits under the cap: all of
+    // them still show. This is the reported bug — Adventurous must not blank the graph.
+    const net = computeEgoNetwork('c', mock(), { deprioritize: () => true });
+    const partners = net.nodes.filter(n => !n.isCenter).map(n => n.name);
+    expect(partners.sort()).toEqual(['p1', 'p2', 'p3', 'p4']);
+    expect(net.hiddenPartners).toEqual([]);
+  });
+
+  it('deprioritize backfills leftover slots when deep cuts run short', () => {
+    // Cap 3, only p4 is a deep cut: it leads, then two staples backfill to fill the cap
+    // (never fewer than the cap when the pool is large enough).
+    const net = computeEgoNetwork('c', mock(), {
+      degreeCap: 3,
+      deprioritize: n => n !== 'p4',
+    });
+    const partners = net.nodes.filter(n => !n.isCenter).map(n => n.name);
+    expect(partners).toHaveLength(3);
+    expect(partners).toContain('p4');
+  });
 });
 
 describe('intersectNeighborhoods', () => {
