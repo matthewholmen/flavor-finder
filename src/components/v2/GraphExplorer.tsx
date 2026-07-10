@@ -95,6 +95,14 @@ const partnerRadius = (degree: number): number => 10 + Math.min(8, Math.sqrt(deg
 const groupKeyOf = (profile: IngredientProfile | null, lens: Lens): string =>
   lens === 'taste' ? dominantTasteColor(profile) : profile?.category ?? 'Other';
 
+/** Desktop node budget, scaled to the canvas area: ~15k px² per node matches the
+ *  validated 40-node laptop density, so 40 is the floor and bigger windows earn more
+ *  nodes up to an overwhelm ceiling of 80. Quantized in steps of 8 so drag-resizing a
+ *  window doesn't churn the whole model on every pixel. Mobile ignores this and keeps
+ *  DEFAULT_DEGREE_CAP — a phone can't spend more pixels than it has. */
+const desktopCapFor = (w: number, h: number): number =>
+  Math.max(40, Math.min(80, Math.round((w * h) / 15000 / 8) * 8));
+
 /** Anchor pull per node role. The center is held firmly mid-canvas (strong enough to
  *  rubber-band back from a drag, soft enough to feel organic — it replaces the old hard
  *  fx/fy pin); picks cluster near the middle; partners drift gently to their group. */
@@ -155,6 +163,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   // show everything. Narrows which partners/candidates are DRAWN — a view filter over
   // pool inputs, never a change to the pairing math.
   const [groupFilter, setGroupFilter] = useState<Set<string>>(new Set());
+  // Desktop's drawn-node budget, kept in state (updated by the resize observer) so a
+  // bigger canvas recomputes the model with a bigger cap. Starts at the floor.
+  const [desktopCap, setDesktopCap] = useState(40);
 
   // Reset transient view state whenever the center changes (a hop or a fresh open).
   // On the closed→open transition only, an `initialPicks` seed starts the session in
@@ -212,8 +223,9 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     if (!center) return { nodes: [], edges: [], total: 0, hidden: [] };
 
     // Desktop has room for a fuller neighborhood than a phone (Matt's call after using
-    // both); the "+N more" list still catches the overflow either way.
-    const degreeCap = isMobile ? DEFAULT_DEGREE_CAP : 40;
+    // both), and a bigger desktop canvas earns a bigger budget (desktopCapFor); the
+    // "+N more" list still catches the overflow either way.
+    const degreeCap = isMobile ? DEFAULT_DEGREE_CAP : desktopCap;
 
     // Tapped legend groups narrow the drawn pool (a hard filter — the user picked those
     // categories); it runs BEFORE the cap so filtering digs deeper into the chosen group.
@@ -313,7 +325,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     };
     // groupFilter + lens enter via filterKey (a Set's identity churns every toggle).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center, buildMode, picks, graph, isMobile, filterKey, hideStaples]);
+  }, [center, buildMode, picks, graph, isMobile, filterKey, hideStaples, desktopCap]);
 
   // --- Canvas + d3-force simulation ----------------------------------------------------
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -614,6 +626,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       canvas.height = Math.round(rect.height * dpr);
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
+      // Recompute the desktop node budget for the new canvas. Quantized inside
+      // desktopCapFor, so most resizes are a no-op re-set; when it does change, the
+      // model recomputes and the extra nodes join the settled layout (positions of
+      // survivors are preserved by the sim effect).
+      setDesktopCap(desktopCapFor(rect.width, rect.height));
       const sim = simRef.current;
       if (sim) {
         // Retarget the cluster anchors to the new canvas — never poke the x/y forces
