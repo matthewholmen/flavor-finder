@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap, Undo2, ArrowRight } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Search, X, Filter, Zap, Undo2, ArrowRight, Waypoints } from 'lucide-react';
 import { TASTE_COLORS, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { CATEGORY_ICONS } from '../../utils/categoryIcons.ts';
@@ -57,6 +57,11 @@ export const IngredientDrawer = ({
   onTogglePartialMatches = () => {},
   // Flavor map for pairing info
   flavorMap = null,
+  // Bottom-bar map entry: opens the Graph Explorer seeded with the current combo.
+  // Rendered only while the drawer is closed (the "Partial" toggle takes that seat
+  // while browsing); disabled when the combo is empty.
+  onOpenMap = null,
+  canOpenMap = false,
   // Side info panel focus, controlled by the parent so that actions outside the
   // drawer (e.g. locking an ingredient) can focus it in the info panel too.
   selectedInfoIndex = 0,
@@ -1317,6 +1322,29 @@ export const IngredientDrawer = ({
           )}
 
         </div>
+        {/* Map view — the current combo on the flavor graph. Closed-drawer only:
+            while browsing, "Partial" takes this seat and the drawer covers the
+            view anyway. Mirrors Undo's round button so the bar stays symmetric. */}
+        {!isOpen && onOpenMap && (
+          <button
+            onClick={onOpenMap}
+            disabled={!canOpenMap}
+            className={`
+              w-12 h-12 rounded-full flex-shrink-0
+              flex items-center justify-center
+              border-2 bg-white dark:bg-gray-800
+              transition-all duration-300
+              ${canOpenMap
+                ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-700 cursor-pointer'
+                : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-600 cursor-not-allowed'
+              }
+            `}
+            title="See this combo on the flavor map"
+            aria-label="See this combo on the flavor map"
+          >
+            <Waypoints size={20} strokeWidth={1.5} className="pointer-events-none" />
+          </button>
+        )}
         {/* Show Partial Matches - only relevant while browsing suggestions */}
         {isOpen && (
           <button

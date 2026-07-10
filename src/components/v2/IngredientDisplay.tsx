@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowLeftRight, Shapes } from 'lucide-react';
+import { X, Lock, Unlock, Sparkles, ChevronDown, ChevronUp, Info, ArrowLeftRight, Shapes, Waypoints } from 'lucide-react';
 import { TASTE_COLORS, WILD_COLOR, getIngredientColorWithContrast } from '../../utils/colors.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
@@ -168,6 +168,8 @@ const Ingredient = ({
   onRoleClick = null,
   // Opens the ingredient's Atlas page (hover-revealed ⓘ in the icon stack).
   onOpenAtlas = null,
+  // Opens the Graph Explorer centered on this ingredient (hover-revealed map icon).
+  onOpenGraph = null,
   // Structural swap (hover-revealed ⇄ in the icon stack).
   onSwapClick = null,
   showComma,
@@ -354,6 +356,17 @@ const Ingredient = ({
             aria-label={`Open ingredient page for ${ingredient}`}
           >
             <Info size={15} strokeWidth={2.25} />
+          </button>
+        )}
+        {onOpenGraph && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onOpenGraph(); }}
+            className={toolbarButtonClass}
+            style={toolbarButtonStyle}
+            title={`See ${ingredient} on the flavor map`}
+            aria-label={`See ${ingredient} on the flavor map`}
+          >
+            <Waypoints size={15} strokeWidth={2.25} />
           </button>
         )}
         <span
@@ -627,7 +640,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 };
 
 // Mobile Ingredient Info Component
-const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenAtlas = null, onSwap = null, roleIndicator = null, onEditRole = null }) => {
+const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenAtlas = null, onOpenGraph = null, onSwap = null, roleIndicator = null, onEditRole = null }) => {
   const profile = ingredientProfiles?.find(
     p => p.name.toLowerCase() === ingredient.toLowerCase()
   );
@@ -701,8 +714,8 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
         </div>
       )}
 
-      {/* Actions: slot role editor, structural swap, full Atlas page */}
-      {(onEditRole || onSwap || onOpenAtlas) && (
+      {/* Actions: slot role editor, structural swap, full Atlas page, map view */}
+      {(onEditRole || onSwap || onOpenAtlas || onOpenGraph) && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {onEditRole && (
             <button onClick={onEditRole} className={actionButtonClass}>
@@ -729,6 +742,12 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
             <button onClick={() => onOpenAtlas(ingredient)} className={actionButtonClass}>
               <Info size={15} strokeWidth={2.25} aria-hidden="true" />
               Flavor page
+            </button>
+          )}
+          {onOpenGraph && (
+            <button onClick={() => onOpenGraph(ingredient)} className={actionButtonClass}>
+              <Waypoints size={15} strokeWidth={2.25} aria-hidden="true" />
+              Map
             </button>
           )}
         </div>
@@ -759,6 +778,9 @@ export const IngredientDisplay = ({
   // Opens an ingredient's Atlas reference page. Optional — without it neither
   // the desktop ⓘ control nor the mobile "Full flavor page" link renders.
   onOpenAtlas = null,
+  // Opens the Graph Explorer centered on an ingredient. Optional — without it
+  // neither the desktop map control nor the mobile "Map" action renders.
+  onOpenGraph = null,
   // Structural swap (P5). `onSwapSuggestions(actualIndex)` returns ranked
   // substitutes that pair with the rest of the combo; `onSwapPick` applies
   // one. Both optional — without them no swap affordance renders.
@@ -1142,6 +1164,7 @@ export const IngredientDisplay = ({
                 roleIndicator={roleIndicator}
                 onRoleClick={rolesEnabled ? (rect) => openRoleEditor(actualIndex, rect) : null}
                 onOpenAtlas={onOpenAtlas ? () => onOpenAtlas(ingredient) : null}
+                onOpenGraph={onOpenGraph ? () => onOpenGraph(ingredient) : null}
                 onSwapClick={swapEnabled ? (rect) => openSwap(actualIndex, rect) : null}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
@@ -1400,6 +1423,7 @@ export const IngredientDisplay = ({
                       isHighContrast={isHighContrast}
                       isDarkMode={isDarkMode}
                       onOpenAtlas={onOpenAtlas}
+                      onOpenGraph={onOpenGraph}
                       onSwap={swapEnabled ? () => openSwap(actualIndex, null) : null}
                       roleIndicator={roleIndicator}
                       onEditRole={rolesEnabled ? () => openRoleEditor(actualIndex, null) : null}

@@ -104,6 +104,14 @@ export default function FlavorFinderV2() {
   const { atlasIngredient, openAtlas, closeAtlas } = useAtlasRoute();
   // Graph Explorer overlay routing (?graph=<name>, pushState/popstate).
   const { graphIngredient, openGraph, closeGraph } = useGraphRoute();
+  // Build-mode seed for the graph: set by the bottom-bar map button so the
+  // explorer opens showing the CURRENT combo as picks (plus everything that
+  // pairs with all of them). Cleared whenever the overlay closes — however it
+  // closes (X, Escape, browser Back) — so per-ingredient opens stay unseeded.
+  const [graphSeed, setGraphSeed] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!graphIngredient) setGraphSeed(null);
+  }, [graphIngredient]);
 
   // Use custom hooks for state management
   const {
@@ -1251,6 +1259,17 @@ export default function FlavorFinderV2() {
   // then behaves as if they were picked in Classic mode. Graph picks are unlimited but
   // the slot system is not — the graph disables the handoff past MAX_SLOTS, and the
   // guard here backstops that so an oversized combo can never corrupt the slots.
+  // Bottom-bar map entry: the Graph Explorer as a view of the current combo.
+  // Opens in build mode seeded with the selection — the picks are mutually
+  // compatible by construction, so the graph shows them as a clique with the
+  // live "what else fits all of these" pool around them.
+  const openGraphWithCombo = () => {
+    const combo = selectedIngredients.filter(Boolean);
+    if (combo.length === 0) return;
+    setGraphSeed(combo);
+    openGraph(combo[0]);
+  };
+
   const useComboFromGraph = (ingredients: string[]) => {
     if (ingredients.length === 0 || ingredients.length > MAX_SLOTS) return;
     saveToHistory();
@@ -1879,6 +1898,7 @@ export default function FlavorFinderV2() {
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
                 onOpenAtlas={openAtlas}
+                onOpenGraph={openGraph}
                 onSwapSuggestions={getSwapSuggestions}
                 onSwapPick={handleSwapPick}
               />
@@ -1925,6 +1945,7 @@ export default function FlavorFinderV2() {
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
                 onOpenAtlas={openAtlas}
+                onOpenGraph={openGraph}
                 onSwapSuggestions={getSwapSuggestions}
                 onSwapPick={handleSwapPick}
               />
@@ -1985,6 +2006,9 @@ export default function FlavorFinderV2() {
         selectedInfoIndex={selectedInfoIndex}
         onInfoIndexChange={setSelectedInfoIndex}
         onOpenAtlas={openAtlas}
+        // Bottom-bar map button (drawer closed): current combo on the graph
+        onOpenMap={openGraphWithCombo}
+        canOpenMap={selectedIngredients.filter(Boolean).length > 0}
       />
       </div>
 
@@ -2005,6 +2029,7 @@ export default function FlavorFinderV2() {
         onNavigate={openGraph}
         onUseCombo={useComboFromGraph}
         onOpenAtlas={name => openAtlas(name)}
+        initialPicks={graphSeed}
         isMobile={isMobile}
       />
 

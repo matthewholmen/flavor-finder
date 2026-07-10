@@ -118,6 +118,11 @@ interface GraphExplorerProps {
   onUseCombo: (names: string[]) => void;
   /** Open the read-only list Atlas for full detail (optional). */
   onOpenAtlas?: (name: string) => void;
+  /** Seed a fresh open in build mode with these picks (the "see this combo on the
+   *  map" entry). Applied only on the closed→open transition, never on in-graph
+   *  hops, so exiting build mode or re-centering behaves exactly as an unseeded
+   *  open would. Names not in the graph are dropped. */
+  initialPicks?: string[] | null;
   isMobile: boolean;
 }
 
@@ -127,6 +132,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   onNavigate,
   onUseCombo,
   onOpenAtlas,
+  initialPicks = null,
   isMobile,
 }) => {
   const center = ingredient ? ingredient.trim().toLowerCase() : null;
@@ -145,13 +151,34 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const [groupFilter, setGroupFilter] = useState<Set<string>>(new Set());
 
   // Reset transient view state whenever the center changes (a hop or a fresh open).
+  // On the closed→open transition only, an `initialPicks` seed starts the session in
+  // build mode with those picks (the "see this combo on the map" entry); a close
+  // clears build state so the next plain open starts in explore mode, not with a
+  // stale build. Seeding changes which picks the intersection runs over — a pool
+  // input, never the pairing math.
+  const prevCenterRef = useRef<string | null>(null);
   useEffect(() => {
+    const prev = prevCenterRef.current;
+    prevCenterRef.current = center;
     setFocusName(center);
     setMorePanelOpen(false);
     setSearch('');
     setSearchOpen(false);
     setGroupFilter(new Set());
-  }, [center]);
+    if (!center) {
+      setBuildMode(false);
+      setPicks([]);
+      return;
+    }
+    if (prev === null) {
+      const g = getAtlasGraph();
+      const seeds = Array.from(
+        new Set((initialPicks ?? []).map(n => n.trim().toLowerCase()).filter(n => g.has(n)))
+      );
+      setBuildMode(seeds.length > 0);
+      setPicks(seeds);
+    }
+  }, [center, initialPicks]);
 
   // Leaving build mode clears the anchors; entering seeds it with the current center.
   const enterBuild = useCallback(() => {
