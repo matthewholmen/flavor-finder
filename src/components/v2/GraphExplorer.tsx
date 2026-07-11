@@ -108,8 +108,8 @@ const groupKeyOf = (profile: IngredientProfile | null, lens: Lens): string =>
   lens === 'taste' ? dominantTasteColor(profile) : profile?.category ?? 'Other';
 
 /** The density constant: how much room (px²) one node with its label needs to read
- *  clearly. Tunes both the on-screen budget (desktopCapFor) and the pannable world
- *  size (worldFor), so downtown and outskirts share the same crowding. */
+ *  clearly. Tunes the on-screen budget (desktopCapFor); the outskirts run denser on
+ *  purpose (worldFor hugs the outer band so the map feels connected, not roomy). */
 const AREA_PER_NODE = 15000;
 
 /** Desktop node budget for the FIRST screenful (downtown): 40 matches the validated
@@ -119,16 +119,27 @@ const AREA_PER_NODE = 15000;
 const desktopCapFor = (w: number, h: number): number =>
   Math.max(40, Math.min(80, Math.round((w * h) / AREA_PER_NODE / 8) * 8));
 
-/** World size for the pannable map: viewport-shaped, scaled up so every drawn node
- *  keeps ~AREA_PER_NODE of room. Scale 1 (nothing beyond the edges) falls out exactly
- *  when the whole pool fits the on-screen budget; the cap of 6 keeps a phone facing a
- *  300-partner hub from generating an absurd expanse. */
-const worldFor = (w: number, h: number, nodeCount: number): { W: number; H: number } => {
-  const f = Math.max(
-    1,
-    Math.min(6, Math.sqrt((nodeCount * AREA_PER_NODE) / Math.max(1, w * h)))
-  );
-  return { W: w * f, H: h * f };
+/** Downtown ellipse radii — the ring the on-screen budget's partners anchor to.
+ *  Shared by the layout and worldFor so the world always fits the geometry. */
+const innerRx = (w: number): number => Math.max(150, w * 0.34);
+const innerRy = (h: number): number => Math.max(110, h * 0.28);
+/** How far past the downtown ring the outskirts anchor. A fixed, walkable gap — the
+ *  first outer nodes should be visible from downtown's edge, so the scroll reads as
+ *  one connected map rather than a moat between two islands. */
+const OUTER_GAP_X = 300;
+const OUTER_GAP_Y = 240;
+
+/** World size for the pannable map: just big enough to wrap the outskirt band plus
+ *  the collide-spread of its biggest blobs (√-scaled with the outer population), so
+ *  panning ends right past the last nodes instead of in empty frontier. Collapses to
+ *  the bare viewport when nothing lives outside the on-screen budget. */
+const worldFor = (w: number, h: number, outerCount: number): { W: number; H: number } => {
+  if (outerCount <= 0) return { W: w, H: h };
+  const pad = 130 + Math.sqrt(outerCount / 6) * 42;
+  return {
+    W: Math.max(w, 2 * (innerRx(w) + OUTER_GAP_X + pad)),
+    H: Math.max(h, 2 * (innerRy(h) + OUTER_GAP_Y + pad)),
+  };
 };
 
 /** Anchor pull per node role. The center is held firmly mid-canvas (strong enough to
@@ -594,10 +605,14 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         sizeRef.current = { w, h };
       }
     }
-    // Size the world to the pool, then place the camera: home (centered on downtown)
-    // after a hop or fresh open, otherwise wherever the user was, clamped to the
-    // possibly-shrunken world.
-    worldRef.current = worldFor(w || 600, h || 600, model.nodes.length);
+    // Size the world to the outskirt population, then place the camera: home (centered
+    // on downtown) after a hop or fresh open, otherwise wherever the user was, clamped
+    // to the possibly-shrunken world.
+    worldRef.current = worldFor(
+      w || 600,
+      h || 600,
+      model.nodes.reduce((acc, n) => acc + (n.outer ? 1 : 0), 0)
+    );
     if (simCenterRef.current !== center) {
       simCenterRef.current = center;
       cameraRef.current = homeCamera();
@@ -670,10 +685,12 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       const ordered = Array.from(counts.entries())
         .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
         .map(([g]) => g);
-      const rx = Math.max(150, bw * 0.34);
-      const ry = Math.max(110, bh * 0.28);
-      const rxOut = Math.max(rx + 240, bW * 0.36);
-      const ryOut = Math.max(ry + 180, bH * 0.36);
+      const rx = innerRx(bw);
+      const ry = innerRy(bh);
+      // Outskirts sit a fixed gap past downtown (not proportional to the world) so
+      // there's never a moat of empty grid between the two.
+      const rxOut = rx + OUTER_GAP_X;
+      const ryOut = ry + OUTER_GAP_Y;
       const anchors = new Map<string, { inner: { x: number; y: number }; outer: { x: number; y: number } }>();
       ordered.forEach((g, i) => {
         const angle = -Math.PI / 2 + (i / Math.max(1, ordered.length)) * Math.PI * 2;
@@ -801,9 +818,13 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       // model recomputes and the extra nodes join the settled layout (positions of
       // survivors are preserved by the sim effect).
       setDesktopCap(desktopCapFor(rect.width, rect.height));
-      // The world is viewport-shaped, so it resizes with the window; keep the camera
-      // inside the new bounds.
-      worldRef.current = worldFor(rect.width, rect.height, nodesRef.current.length || 1);
+      // The world tracks the viewport geometry, so it resizes with the window; keep
+      // the camera inside the new bounds.
+      worldRef.current = worldFor(
+        rect.width,
+        rect.height,
+        nodesRef.current.reduce((acc, n) => acc + (n.outer ? 1 : 0), 0)
+      );
       cameraRef.current = clampCamera(cameraRef.current.x, cameraRef.current.y);
       updatePanned();
       const sim = simRef.current;
