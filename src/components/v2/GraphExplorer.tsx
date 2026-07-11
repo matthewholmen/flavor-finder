@@ -123,29 +123,35 @@ const desktopCapFor = (w: number, h: number): number =>
  *  Shared by the layout and worldFor so the world always fits the geometry. */
 const innerRx = (w: number): number => Math.max(150, w * 0.34);
 const innerRy = (h: number): number => Math.max(110, h * 0.28);
-/** How far past the downtown ring the outskirts anchor. A fixed, walkable gap — the
- *  first outer nodes should be visible from downtown's edge, so the scroll reads as
- *  one connected map rather than a moat between two islands. */
-const OUTER_GAP_X = 300;
-const OUTER_GAP_Y = 240;
+/** How far past its group's downtown anchor the overflow anchors. Deliberately small:
+ *  the outskirts are NOT a separate ring — they're the same clusters continuing
+ *  outward and spilling past the frame, so the home screen keeps the original
+ *  version's dense center and the scroll never crosses empty grid. Collision packs
+ *  the overflow outward from here organically. */
+const SPILL_X = 150;
+const SPILL_Y = 120;
 
-/** World size for the pannable map: just big enough to wrap the outskirt band plus
- *  the collide-spread of its biggest blobs (√-scaled with the outer population), so
- *  panning ends right past the last nodes instead of in empty frontier. Collapses to
- *  the bare viewport when nothing lives outside the on-screen budget. */
+/** World size for the pannable map: the viewport plus room for the spill (√-scaled
+ *  with the outer population, since blobs grow radially), so panning ends right past
+ *  the last nodes instead of in empty frontier. Collapses to the bare viewport when
+ *  nothing lives outside the on-screen budget. */
 const worldFor = (w: number, h: number, outerCount: number): { W: number; H: number } => {
   if (outerCount <= 0) return { W: w, H: h };
   const pad = 130 + Math.sqrt(outerCount / 6) * 42;
   return {
-    W: Math.max(w, 2 * (innerRx(w) + OUTER_GAP_X + pad)),
-    H: Math.max(h, 2 * (innerRy(h) + OUTER_GAP_Y + pad)),
+    W: Math.max(w, 2 * (innerRx(w) + SPILL_X + pad)),
+    H: Math.max(h, 2 * (innerRy(h) + SPILL_Y + pad)),
   };
 };
 
 /** Anchor pull per node role. The center is held firmly mid-canvas (strong enough to
  *  rubber-band back from a drag, soft enough to feel organic — it replaces the old hard
- *  fx/fy pin); picks cluster near the middle; partners drift gently to their group. */
-const anchorStrength = (n: SimNode): number => (n.isCenter ? 0.5 : n.isPick ? 0.2 : 0.09);
+ *  fx/fy pin); picks cluster near the middle; partners drift gently to their group.
+ *  Overflow nodes are held loosest of all: their anchor is only a starting bearing,
+ *  and collision pressure is what packs them outward past the frame — that's the
+ *  "spill" that keeps the map one continuous field instead of two rings. */
+const anchorStrength = (n: SimNode): number =>
+  n.isCenter ? 0.5 : n.isPick ? 0.2 : n.outer ? 0.055 : 0.09;
 
 interface GraphModel {
   nodes: Array<{
@@ -687,10 +693,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         .map(([g]) => g);
       const rx = innerRx(bw);
       const ry = innerRy(bh);
-      // Outskirts sit a fixed gap past downtown (not proportional to the world) so
-      // there's never a moat of empty grid between the two.
-      const rxOut = rx + OUTER_GAP_X;
-      const ryOut = ry + OUTER_GAP_Y;
+      // Overflow anchors sit just past the downtown ellipse — the same clusters
+      // continuing outward, not a separate distant ring. Collision packs the
+      // surplus further out from here, spilling past the frame naturally.
+      const rxOut = rx + SPILL_X;
+      const ryOut = ry + SPILL_Y;
       const anchors = new Map<string, { inner: { x: number; y: number }; outer: { x: number; y: number } }>();
       ordered.forEach((g, i) => {
         const angle = -Math.PI / 2 + (i / Math.max(1, ordered.length)) * Math.PI * 2;
