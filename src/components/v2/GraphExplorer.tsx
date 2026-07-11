@@ -34,12 +34,6 @@ import type { IngredientProfile } from '../../types.ts';
 // Build mode turns the same view into a constraint-first composer: pick anchors and watch
 // the mutual-compatibility algorithm prune the candidate pool live.
 //
-// The canvas is a pannable WORLD, not a single screen: the on-screen budget picks who
-// lives downtown around the center, and every remaining partner/candidate is a real node
-// anchored in the outskirts — drag (or scroll) across the dot grid to roam out to them.
-// The world grows with the pool so crowding stays constant; when everything fits one
-// screen there is simply nothing beyond the edges.
-//
 // ⚠️ This is a read-only visualization of utils/graphExplorer.ts, which reads the canonical
 // flavor map and never relaxes it. Every edge drawn is a real pairing; every node that
 // survives a prune is mutually compatible with all picks. No "nearby but not compatible"
@@ -58,8 +52,6 @@ interface SimNode extends SimulationNodeDatum {
   id: string;
   isCenter: boolean;
   isPick: boolean;
-  /** Beyond the on-screen budget: anchored in the world's outskirts, reached by panning. */
-  outer: boolean;
   profile: IngredientProfile | null;
   degree: number;
   r: number;
@@ -68,10 +60,6 @@ interface SimLink extends SimulationLinkDatum<SimNode> {
   toCenter: boolean;
   /** Rim ties (partner↔partner / candidate↔candidate): drawn only for the active node. */
   rim: boolean;
-  /** Outskirt spoke (outer node ↔ center/pick): reveals only from its OUTER end —
-   *  the hub end touches every outskirt node, so revealing from there would redraw
-   *  the exact hairball rim-flagging exists to prevent. */
-  outerSpoke: boolean;
 }
 
 /** Dominant-taste color for the taste lens: the highest flavor dimension, or neutral gray
@@ -107,65 +95,26 @@ const partnerRadius = (degree: number): number => 10 + Math.min(8, Math.sqrt(deg
 const groupKeyOf = (profile: IngredientProfile | null, lens: Lens): string =>
   lens === 'taste' ? dominantTasteColor(profile) : profile?.category ?? 'Other';
 
-/** The density constant: how much room (px²) one node with its label needs to read
- *  clearly. Tunes the on-screen budget (desktopCapFor); the outskirts run denser on
- *  purpose (worldFor hugs the outer band so the map feels connected, not roomy). */
-const AREA_PER_NODE = 15000;
-
-/** Desktop node budget for the FIRST screenful (downtown): 40 matches the validated
- *  laptop density, bigger windows earn more up to a ceiling of 80. Quantized in steps
- *  of 8 so drag-resizing a window doesn't churn the whole model on every pixel. Mobile
- *  ignores this and keeps DEFAULT_DEGREE_CAP. */
+/** Desktop node budget, scaled to the canvas area: ~15k px² per node matches the
+ *  validated 40-node laptop density, so 40 is the floor and bigger windows earn more
+ *  nodes up to an overwhelm ceiling of 80. Quantized in steps of 8 so drag-resizing a
+ *  window doesn't churn the whole model on every pixel. Mobile ignores this and keeps
+ *  DEFAULT_DEGREE_CAP — a phone can't spend more pixels than it has. */
 const desktopCapFor = (w: number, h: number): number =>
-  Math.max(40, Math.min(80, Math.round((w * h) / AREA_PER_NODE / 8) * 8));
-
-/** Downtown ellipse radii — the ring the on-screen budget's partners anchor to.
- *  Shared by the layout and worldFor so the world always fits the geometry. */
-const innerRx = (w: number): number => Math.max(150, w * 0.34);
-const innerRy = (h: number): number => Math.max(110, h * 0.28);
-/** How far past its group's downtown anchor the overflow anchors. Deliberately small:
- *  the outskirts are NOT a separate ring — they're the same clusters continuing
- *  outward and spilling past the frame, so the home screen keeps the original
- *  version's dense center and the scroll never crosses empty grid. Collision packs
- *  the overflow outward from here organically. */
-const SPILL_X = 150;
-const SPILL_Y = 120;
-
-/** World size for the pannable map: the viewport plus room for the spill (√-scaled
- *  with the outer population, since blobs grow radially), so panning ends right past
- *  the last nodes instead of in empty frontier. Collapses to the bare viewport when
- *  nothing lives outside the on-screen budget. */
-const worldFor = (w: number, h: number, outerCount: number): { W: number; H: number } => {
-  if (outerCount <= 0) return { W: w, H: h };
-  const pad = 130 + Math.sqrt(outerCount / 6) * 42;
-  return {
-    W: Math.max(w, 2 * (innerRx(w) + SPILL_X + pad)),
-    H: Math.max(h, 2 * (innerRy(h) + SPILL_Y + pad)),
-  };
-};
+  Math.max(40, Math.min(80, Math.round((w * h) / 15000 / 8) * 8));
 
 /** Anchor pull per node role. The center is held firmly mid-canvas (strong enough to
  *  rubber-band back from a drag, soft enough to feel organic — it replaces the old hard
- *  fx/fy pin); picks cluster near the middle; partners drift gently to their group.
- *  Overflow nodes are held loosest of all: their anchor is only a starting bearing,
- *  and collision pressure is what packs them outward past the frame — that's the
- *  "spill" that keeps the map one continuous field instead of two rings. */
-const anchorStrength = (n: SimNode): number =>
-  n.isCenter ? 0.5 : n.isPick ? 0.2 : n.outer ? 0.055 : 0.09;
+ *  fx/fy pin); picks cluster near the middle; partners drift gently to their group. */
+const anchorStrength = (n: SimNode): number => (n.isCenter ? 0.5 : n.isPick ? 0.2 : 0.09);
 
 interface GraphModel {
-  nodes: Array<{
-    name: string;
-    isCenter: boolean;
-    isPick: boolean;
-    /** Past the on-screen budget — lives in the outskirts, reached by panning. */
-    outer: boolean;
-    profile: IngredientProfile | null;
-    degree: number;
-  }>;
-  edges: Array<{ source: string; target: string; toCenter: boolean; rim: boolean; outerSpoke?: boolean }>;
-  /** Partner/candidate count before any view filter. */
+  nodes: Array<{ name: string; isCenter: boolean; isPick: boolean; profile: IngredientProfile | null; degree: number }>;
+  edges: Array<{ source: string; target: string; toCenter: boolean; rim: boolean }>;
+  /** Partner/candidate count before any degree cap. */
   total: number;
+  /** Names dropped by the degree cap (the "+N more" list). */
+  hidden: string[];
 }
 
 interface GraphExplorerProps {
@@ -209,8 +158,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const [focusName, setFocusName] = useState<string | null>(center);
   const [search, setSearch] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-  // True while the camera sits meaningfully away from home — shows "back to center".
-  const [panned, setPanned] = useState(false);
+  const [morePanelOpen, setMorePanelOpen] = useState(false);
   // Legend filter: tapped legend groups (lens-specific keys from groupKeyOf). Empty =
   // show everything. Narrows which partners/candidates are DRAWN — a view filter over
   // pool inputs, never a change to the pairing math.
@@ -230,6 +178,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     const prev = prevCenterRef.current;
     prevCenterRef.current = center;
     setFocusName(center);
+    setMorePanelOpen(false);
     setSearch('');
     setSearchOpen(false);
     setGroupFilter(new Set());
@@ -270,10 +219,8 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     : '';
 
   // --- The graph model: ego network (explore) or picks + pruned candidates (build) -----
-  // The budget no longer HIDES the overflow — it decides who lives downtown (the first
-  // screenful around the center) vs. in the outskirts (`outer`), where panning finds them.
   const model: GraphModel = useMemo(() => {
-    if (!center) return { nodes: [], edges: [], total: 0 };
+    if (!center) return { nodes: [], edges: [], total: 0, hidden: [] };
 
     // Desktop has room for a fuller neighborhood than a phone (Matt's call after using
     // both), and a bigger desktop canvas earns a bigger budget (desktopCapFor); the
@@ -295,42 +242,40 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       const candidateSet = intersectNeighborhoods(graph, picks);
       // `total` stays the unfiltered pool size — the honest "N compatible" number.
       const total = candidateSet.size;
-      const sorted = Array.from(candidateSet)
+      // Cap the candidate ring for readability, keeping the highest-degree (most
+      // versatile) candidates; the rest live behind the "+N more" list.
+      let candidates = Array.from(candidateSet)
         .filter(n => !include || include(n))
         .sort((a, b) => {
-          // Staples sink below deep cuts (Adventurous), so downtown goes to the
-          // distinctive candidates and staples settle in the outskirts — mirrors
-          // selectPartners.
+          // Staples sink below deep cuts (Adventurous), so they only fill leftover
+          // slots after the cap takes the distinctive candidates — mirrors selectPartners.
           if (deprioritize) {
             const sink = (deprioritize(a) ? 1 : 0) - (deprioritize(b) ? 1 : 0);
             if (sink) return sink;
           }
           return (graph.get(b)?.size ?? 0) - (graph.get(a)?.size ?? 0) || a.localeCompare(b);
         });
-      // The budget splits the pool, it no longer trims it: highest-ranked candidates
-      // ring the picks, the rest become roamable outer nodes.
-      const candidates = sorted.slice(0, degreeCap);
-      const outer = sorted.slice(degreeCap);
+      let hidden: string[] = [];
+      if (candidates.length > degreeCap) {
+        hidden = candidates.slice(degreeCap).sort((a, b) => a.localeCompare(b));
+        candidates = candidates.slice(0, degreeCap);
+      }
 
-      const candidateNode = (name: string, isOuter: boolean) => ({
-        name,
-        isCenter: false,
-        isPick: false,
-        outer: isOuter,
-        profile: getProfile(name),
-        degree: graph.get(name)?.size ?? 0,
-      });
       const nodes = [
         ...picks.map(name => ({
           name,
           isCenter: name === center,
           isPick: true,
-          outer: false,
           profile: getProfile(name),
           degree: graph.get(name)?.size ?? 0,
         })),
-        ...candidates.map(name => candidateNode(name, false)),
-        ...outer.map(name => candidateNode(name, true)),
+        ...candidates.map(name => ({
+          name,
+          isCenter: false,
+          isPick: false,
+          profile: getProfile(name),
+          degree: graph.get(name)?.size ?? 0,
+        })),
       ];
 
       const edges: GraphModel['edges'] = [];
@@ -342,24 +287,18 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       }
       // Each candidate pairs with every pick (that's what the intersection guarantees).
       // intersectNeighborhoods already excludes the picks themselves, so candidates and
-      // picks never overlap. Downtown spokes are structural (visible at rest — the
-      // receipt that a candidate matches the whole combo); outskirt spokes are
-      // rim-flagged so hundreds of them don't hairball — hover an outer candidate and
-      // its receipt to every pick lights up.
+      // picks never overlap.
       candidates.forEach(c => {
+        // Structural, not rim: the candidate↔pick spokes are the receipt that a
+        // candidate matches the whole combo, so they stay visible at rest.
         picks.forEach(p => edges.push({ source: c, target: p, toCenter: false, rim: false }));
       });
-      outer.forEach(c => {
-        picks.forEach(p =>
-          edges.push({ source: c, target: p, toCenter: false, rim: true, outerSpoke: true })
-        );
-      });
-      // Rim edges among all candidates — they reveal cluster structure and make
-      // hovering a candidate show its mutual connections instead of dimming
-      // everything else out.
-      const candidateVisible = new Set(sorted);
+      // Rim edges among the candidates themselves — same as explore mode's partner-to-
+      // partner edges. They reveal cluster structure and make hovering a candidate show
+      // its mutual connections instead of dimming everything else out.
+      const candidateVisible = new Set(candidates);
       const seenRim = new Set<string>();
-      sorted.forEach(c => {
+      candidates.forEach(c => {
         graph.get(c)?.forEach(n => {
           if (!candidateVisible.has(n)) return;
           const key = c < n ? `${c} ${n}` : `${n} ${c}`;
@@ -368,51 +307,22 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           edges.push({ source: c, target: n, toCenter: false, rim: true });
         });
       });
-      return { nodes, edges, total };
+      return { nodes, edges, total, hidden };
     }
 
     const net = computeEgoNetworkCanonical(center, { degreeCap, include, deprioritize });
-    // hiddenPartners — the names the budget used to stash behind "+N more" — are the
-    // outskirts now (already include-filtered by the ego computation).
-    const outerNames = net.hiddenPartners;
-    const nodes = [
-      ...net.nodes.map(n => ({
+    return {
+      nodes: net.nodes.map(n => ({
         name: n.name,
         isCenter: n.isCenter,
         isPick: false,
-        outer: false,
         profile: n.profile,
         degree: n.degree,
       })),
-      ...outerNames.map(name => ({
-        name,
-        isCenter: false,
-        isPick: false,
-        outer: true,
-        profile: getProfile(name),
-        degree: graph.get(name)?.size ?? 0,
-      })),
-    ];
-    const edges: GraphModel['edges'] = net.edges.map(e => ({ ...e, rim: !e.toCenter }));
-    const seen = new Set(
-      edges.map(e => (e.source < e.target ? `${e.source} ${e.target}` : `${e.target} ${e.source}`))
-    );
-    const emit = (a: string, b: string, toCenter: boolean, outerSpoke: boolean) => {
-      const key = a < b ? `${a} ${b}` : `${b} ${a}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      edges.push({ source: a, target: b, toCenter, rim: true, outerSpoke });
+      edges: net.edges.map(e => ({ ...e, rim: !e.toCenter })),
+      total: net.totalPartners,
+      hidden: net.hiddenPartners,
     };
-    // Outskirt spokes are rim-flagged (hover-revealed): 200 always-on lines to the
-    // center would be a hairball, and every one is still a real flavor-map pairing.
-    const visible = new Set(nodes.map(n => n.name));
-    outerNames.forEach(o => {
-      emit(o, center, true, true);
-      graph.get(o)?.forEach(n => {
-        if (n !== center && visible.has(n)) emit(o, n, false, false);
-      });
-    });
-    return { nodes, edges, total: net.totalPartners };
     // groupFilter + lens enter via filterKey (a Set's identity churns every toggle).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center, buildMode, picks, graph, isMobile, filterKey, hideStaples, desktopCap]);
@@ -425,34 +335,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const linksRef = useRef<SimLink[]>([]);
   const positionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const sizeRef = useRef({ w: 0, h: 0 });
-  // The pannable world (≥ viewport) and the camera's top-left corner in world space.
-  // Node positions live in WORLD coordinates; draw() subtracts the camera.
-  const worldRef = useRef({ W: 0, H: 0 });
-  const cameraRef = useRef({ x: 0, y: 0 });
-  // Which center the current simulation belongs to — a hop snaps the camera home,
-  // anything else (prune, resize, lens) keeps the user's place on the map.
-  const simCenterRef = useRef<string | null>(null);
-
-  const homeCamera = useCallback(() => {
-    const { w, h } = sizeRef.current;
-    const { W, H } = worldRef.current;
-    return { x: (W - w) / 2, y: (H - h) / 2 };
-  }, []);
-  const clampCamera = useCallback((x: number, y: number) => {
-    const { w, h } = sizeRef.current;
-    const { W, H } = worldRef.current;
-    return {
-      x: Math.max(0, Math.min(Math.max(0, W - w), x)),
-      y: Math.max(0, Math.min(Math.max(0, H - h), y)),
-    };
-  }, []);
-  // Flip the "back to center" affordance only when crossing the away-from-home
-  // boundary — same-value setState bails, so panning doesn't re-render per frame.
-  const updatePanned = useCallback(() => {
-    const home = homeCamera();
-    const cam = cameraRef.current;
-    setPanned(Math.hypot(cam.x - home.x, cam.y - home.y) > 24);
-  }, [homeCamera]);
   // Cluster layout: per-node anchor targets (group centroids on a wide ellipse). Read
   // dynamically by the force accessors via this ref so resize can retarget in place;
   // rebuilt by the sim effect (owns the node list) and refreshed by resize().
@@ -477,22 +359,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     ctx.clearRect(0, 0, w, h);
 
     const { lens: L, focusName: focus, hovered, isDarkMode: dark, isMobile: mobile } = viewRef.current;
-
-    // Everything below draws in world coordinates; the camera decides the window.
-    const cam = cameraRef.current;
-    ctx.translate(-cam.x, -cam.y);
-
-    // Faint dot grid, fixed to the world: panning visibly moves over territory, and
-    // the grid quietly promises there IS territory beyond the edge.
-    const GRID = 48;
-    ctx.fillStyle = dark ? 'rgba(148,163,184,0.10)' : 'rgba(71,85,105,0.09)';
-    const gx0 = Math.floor(cam.x / GRID) * GRID;
-    const gy0 = Math.floor(cam.y / GRID) * GRID;
-    for (let gx = gx0; gx <= cam.x + w; gx += GRID) {
-      for (let gy = gy0; gy <= cam.y + h; gy += GRID) {
-        ctx.fillRect(gx - 1, gy - 1, 2, 2);
-      }
-    }
     // Desktop dimming follows the LIVE hover only — hover off a node and the graph
     // returns to fully lit (the info panel still remembers the last ingredient). Mobile
     // has no hover, so the tap-focus drives the highlight there instead.
@@ -517,10 +383,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       // structural spokes; hover (or tap-focus on mobile) reveals a node's own web.
       // This is what keeps ~700 cross-edges from reading as a hairball.
       if (l.rim && !(active && (s.id === active || t.id === active))) return;
-      // Outskirt spokes reveal only from their outer end — the hub end (center/pick,
-      // which is also mobile's DEFAULT focus) touches every outskirt node, and
-      // revealing them all at once is a 300-line sunburst.
-      if (l.outerSpoke && active !== (s.outer ? s : t).id) return;
       const lit = !dim || s.id === active || t.id === active;
       ctx.beginPath();
       ctx.moveTo(s.x, s.y);
@@ -611,55 +473,29 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         sizeRef.current = { w, h };
       }
     }
-    // Size the world to the outskirt population, then place the camera: home (centered
-    // on downtown) after a hop or fresh open, otherwise wherever the user was, clamped
-    // to the possibly-shrunken world.
-    worldRef.current = worldFor(
-      w || 600,
-      h || 600,
-      model.nodes.reduce((acc, n) => acc + (n.outer ? 1 : 0), 0)
-    );
-    if (simCenterRef.current !== center) {
-      simCenterRef.current = center;
-      cameraRef.current = homeCamera();
-      setPanned(false);
-    } else {
-      cameraRef.current = clampCamera(cameraRef.current.x, cameraRef.current.y);
-      updatePanned();
-    }
+    const cx = w / 2 || 300;
+    const cy = h / 2 || 300;
+
     const simNodes: SimNode[] = model.nodes.map(n => {
       const prev = positionsRef.current.get(n.name);
       return {
         id: n.name,
         isCenter: n.isCenter,
         isPick: n.isPick,
-        outer: n.outer,
         profile: n.profile,
         degree: n.degree,
         r: n.isCenter ? 26 : n.isPick ? 18 : partnerRadius(n.degree),
-        // Position assigned below once the cluster anchors exist: survivors keep their
-        // spot, newcomers seed near their own anchor (an outskirt node must not
-        // explode out of the middle of downtown).
-        x: prev?.x,
-        y: prev?.y,
+        x: prev?.x ?? cx + (Math.random() - 0.5) * 240,
+        y: prev?.y ?? cy + (Math.random() - 0.5) * 240,
         // No hard pin on the center — a strong anchor (see anchorStrength) holds it
-        // mid-world AND rubber-bands it back after a drag instead of letting the
+        // mid-canvas AND rubber-bands it back after a drag instead of letting the
         // user strand it in a corner.
       };
     });
     const byId = new Map(simNodes.map(n => [n.id, n]));
-    // Resolve endpoints to node objects up front (rather than letting forceLink do it)
-    // because rim links may be kept OUT of the force pass below — the draw loop still
-    // needs `(l.source as SimNode).x` to work for every link either way.
     const simLinks: SimLink[] = model.edges
       .filter(e => byId.has(e.source) && byId.has(e.target))
-      .map(e => ({
-        source: byId.get(e.source)!,
-        target: byId.get(e.target)!,
-        toCenter: e.toCenter,
-        rim: e.rim,
-        outerSpoke: e.outerSpoke ?? false,
-      }));
+      .map(e => ({ source: e.source, target: e.target, toCenter: e.toCenter, rim: e.rim }));
 
     nodesRef.current = simNodes;
     linksRef.current = simLinks;
@@ -669,16 +505,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     // default, dominant-taste groups under the taste lens). Anchors sit on a wide
     // ellipse — deliberately wider than tall, so a desktop window spreads horizontally
     // instead of knotting in the middle. Groups are ordered biggest-first around the
-    // ellipse. Each group gets TWO anchors on the same bearing: an inner one on the
-    // downtown ellipse (viewport-sized, so the first screenful looks as it always has)
-    // and an outer one pushed toward the world edge — a group's outskirts extend
-    // straight outward from its downtown cluster, so panning follows the story. This
-    // is layout only: every edge is still a real pairing, and clusters never imply
-    // compatibility on their own.
+    // ellipse. This is layout only: every edge is still a real pairing, and clusters
+    // never imply compatibility on their own.
     const buildLayout = (bw: number, bh: number) => {
-      const { W: bW, H: bH } = worldRef.current;
-      const bcx = bW / 2 || 300;
-      const bcy = bH / 2 || 300;
+      const bcx = bw / 2 || 300;
+      const bcy = bh / 2 || 300;
       // Read the lens live (viewRef, not the closed-over prop) so the lens-change
       // effect can rebuild anchors without recreating the whole simulation.
       const liveLens = viewRef.current.lens;
@@ -691,39 +522,21 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       const ordered = Array.from(counts.entries())
         .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
         .map(([g]) => g);
-      const rx = innerRx(bw);
-      const ry = innerRy(bh);
-      // Overflow anchors sit just past the downtown ellipse — the same clusters
-      // continuing outward, not a separate distant ring. Collision packs the
-      // surplus further out from here, spilling past the frame naturally.
-      const rxOut = rx + SPILL_X;
-      const ryOut = ry + SPILL_Y;
-      const anchors = new Map<string, { inner: { x: number; y: number }; outer: { x: number; y: number } }>();
+      const rx = Math.max(150, bw * 0.34);
+      const ry = Math.max(110, bh * 0.28);
+      const anchors = new Map<string, { x: number; y: number }>();
       ordered.forEach((g, i) => {
         const angle = -Math.PI / 2 + (i / Math.max(1, ordered.length)) * Math.PI * 2;
-        anchors.set(g, {
-          inner: { x: bcx + rx * Math.cos(angle), y: bcy + ry * Math.sin(angle) },
-          outer: { x: bcx + rxOut * Math.cos(angle), y: bcy + ryOut * Math.sin(angle) },
-        });
+        anchors.set(g, { x: bcx + rx * Math.cos(angle), y: bcy + ry * Math.sin(angle) });
       });
       layoutRef.current = {
-        anchor: n => {
-          if (n.isCenter || n.isPick) return { x: bcx, y: bcy };
-          const pair = anchors.get(groupKeyOf(n.profile, liveLens));
-          if (!pair) return { x: bcx, y: bcy };
-          return n.outer ? pair.outer : pair.inner;
-        },
+        anchor: n =>
+          n.isCenter || n.isPick
+            ? { x: bcx, y: bcy }
+            : anchors.get(groupKeyOf(n.profile, liveLens)) ?? { x: bcx, y: bcy },
       };
     };
     buildLayout(w, h);
-    // Newcomers seed near their anchor (± jitter so a group doesn't stack on one point).
-    simNodes.forEach(n => {
-      if (n.x == null || n.y == null) {
-        const a = layoutRef.current!.anchor(n);
-        n.x = a.x + (Math.random() - 0.5) * 160;
-        n.y = a.y + (Math.random() - 0.5) * 160;
-      }
-    });
     // d3's forceX/forceY sample their accessor once per node at initialization and
     // cache the targets — so retargeting a live sim (lens switch, resize) must re-set
     // the accessors, not just rebuild layoutRef.
@@ -736,26 +549,18 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
 
     simRef.current?.stop();
     // Spacing: strong repulsion + generous link lengths + a collide radius that reserves
-    // room for the always-on label. `spread` stretches distances on large canvases
-    // (viewport-based, not world-based: density per screenful is the constant).
+    // room for the always-on label. `spread` stretches distances on large canvases.
     // Rim links (partner↔partner / candidate↔candidate) get almost no pull — they're
-    // receipts to see, not springs; the cluster anchors own the layout. A big world
-    // can carry tens of thousands of rim ties, so past a threshold they stay out of
-    // the force pass entirely (they still draw on hover; the layout doesn't miss them).
+    // receipts to see, not springs; the cluster anchors own the layout.
     const spread = Math.max(1, Math.min(1.7, Math.min(w, h) / 620));
-    const RIM_SIM_MAX = 1200;
-    const rimCount = simLinks.reduce((acc, l) => acc + (l.rim ? 1 : 0), 0);
-    const forceLinks = rimCount > RIM_SIM_MAX ? simLinks.filter(l => !l.rim) : simLinks;
     const sim = forceSimulation<SimNode>(simNodes)
       .force('charge', forceManyBody<SimNode>().strength(-380 * spread))
       .force(
         'link',
-        forceLink<SimNode, SimLink>(forceLinks)
+        forceLink<SimNode, SimLink>(simLinks)
           .id(n => n.id)
-          .distance(l => (l.toCenter && !l.rim ? 150 : 110) * spread)
-          // rim checked FIRST: an outskirt spoke is toCenter for drawing, but pulling
-          // it at 0.12 would drag the outskirts back into downtown.
-          .strength(l => (l.rim ? 0.015 : l.toCenter ? 0.12 : 0.02))
+          .distance(l => (l.toCenter ? 150 : 110) * spread)
+          .strength(l => (l.toCenter ? 0.12 : 0.02))
       )
       .force(
         'x',
@@ -767,15 +572,16 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       )
       .force('collide', forceCollide<SimNode>(n => n.r + 18))
       .on('tick', () => {
-        // Clamp to the WORLD so no node (or its label) drifts past the roamable edge.
-        const { W: cW, H: cH } = worldRef.current;
+        // Clamp to the canvas so no node (or its label) drifts out of view — matters
+        // most on small screens where the repulsion outguns the container.
+        const { w: cw, h: ch } = sizeRef.current;
         simNodes.forEach(n => {
           if (n.x == null || n.y == null) return;
-          if (cW > 0 && cH > 0) {
+          if (cw > 0 && ch > 0) {
             // Side padding is generous because labels are centered under nodes and
             // wider than the node itself — "chicken stock" needs the elbow room.
-            n.x = Math.max(n.r + 30, Math.min(cW - n.r - 30, n.x));
-            n.y = Math.max(n.r + 10, Math.min(cH - n.r - 24, n.y)); // room for the label below
+            n.x = Math.max(n.r + 30, Math.min(cw - n.r - 30, n.x));
+            n.y = Math.max(n.r + 10, Math.min(ch - n.r - 24, n.y)); // room for the label below
           }
           positionsRef.current.set(n.id, { x: n.x, y: n.y });
         });
@@ -825,15 +631,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       // model recomputes and the extra nodes join the settled layout (positions of
       // survivors are preserved by the sim effect).
       setDesktopCap(desktopCapFor(rect.width, rect.height));
-      // The world tracks the viewport geometry, so it resizes with the window; keep
-      // the camera inside the new bounds.
-      worldRef.current = worldFor(
-        rect.width,
-        rect.height,
-        nodesRef.current.reduce((acc, n) => acc + (n.outer ? 1 : 0), 0)
-      );
-      cameraRef.current = clampCamera(cameraRef.current.x, cameraRef.current.y);
-      updatePanned();
       const sim = simRef.current;
       if (sim) {
         // Retarget the cluster anchors to the new canvas — never poke the x/y forces
@@ -847,26 +644,15 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     const ro = new ResizeObserver(resize);
     ro.observe(container);
     return () => ro.disconnect();
-  }, [draw, buildMode, center, clampCamera, updatePanned]);
+  }, [draw, buildMode, center]);
 
-  // --- Pointer interaction (hover / drag node / pan world / tap) ------------------------
-  const pointer = useRef({
-    downId: null as string | null,
-    downX: 0,
-    downY: 0,
-    moved: false,
-    dragging: false,
-    // Dragging empty space pans the camera instead of a node.
-    panning: false,
-    camX: 0,
-    camY: 0,
-  });
+  // --- Pointer interaction (hover / drag / tap) ----------------------------------------
+  const pointer = useRef({ downId: null as string | null, downX: 0, downY: 0, moved: false, dragging: false });
 
   const toCanvas = (e: React.PointerEvent): { x: number; y: number } => {
     const rect = canvasRef.current!.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
-  // Hit-testing happens in world coordinates: screen point + camera.
   const nodeAt = (x: number, y: number): SimNode | null => {
     // Topmost first: iterate in reverse so larger/late nodes win ties.
     for (let i = nodesRef.current.length - 1; i >= 0; i--) {
@@ -881,29 +667,23 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
 
   const handlePointerDown = (e: React.PointerEvent) => {
     const { x, y } = toCanvas(e);
-    const cam = cameraRef.current;
-    const n = nodeAt(x + cam.x, y + cam.y);
+    const n = nodeAt(x, y);
     pointer.current = {
       downId: n?.id ?? null,
       downX: x,
       downY: y,
       moved: false,
       dragging: !!n,
-      panning: !n,
-      camX: cam.x,
-      camY: cam.y,
     };
-    try {
-      canvasRef.current?.setPointerCapture(e.pointerId);
-    } catch {
-      // Capture can fail for exotic pointer states; drag/pan still work without it.
-    }
     if (n) {
+      try {
+        canvasRef.current?.setPointerCapture(e.pointerId);
+      } catch {
+        // Capture can fail for exotic pointer states; the drag still works without it.
+      }
       n.fx = n.x;
       n.fy = n.y;
       simRef.current?.alphaTarget(0.15).restart();
-    } else if (canvasRef.current) {
-      canvasRef.current.style.cursor = 'grabbing';
     }
   };
 
@@ -913,26 +693,17 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     if (p.dragging && p.downId) {
       const n = nodesRef.current.find(nn => nn.id === p.downId);
       if (n) {
-        n.fx = x + cameraRef.current.x;
-        n.fy = y + cameraRef.current.y;
+        n.fx = x;
+        n.fy = y;
       }
       if (Math.hypot(x - p.downX, y - p.downY) > 4) p.moved = true;
       return;
     }
-    if (p.panning) {
-      // Map-style: the world follows the finger, so the camera moves opposite the drag.
-      if (Math.hypot(x - p.downX, y - p.downY) > 4) p.moved = true;
-      cameraRef.current = clampCamera(p.camX - (x - p.downX), p.camY - (y - p.downY));
-      updatePanned();
-      draw();
-      return;
-    }
     // Hover hit-test (desktop): update highlight + info focus.
-    const cam = cameraRef.current;
-    const hit = nodeAt(x + cam.x, y + cam.y);
+    const hit = nodeAt(x, y);
     const prev = viewRef.current.hovered;
     viewRef.current.hovered = hit?.id ?? null;
-    if (canvasRef.current) canvasRef.current.style.cursor = hit ? 'pointer' : 'grab';
+    if (canvasRef.current) canvasRef.current.style.cursor = hit ? 'pointer' : 'default';
     if (hit && hit.id !== prev && !isMobile) setFocusName(hit.id);
     if (hit?.id !== prev) draw();
   };
@@ -949,25 +720,8 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       if (p.moved) simRef.current?.alpha(0.3).restart();
     }
     if (n && !p.moved) handleTap(n.id);
-    if (p.panning && canvasRef.current) canvasRef.current.style.cursor = 'grab';
-    pointer.current = { downId: null, downX: 0, downY: 0, moved: false, dragging: false, panning: false, camX: 0, camY: 0 };
+    pointer.current = { downId: null, downX: 0, downY: 0, moved: false, dragging: false };
   };
-
-  // Trackpad/wheel scrolling pans the map too — "scroll around and explore". Native
-  // listener (not React's) so preventDefault reliably stops page-level scroll/zoom.
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const cam = cameraRef.current;
-      cameraRef.current = clampCamera(cam.x + e.deltaX, cam.y + e.deltaY);
-      updatePanned();
-      draw();
-    };
-    canvas.addEventListener('wheel', onWheel, { passive: false });
-    return () => canvas.removeEventListener('wheel', onWheel);
-  }, [center, draw, clampCamera, updatePanned]);
 
   // A tap on a node: build mode toggles it as an anchor; explore mode selects then hops.
   const handleTap = (name: string) => {
@@ -1216,18 +970,29 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             </span>
           )}
 
-          {/* Back to center — appears once the camera has wandered from home */}
-          {panned && (
-            <button
-              onClick={() => {
-                cameraRef.current = homeCamera();
-                setPanned(false);
-                draw();
-              }}
-              className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow-md border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
-            >
-              back to center
-            </button>
+          {/* "+N more" list */}
+          {morePanelOpen && model.hidden.length > 0 && (
+            <div className="absolute top-3 right-3 w-56 max-h-[70%] overflow-y-auto rounded-2xl bg-white dark:bg-gray-800 shadow-xl border border-gray-100 dark:border-gray-700 p-3">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  {model.hidden.length} more
+                </p>
+                <button onClick={() => setMorePanelOpen(false)} aria-label="Close list">
+                  <X size={14} className="text-gray-400" />
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {model.hidden.map(name => (
+                  <button
+                    key={name}
+                    onClick={() => (buildMode ? handleTap(name) : onNavigate(name))}
+                    className="px-2 py-0.5 rounded-full text-xs lowercase text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Offscreen accessible mirror of the visible graph */}
@@ -1258,10 +1023,13 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                   : `${model.total} partner${model.total === 1 ? '' : 's'}`;
               })()}
             </span>
-            {model.nodes.some(n => n.outer) && (
-              <span className="text-[11px] text-gray-400 dark:text-gray-500">
-                drag the map to roam the outskirts
-              </span>
+            {model.hidden.length > 0 && (
+              <button
+                onClick={() => setMorePanelOpen(o => !o)}
+                className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                +{model.hidden.length} more
+              </button>
             )}
             {/* Mood lens: two peer modes, not a cleanup toggle. Everyday keeps the
                 pantry staples (the connectors — maximum buildability); Adventurous

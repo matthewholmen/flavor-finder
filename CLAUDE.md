@@ -61,7 +61,7 @@ src/
 │   │   ├── DietaryFilterPills.tsx  # Active dietary-filter chips
 │   │   ├── RecipeFinderModal.tsx   # "Find recipes" modal (web + curated site search)
 │   │   ├── IngredientAtlas.tsx     # Read-only per-ingredient reference page (?atlas=)
-│   │   ├── GraphExplorer.tsx       # Force-graph "Atlas view": pannable ego-network map + build-by-pruning (?graph=)
+│   │   ├── GraphExplorer.tsx       # Force-graph "Atlas view": ego network + build-by-pruning (?graph=)
 │   │   ├── TasteLabSplit.tsx       # Taste Lab split-slot view
 │   │   ├── PresetGallery.tsx       # Flavor preset gallery (incl. dish frames)
 │   │   ├── OnboardingWizard.tsx    # First-run tour
