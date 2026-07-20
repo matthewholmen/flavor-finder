@@ -17,8 +17,23 @@ export default defineConfig({
     description:
       'The flavor checker — see how any recipe hangs together, and what to swap.',
     permissions: ['sidePanel', 'activeTab', 'scripting', 'storage'],
+    // Needed for the auto-detection badge + lets the panel's ↻ re-read any
+    // tab (not just the one the icon was last clicked on).
+    host_permissions: ['<all_urls>'],
+    icons: {
+      16: 'icon/16.png',
+      32: 'icon/32.png',
+      48: 'icon/48.png',
+      128: 'icon/128.png',
+    },
     action: {
       default_title: 'Check this recipe’s flavors',
+      default_icon: {
+        16: 'icon/16.png',
+        32: 'icon/32.png',
+        48: 'icon/48.png',
+        128: 'icon/128.png',
+      },
     },
   },
   vite: () => ({

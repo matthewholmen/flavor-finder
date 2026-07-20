@@ -54,8 +54,16 @@ npm run zip      # Store-ready zip (phase X4)
 npm run compile  # TypeScript check
 ```
 
+## The badge
+
+A tiny detect-only content script runs on every page and lights a green ✓
+on the toolbar icon when the page looks like a recipe (structured-data
+probe; it reads nothing else and sends a single yes/no). This — plus making
+the panel's ↻ work on any tab — is why the extension asks for access to
+all sites. Extraction itself still only happens when you click the icon.
+
 ## What's deliberately not here (yet)
 
-- Auto-detection badge (`<all_urls>`) — X4, after first CWS review.
 - "Seen in" receipts (`pairingContext.ts`, 1.65 MB) — X4 candidate, lazy.
-- Icons + store listing — X4.
+- Store listing + CWS unlisted publish — X4.
+- Bundled Fraunces/Inter fonts (system fallbacks for now).

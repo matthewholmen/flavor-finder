@@ -26,6 +26,19 @@ export default defineBackground(() => {
     chrome.sidePanel.open({ tabId: tab.id }).catch(() => {});
     void extractAndPublish(tab.id);
   });
+
+  // Badge: the content script reports whether the page looks like a recipe.
+  // Badge state is per-tab, so it clears itself on navigation.
+  chrome.action.setBadgeBackgroundColor({ color: '#7CB342' }).catch(() => {}); // TASTE_COLORS.sour green
+  chrome.action.setBadgeTextColor?.({ color: '#FFFFFF' })?.catch(() => {});
+  chrome.runtime.onMessage.addListener((msg, sender) => {
+    const m = msg as { type?: string; found?: boolean };
+    if (m?.type === 'recipeSeen' && sender.tab?.id) {
+      chrome.action
+        .setBadgeText({ tabId: sender.tab.id, text: m.found ? '✓' : '' })
+        .catch(() => {});
+    }
+  });
 });
 
 async function extractAndPublish(tabId: number): Promise<void> {

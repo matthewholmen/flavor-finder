@@ -3,7 +3,9 @@ import { ArrowLeft, ArrowRight, HelpCircle } from 'lucide-react';
 import { LineMatch } from '@app/utils/recipeIngredientMatcher.ts';
 import { splitCoreSupporting } from '@app/utils/recipeAnalysis.ts';
 import { getAtlasGraph } from '@app/utils/atlas.ts';
+import { contrastText } from '@app/utils/colors.ts';
 import type { RecipeReportState } from '@app/hooks/useRecipeRoute.ts';
+import { tasteAccent } from '../../utils/tasteAccent';
 
 // Confirm chips — the same trust contract as the web app's PasteRecipeModal:
 // confident matches preselected, fuzzy hits wait for an explicit tap, and
@@ -142,17 +144,28 @@ export const ConfirmView: React.FC<ConfirmViewProps> = ({
   );
   const reportReady = includedList.length >= 2;
 
+  // Included chips fill with the ingredient's dominant-taste color (same
+  // accent semantics as the app's Pill primitive: accent border + fill,
+  // contrastText on top). Excluded/fuzzy keep the neutral treatments.
   const chip = (name: string, opts: { muted?: boolean; fuzzy?: boolean } = {}) => {
     const active = included.has(name);
+    const accent = tasteAccent(name);
+    const accentStyle: React.CSSProperties | undefined =
+      active && accent
+        ? { borderColor: accent, backgroundColor: accent, color: contrastText(accent) }
+        : undefined;
     return (
       <button
         key={name}
         onClick={() => toggle(name)}
         aria-pressed={active}
         title={opts.fuzzy && !active ? 'Best guess — tap to confirm' : undefined}
+        style={accentStyle}
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium border-2 transition-all duration-150 ${
           active
-            ? 'border-gray-900 dark:border-white bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+            ? accent
+              ? ''
+              : 'border-gray-900 dark:border-white bg-gray-900 dark:bg-white text-white dark:text-gray-900'
             : opts.fuzzy
               ? 'border-dashed border-amber-400 text-amber-700 dark:text-amber-400'
               : `border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 ${opts.muted ? '' : 'line-through'}`

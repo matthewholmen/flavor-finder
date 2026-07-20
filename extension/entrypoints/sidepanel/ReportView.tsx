@@ -11,6 +11,7 @@ import { WeaveRows } from '@app/components/v2/report/WeaveRows.tsx';
 import { TasteBars } from '@app/components/v2/report/TasteBars.tsx';
 import { SwapList } from '@app/components/v2/report/SwapList.tsx';
 import { reportUrl } from '../../utils/appLink';
+import { tasteAccent } from '../../utils/tasteAccent';
 
 // The panel's flavor report — composes the SAME pure report components the
 // web app's FlavorReport overlay uses (WeaveRows / TasteBars / SwapList), in
@@ -108,17 +109,23 @@ export const ReportView: React.FC<ReportViewProps> = ({ state, onBack }) => {
       {/* Cast */}
       <section aria-label="Ingredients">
         <div className="flex flex-wrap gap-1.5 mb-2">
-          {core.map(name => (
-            <button
-              key={name}
-              onClick={() => demote(name)}
-              title="Tap to move to supporting"
-              aria-label={`${name} — move to supporting`}
-              className="px-2.5 py-1 rounded-full text-[13px] font-medium border border-gray-900 dark:border-white text-gray-900 dark:text-white"
-            >
-              {name}
-            </button>
-          ))}
+          {core.map(name => {
+            const accent = tasteAccent(name);
+            return (
+              <button
+                key={name}
+                onClick={() => demote(name)}
+                title="Tap to move to supporting"
+                aria-label={`${name} — move to supporting`}
+                style={accent ? { borderColor: accent } : undefined}
+                className={`px-2.5 py-1 rounded-full text-[13px] font-medium border-2 text-gray-900 dark:text-white ${
+                  accent ? '' : 'border-gray-900 dark:border-white'
+                }`}
+              >
+                {name}
+              </button>
+            );
+          })}
         </div>
         {supporting.length > 0 && (
           <div className="flex flex-wrap gap-1.5 items-center">
