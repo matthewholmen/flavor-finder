@@ -5,6 +5,7 @@ import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { FilledLock, CustomUnlock } from '../icons/LockIcons.tsx';
 import { getIngredientColor } from '../../utils/ingredientColors.ts';
+import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { SlotRolePopover } from './ui/SlotRolePopover.tsx';
 import { SwapPopover } from './ui/SwapPopover.tsx';
 import { CATEGORY_ICONS } from '../../utils/categoryIcons.ts';
@@ -173,7 +174,6 @@ const Ingredient = ({
   onSwapClick = null,
   showComma,
   showAmpersand,
-  tightAmpersand = false, // Two-ingredient set: preceding item has no comma, pull & closer
   isMobile,
   isCompact,
   isHighContrast,
@@ -187,16 +187,32 @@ const Ingredient = ({
   // ingredient color in light mode, a light tint in dark mode)
   const lockedInk = isDarkMode ? '#111827' : '#ffffff';
 
-  // Trailing inline slot: persistent state only. The comma yields to the tiny
-  // lock (when locked) and the role indicator (when a role is set) — the
-  // existing lock-replaces-comma pattern. All hover actions live in the
-  // floating toolbar above the name, so this slot never grows on hover.
+  // Trailing inline slot: the comma renders UNCONDITIONALLY — the hero is the
+  // app's centerpiece and its punctuation never yields to state indicators
+  // (badges eating commas made the combo read as a typo). The tiny lock glyph
+  // slots in before the comma when locked, matching the mobile rows. The role
+  // indicator lives below the word (renderRoleTick) and role editing lives in
+  // the hover toolbar — never inline in the text.
   const renderInlineBadges = () => (
-    <span
-      className="inline-flex items-center relative"
-      style={{ verticalAlign: 'middle', marginLeft: '0.02em' }}
-    >
-      {!isLocked && !roleIndicator && (
+    <>
+      {isLocked && (
+        <span
+          style={{
+            width: iconSize,
+            height: iconSize,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            lineHeight: 0,
+            verticalAlign: 'middle',
+            marginLeft: '0.08em',
+          }}
+        >
+          {/* Sits on the colored highlight bar, so match the locked text color */}
+          <FilledLock color={lockedInk} />
+        </span>
+      )}
+      {showComma && (
         <span
           className={isFaded ? '' : 'text-gray-900 dark:text-white'}
           style={{
@@ -204,68 +220,53 @@ const Ingredient = ({
             fontFamily: "'Fraunces', Georgia, serif",
             fontStyle: 'italic',
             fontWeight: 400,
-            position: 'absolute',
-            left: 0,
           }}
         >
-          {showComma ? ',' : ' '}
+          ,
         </span>
       )}
-      <span
-        className="inline-flex items-center justify-center"
-        style={{ minWidth: iconSize, gap: '0.08em' }}
-      >
-        {isLocked && (
-          <span
-            style={{
-              width: iconSize,
-              height: iconSize,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              lineHeight: 0,
-            }}
-          >
-            {/* Sits on the colored highlight bar, so match the locked text color */}
-            <FilledLock color={lockedInk} />
-          </span>
-        )}
-        {roleIndicator && onRoleClick && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onRoleClick(e.currentTarget.getBoundingClientRect()); }}
-            title="Edit this slot’s role"
-            aria-label="Edit slot role"
-            style={{
-              lineHeight: 0,
-              padding: 0,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {roleIndicator.Icon ? (
-              // Category role: its icon, in locked ink on a highlight bar or
-              // near-white/deep-gray ink against the page.
-              <roleIndicator.Icon
-                size="0.26em"
-                strokeWidth={2.5}
-                style={{ color: isLocked ? lockedInk : (isDarkMode ? '#e5e7eb' : '#4b5563') }}
-              />
-            ) : (
-              // Taste role (colored dot) or exclude-only wild (gray dot).
-              <span
-                style={{
-                  width: '0.2em',
-                  height: '0.2em',
-                  borderRadius: '9999px',
-                  backgroundColor: isLocked ? lockedInk : roleIndicator.color,
-                  display: 'inline-block',
-                }}
-              />
-            )}
-          </button>
-        )}
-      </span>
+    </>
+  );
+
+  // Persistent role indicator, out of the text flow: a small mark tucked into
+  // the descender whitespace under the word's center — a taste paints a short
+  // colored tick, a category shows its icon in muted ink. Pure decoration
+  // (aria-hidden, no pointer events): editing happens via the hover toolbar's
+  // labeled role button, which has the accessible name. Fades out on hover as
+  // the toolbar takes that space.
+  const renderRoleTick = () => roleIndicator && (
+    <span
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        // Hug the word's own descender space — any lower and, on a wrapped
+        // combo, the tick reads as a stray diacritic on the next line.
+        top: 'calc(100% - 0.22em)',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        lineHeight: 0,
+        opacity: showControls || isFaded ? 0 : 1,
+        transition: 'opacity 150ms ease-out',
+        pointerEvents: 'none',
+      }}
+    >
+      {roleIndicator.Icon ? (
+        <roleIndicator.Icon
+          size="0.22em"
+          strokeWidth={2.5}
+          style={{ color: isDarkMode ? '#9ca3af' : '#6b7280' }}
+        />
+      ) : (
+        <span
+          style={{
+            width: '0.45em',
+            height: '0.08em',
+            borderRadius: '9999px',
+            backgroundColor: roleIndicator.color,
+            display: 'inline-block',
+          }}
+        />
+      )}
     </span>
   );
 
@@ -471,9 +472,7 @@ const Ingredient = ({
           style={{
             color: isFaded ? fadedColor : undefined,
             fontWeight: 400,
-            // In a two-ingredient set the preceding ingredient has no comma but
-            // still reserves space for its hover controls, so pull the & back in
-            marginLeft: tightAmpersand ? '-0.2em' : '0.08em',
+            marginLeft: '0.08em',
             marginRight: '0.26em',
           }}
         >
@@ -570,6 +569,7 @@ const Ingredient = ({
             </>
           );
         })()}
+        {!isMobile && renderRoleTick()}
         {!isMobile && renderHoverToolbar()}
       </span>
 
@@ -630,7 +630,7 @@ const EmptySlot = ({ showAmpersand, showComma, isFaded, onClick, isMobile, isCom
 };
 
 // Mobile Ingredient Info Component
-const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenGraph = null, onSwap = null, roleIndicator = null, onEditRole = null }) => {
+const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selectedIngredients, isHighContrast, isDarkMode, onOpenGraph = null, onSwap = null, roleIndicator = null, onEditRole = null, isLocked = false, onToggleLock = null, onRemoveRow = null }) => {
   const profile = ingredientProfiles?.find(
     p => p.name.toLowerCase() === ingredient.toLowerCase()
   );
@@ -664,11 +664,11 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
     // The hero container sets Fraunces/font-black/tracking-tight inline for the
     // ingredient names — this panel is UI, not display, so reset to the Inter voice.
     <div className="px-1 pt-3 pb-2 font-sans font-normal tracking-normal leading-normal">
-      {/* Category & Subcategory */}
+      {/* Category & Subcategory — same display labels as the map/Atlas */}
       {profile && (
         <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-          {profile.category}
-          {profile.subcategory && ` — ${profile.subcategory}`}
+          {categoryLabel(profile.category)}
+          {profile.subcategory && ` · ${profile.subcategory}`}
         </p>
       )}
 
@@ -704,8 +704,12 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
         </div>
       )}
 
-      {/* Actions: slot role editor, structural swap, ingredient info (the flavor map) */}
-      {(onEditRole || onSwap || onOpenGraph) && (
+      {/* Actions: slot role editor, structural swap, ingredient info (the
+          flavor map), plus the row's own lock and remove — the expanded panel
+          is the one place a phone user can deliberately do everything to THIS
+          ingredient (bare taps on the word toggle lock; "Fewer" only trims the
+          last slot). */}
+      {(onEditRole || onSwap || onOpenGraph || onToggleLock || onRemoveRow) && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {onEditRole && (
             <button onClick={onEditRole} className={actionButtonClass}>
@@ -732,6 +736,23 @@ const MobileIngredientInfo = ({ ingredient, ingredientProfiles, flavorMap, selec
             <button onClick={() => onOpenGraph(ingredient)} className={actionButtonClass}>
               <Info size={15} strokeWidth={2.25} aria-hidden="true" />
               About
+            </button>
+          )}
+          {onToggleLock && (
+            <button onClick={onToggleLock} className={actionButtonClass} aria-pressed={isLocked}>
+              {isLocked
+                ? <Lock size={15} strokeWidth={2.25} aria-hidden="true" />
+                : <Unlock size={15} strokeWidth={2.25} aria-hidden="true" />}
+              {isLocked ? 'Unlock' : 'Lock'}
+            </button>
+          )}
+          {onRemoveRow && (
+            <button
+              onClick={onRemoveRow}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-red-200 dark:border-red-900 text-sm font-semibold text-red-600 dark:text-red-400 active:bg-red-50 dark:active:bg-red-900/30 transition-colors"
+            >
+              <X size={15} strokeWidth={2.25} aria-hidden="true" />
+              Remove
             </button>
           )}
         </div>
@@ -1149,16 +1170,6 @@ export const IngredientDisplay = ({
                 onSwapClick={swapEnabled ? (rect) => openSwap(actualIndex, rect) : null}
                 showComma={showComma}
                 showAmpersand={showAmpersand}
-                tightAmpersand={(() => {
-                  // Two-ingredient set with an unlocked, role-less first
-                  // ingredient: its trailing control space renders empty, so
-                  // pull the & closer. (A lock's highlight bar or a role
-                  // indicator fills that space, so the & keeps its distance.)
-                  if (validIngredients.length !== 2) return false;
-                  const firstIdx = ingredients.findIndex(Boolean);
-                  if (lockedIngredients.has(firstIdx)) return false;
-                  return !(rolesEnabled && slotRoleIndicator(slotTastes[firstIdx], isHighContrast, isDarkMode));
-                })()}
                 isMobile={isMobile}
                 isCompact={layoutMode === 'compact'}
                 isHighContrast={isHighContrast}
@@ -1240,40 +1251,35 @@ export const IngredientDisplay = ({
                               }}
                             >
                               {/* Split ingredient: allow wrapping but keep last word + comma/lock together */}
-                              {/* Lock icon and comma are always rendered but visibility toggled to prevent layout shifts */}
                               {(() => {
                                 const words = ingredient.split(' ');
-                                // Trailing element: shows lock when locked, comma when unlocked (if showComma)
-                                // Both are positioned in the same spot, tight to the ingredient
+                                // Trailing element: the comma renders whenever the
+                                // grammar calls for one — locked rows show the lock
+                                // glyph BEFORE it, never instead of it (the combo's
+                                // punctuation is sacred; see the desktop note).
                                 const trailingElement = (
                                   <span
-                                    className="inline-flex items-center"
-                                    style={{ verticalAlign: 'baseline', position: 'relative' }}
+                                    className="inline-flex items-baseline"
+                                    style={{ verticalAlign: 'baseline' }}
                                   >
-                                    {/* Lock icon - always rendered, opacity controls visibility, same position as comma */}
-                                    <span
-                                      style={{
-                                        opacity: isLocked ? 1 : 0,
-                                        transition: 'opacity 250ms ease-out',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                      }}
-                                    >
-                                      <Lock size="0.35em" style={{ color: textColor, flexShrink: 0, transition: 'color 250ms ease-out' }} strokeWidth={3.5} />
-                                    </span>
-                                    {/* Comma - positioned absolutely in same spot as lock, visible when unlocked */}
+                                    {isLocked && (
+                                      <span
+                                        style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          alignSelf: 'center',
+                                        }}
+                                      >
+                                        <Lock size="0.35em" style={{ color: textColor, flexShrink: 0, transition: 'color 250ms ease-out' }} strokeWidth={3.5} />
+                                      </span>
+                                    )}
                                     {showComma && (
                                       <span
                                         style={{
-                                          position: 'absolute',
-                                          left: '-.0em',
-                                          top: '-.45em',
                                           color: isDarkMode ? 'white' : '#1a1a1a',
                                           fontFamily: "'Fraunces', Georgia, serif",
                                           fontStyle: 'italic',
                                           fontWeight: 400,
-                                          opacity: isLocked ? 0 : 1,
-                                          transition: 'opacity 250ms ease-out',
                                         }}
                                       >
                                         ,
@@ -1407,6 +1413,9 @@ export const IngredientDisplay = ({
                       onSwap={swapEnabled ? () => openSwap(actualIndex, null) : null}
                       roleIndicator={roleIndicator}
                       onEditRole={rolesEnabled ? () => openRoleEditor(actualIndex, null) : null}
+                      isLocked={isLocked}
+                      onToggleLock={() => onLockToggle(actualIndex)}
+                      onRemoveRow={() => onRemove(actualIndex)}
                     />
                   </div>
                   {shouldShowAmpersandAfter && (

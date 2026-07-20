@@ -14,9 +14,8 @@ const shortcuts = [
 ];
 
 const COMPATIBILITY_MODES = [
-  { key: 'perfect', label: 'Perfect', description: 'Generated pairings include only perfect matches — each ingredient is a recommended pairing for one another.' },
-  { key: 'mixed', label: 'Mixed', description: 'Each ingredient pairs with at least one other ingredient in the set, allowing for more creative combinations.' },
-  { key: 'random', label: 'Random', description: 'Completely random ingredients with no pairing requirements — for adventurous cooks!' }
+  { key: 'perfect', label: 'Perfect', description: 'Every ingredient pairs with every other — the full flavor-map guarantee. Recommended.' },
+  { key: 'mixed', label: 'Mixed', description: 'Looser: each ingredient pairs with at least one other in the set, not necessarily all of them. Expect a few odd couples.' },
 ];
 
 // Pairing sources the user can toggle. Keys must match PairingSource in data/pairingMeta.ts.
@@ -103,13 +102,13 @@ const GenerationOptionsContent = ({
     <>
       {/* Compatibility Section */}
       <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm mb-3">Compatibility</h3>
-      <div className="relative inline-grid grid-cols-3 bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-full mb-2">
+      <div className="relative inline-grid grid-cols-2 bg-gray-200 dark:bg-gray-700 rounded-full p-1 w-full mb-2">
         {/* Sliding background indicator */}
         <div
           className="absolute top-1 bottom-1 bg-gray-900 dark:bg-gray-100 rounded-full transition-all duration-200 ease-out"
           style={{
-            width: 'calc(33.333% - 2px)',
-            left: `calc(${COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode) * 33.333}% + 1px)`,
+            width: 'calc(50% - 2px)',
+            left: `calc(${Math.max(0, COMPATIBILITY_MODES.findIndex(m => m.key === compatibilityMode)) * 50}% + 1px)`,
           }}
         />
         {COMPATIBILITY_MODES.map((mode) => (

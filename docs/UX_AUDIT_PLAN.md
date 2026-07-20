@@ -31,6 +31,15 @@ Sizes: S = under an hour, M = a session, L = multi-session.
 
 ## P0 — Trust-breakers and dead ends
 
+> **Status (2026-07-19): P0 wave shipped.** Items 1–7 implemented and
+> browser-verified; item 8's resize bug did not reproduce (desktop→mobile with a
+> 5-slot combo renders correctly) and the steering-chip deactivation was traced
+> to the steer not being part of the encoded URL state — fixed by encoding it
+> (`st` in `?lab=`), so refresh/share now keep the pinned tag. Bonus fixes
+> landed in passing: category labels unified in the drawer info panel and mobile
+> expanded info (item 13, those two surfaces), and the landing no longer keeps
+> the hidden drawer in the tab order (part of item 18).
+
 ### 1. "Compatibility: Random" openly contradicts the app's one inviolable rule — remove it
 **Where:** Sidebar → Generation Options; `FlavorFinderV2.tsx` (~line 410:
 `'random' — no pairing requirement`), `Sidebar.tsx` (`COMPATIBILITY_MODES`).

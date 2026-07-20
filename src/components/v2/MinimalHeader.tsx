@@ -19,14 +19,16 @@ export const MinimalHeader = ({
   onLogoClick,
   isGeneratePulsing = false,
   isMobile: isMobileProp,
-  // Landing state: grey out the controls (they act on a combo that doesn't
-  // exist yet) while keeping the logo bright, so the frame stays visible but
-  // reads as inactive.
+  // Landing state: the combo-only controls (Share/Save/Recipes, ±) act on a
+  // combo that doesn't exist yet, so they vanish entirely — `invisible` keeps
+  // the layout (Generate stays optically centered) while removing them from
+  // clicks and the accessibility tree. Generate alone stays as a single dimmed
+  // affordance; the logo stays bright.
   dimmed = false,
 }) => {
   const { isMobile: isMobileHook, width } = useScreenSize();
   const isMobile = isMobileProp !== undefined ? isMobileProp : isMobileHook;
-  const dimClass = dimmed ? 'opacity-40 pointer-events-none' : '';
+  const hideClass = dimmed ? 'invisible' : '';
 
   // Brief "Copied" confirmation after sharing the deep-link.
   const [shareCopied, setShareCopied] = useState(false);
@@ -71,7 +73,7 @@ export const MinimalHeader = ({
         </button>
 
         {/* Right-side actions */}
-        <div className={`flex items-center gap-2 ${dimClass}`}>
+        <div className={`flex items-center gap-2 ${hideClass}`}>
           {/* Share deep-link */}
           <button
             onClick={handleShare}
@@ -171,7 +173,7 @@ export const MinimalHeader = ({
       </div>
 
       {/* Center Controls: -, Generate, + */}
-      <div className={`flex items-center gap-2 lg:gap-3 ${dimClass}`}>
+      <div className="flex items-center gap-2 lg:gap-3">
         {/* Decrement Target Button */}
         <button
           onClick={onDecrementTarget}
@@ -182,6 +184,7 @@ export const MinimalHeader = ({
             border-2
             transition-all duration-200
             w-11 h-11 lg:w-14 lg:h-14
+            ${hideClass}
             ${canDecrement
               ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
               : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
@@ -209,6 +212,7 @@ export const MinimalHeader = ({
             active:bg-gray-800 active:text-white dark:active:bg-gray-200 dark:active:text-gray-900
             px-6 lg:px-10 py-3 lg:py-3.5 text-base lg:text-lg
             ${isGeneratePulsing ? 'animate-pulse shadow-lg scale-105' : ''}
+            ${dimmed ? 'opacity-40 pointer-events-none' : ''}
           `}
         >
           <Sparkles size={18} strokeWidth={2} />
@@ -230,6 +234,7 @@ export const MinimalHeader = ({
             border-2
             transition-all duration-200
             w-11 h-11 lg:w-14 lg:h-14
+            ${hideClass}
             ${canIncrement
               ? 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-500 dark:text-gray-400 active:bg-gray-100 dark:active:bg-gray-800'
               : 'border-gray-200 dark:border-gray-700 text-gray-200 dark:text-gray-700 cursor-not-allowed'
@@ -243,7 +248,7 @@ export const MinimalHeader = ({
       </div>
 
       {/* Right-side actions */}
-      <div className={`lg:flex-1 flex justify-end items-center gap-2 lg:gap-3 ${dimClass}`}>
+      <div className={`lg:flex-1 flex justify-end items-center gap-2 lg:gap-3 ${hideClass}`}>
         {/* Share deep-link */}
         <button
           onClick={handleShare}

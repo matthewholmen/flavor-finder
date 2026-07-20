@@ -5,7 +5,7 @@ import { categoryLabel } from '../../utils/categoryLabels.ts';
 import { CATEGORY_ICONS } from '../../utils/categoryIcons.ts';
 import { useScreenSize } from '../../hooks/useScreenSize.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
-import { Slider, IngredientTile } from './ui/index.ts';
+import { Slider, IngredientTile, IconButton } from './ui/index.ts';
 
 // Filter constants
 const CATEGORIES = [
@@ -1133,38 +1133,29 @@ export const IngredientDrawer = ({
 
                   return (
                     <div className="flex flex-col h-full">
-                      {/* Navigation Buttons */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <button
+                      {/* Navigation Buttons — visible 32px circles inside the
+                          44px IconButton hit area */}
+                      <div className="flex items-center mb-4 -ml-1.5">
+                        <IconButton
+                          label="Previous ingredient"
                           onClick={() => setSelectedInfoIndex(Math.max(0, selectedInfoIndex - 1))}
                           disabled={selectedInfoIndex === 0}
-                          className={`
-                            w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600
-                            flex items-center justify-center
-                            transition-all
-                            ${selectedInfoIndex === 0
-                              ? 'opacity-30 cursor-not-allowed'
-                              : 'hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                            }
-                          `}
+                          className="group disabled:opacity-30"
                         >
-                          <ChevronLeft size={18} className="text-gray-600 dark:text-gray-300" />
-                        </button>
-                        <button
+                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center transition-all group-enabled:group-hover:border-gray-400 dark:group-enabled:group-hover:border-gray-500 group-enabled:group-hover:bg-gray-50 dark:group-enabled:group-hover:bg-gray-700">
+                            <ChevronLeft size={18} className="text-gray-600 dark:text-gray-300" />
+                          </span>
+                        </IconButton>
+                        <IconButton
+                          label="Next ingredient"
                           onClick={() => setSelectedInfoIndex(Math.min(selectedIngredients.length - 1, selectedInfoIndex + 1))}
                           disabled={selectedInfoIndex >= selectedIngredients.length - 1}
-                          className={`
-                            w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600
-                            flex items-center justify-center
-                            transition-all
-                            ${selectedInfoIndex >= selectedIngredients.length - 1
-                              ? 'opacity-30 cursor-not-allowed'
-                              : 'hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
-                            }
-                          `}
+                          className="group disabled:opacity-30"
                         >
-                          <ChevronRight size={18} className="text-gray-600 dark:text-gray-300" />
-                        </button>
+                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center transition-all group-enabled:group-hover:border-gray-400 dark:group-enabled:group-hover:border-gray-500 group-enabled:group-hover:bg-gray-50 dark:group-enabled:group-hover:bg-gray-700">
+                            <ChevronRight size={18} className="text-gray-600 dark:text-gray-300" />
+                          </span>
+                        </IconButton>
                       </div>
 
                       {/* Ingredient Name */}
@@ -1178,11 +1169,12 @@ export const IngredientDrawer = ({
                         {currentIngredient}
                       </h2>
 
-                      {/* Category & Subcategory */}
+                      {/* Category & Subcategory — same display labels as the
+                          map/Atlas (one format everywhere) */}
                       {profile && (
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                          {profile.category.toLowerCase()}
-                          {profile.subcategory && ` — ${profile.subcategory.toLowerCase()}`}
+                          {categoryLabel(profile.category)}
+                          {profile.subcategory && ` · ${profile.subcategory}`}
                         </p>
                       )}
 

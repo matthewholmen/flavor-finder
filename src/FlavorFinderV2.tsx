@@ -20,7 +20,7 @@ import { IngredientAtlas } from './components/v2/IngredientAtlas.tsx';
 import { GraphExplorer } from './components/v2/GraphExplorer.tsx';
 import { LandingSurface, LandingTagGroup } from './components/v2/LandingSurface.tsx';
 import { ParsedComposite } from './utils/parseLandingQuery.ts';
-import { FlavorPreset } from './data/flavorPresets.ts';
+import { FlavorPreset, FLAVOR_PRESETS } from './data/flavorPresets.ts';
 import { useScreenSize } from './hooks/useScreenSize.ts';
 import { useIngredientSelection } from './hooks/useIngredientSelection.ts';
 import { useFilters } from './hooks/useFilters.ts';
@@ -379,14 +379,14 @@ export default function FlavorFinderV2() {
   // active pairing rule against the exact map it was generated from. `perfect`
   // = every pair mutually present (the inviolable rule, verified mechanically);
   // `mixed` = every ingredient pairs with at least one other (the pre-existing
-  // user-selected mode); `random` = no requirement. Throws in development so a
-  // violation is loud; a no-op in production builds.
+  // user-selected mode). Throws in development so a violation is loud; a no-op
+  // in production builds.
   const assertComboInvariant = (
     combo: string[],
     map: Map<string, Set<string>>,
     mode: CompatibilityMode
   ) => {
-    if (process.env.NODE_ENV === 'production' || mode === 'random') return;
+    if (process.env.NODE_ENV === 'production') return;
     for (const ing of combo) {
       const others = combo.filter(o => o !== ing);
       if (others.length === 0) continue;
@@ -407,7 +407,6 @@ export default function FlavorFinderV2() {
   //   'perfect' (default) — every pair mutually compatible, by backtracking
   //     (the inviolable flavor-map rule)
   //   'mixed'  — every ingredient pairs with at least one other in the set
-  //   'random' — no pairing requirement
   // Pool filtering (slot roles, dietary restrictions, themed pool, excludes)
   // applies in ALL modes; only the pairing check varies, exactly as the
   // pre-existing user-selected modes always have. `anchors` maps a slot index
@@ -515,7 +514,7 @@ export default function FlavorFinderV2() {
         if (paired) anyPaired = true;
       }
       if (mode === 'mixed') return !anyPlaced || anyPaired;
-      return true; // perfect already vetoed non-pairs; random has no requirement
+      return true; // perfect already vetoed non-pairs above
     };
 
     const comboValid = (list: string[]) => {
@@ -835,42 +834,52 @@ export default function FlavorFinderV2() {
     setIsPresetGalleryOpen(false);
   };
 
-  // Build a shareable deep-link for the current state and copy it to the
-  // clipboard. A plain combo (all-wild roles, no locks/pool) encodes just the
-  // ingredients in `?ing=`, exactly as before; anything richer encodes the
-  // full DNA (slots + picks + locks + pool) in `?lab=`. Both are query params,
-  // so the link restores on any static host without server routing.
-  const handleShare = () => {
-    const base = `${window.location.origin}${window.location.pathname}`;
+  // Encode the current state as a query param. A plain combo (all-wild roles,
+  // no locks/pool) encodes just the ingredients in `?ing=`, exactly as before;
+  // anything richer encodes the full DNA (slots + picks + locks + pool) in
+  // `?lab=`. Both are query params, so a link restores on any static host
+  // without server routing. Shared by the Share button and the URL sync below.
+  const encodeComboParam = (): { key: 'ing' | 'lab'; value: string } | null => {
     const count = selectedIngredients.length;
+    if (count === 0) return null;
     const slots = slotTastes.slice(0, count);
     const isPlain =
       slots.every(s => s.mode === 'wild' && !s.exclude?.length && !s.textures?.length && !s.functions?.length) &&
       lockedConstraints.size === 0 &&
-      !themedPool;
-    let url: string;
+      !themedPool &&
+      !contextSteer;
     if (isPlain) {
-      url = `${base}?ing=${encodeIngredientsToUrl(selectedIngredients)}`;
-    } else {
-      const state = {
-        v: 1,
-        s: slots.map(s => ({
-          m: s.mode,
-          t: s.taste,
-          c: s.category,
-          ...(s.subcategories?.length ? { sc: s.subcategories } : {}),
-          ...(s.exclude?.length ? { x: s.exclude } : {}),
-          ...(s.textures?.length ? { tx: s.textures } : {}),
-          ...(s.functions?.length ? { fn: s.functions } : {}),
-          ...(s.label ? { lb: s.label } : {}),
-        })),
-        i: selectedIngredients.slice(0, count),
-        lc: Array.from(lockedConstraints),
-        li: Array.from(lockedIngredients),
-        ...(themedPool ? { p: { n: themedPool.name, g: themedPool.ingredients } } : {}),
-      };
-      url = `${base}?lab=${encodeTasteLabState(state)}`;
+      return { key: 'ing', value: encodeIngredientsToUrl(selectedIngredients) };
     }
+    const state = {
+      v: 1,
+      s: slots.map(s => ({
+        m: s.mode,
+        t: s.taste,
+        c: s.category,
+        ...(s.subcategories?.length ? { sc: s.subcategories } : {}),
+        ...(s.exclude?.length ? { x: s.exclude } : {}),
+        ...(s.textures?.length ? { tx: s.textures } : {}),
+        ...(s.functions?.length ? { fn: s.functions } : {}),
+        ...(s.label ? { lb: s.label } : {}),
+      })),
+      i: selectedIngredients.slice(0, count),
+      lc: Array.from(lockedConstraints),
+      li: Array.from(lockedIngredients),
+      ...(themedPool ? { p: { n: themedPool.name, g: themedPool.ingredients } } : {}),
+      // Active steer, so a restored/shared dish keeps its pinned tag (the
+      // steered map itself re-derives from this once the context chunk loads).
+      ...(contextSteer ? { st: { g: contextSteer.group, t: contextSteer.tag } } : {}),
+    };
+    return { key: 'lab', value: encodeTasteLabState(state) };
+  };
+
+  // Build a shareable deep-link for the current state and copy it to the
+  // clipboard.
+  const handleShare = () => {
+    const base = `${window.location.origin}${window.location.pathname}`;
+    const enc = encodeComboParam();
+    const url = enc ? `${base}?${enc.key}=${enc.value}` : base;
     try {
       navigator.clipboard?.writeText(url);
     } catch {
@@ -935,6 +944,9 @@ export default function FlavorFinderV2() {
           setLockedConstraints(new Set<number>(d.lc ?? []));
           setLockedIngredients(new Set<number>(d.li ?? []));
           setThemedPool(d.p ? { name: d.p.n, ingredients: d.p.g } : null);
+          // Restore the pinned steer; the defensive loadContext effect fetches
+          // the filter module and the steered map re-derives from state.
+          if (d.st?.g && d.st?.t) setContextSteer({ group: d.st.g, tag: d.st.t });
           if (Array.isArray(d.i) && d.i.length) {
             setSelectedIngredients(d.i.slice(0, count));
           } else {
@@ -957,6 +969,44 @@ export default function FlavorFinderV2() {
       // Malformed link — leave the combo empty and let the landing surface show.
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep the URL in sync with the live combo (same `?ing=`/`?lab=` encoding as
+  // Share) so an accidental refresh restores the user's dish instead of eating
+  // it. replaceState only — no history entries, so Back still leaves the app
+  // and the Atlas/Graph overlays keep sole ownership of pushState. Foreign
+  // params (`atlas`, `graph`, `sources`) are preserved.
+  const hasSyncedComboUrl = useRef(false);
+  const syncComboUrl = () => {
+    // Until the first combo exists, don't touch the URL — the mount effect
+    // above may not have decoded a shared deep link yet, and clearing its
+    // params here would eat the link before restore reads it.
+    if (selectedIngredients.length === 0 && !hasSyncedComboUrl.current) return;
+    hasSyncedComboUrl.current = true;
+    const params = new URLSearchParams(window.location.search);
+    params.delete('ing');
+    params.delete('lab');
+    const enc = encodeComboParam();
+    if (enc) params.set(enc.key, enc.value);
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      '',
+      query ? `${window.location.pathname}?${query}` : window.location.pathname
+    );
+  };
+  const syncComboUrlRef = useRef(syncComboUrl);
+  syncComboUrlRef.current = syncComboUrl;
+  useEffect(() => {
+    syncComboUrlRef.current();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedIngredients, slotTastes, lockedConstraints, lockedIngredients, themedPool, contextSteer]);
+  // Closing an overlay via history.go() restores an older entry whose combo
+  // params may be stale — rewrite them from live state after every popstate.
+  useEffect(() => {
+    const onPop = () => syncComboUrlRef.current();
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   // Show the onboarding wizard on a user's first visit (desktop/web only).
@@ -1058,6 +1108,20 @@ export default function FlavorFinderV2() {
   // a smaller combo instead of a no-match toast. Same solver — the steered map
   // is passed directly because the steer state hasn't flushed yet.
   const handleLandingTag = (group: LandingTagGroup, tag: string) => {
+    // A dish tag whose structure exists as a Build-a-Dish preset gets the
+    // whole dish: slot roles (base greens, the crunch…) AND the steer on top,
+    // via the same loader the gallery uses. Steer-only landings answered
+    // "salads" with four compatible seasonings — technically paired, visibly
+    // not a salad. Tags with no matching dish (dips, marinades…) keep the
+    // steer path below; the pinned steer pill in the context strip says what's
+    // active either way. Pool inputs only — the pairing check is untouched.
+    if (group === 'dish') {
+      const dishPreset = FLAVOR_PRESETS.find(p => p.tier === 'dish' && p.steerTag === tag);
+      if (dishPreset) {
+        handleLoadPreset(dishPreset);
+        return;
+      }
+    }
     const mod = steerModule ?? getLoadedContext();
     if (!mod) return; // tags render from the context chunk, so it's loaded before they're tappable
     if (!steerModule) setSteerModule(mod);
@@ -1834,9 +1898,10 @@ export default function FlavorFinderV2() {
         dimmed={showLanding}
       />
 
-      {/* Mobile Bottom Bar — dimmed on the landing (see header note). */}
-      {isMobile && (
-        <div className={showLanding ? 'opacity-40 pointer-events-none' : ''}>
+      {/* Mobile Bottom Bar — not rendered on the landing: every button acts on
+          a combo that doesn't exist yet, and the landing owns the screen. */}
+      {isMobile && !showLanding && (
+        <div>
           <MobileBottomBar
             canIncrement={canIncrementTarget}
             canDecrement={canDecrementTarget}
@@ -1972,9 +2037,10 @@ export default function FlavorFinderV2() {
       </main>
 
       {/* Ingredient Drawer (desktop undo lives in the drawer's bottom bar).
-          Dimmed on the landing so its persistent bottom search bar reads as
-          inactive rather than competing with the landing search. */}
-      <div className={showLanding ? 'opacity-40 pointer-events-none' : ''}>
+          Hidden entirely on the landing — one screen, one search box (the
+          landing's) — and hidden also removes the closed drawer's buttons from
+          the tab order. If something opens the drawer, it shows normally. */}
+      <div className={showLanding && !isDrawerOpen ? 'hidden' : ''}>
       <IngredientDrawer
         isOpen={isDrawerOpen}
         onToggle={() => setIsDrawerOpen(!isDrawerOpen)}

@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 
-export type CompatibilityMode = 'perfect' | 'mixed' | 'random';
+// 'random' (no pairing requirement) was removed July 2026 — it openly
+// contradicted the app's core promise that every combo is mutually compatible.
+export type CompatibilityMode = 'perfect' | 'mixed';
 
 interface UseCompatibilityReturn {
   // State
@@ -21,14 +23,10 @@ export const useCompatibility = (): UseCompatibilityReturn => {
   const [showPartialMatches, setShowPartialMatches] = useState(false);
 
   // Handle compatibility mode change
-  // Auto-enable partial matches for mixed/random modes, disable for perfect
+  // Auto-enable partial matches for mixed mode, disable for perfect
   const handleCompatibilityChange = useCallback((mode: CompatibilityMode) => {
     setCompatibilityMode(mode);
-    if (mode === 'mixed' || mode === 'random') {
-      setShowPartialMatches(true);
-    } else if (mode === 'perfect') {
-      setShowPartialMatches(false);
-    }
+    setShowPartialMatches(mode === 'mixed');
   }, []);
 
   // Toggle partial matches
