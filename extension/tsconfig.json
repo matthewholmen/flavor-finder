@@ -1,0 +1,20 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    // The app codebase imports with explicit .ts extensions (CRA quirk);
+    // this lets tsc follow them. Vite handles them without any flag.
+    "allowImportingTsExtensions": true,
+    // urlEncoding.js is plain JS.
+    "allowJs": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    ".wxt/wxt.d.ts",
+    "entrypoints/**/*",
+    "utils/**/*",
+    "types/**/*"
+  ]
+}

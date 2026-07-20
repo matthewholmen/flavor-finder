@@ -1,6 +1,10 @@
 # Flavor Finder Browser Extension — "The Flavor Checker"
 
-**Status: PLANNED (research complete, ready for implementation) — drafted 2026-07-19**
+**Status: X1+X2 shipped 2026-07-19, X2.5 Flavor Report shipped 2026-07-20
+(see FLAVOR_REPORT_DESIGN.md), X3 scaffold landed 2026-07-20 — `extension/`
+builds and the panel flow works end-to-end (paste → chips → report →
+`?recipe=` handoff); remaining X3 work is live-site extraction testing in
+real Chrome. X4 not started. — originally drafted 2026-07-19**
 
 A Chrome extension that sits beside any recipe page and answers: *does this recipe
 hang together, flavor-wise?* It extracts the ingredient list, runs it through our

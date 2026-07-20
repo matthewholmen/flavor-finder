@@ -33,6 +33,17 @@ evidence exists.
 - **Icons**: Lucide React
 - **Charts**: Recharts
 
+## Chrome extension (`extension/`)
+
+The "flavor checker" side-panel extension (docs/EXTENSION_PLAN.md, phase X3+).
+Separate WXT (Vite) project with its own `package.json`, but **no duplicated
+code or data**: it imports the engine and the pure report components straight
+from `../src` via the `@app` alias (Vite resolves the codebase's explicit
+`.ts` import extensions natively). Build with `cd extension && npm run build`,
+load `.output/chrome-mv3` unpacked; see [extension/README.md](extension/README.md).
+Keep shared modules React-context-free and app-chrome-free so both builds
+stay happy — anything in `src/components/v2/report/` must remain pure-props.
+
 ## Commands
 
 ```bash
