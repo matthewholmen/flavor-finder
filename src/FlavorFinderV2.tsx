@@ -1872,7 +1872,9 @@ export default function FlavorFinderV2() {
             onCompose={handleLandingCompose}
             canSteer={canComposeSteer}
             onGenerate={handleLandingGenerate}
-            onOpenAtlas={openAtlas}
+            // ⓘ = the flavor map centered on the ingredient (its panel carries the
+            // profile; the full Atlas stays one click deeper via "Full details").
+            onOpenInfo={openGraph}
           />
         ) : isMobile && !isDrawerOpen ? (
           <>
@@ -1897,7 +1899,6 @@ export default function FlavorFinderV2() {
                 constraintLockedIndices={lockedConstraints}
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
-                onOpenAtlas={openAtlas}
                 onOpenGraph={openGraph}
                 onSwapSuggestions={getSwapSuggestions}
                 onSwapPick={handleSwapPick}
@@ -1944,7 +1945,6 @@ export default function FlavorFinderV2() {
                 constraintLockedIndices={lockedConstraints}
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
-                onOpenAtlas={openAtlas}
                 onOpenGraph={openGraph}
                 onSwapSuggestions={getSwapSuggestions}
                 onSwapPick={handleSwapPick}
@@ -2005,7 +2005,7 @@ export default function FlavorFinderV2() {
         // Side info panel focus (lifted so locking can focus it too)
         selectedInfoIndex={selectedInfoIndex}
         onInfoIndexChange={setSelectedInfoIndex}
-        onOpenAtlas={openAtlas}
+        onOpenInfo={openGraph}
         // Bottom-bar map button (drawer closed): current combo on the graph
         onOpenMap={openGraphWithCombo}
         canOpenMap={selectedIngredients.filter(Boolean).length > 0}

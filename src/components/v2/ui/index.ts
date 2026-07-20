@@ -10,3 +10,5 @@ export { IngredientTile } from './IngredientTile.tsx';
 export type { IngredientTileProps } from './IngredientTile.tsx';
 export { SlotRolePopover } from './SlotRolePopover.tsx';
 export type { SlotRolePopoverProps } from './SlotRolePopover.tsx';
+export { SearchBar } from './SearchBar.tsx';
+export type { SearchBarProps, SearchBarHit } from './SearchBar.tsx';

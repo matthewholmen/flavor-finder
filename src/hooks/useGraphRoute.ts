@@ -5,10 +5,12 @@
 // exactly (same pushState/popstate history model) but on its own param, so the two
 // overlays are independent and a shared combo link can carry either on top.
 //
-// History model: each openGraph while the app is running pushes an entry, so in-graph
-// re-centering (hop → hop) chains and browser Back walks back through visited centers
-// before closing. A cold-open deep link pushed nothing, so closing it strips the param
-// via replaceState instead of navigating back out of the app.
+// History model: the overlay occupies at most ONE history entry. The first in-app
+// openGraph pushes; every re-center after that (hop → hop) replaces in place, so the
+// browser Back button always closes the whole overlay in one press and returns to the
+// exact pre-open screen — never a walk back through visited centers (Matt's July 2026
+// back-nav complaint). A cold-open deep link pushed nothing, so closing it strips the
+// param via replaceState instead of navigating back out of the app.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { OVERLAY_ROUTE_SYNC } from './overlayRouteSync.ts';
@@ -60,9 +62,18 @@ export const useGraphRoute = (): GraphRoute => {
     const canonical = name.trim().toLowerCase();
     if (!canonical) return;
     const params = new URLSearchParams(window.location.search);
+    // Re-centering an already-open overlay replaces the current entry instead of
+    // pushing a new one — the overlay stays a single Back-press deep no matter how
+    // many hops the user makes inside it.
+    const alreadyOpen = params.get(GRAPH_PARAM) !== null;
     params.set(GRAPH_PARAM, canonical);
-    window.history.pushState(null, '', `${window.location.pathname}?${params.toString()}`);
-    pushDepth.current += 1;
+    const url = `${window.location.pathname}?${params.toString()}`;
+    if (alreadyOpen) {
+      window.history.replaceState(null, '', url);
+    } else {
+      window.history.pushState(null, '', url);
+      pushDepth.current += 1;
+    }
     setGraphIngredient(canonical);
   }, []);
 

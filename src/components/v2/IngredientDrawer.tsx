@@ -66,8 +66,9 @@ export const IngredientDrawer = ({
   // drawer (e.g. locking an ingredient) can focus it in the info panel too.
   selectedInfoIndex = 0,
   onInfoIndexChange = () => {},
-  // Opens an ingredient's Atlas reference page from the info panel.
-  onOpenAtlas = null,
+  // Opens the flavor map centered on an ingredient (the app's info view) from the
+  // info panel.
+  onOpenInfo = null,
 }) => {
   const inputRef = useRef(null);
   const drawerRef = useRef(null);
@@ -485,14 +486,15 @@ export const IngredientDrawer = ({
                       type="text"
                       value={searchTerm}
                       onChange={(e) => onSearchChange(e.target.value)}
-                      placeholder="Search ingredients..."
+                      placeholder="Search ingredients…"
                       className="
                         w-full pl-10 pr-10 py-3
-                        rounded-xl border border-gray-200 dark:border-gray-700
-                        focus:border-gray-400 dark:focus:border-gray-500 focus:outline-none
-                        text-base bg-gray-50 dark:bg-gray-800
+                        rounded-full border-2 border-gray-300 dark:border-gray-600
+                        focus:border-gray-900 dark:focus:border-white focus:outline-none
+                        text-base bg-white dark:bg-gray-800
                         text-gray-900 dark:text-gray-100
                         placeholder-gray-400 dark:placeholder-gray-500
+                        transition-colors
                       "
                       style={{ fontSize: '16px' }} // Prevents iOS zoom
                     />
@@ -1184,13 +1186,13 @@ export const IngredientDrawer = ({
                         </p>
                       )}
 
-                      {/* Handoff to the full Atlas page */}
-                      {onOpenAtlas && (
+                      {/* Handoff to the flavor map (the app's ingredient reference) */}
+                      {onOpenInfo && (
                         <button
-                          onClick={() => onOpenAtlas(currentIngredient)}
+                          onClick={() => onOpenInfo(currentIngredient)}
                           className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white underline decoration-transparent hover:decoration-current underline-offset-4 transition-colors"
                         >
-                          Open ingredient page
+                          See it on the flavor map
                           <ArrowRight size={14} strokeWidth={2} aria-hidden="true" />
                         </button>
                       )}
@@ -1304,12 +1306,14 @@ export const IngredientDrawer = ({
                 }
               }
             }}
-            placeholder="Search ingredients"
+            placeholder="Search ingredients…"
             className="
               w-full h-12 pl-12 pr-10
-              rounded-full border-2 border-gray-200 dark:border-gray-600
-              focus:border-gray-400 dark:focus:border-gray-400 focus:outline-none
-              text-base bg-gray-50 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500
+              rounded-full border-2 border-gray-300 dark:border-gray-600
+              focus:border-gray-900 dark:focus:border-white focus:outline-none
+              text-base bg-white dark:bg-gray-800 dark:text-white
+              placeholder-gray-400 dark:placeholder-gray-500
+              transition-colors
             "
           />
           {searchTerm && (

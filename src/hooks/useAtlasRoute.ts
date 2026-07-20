@@ -5,10 +5,11 @@
 // integration — kept self-contained here. Other params (`ing`, `lab`, `sources`) are
 // preserved when opening, so a shared combo link can carry an open Atlas page on top.
 //
-// History model: each openAtlas while the app is running pushes an entry, so in-Atlas
-// navigation (friend → friend) chains and hardware/browser Back walks back through the
-// visited pages before closing. A cold-open deep link pushed nothing, so closing it
-// strips the param via replaceState instead of navigating back out of the app.
+// History model: the overlay occupies at most ONE history entry (mirrors useGraphRoute).
+// The first in-app openAtlas pushes; in-Atlas navigation (friend → friend) replaces in
+// place, so hardware/browser Back always closes the whole overlay in one press. A
+// cold-open deep link pushed nothing, so closing it strips the param via replaceState
+// instead of navigating back out of the app.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { OVERLAY_ROUTE_SYNC } from './overlayRouteSync.ts';
@@ -60,9 +61,17 @@ export const useAtlasRoute = (): AtlasRoute => {
     const canonical = name.trim().toLowerCase();
     if (!canonical) return;
     const params = new URLSearchParams(window.location.search);
+    // In-Atlas navigation replaces the current entry — one Back press always closes
+    // the overlay entirely (same rule as useGraphRoute).
+    const alreadyOpen = params.get(ATLAS_PARAM) !== null;
     params.set(ATLAS_PARAM, canonical);
-    window.history.pushState(null, '', `${window.location.pathname}?${params.toString()}`);
-    pushDepth.current += 1;
+    const url = `${window.location.pathname}?${params.toString()}`;
+    if (alreadyOpen) {
+      window.history.replaceState(null, '', url);
+    } else {
+      window.history.pushState(null, '', url);
+      pushDepth.current += 1;
+    }
     setAtlasIngredient(canonical);
   }, []);
 

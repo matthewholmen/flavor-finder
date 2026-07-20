@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, ChevronDown, Info } from 'lucide-react';
+import { Sparkles, ChevronDown, Info } from 'lucide-react';
 import { Pill } from './ui/Pill.tsx';
+import { SearchBar, SearchBarHit } from './ui/SearchBar.tsx';
 import { getLoadedContext, loadContext } from '../../utils/contextLoader.ts';
 import { ingredientProfiles } from '../../data/ingredientProfiles.ts';
 import { CATEGORY_COLORS } from '../../utils/colors.ts';
@@ -41,8 +42,9 @@ interface LandingSurfaceProps {
   canSteer: (ingredients: string[], group: LandingTagGroup, tag: string) => boolean;
   /** Seed a random combo — the "just cook something" path. */
   onGenerate: () => void;
-  /** Open an ingredient's Atlas reference page (ⓘ on ingredient search hits). */
-  onOpenAtlas?: (name: string) => void;
+  /** ⓘ on ingredient hits: open the flavor map centered on that ingredient (the map's
+   *  info panel is the app's ingredient reference now). */
+  onOpenInfo?: (name: string) => void;
 }
 
 interface SearchHit {
@@ -83,7 +85,7 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
   onCompose,
   canSteer,
   onGenerate,
-  onOpenAtlas,
+  onOpenInfo,
 }) => {
   const [mod, setMod] = useState(() => getLoadedContext());
   useEffect(() => {
@@ -92,7 +94,6 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
 
   const [term, setTerm] = useState('');
   const [browsing, setBrowsing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Pick one headline per mount (fresh each load).
   const headline = useMemo(() => HEADLINES[Math.floor(Math.random() * HEADLINES.length)], []);
@@ -199,6 +200,33 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
     compose: 'combo',
   };
 
+  // Rows for the shared SearchBar anatomy; keyed back to the SearchHit for pickHit.
+  const hitByKey = useMemo(() => {
+    const map = new Map<string, SearchHit>();
+    hits.forEach(hit => map.set(`${hit.kind}:${hit.label}`, hit));
+    return map;
+  }, [hits]);
+  const barHits = useMemo(
+    (): SearchBarHit[] =>
+      hits.map(hit => ({
+        key: `${hit.kind}:${hit.label}`,
+        label: hit.label,
+        dotColor:
+          hit.kind === 'ingredient'
+            ? CATEGORY_COLORS[categoryByIngredient.get(hit.label.toLowerCase()) ?? ''] ?? '#9CA3AF'
+            : undefined,
+        icon:
+          hit.kind === 'compose' ? (
+            <Sparkles size={15} className="shrink-0 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+          ) : undefined,
+        kindLabel: hit.kind === 'ingredient' ? undefined : kindLabel[hit.kind],
+        emphasize: hit.kind === 'compose',
+      })),
+    // kindLabel is a render-scoped constant map, safe to omit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [hits, categoryByIngredient]
+  );
+
   const tagSection = (
     label: string,
     group: LandingTagGroup,
@@ -244,122 +272,47 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
           {headline}
         </h2>
 
-        {/* The search — the one thing to focus on */}
-        <div className="relative mt-7 w-full">
-          <Search
-            size={20}
-            className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
-            aria-hidden="true"
-          />
-          <input
-            ref={inputRef}
-            type="text"
-            value={term}
-            onChange={e => setTerm(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && hits.length > 0) pickHit(hits[0]);
-            }}
-            aria-label="Search ingredients, cuisines, and dish types"
-            className="
-              w-full pl-12 pr-5 py-4 rounded-full text-base
-              border-2 border-gray-300 dark:border-gray-600
-              focus:border-gray-900 dark:focus:border-white focus:outline-none
-              bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-              transition-colors
-            "
-          />
-          {term === '' && (
-            <div
-              className="absolute left-12 right-5 top-1/2 -translate-y-1/2 pointer-events-none overflow-hidden text-gray-400 dark:text-gray-500"
-              aria-hidden="true"
-            >
-              {suggestions.length > 0 ? (
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={suggestions[suggestionIndex]}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="block truncate"
-                  >
-                    Try “{suggestions[suggestionIndex]}”
-                  </motion.span>
-                </AnimatePresence>
-              ) : (
-                <span className="block truncate">Search ingredients…</span>
-              )}
-            </div>
-          )}
-
-          {/* Grouped results */}
-          {hits.length > 0 && (
-            <div
-              className="
-                absolute left-0 right-0 top-full mt-2 z-30
-                rounded-2xl border border-gray-200 dark:border-gray-700
-                bg-white dark:bg-gray-800 shadow-lg overflow-hidden
-                max-h-72 overflow-y-auto text-left
-              "
-            >
-              {hits.map(hit => (
-                // Row = pick button + (ingredient rows) a trailing ⓘ to the Atlas page.
-                // Two sibling buttons, not nested — the ⓘ replaces the kind label there.
-                <div
-                  key={`${hit.kind}:${hit.label}`}
-                  className="w-full flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
+        {/* The search — the one thing to focus on (shared SearchBar anatomy) */}
+        <SearchBar
+          className="mt-7 w-full"
+          size="lg"
+          value={term}
+          onChange={setTerm}
+          hits={barHits}
+          onPick={barHit => {
+            const hit = hitByKey.get(barHit.key);
+            if (hit) pickHit(hit);
+          }}
+          secondaryAction={
+            onOpenInfo
+              ? {
+                  icon: <Info size={16} strokeWidth={2} />,
+                  label: hit => `About ${hit.label}`,
+                  onPick: hit => onOpenInfo(hit.label),
+                }
+              : undefined
+          }
+          ariaLabel="Search ingredients, cuisines, and dish types"
+          noMatchesText="No matches — try an ingredient, cuisine, or dish type"
+          emptyOverlay={
+            suggestions.length > 0 ? (
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={suggestions[suggestionIndex]}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="block truncate"
                 >
-                  <button
-                    onClick={() => pickHit(hit)}
-                    className="flex-1 min-w-0 flex items-center gap-2.5 pl-5 pr-2 py-2.5 text-left text-gray-900 dark:text-white"
-                  >
-                    {hit.kind === 'ingredient' && (
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{
-                          backgroundColor:
-                            CATEGORY_COLORS[categoryByIngredient.get(hit.label.toLowerCase()) ?? ''] ??
-                            '#9CA3AF',
-                        }}
-                        aria-hidden="true"
-                      />
-                    )}
-                    {hit.kind === 'compose' && (
-                      <Sparkles size={15} className="shrink-0 text-gray-500 dark:text-gray-400" aria-hidden="true" />
-                    )}
-                    <span className={`truncate ${hit.kind === 'compose' ? 'font-semibold' : ''}`}>{hit.label}</span>
-                  </button>
-                  {hit.kind === 'ingredient' && onOpenAtlas ? (
-                    <button
-                      onClick={() => onOpenAtlas(hit.label)}
-                      aria-label={`About ${hit.label}`}
-                      title={`About ${hit.label}`}
-                      className="shrink-0 px-4 py-2.5 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                    >
-                      <Info size={16} strokeWidth={2} />
-                    </button>
-                  ) : (
-                    <span className="shrink-0 pr-5 pl-2 text-xs text-gray-400 dark:text-gray-500">
-                      {kindLabel[hit.kind]}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          {term.trim() !== '' && hits.length === 0 && (
-            <div
-              className="
-                absolute left-0 right-0 top-full mt-2 z-30
-                rounded-2xl border border-gray-200 dark:border-gray-700
-                bg-white dark:bg-gray-800 shadow-lg text-left
-                px-5 py-3 text-sm text-gray-500 dark:text-gray-400
-              "
-            >
-              No matches — try an ingredient, cuisine, or dish type
-            </div>
-          )}
-        </div>
+                  Try “{suggestions[suggestionIndex]}”
+                </motion.span>
+              </AnimatePresence>
+            ) : (
+              <span className="block truncate">Search ingredients…</span>
+            )
+          }
+        />
 
         {/* One primary action beneath the input */}
         <button

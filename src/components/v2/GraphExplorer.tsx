@@ -10,9 +10,11 @@ import {
   type SimulationLinkDatum,
   type SimulationNodeDatum,
 } from 'd3-force';
-import { Search, Sparkles, X } from 'lucide-react';
+import { Info, Sparkles, X } from 'lucide-react';
 import { IconButton } from './ui/IconButton.tsx';
 import { Pill } from './ui/Pill.tsx';
+import { SearchBar } from './ui/SearchBar.tsx';
+import type { SearchBarHit } from './ui/SearchBar.tsx';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import {
   computeEgoNetworkCanonical,
@@ -157,7 +159,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   const [picks, setPicks] = useState<string[]>([]);
   const [focusName, setFocusName] = useState<string | null>(center);
   const [search, setSearch] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
   const [morePanelOpen, setMorePanelOpen] = useState(false);
   // Legend filter: tapped legend groups (lens-specific keys from groupKeyOf). Empty =
   // show everything. Narrows which partners/candidates are DRAWN — a view filter over
@@ -180,7 +181,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     setFocusName(center);
     setMorePanelOpen(false);
     setSearch('');
-    setSearchOpen(false);
     setGroupFilter(new Set());
     if (!center) {
       setBuildMode(false);
@@ -726,6 +726,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   // A tap on a node: build mode toggles it as an anchor; explore mode selects then hops.
   const handleTap = (name: string) => {
     if (buildMode) {
+      const removing = picks.includes(name) && picks.length > 1;
       setPicks(prev => {
         if (prev.includes(name)) {
           // Removing an anchor re-opens the pool (but keep at least one).
@@ -734,7 +735,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         }
         return [...prev, name];
       });
-      setFocusName(name);
+      // Deselecting must also drop the tap-focus — otherwise the removed node stays
+      // the highlight anchor and (on mobile, where focus drives dimming) the whole
+      // graph stays dimmed against a ghost selection.
+      if (removing) setFocusName(f => (f === name ? null : f));
+      else setFocusName(name);
       return;
     }
     if (name === center) return; // already centered
@@ -745,15 +750,50 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
     onNavigate(name); // desktop click, or mobile second tap → hop
   };
 
-  // --- Search ---------------------------------------------------------------------------
-  const searchResults = useMemo(() => {
+  // --- Search (shared SearchBar anatomy — same pill, same rows as the landing) ----------
+  // Prefix matches lead (same ranking rule as the landing), category dot per row, and
+  // a row already in the combo says so instead of pretending it's a fresh add.
+  const searchHits = useMemo((): SearchBarHit[] => {
     const q = search.trim().toLowerCase();
     if (!q) return [];
-    return ingredientProfiles
-      .filter(p => p.name.toLowerCase().includes(q))
-      .slice(0, 8)
-      .map(p => p.name);
-  }, [search]);
+    const starts: IngredientProfile[] = [];
+    const contains: IngredientProfile[] = [];
+    for (const p of ingredientProfiles) {
+      const lower = p.name.toLowerCase();
+      if (lower.startsWith(q)) starts.push(p);
+      else if (lower.includes(q)) contains.push(p);
+    }
+    return [...starts, ...contains].slice(0, 8).map(p => ({
+      key: p.name,
+      label: p.name,
+      dotColor: CATEGORY_COLORS[p.category] || NEUTRAL_NODE,
+      kindLabel: buildMode && picks.includes(p.name) ? 'in combo' : undefined,
+    }));
+  }, [search, buildMode, picks]);
+
+  // Pick = add to the combo — the app-wide meaning of choosing a search result. In
+  // build mode that toggles the anchor; in explore mode it STARTS a build from the
+  // picked ingredient (still the untouched pairing math — picks only feed the
+  // intersection). "Just show it to me" is the explicit ⓘ secondary below.
+  const pickFromSearch = (name: string) => {
+    setSearch('');
+    if (buildMode) {
+      handleTap(name);
+      return;
+    }
+    setBuildMode(true);
+    setPicks([name]);
+    setFocusName(name);
+    if (name !== center) onNavigate(name);
+  };
+
+  // ⓘ = "about this ingredient", map-style: explore mode re-centers the ego network on
+  // it; build mode focuses it in the info panel without touching the combo.
+  const infoFromSearch = (name: string) => {
+    setSearch('');
+    if (buildMode) setFocusName(name);
+    else if (name !== center) onNavigate(name);
+  };
 
   // --- Info panel focus -----------------------------------------------------------------
   const focusProfile = focusName ? getProfile(focusName) : null;
@@ -807,6 +847,29 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
 
   const candidateCount = model.total;
 
+  // The map's always-visible search — same SearchBar as the landing and the drawer's
+  // bottom bar, results opening upward from its docked position. Desktop floats it
+  // bottom-center over the canvas (where the main app's search bar lives); mobile
+  // docks it as its own row above the info panel.
+  const graphSearchBar = (
+    <SearchBar
+      size="md"
+      dropUp
+      value={search}
+      onChange={setSearch}
+      hits={searchHits}
+      onPick={hit => pickFromSearch(hit.label)}
+      secondaryAction={{
+        icon: <Info size={16} strokeWidth={2} />,
+        label: hit => `About ${hit.label}`,
+        onPick: hit => infoFromSearch(hit.label),
+      }}
+      placeholder={buildMode ? 'Add an ingredient to the combo…' : 'Search ingredients…'}
+      ariaLabel="Search ingredients"
+      noMatchesText="No matching ingredients"
+    />
+  );
+
   return (
     <div
       className="fixed inset-0 z-[80] flex flex-col bg-white dark:bg-gray-900"
@@ -846,13 +909,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             ))}
           </div>
           <IconButton
-            label="Search ingredients"
-            onClick={() => setSearchOpen(o => !o)}
-            className="rounded-full text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300"
-          >
-            <Search size={18} strokeWidth={2} />
-          </IconButton>
-          <IconButton
             label="Close flavor map"
             onClick={onClose}
             className="rounded-full text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300"
@@ -861,37 +917,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           </IconButton>
         </div>
       </div>
-
-      {/* Search bar */}
-      {searchOpen && (
-        <div className="relative px-4 sm:px-6 py-2 border-b border-gray-100 dark:border-gray-700/60 shrink-0">
-          <input
-            autoFocus
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Jump to an ingredient…"
-            className="w-full px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none"
-          />
-          {searchResults.length > 0 && (
-            <div className="absolute left-4 right-4 sm:left-6 sm:right-6 mt-1 z-10 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 max-h-64 overflow-y-auto">
-              {searchResults.map(name => (
-                <button
-                  key={name}
-                  onClick={() => {
-                    setSearch('');
-                    setSearchOpen(false);
-                    if (buildMode) handleTap(name);
-                    else onNavigate(name);
-                  }}
-                  className="block w-full text-left px-3 py-2 text-sm lowercase text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Body: graph + info panel */}
       <div className={`flex-1 min-h-0 flex ${isMobile ? 'flex-col' : 'flex-row'}`}>
@@ -1004,6 +1029,14 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                   .map(n => n.name)
                   .join(', ')}.`}
           </div>
+
+          {/* Desktop: the unified search floats bottom-center over the canvas — the
+              same seat the main app's persistent search bar occupies. */}
+          {!isMobile && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-[420px] max-w-[calc(100%-32px)]">
+              {graphSearchBar}
+            </div>
+          )}
           </div>
 
           {/* Counts + database scale, in flow below the canvas (mockup footer) */}
@@ -1062,6 +1095,15 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Mobile: the unified search docks as its own row above the info panel (its
+            bottom-bar seat), results dropping upward over the canvas. It lives outside
+            the panel because the panel scrolls — a drop-up inside it would be clipped. */}
+        {isMobile && (
+          <div className="shrink-0 px-3 py-2 border-t border-gray-100 dark:border-gray-700/60 bg-white dark:bg-gray-800">
+            {graphSearchBar}
+          </div>
+        )}
 
         {/* Info / build panel */}
         <div
