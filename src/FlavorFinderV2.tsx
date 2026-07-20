@@ -10,6 +10,7 @@ import { IngredientProfile } from './types.ts';
 import { IngredientDrawer } from './components/v2/IngredientDrawer.tsx';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
 import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
+import { PasteRecipeModal } from './components/v2/PasteRecipeModal.tsx';
 import { DrinkPairingPanel } from './components/v2/DrinkPairingPanel.tsx';
 import { DISH_TYPES } from './data/dishTypes.ts';
 import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
@@ -227,6 +228,7 @@ export default function FlavorFinderV2() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPresetGalleryOpen, setIsPresetGalleryOpen] = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [isIngredientFiltersOpen, setIsIngredientFiltersOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -1338,7 +1340,7 @@ export default function FlavorFinderV2() {
     openGraph(centerName && combo.includes(centerName) ? centerName : combo[0]);
   };
 
-  const useComboFromGraph = (ingredients: string[]) => {
+  const applyComboHandoff = (ingredients: string[]) => {
     if (ingredients.length === 0 || ingredients.length > MAX_SLOTS) return;
     saveToHistory();
     const slots = defaultSlots();
@@ -1941,6 +1943,7 @@ export default function FlavorFinderV2() {
             onCompose={handleLandingCompose}
             canSteer={canComposeSteer}
             onGenerate={handleLandingGenerate}
+            onPasteRecipe={() => setIsPasteModalOpen(true)}
             // ⓘ = the flavor map centered on the ingredient (its panel carries the
             // profile; the full Atlas stays one click deeper via "Full details").
             onOpenInfo={openGraph}
@@ -2082,6 +2085,18 @@ export default function FlavorFinderV2() {
       />
       </div>
 
+      {/* Paste-a-recipe: recipe text → matched chips → flavor check → combo */}
+      <PasteRecipeModal
+        isOpen={isPasteModalOpen}
+        onClose={() => setIsPasteModalOpen(false)}
+        allIngredients={allIngredients}
+        onUseCombo={ings => {
+          // Same reset path as the Graph Explorer handoff (guards > MAX_SLOTS).
+          applyComboHandoff(ings);
+          setIsPasteModalOpen(false);
+        }}
+      />
+
       {/* Recipe Finder Modal */}
       <RecipeFinderModal
         isOpen={isRecipeModalOpen}
@@ -2097,7 +2112,7 @@ export default function FlavorFinderV2() {
         ingredient={graphIngredient}
         onClose={closeGraph}
         onNavigate={openGraph}
-        onUseCombo={useComboFromGraph}
+        onUseCombo={applyComboHandoff}
         onOpenAtlas={name => openAtlas(name)}
         initialPicks={graphSeed}
         isMobile={isMobile}

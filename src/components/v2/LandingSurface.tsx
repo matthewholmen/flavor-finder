@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ChevronDown, Info } from 'lucide-react';
+import { Sparkles, ChevronDown, Info, ClipboardPaste } from 'lucide-react';
 import { Pill } from './ui/Pill.tsx';
 import { SearchBar, SearchBarHit } from './ui/SearchBar.tsx';
 import { getLoadedContext, loadContext } from '../../utils/contextLoader.ts';
@@ -42,6 +42,8 @@ interface LandingSurfaceProps {
   canSteer: (ingredients: string[], group: LandingTagGroup, tag: string) => boolean;
   /** Seed a random combo — the "just cook something" path. */
   onGenerate: () => void;
+  /** Open the paste-a-recipe flow — the "start from a real recipe" path. */
+  onPasteRecipe?: () => void;
   /** ⓘ on ingredient hits: open the flavor map centered on that ingredient (the map's
    *  info panel is the app's ingredient reference now). */
   onOpenInfo?: (name: string) => void;
@@ -85,6 +87,7 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
   onCompose,
   canSteer,
   onGenerate,
+  onPasteRecipe,
   onOpenInfo,
 }) => {
   const [mod, setMod] = useState(() => getLoadedContext());
@@ -327,6 +330,21 @@ export const LandingSurface: React.FC<LandingSurfaceProps> = ({
           <Sparkles size={18} aria-hidden="true" />
           Surprise me
         </button>
+
+        {/* The other way in: start from a recipe you already have */}
+        {onPasteRecipe && (
+          <button
+            onClick={onPasteRecipe}
+            className="
+              mt-4 inline-flex items-center gap-1.5
+              text-sm font-medium text-gray-400 dark:text-gray-500
+              hover:text-gray-700 dark:hover:text-gray-300 transition-colors
+            "
+          >
+            <ClipboardPaste size={15} aria-hidden="true" />
+            or paste a recipe
+          </button>
+        )}
 
         {/* Quiet escape hatch to the full tag lists */}
         {tagCounts && (
