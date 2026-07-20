@@ -160,6 +160,13 @@ immediately, usable in the 5-person test.
 **Exit criteria:** paste any of 10 real recipes from major sites end-to-end
 with ≤1 manual fix-up each.
 
+> **Amendment (2026-07-20):** X2 shipped and user feedback surfaced the real
+> constraint — recipes are 10–25 ingredients and must not be squeezed through
+> the 5-slot combo. The answer is a dedicated, uncapped **Flavor Report**
+> surface (built narrow-first so it doubles as the extension panel UI) — see
+> [FLAVOR_REPORT_DESIGN.md](FLAVOR_REPORT_DESIGN.md). It slots in as **X2.5**
+> below; X3 then reuses its components and gets thinner.
+
 ### Phase X3 — Extension MVP
 
 1. **Scaffold** `extension/` with WXT (React + TS + Tailwind, matching the
