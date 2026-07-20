@@ -42,6 +42,9 @@ const App: React.FC = () => {
       if (record.recipe) {
         toConfirm(record.recipe.title, record.recipe.lines);
       } else {
+        // Surface the real failure in the panel console for debugging
+        // (right-click panel → Inspect); users get the friendly hint.
+        if (record.error) console.warn('[flavor-finder] extraction failed:', record.error);
         setStage({
           kind: 'paste',
           hint: record.error

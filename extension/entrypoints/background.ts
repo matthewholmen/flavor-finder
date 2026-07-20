@@ -11,6 +11,14 @@ import {
 // runs before/without that grant — extracting from there fails, which is
 // why this doesn't use setPanelBehavior({ openPanelOnActionClick }).)
 export default defineBackground(() => {
+  // The first shipped version set openPanelOnActionClick: true, and Chrome
+  // PERSISTS that per-install even after the code stops setting it — which
+  // both toggles the panel on click and swallows action.onClicked entirely.
+  // Explicitly clear it so clicks reach the listener below.
+  chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: false })
+    .catch(() => {});
+
   chrome.action.onClicked.addListener(tab => {
     if (!tab.id) return;
     // Must be called synchronously inside the click to satisfy the
