@@ -173,7 +173,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                     {hit.label}
                   </span>
                 </button>
-                {showSecondary ? (
+                {hit.kindLabel && (
+                  <span
+                    className={`shrink-0 pl-2 text-xs text-gray-400 dark:text-gray-500 ${
+                      showSecondary ? '' : 'pr-5'
+                    }`}
+                  >
+                    {hit.kindLabel}
+                  </span>
+                )}
+                {showSecondary && (
                   <button
                     onClick={() => secondaryAction!.onPick(hit)}
                     aria-label={secondaryAction!.label(hit)}
@@ -182,11 +191,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                   >
                     {secondaryAction!.icon}
                   </button>
-                ) : hit.kindLabel ? (
-                  <span className="shrink-0 pr-5 pl-2 text-xs text-gray-400 dark:text-gray-500">
-                    {hit.kindLabel}
-                  </span>
-                ) : null}
+                )}
               </div>
             );
           })}

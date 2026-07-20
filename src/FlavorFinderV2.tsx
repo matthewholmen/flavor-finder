@@ -1263,11 +1263,15 @@ export default function FlavorFinderV2() {
   // Opens in build mode seeded with the selection — the picks are mutually
   // compatible by construction, so the graph shows them as a clique with the
   // live "what else fits all of these" pool around them.
-  const openGraphWithCombo = () => {
+  // Also the ⓘ/About entry: with a combo on screen, ingredient info opens the map
+  // showing the WHOLE current combo (build mode), centered on the tapped ingredient —
+  // the map picks up exactly where the home screen left off instead of dropping to a
+  // lone-ingredient view (Matt's July 19 call).
+  const openGraphWithCombo = (centerName?: string) => {
     const combo = selectedIngredients.filter(Boolean);
     if (combo.length === 0) return;
     setGraphSeed(combo);
-    openGraph(combo[0]);
+    openGraph(centerName && combo.includes(centerName) ? centerName : combo[0]);
   };
 
   const useComboFromGraph = (ingredients: string[]) => {
@@ -1899,7 +1903,7 @@ export default function FlavorFinderV2() {
                 constraintLockedIndices={lockedConstraints}
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
-                onOpenGraph={openGraph}
+                onOpenGraph={openGraphWithCombo}
                 onSwapSuggestions={getSwapSuggestions}
                 onSwapPick={handleSwapPick}
               />
@@ -1945,7 +1949,7 @@ export default function FlavorFinderV2() {
                 constraintLockedIndices={lockedConstraints}
                 onSlotRoleChange={handleSlotTasteChange}
                 onConstraintLockToggle={handleConstraintLockToggle}
-                onOpenGraph={openGraph}
+                onOpenGraph={openGraphWithCombo}
                 onSwapSuggestions={getSwapSuggestions}
                 onSwapPick={handleSwapPick}
               />
@@ -2005,9 +2009,9 @@ export default function FlavorFinderV2() {
         // Side info panel focus (lifted so locking can focus it too)
         selectedInfoIndex={selectedInfoIndex}
         onInfoIndexChange={setSelectedInfoIndex}
-        onOpenInfo={openGraph}
+        onOpenInfo={openGraphWithCombo}
         // Bottom-bar map button (drawer closed): current combo on the graph
-        onOpenMap={openGraphWithCombo}
+        onOpenMap={() => openGraphWithCombo()}
         canOpenMap={selectedIngredients.filter(Boolean).length > 0}
       />
       </div>

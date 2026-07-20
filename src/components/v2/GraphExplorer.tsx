@@ -767,7 +767,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
       key: p.name,
       label: p.name,
       dotColor: CATEGORY_COLORS[p.category] || NEUTRAL_NODE,
-      kindLabel: buildMode && picks.includes(p.name) ? 'in combo' : undefined,
+      kindLabel: buildMode && picks.includes(p.name) ? 'in your dish' : undefined,
     }));
   }, [search, buildMode, picks]);
 
@@ -798,6 +798,30 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
   // --- Info panel focus -----------------------------------------------------------------
   const focusProfile = focusName ? getProfile(focusName) : null;
   const focusDegree = focusName ? graph.get(focusName)?.size ?? 0 : 0;
+
+  // Lens-aware ingredient color — matches the node fill on the canvas, so the combo
+  // pills read in taste colors by default (Matt's call) and follow a lens switch.
+  const pickColor = (name: string): string => {
+    const profile = getProfile(name);
+    return lens === 'taste'
+      ? dominantTasteColor(profile)
+      : (profile?.category && CATEGORY_COLORS[profile.category]) || NEUTRAL_NODE;
+  };
+
+  // One pick pill everywhere (desktop panel + mobile dock). Removal routes through
+  // handleTap so deselecting also clears a matching tap-focus (the ghost-dim fix).
+  const pickPill = (name: string) => (
+    <button
+      key={name}
+      onClick={() => handleTap(name)}
+      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm lowercase text-white shadow-sm shrink-0 whitespace-nowrap"
+      style={{ backgroundColor: pickColor(name) }}
+      title="Remove from dish"
+    >
+      {name}
+      {picks.length > 1 && <X size={12} strokeWidth={2.5} />}
+    </button>
+  );
 
   // Legend for the active lens, most frequent group first. Now that the chips are tap-
   // to-filter controls, they're computed from the UNFILTERED pool (every partner /
@@ -864,7 +888,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         label: hit => `About ${hit.label}`,
         onPick: hit => infoFromSearch(hit.label),
       }}
-      placeholder={buildMode ? 'Add an ingredient to the combo…' : 'Search ingredients…'}
+      placeholder={buildMode ? 'Add an ingredient to your dish…' : 'Search ingredients…'}
       ariaLabel="Search ingredients"
       noMatchesText="No matching ingredients"
     />
@@ -882,7 +906,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
         <div className="flex items-center gap-2 min-w-0">
           <Sparkles size={18} className="text-gray-400 shrink-0" aria-hidden="true" />
           <p className="font-display font-bold text-gray-900 dark:text-white lowercase truncate">
-            {buildMode ? 'build a combo' : center}
+            {buildMode ? 'build a dish' : center}
           </p>
         </div>
         <div className="flex items-center gap-1">
@@ -1023,7 +1047,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           {/* Offscreen accessible mirror of the visible graph */}
           <div className="sr-only" aria-live="polite">
             {buildMode
-              ? `Building a combo from ${picks.join(', ')}. ${candidateCount} compatible ingredients.`
+              ? `Building a dish from ${picks.join(', ')}. ${candidateCount} compatible ingredients.`
               : `${center} pairs with ${model.nodes
                   .filter(n => !n.isCenter)
                   .map(n => n.name)
@@ -1039,9 +1063,15 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
           )}
           </div>
 
-          {/* Counts + database scale, in flow below the canvas (mockup footer) */}
-          <div className="shrink-0 px-4 sm:px-6 py-2 flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-200 tabular-nums">
+          {/* Counts + database scale, in flow below the canvas (mockup footer). One
+              scrollable line on mobile — wrapping would eat the canvas height the
+              bottom dock just gave back. */}
+          <div
+            className={`shrink-0 px-4 sm:px-6 py-2 flex items-center gap-2 ${
+              isMobile ? 'flex-nowrap overflow-x-auto' : 'flex-wrap'
+            }`}
+          >
+            <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-200 tabular-nums whitespace-nowrap shrink-0">
               {(() => {
                 // Count what's actually drawn: the cap AND the legend filter both
                 // shrink the view, and "18 of 301 partners shown" stays honest for both.
@@ -1059,7 +1089,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             {model.hidden.length > 0 && (
               <button
                 onClick={() => setMorePanelOpen(o => !o)}
-                className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0"
               >
                 +{model.hidden.length} more
               </button>
@@ -1069,7 +1099,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                 mutes the garlic-tier hubs so deep cuts get the spotlight. Same
                 segmented shape as the Category|Taste switcher — this is a lens over
                 WHO is drawn. View filter only; the pairing math never changes. */}
-            <div className="flex items-center rounded-full bg-gray-100 dark:bg-gray-800 p-0.5 text-xs font-medium">
+            <div className="flex items-center rounded-full bg-gray-100 dark:bg-gray-800 p-0.5 text-xs font-medium shrink-0">
               {([
                 ['everyday', false, 'The whole map, pantry staples included — everything on screen builds with everything'],
                 ['adventurous', true, 'Mute the ubiquitous staples (garlic, lemon, olive oil…) and spotlight the deep cuts'],
@@ -1089,47 +1119,97 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums whitespace-nowrap shrink-0">
               {dbStats.ingredients} ingredients · {dbStats.pairings.toLocaleString()} pairings
               in the map
             </span>
           </div>
         </div>
 
-        {/* Mobile: the unified search docks as its own row above the info panel (its
-            bottom-bar seat), results dropping upward over the canvas. It lives outside
-            the panel because the panel scrolls — a drop-up inside it would be clipped. */}
+        {/* Mobile bottom dock: the map keeps the vertical real estate (Matt's July 19
+            call) — a compact focus strip (tap a node to fill it), then the unified
+            search, then the dish actions at the very bottom. Deep profile reading
+            lives one tap away behind "Full details". The dock never scrolls, so the
+            search results can drop UP over the canvas without being clipped. */}
         {isMobile && (
-          <div className="shrink-0 px-3 py-2 border-t border-gray-100 dark:border-gray-700/60 bg-white dark:bg-gray-800">
-            {graphSearchBar}
+          <div className="shrink-0 border-t border-gray-100 dark:border-gray-700/60 bg-white dark:bg-gray-800">
+            {focusProfile && focusName && (
+              <div className="flex items-center gap-2 px-4 pt-2.5 min-w-0">
+                <span
+                  className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: pickColor(focusName) }}
+                  aria-hidden="true"
+                />
+                <p className="font-display font-bold text-gray-900 dark:text-white lowercase truncate">
+                  {focusName}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                  {categoryLabel(focusProfile.category)} · {focusDegree} pairings
+                </p>
+                {onOpenAtlas && (
+                  <button
+                    onClick={() => onOpenAtlas(focusName)}
+                    className="ml-auto shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400 underline underline-offset-2"
+                  >
+                    Full details
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="px-3 pt-2">{graphSearchBar}</div>
+            <div className="px-3 py-2.5">
+              {buildMode ? (
+                <>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-2">
+                    {picks.map(name => pickPill(name))}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onUseCombo(picks)}
+                      disabled={picks.length < 1 || picks.length > HANDOFF_MAX}
+                      className="flex-1 py-2.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity"
+                    >
+                      Use this dish
+                    </button>
+                    <button
+                      onClick={exitBuild}
+                      className="px-4 py-2.5 rounded-full text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {picks.length > HANDOFF_MAX && (
+                    <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                      The main app fits {HANDOFF_MAX} ingredients — remove{' '}
+                      {picks.length - HANDOFF_MAX} to use this dish.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <button
+                  onClick={enterBuild}
+                  className="w-full py-2.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Build a dish from here
+                </button>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Info / build panel */}
+        {/* Info / build panel (desktop side column) */}
+        {!isMobile && (
         <div
-          className={`shrink-0 bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700/60 overflow-y-auto ${
-            isMobile ? 'border-t max-h-[42%]' : 'w-80 border-l'
-          }`}
+          className="shrink-0 bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700/60 overflow-y-auto w-80 border-l"
         >
           <div className="p-4 sm:p-5">
             {buildMode ? (
               <div className="mb-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
-                  Your combo · {picks.length}
+                  Your dish · {picks.length}
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-3">
-                  {picks.map(name => (
-                    <button
-                      key={name}
-                      onClick={() => setPicks(prev => (prev.length > 1 ? prev.filter(p => p !== name) : prev))}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm lowercase text-white shadow-sm"
-                      style={{ backgroundColor: (getProfile(name)?.category && CATEGORY_COLORS[getProfile(name)!.category]) || NEUTRAL_NODE }}
-                      title="Remove from combo"
-                    >
-                      {name}
-                      {picks.length > 1 && <X size={12} strokeWidth={2.5} />}
-                    </button>
-                  ))}
+                  {picks.map(name => pickPill(name))}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -1139,7 +1219,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                     disabled={picks.length < 1 || picks.length > HANDOFF_MAX}
                     className="flex-1 py-2.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity"
                   >
-                    Use this combo
+                    Use this dish
                   </button>
                   <button
                     onClick={exitBuild}
@@ -1151,7 +1231,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                 {picks.length > HANDOFF_MAX && (
                   <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
                     Keep exploring — but the main app fits {HANDOFF_MAX} ingredients, so
-                    remove {picks.length - HANDOFF_MAX} to use this combo.
+                    remove {picks.length - HANDOFF_MAX} to use this dish.
                   </p>
                 )}
                 <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
@@ -1164,7 +1244,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                 onClick={enterBuild}
                 className="w-full mb-4 py-2.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-90 transition-opacity"
               >
-                Build a combo from here
+                Build a dish from here
               </button>
             )}
 
@@ -1247,7 +1327,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
                       onClick={() => handleTap(focusName)}
                       className="px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
                     >
-                      {picks.includes(focusName) ? 'Remove from combo' : 'Add to combo'}
+                      {picks.includes(focusName) ? 'Remove from dish' : 'Add to dish'}
                     </button>
                   )}
                   {onOpenAtlas && focusName && (
@@ -1265,6 +1345,7 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
