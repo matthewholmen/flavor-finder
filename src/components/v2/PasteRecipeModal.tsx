@@ -1,28 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { X, ArrowLeft, Check, Sparkles, HelpCircle } from 'lucide-react';
+import { X, ArrowLeft, HelpCircle, ArrowRight } from 'lucide-react';
 import {
   matchRecipeText,
   LineMatch,
 } from '../../utils/recipeIngredientMatcher.ts';
-import { analyzeRecipe, splitCoreSupporting } from '../../utils/recipeAnalysis.ts';
-import { TASTE_COLORS } from '../../utils/colors.ts';
-import { MAX_SLOTS } from '../../hooks/useSlots.ts';
+import { splitCoreSupporting } from '../../utils/recipeAnalysis.ts';
+import { RecipeReportState } from '../../hooks/useRecipeRoute.ts';
 
-// Paste-a-recipe: the "start from a real recipe" entry point (EXTENSION_PLAN X2).
-// Paste ingredient lines → the matcher resolves canonical names → confirmable
-// chips → a read-only flavor-map analysis (pair coverage, taste profile, swap
-// ideas) → hand the picked core off as a normal combo.
-//
-// ⚠️ Analysis is coverage, never judgment: pairs without a map edge render as
-// "unexplored", not failures, and there is no overall recipe score.
+// Paste-a-recipe: the "start from a real recipe" doorway (EXTENSION_PLAN X2 + X2.5).
+// This modal only CAPTURES and CONFIRMS: paste ingredient lines → the matcher
+// resolves canonical names → confirmable chips → hand off to the Flavor Report
+// (uncapped, FLAVOR_REPORT_DESIGN). The analysis itself lives in the report.
 
 interface PasteRecipeModalProps {
   isOpen: boolean;
   onClose: () => void;
   /** Full canonical ingredient list, for manually resolving unmatched lines. */
   allIngredients: string[];
-  /** Load the picked core into the app as the active combo (1–MAX_SLOTS names). */
-  onUseCombo: (ingredients: string[]) => void;
+  /** Open the Flavor Report for the confirmed cast (no ingredient cap). */
+  onOpenReport: (state: RecipeReportState) => void;
 }
 
 /** One canonical hit and how much we trust it. */
@@ -90,7 +86,7 @@ export const PasteRecipeModal: React.FC<PasteRecipeModalProps> = ({
   isOpen,
   onClose,
   allIngredients,
-  onUseCombo,
+  onOpenReport,
 }) => {
   const [text, setText] = useState('');
   const [lines, setLines] = useState<LineMatch[] | null>(null);
@@ -187,17 +183,9 @@ export const PasteRecipeModal: React.FC<PasteRecipeModalProps> = ({
     [candidates, included]
   );
 
-  const analysis = useMemo(() => {
-    if (includedList.length < 2) return null;
-    return analyzeRecipe(includedList, {
-      coreOverride: includedList,
-      substituteLimit: 3,
-    });
-  }, [includedList]);
-
   if (!isOpen) return null;
 
-  const comboReady = includedList.length >= 1 && includedList.length <= MAX_SLOTS;
+  const reportReady = includedList.length >= 2;
 
   const chip = (name: string, opts: { muted?: boolean; fuzzy?: boolean } = {}) => {
     const active = included.has(name);
@@ -374,94 +362,16 @@ export const PasteRecipeModal: React.FC<PasteRecipeModalProps> = ({
               </div>
             )}
 
-            {/* The flavor check — coverage, never a score */}
-            {analysis && (
-              <div className="mt-5 border-t border-gray-100 dark:border-gray-700 pt-4">
-                <h3 className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">
-                  Flavor check
-                </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                  <span className="font-semibold">{analysis.confirmedCount}</span> of{' '}
-                  <span className="font-semibold">{analysis.pairs.length}</span>{' '}
-                  pairings are map-confirmed
-                  {analysis.confirmedCount < analysis.pairs.length &&
-                    ' — the rest are unexplored, not wrong'}
-                  .
-                </p>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {analysis.pairs.map(p => (
-                    <span
-                      key={`${p.a}+${p.b}`}
-                      className={`
-                        inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[13px]
-                        ${p.confirmed
-                          ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
-                          : 'border border-dashed border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'}
-                      `}
-                    >
-                      {p.confirmed ? (
-                        <Check size={13} aria-hidden="true" />
-                      ) : (
-                        <HelpCircle size={13} aria-hidden="true" />
-                      )}
-                      {p.a} + {p.b}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Aggregate taste, 7 dims */}
-                <div className="flex flex-col gap-1 mb-4">
-                  {(Object.keys(TASTE_COLORS) as Array<keyof typeof TASTE_COLORS>).map(k => (
-                    <div key={k} className="flex items-center gap-2">
-                      <span className="w-20 text-[12px] text-gray-500 dark:text-gray-400 capitalize">
-                        {k}
-                      </span>
-                      <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${(analysis.tasteProfile[k] / 10) * 100}%`,
-                            backgroundColor: TASTE_COLORS[k],
-                          }}
-                        />
-                      </div>
-                      <span className="w-7 text-right text-[12px] tabular-nums text-gray-400 dark:text-gray-500">
-                        {analysis.tasteProfile[k]}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Swap ideas — substitutes that pair with everything else included */}
-                {includedList.some(n => (analysis.substitutes[n] ?? []).length > 0) && (
-                  <div className="mb-1">
-                    <h3 className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">
-                      Swap ideas
-                    </h3>
-                    <ul className="flex flex-col gap-1">
-                      {includedList.map(name => {
-                        const subs = analysis.substitutes[name] ?? [];
-                        if (subs.length === 0) return null;
-                        return (
-                          <li key={name} className="text-sm text-gray-600 dark:text-gray-300">
-                            <span className="font-medium text-gray-900 dark:text-white">
-                              {name}
-                            </span>{' '}
-                            <span className="text-gray-400 dark:text-gray-500">→</span>{' '}
-                            {subs.map(s => s.name).join(', ')}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Handoff */}
+            {/* Handoff — the analysis lives in the (uncapped) Flavor Report */}
             <button
-              onClick={() => comboReady && onUseCombo(includedList)}
-              disabled={!comboReady}
+              onClick={() =>
+                reportReady &&
+                onOpenReport({
+                  c: includedList,
+                  s: split.supporting.filter(n => !included.has(n)),
+                })
+              }
+              disabled={!reportReady}
               className="
                 mt-5 w-full py-3 rounded-full font-semibold
                 inline-flex items-center justify-center gap-2
@@ -470,10 +380,8 @@ export const PasteRecipeModal: React.FC<PasteRecipeModalProps> = ({
                 hover:opacity-90 transition-opacity
               "
             >
-              <Sparkles size={17} aria-hidden="true" />
-              {includedList.length > MAX_SLOTS
-                ? `Pick up to ${MAX_SLOTS} to open as a combo`
-                : 'Open as combo'}
+              See the flavor report
+              <ArrowRight size={17} aria-hidden="true" />
             </button>
           </>
         )}

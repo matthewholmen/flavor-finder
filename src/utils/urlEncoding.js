@@ -46,6 +46,14 @@ export const encodeTasteLabState = (state) => {
 };
 
 /**
+ * Flavor-report deep link (`?recipe=`): same base64url object encoding as `?lab=`.
+ * Carries only canonical names + title — never the pasted text (long, and
+ * someone's copyrighted prose). Shape: { t?: string, c: string[], s: string[] }.
+ */
+export const encodeRecipeState = (state) => encodeTasteLabState(state);
+export const decodeRecipeState = (str) => decodeTasteLabState(str);
+
+/**
  * Inverse of encodeTasteLabState.
  * @param {string} str base64url string from a `?lab=` param
  * @returns {object|null} the decoded state, or null if malformed

@@ -11,6 +11,8 @@ import { IngredientDrawer } from './components/v2/IngredientDrawer.tsx';
 import { DietaryFilterPills } from './components/v2/DietaryFilterPills.tsx';
 import { RecipeFinderModal } from './components/v2/RecipeFinderModal.tsx';
 import { PasteRecipeModal } from './components/v2/PasteRecipeModal.tsx';
+import { FlavorReport } from './components/v2/report/index.ts';
+import { useRecipeRoute } from './hooks/useRecipeRoute.ts';
 import { DrinkPairingPanel } from './components/v2/DrinkPairingPanel.tsx';
 import { DISH_TYPES } from './data/dishTypes.ts';
 import { IngredientFiltersModal } from './components/v2/IngredientFiltersModal.tsx';
@@ -229,6 +231,8 @@ export default function FlavorFinderV2() {
   const [isPresetGalleryOpen, setIsPresetGalleryOpen] = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
+  // Flavor Report overlay (?recipe= deep link) — recipe-scale analysis, uncapped.
+  const { recipeState, openRecipeReport, closeRecipeReport } = useRecipeRoute();
   const [isIngredientFiltersOpen, setIsIngredientFiltersOpen] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -2085,15 +2089,30 @@ export default function FlavorFinderV2() {
       />
       </div>
 
-      {/* Paste-a-recipe: recipe text → matched chips → flavor check → combo */}
+      {/* Paste-a-recipe: capture + confirm, then hand off to the Flavor Report */}
       <PasteRecipeModal
         isOpen={isPasteModalOpen}
         onClose={() => setIsPasteModalOpen(false)}
         allIngredients={allIngredients}
-        onUseCombo={ings => {
+        onOpenReport={state => {
+          setIsPasteModalOpen(false);
+          openRecipeReport(state);
+        }}
+      />
+
+      {/* Flavor Report — uncapped recipe analysis (?recipe=). Rendered before the
+          Graph Explorer so "View as map" stacks the graph on top; Back returns here. */}
+      <FlavorReport
+        state={recipeState}
+        onClose={closeRecipeReport}
+        onRiff={ings => {
           // Same reset path as the Graph Explorer handoff (guards > MAX_SLOTS).
           applyComboHandoff(ings);
-          setIsPasteModalOpen(false);
+          closeRecipeReport();
+        }}
+        onViewMap={names => {
+          setGraphSeed(names);
+          openGraph(names[0]);
         }}
       />
 

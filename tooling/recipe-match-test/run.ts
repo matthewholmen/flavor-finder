@@ -22,7 +22,11 @@ import {
   matchRecipeText,
   matchedCanonicals,
 } from '../../src/utils/recipeIngredientMatcher.ts';
-import { analyzeRecipe } from '../../src/utils/recipeAnalysis.ts';
+import {
+  analyzeRecipe,
+  computeWeave,
+  substitutesInRecipe,
+} from '../../src/utils/recipeAnalysis.ts';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 
@@ -149,6 +153,28 @@ if (firstCore) {
 }
 if (analysis.core.length < 3) fail('smoke test: expected >= 3 core ingredients');
 if (analysis.pairs.length === 0) fail('smoke test: expected a pair matrix');
+
+// ---- 4. recipe-scale helpers (the Flavor Report) ----------------------------
+console.log('\nRecipe-scale smoke test (15-ingredient curry):');
+const bigCore = [
+  'chicken', 'onion', 'garlic', 'ginger', 'cumin', 'coriander', 'turmeric',
+  'tomato', 'yogurt', 'cilantro', 'lime', 'basmati rice', 'cinnamon',
+  'cardamom', 'clove',
+];
+const weave = computeWeave(bigCore);
+console.log(`  most woven:  ${weave[0].name} (${weave[0].confirmed.length} of ${bigCore.length - 1})`);
+const last = weave[weave.length - 1];
+console.log(`  least woven: ${last.name} (${last.confirmed.length} of ${bigCore.length - 1})`);
+if (weave.length !== bigCore.length) fail('weave: expected one row per core ingredient');
+if (weave[0].confirmed.length < last.confirmed.length) fail('weave: not sorted most-woven first');
+for (const row of weave) {
+  if (row.confirmed.length + row.unexplored.length !== bigCore.length - 1) {
+    fail(`weave: ${row.name} partners don't sum to core-1`);
+  }
+}
+const bigSubs = substitutesInRecipe('cilantro', bigCore, 5);
+console.log(`  subs for cilantro (confirmed-context): ${bigSubs.map(s => s.name).join(', ') || '(none)'}`);
+if (bigSubs.length === 0) fail('substitutesInRecipe: expected candidates at recipe scale');
 
 // ---- verdict ---------------------------------------------------------------
 if (falseConfident > 0) {

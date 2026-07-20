@@ -76,6 +76,74 @@ export const splitCoreSupporting = (
   return { core, supporting };
 };
 
+// ---- Recipe-scale helpers (the Flavor Report) --------------------------------------
+
+/** Mean 7-dim taste profile of the named ingredients (one decimal). */
+export const aggregateTaste = (names: string[]): Record<TasteKey, number> => {
+  const out = Object.fromEntries(TASTE_KEYS.map(k => [k, 0])) as Record<TasteKey, number>;
+  const profiles = names
+    .map(getProfile)
+    .filter((p): p is NonNullable<ReturnType<typeof getProfile>> => !!p);
+  if (profiles.length === 0) return out;
+  for (const p of profiles) {
+    for (const k of TASTE_KEYS) out[k] += p.flavorProfile[k];
+  }
+  for (const k of TASTE_KEYS) {
+    out[k] = Math.round((out[k] / profiles.length) * 10) / 10;
+  }
+  return out;
+};
+
+/** One ingredient's weave row: its confirmed vs unexplored partners within the core. */
+export interface WeaveRow {
+  name: string;
+  confirmed: string[];
+  unexplored: string[];
+}
+
+/**
+ * Per-ingredient connection structure, sorted most- to least-woven. At recipe
+ * scale (10–25 ingredients) this replaces the pair-chip wall: the story is which
+ * ingredients are connective tissue and which are loose threads — and a loose
+ * thread is "unexplored", never "wrong".
+ */
+export const computeWeave = (
+  core: string[],
+  graph: Map<string, Set<string>> = getAtlasGraph(),
+): WeaveRow[] =>
+  core
+    .map(name => {
+      const others = core.filter(n => n !== name);
+      const neighbors = graph.get(name);
+      const confirmed = others.filter(n => neighbors?.has(n));
+      const unexplored = others.filter(n => !neighbors?.has(n));
+      return { name, confirmed, unexplored };
+    })
+    .sort(
+      (a, b) =>
+        b.confirmed.length - a.confirmed.length || a.name.localeCompare(b.name),
+    );
+
+/**
+ * Substitutes at recipe scale. Context = the target's CONFIRMED partners within
+ * the core — the connections the recipe actually exercises — because demanding a
+ * candidate pair with all N-1 ingredients collapses toward zero results as N
+ * grows (edges the original never had can't be broken by a swap). This changes
+ * an INPUT to suggestSubstitutes, never its admission rule: every suggestion
+ * still holds a flavor-map edge to everything it's checked against.
+ */
+export const substitutesInRecipe = (
+  target: string,
+  core: string[],
+  limit = 5,
+  graph: Map<string, Set<string>> = getAtlasGraph(),
+): SubstituteSuggestion[] => {
+  const confirmed = core.filter(
+    n => n !== target && graph.get(target)?.has(n),
+  );
+  return suggestSubstitutes(target, confirmed, graph, limit);
+};
+
 /**
  * Analyze canonical ingredient names against the flavor map.
  * Pass `coreOverride` when the user has promoted/demoted ingredients; otherwise
