@@ -13,6 +13,14 @@ export interface ExtractedRecipe {
   source: 'json-ld' | 'microdata' | 'css';
 }
 
+/** What the background stashes/broadcasts after an extraction attempt. */
+export interface ExtractionRecord {
+  at: number;
+  recipe: ExtractedRecipe | null;
+  /** Present when injection itself failed (restricted page etc.). */
+  error?: string;
+}
+
 export function extractRecipeFromPage(): ExtractedRecipe | null {
   const clean = (s: unknown): string =>
     String(s ?? '')

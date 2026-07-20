@@ -5,7 +5,11 @@ import {
   LineMatch,
 } from '@app/utils/recipeIngredientMatcher.ts';
 import type { RecipeReportState } from '@app/hooks/useRecipeRoute.ts';
-import { extractRecipeFromPage, ExtractedRecipe } from '../../utils/extractRecipe';
+import {
+  extractRecipeFromPage,
+  ExtractedRecipe,
+  ExtractionRecord,
+} from '../../utils/extractRecipe';
 import { hasExtensionApis } from '../../utils/chromeEnv';
 import { PasteView } from './PasteView.tsx';
 import { ConfirmView } from './ConfirmView.tsx';
@@ -33,6 +37,51 @@ const App: React.FC = () => {
     });
   }, []);
 
+  const applyRecord = useCallback(
+    (record: ExtractionRecord) => {
+      if (record.recipe) {
+        toConfirm(record.recipe.title, record.recipe.lines);
+      } else {
+        setStage({
+          kind: 'paste',
+          hint: record.error
+            ? 'Couldn’t read this page (Chrome blocks some pages) — paste the ingredients instead.'
+            : 'No recipe found on this page — paste the ingredients instead.',
+        });
+      }
+    },
+    [toConfirm]
+  );
+
+  // The background extracts on toolbar click (the only moment the activeTab
+  // grant is guaranteed) and stashes the result; the panel just consumes it.
+  useEffect(() => {
+    if (!canReadPage) {
+      setStage({ kind: 'paste', hint: null });
+      return;
+    }
+    chrome.storage.session
+      .get('lastExtraction')
+      .then(({ lastExtraction }) => {
+        if (lastExtraction) applyRecord(lastExtraction as ExtractionRecord);
+        else {
+          setStage({
+            kind: 'paste',
+            hint: 'Click the Flavor Finder toolbar icon while on a recipe page, or paste the ingredients below.',
+          });
+        }
+      })
+      .catch(() => setStage({ kind: 'paste', hint: null }));
+    const listener = (msg: unknown) => {
+      const m = msg as { type?: string; record?: ExtractionRecord };
+      if (m?.type === 'extraction' && m.record) applyRecord(m.record);
+    };
+    chrome.runtime.onMessage.addListener(listener);
+    return () => chrome.runtime.onMessage.removeListener(listener);
+  }, [canReadPage, applyRecord]);
+
+  // Manual re-read (↻): direct injection works while the icon-click grant for
+  // this tab is still live; after navigation it needs a fresh icon click.
   const readPage = useCallback(async () => {
     if (!canReadPage) {
       setStage({ kind: 'paste', hint: null });
@@ -49,28 +98,17 @@ const App: React.FC = () => {
         target: { tabId: tab.id },
         func: extractRecipeFromPage,
       });
-      const recipe = (result?.result ?? null) as ExtractedRecipe | null;
-      if (recipe) {
-        toConfirm(recipe.title, recipe.lines);
-      } else {
-        setStage({
-          kind: 'paste',
-          hint: 'No recipe found on this page — paste the ingredients instead.',
-        });
-      }
+      applyRecord({
+        at: Date.now(),
+        recipe: (result?.result ?? null) as ExtractedRecipe | null,
+      });
     } catch {
-      // Injection blocked (chrome:// pages, store, or activeTab not granted
-      // for this tab yet) — fall back to paste with a nudge.
       setStage({
         kind: 'paste',
-        hint: 'Couldn’t read this page. Click the Flavor Finder toolbar icon while on the recipe, or paste the ingredients below.',
+        hint: 'Couldn’t re-read this page — click the Flavor Finder toolbar icon while on the recipe, or paste the ingredients below.',
       });
     }
-  }, [canReadPage, toConfirm]);
-
-  useEffect(() => {
-    readPage();
-  }, [readPage]);
+  }, [canReadPage, applyRecord]);
 
   return (
     <div className="min-h-screen flex flex-col">

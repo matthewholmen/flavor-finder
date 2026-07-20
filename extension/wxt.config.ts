@@ -16,7 +16,7 @@ export default defineConfig({
     name: 'Flavor Finder',
     description:
       'The flavor checker — see how any recipe hangs together, and what to swap.',
-    permissions: ['sidePanel', 'activeTab', 'scripting'],
+    permissions: ['sidePanel', 'activeTab', 'scripting', 'storage'],
     action: {
       default_title: 'Check this recipe’s flavors',
     },

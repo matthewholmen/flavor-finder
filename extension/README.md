@@ -29,15 +29,21 @@ on the extension's card in `chrome://extensions`.
 ## How it reads a page
 
 Clicking the toolbar icon grants access to that tab only (`activeTab` —
-deliberately minimal permissions). The panel injects a tiny read-only
-extractor that tries, in order:
+deliberately minimal permissions). The background worker runs a tiny
+read-only extractor **at the moment of the click** (the only time the grant
+is guaranteed) and hands the result to the panel. The extractor tries, in
+order:
 
 1. **JSON-LD** structured data (covers ~90% of recipe sites)
 2. **Microdata** (`itemprop="recipeIngredient"`)
 3. **Known recipe-plugin CSS classes** (WP Recipe Maker, Tasty, Mediavine…)
 
-If none hit, the panel falls back to paste. Only the title and ingredient
-lines are read; nothing is stored or sent anywhere.
+If none hit, the panel falls back to paste. Switched tabs or navigated?
+Click the toolbar icon again on the new page — that's what re-reads it
+(the ↻ button in the panel works while the current page's grant lasts).
+Only the title and ingredient lines are read; nothing is stored or sent
+anywhere (the last result sits in session storage, cleared when Chrome
+closes).
 
 ## Commands
 
