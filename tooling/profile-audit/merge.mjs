@@ -41,23 +41,27 @@ for (const file of readdirSync(join(HERE, 'proposals')).filter((f) => f.endsWith
 const source = readFileSync(TARGET, 'utf8');
 const lines = source.split('\n');
 
-// Strip previously generated lines so the merge is idempotent.
-const kept = lines.filter(
-  (l) => !/^\s*(textures|functions|cookingMethods): \[[^\]]*\],?\s*$/.test(l)
-    && !/^\s*intensity: \d+,?\s*$/.test(l)
-);
-
 const quote = (arr) => arr.map((x) => `"${x}"`).join(', ');
 
+// Strip-and-reinsert happens only inside profiles that have a proposal, so a
+// partial batch (scoped pass, --partial in check.mjs) leaves every other
+// profile's generated lines untouched. Still idempotent for re-runs.
 const out = [];
 let currentName = null;
+const inserted = new Set();
 let applied = 0;
-for (const line of kept) {
+for (const line of lines) {
   const nameMatch = line.match(/^\s*name: "((?:[^"\\]|\\.)*)"/);
   if (nameMatch) currentName = nameMatch[1];
+  const inProposal = currentName !== null && proposals.has(currentName);
+
+  // Drop this profile's previously generated lines; they get re-inserted below.
+  if (inProposal
+    && (/^\s*(textures|functions|cookingMethods): \[[^\]]*\],?\s*$/.test(line)
+      || /^\s*intensity: \d+,?\s*$/.test(line))) continue;
 
   const descMatch = line.match(/^(\s*)description: ".*",?\s*$/);
-  if (descMatch && currentName && proposals.has(currentName)) {
+  if (descMatch && inProposal && !inserted.has(currentName)) {
     const indent = descMatch[1];
     const p = proposals.get(currentName);
     const existing = byName.get(currentName);
@@ -69,8 +73,8 @@ for (const line of kept) {
     out.push(`${indent}functions: [${quote(p.functions ?? existing.functions ?? [])}],`);
     out.push(`${indent}cookingMethods: [${quote(p.cookingMethods ?? [])}],`);
     if (p.intensity !== undefined) out.push(`${indent}intensity: ${p.intensity},`);
+    inserted.add(currentName);
     applied++;
-    currentName = null;
     continue;
   }
   out.push(line);

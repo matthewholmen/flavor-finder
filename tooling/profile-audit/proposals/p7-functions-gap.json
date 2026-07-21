@@ -1,0 +1,861 @@
+[
+  {
+    "name": "bok choy",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "stir-fried",
+      "steamed",
+      "braised",
+      "grilled",
+      "raw"
+    ],
+    "intensity": 2
+  },
+  {
+    "name": "chard",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "sautéed",
+      "braised",
+      "blanched",
+      "raw"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "collard greens",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "braised",
+      "simmered",
+      "sautéed",
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "mustard greens",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "sautéed",
+      "braised",
+      "simmered"
+    ],
+    "intensity": 6
+  },
+  {
+    "name": "turnip greens",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "braised",
+      "sautéed",
+      "simmered",
+      "blanched"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "dandelion greens",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "sautéed",
+      "blanched"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "fiddlehead fern",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "blanched",
+      "sautéed",
+      "pickled"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "broccoli rabe",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "blanched",
+      "sautéed",
+      "braised",
+      "grilled"
+    ],
+    "intensity": 6
+  },
+  {
+    "name": "kohlrabi",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "sautéed",
+      "pickled",
+      "steamed"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "chanterelle",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "sautéed",
+      "roasted"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "morel",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "sautéed",
+      "braised"
+    ],
+    "intensity": 6
+  },
+  {
+    "name": "beet",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "roasted",
+      "raw",
+      "pickled",
+      "simmered",
+      "steamed"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "carrot",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "braised",
+      "steamed",
+      "sautéed",
+      "pickled"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "daikon",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "pickled",
+      "braised",
+      "simmered",
+      "stir-fried"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "salsify",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "simmered",
+      "roasted",
+      "sautéed",
+      "braised"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "lotus root",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "stir-fried",
+      "fried",
+      "simmered",
+      "pickled",
+      "braised"
+    ],
+    "intensity": 2
+  },
+  {
+    "name": "artichoke",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "steamed",
+      "braised",
+      "grilled",
+      "fried",
+      "roasted"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "asparagus",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "roasted",
+      "grilled",
+      "steamed",
+      "blanched",
+      "sautéed",
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "white asparagus",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "steamed",
+      "poached",
+      "roasted",
+      "blanched"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "green beans",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "blanched",
+      "steamed",
+      "sautéed",
+      "roasted",
+      "stir-fried",
+      "raw"
+    ],
+    "intensity": 2
+  },
+  {
+    "name": "snap pea",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "stir-fried",
+      "blanched",
+      "steamed",
+      "sautéed"
+    ],
+    "intensity": 2
+  },
+  {
+    "name": "fennel",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "braised",
+      "grilled",
+      "sautéed"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "bell pepper",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "grilled",
+      "sautéed",
+      "stir-fried"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "red pepper",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "grilled",
+      "sautéed",
+      "stir-fried"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "piquillo pepper",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "roasted",
+      "baked"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "roasted red pepper",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "roasted"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "poblano",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "roasted",
+      "fried",
+      "sautéed",
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "corn",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "grilled",
+      "roasted",
+      "steamed",
+      "simmered",
+      "raw",
+      "fried"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "okra",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "fried",
+      "simmered",
+      "grilled",
+      "pickled",
+      "roasted"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "peas",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "steamed",
+      "simmered",
+      "sautéed",
+      "blanched",
+      "raw"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "chestnut",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "roasted",
+      "simmered",
+      "baked"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "chicken liver",
+    "functions": [
+      "bulk"
+    ],
+    "cookingMethods": [
+      "sautéed",
+      "seared",
+      "braised"
+    ],
+    "intensity": 6
+  },
+  {
+    "name": "jicama",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 2
+  },
+  {
+    "name": "celery",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "braised",
+      "sautéed",
+      "simmered"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "mandarin orange",
+    "functions": [
+      "acid",
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "tangerine",
+    "functions": [
+      "acid",
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "blackberry",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "blueberry",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "simmered"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "boysenberry",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "currant",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "grape",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "huckleberry",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "strawberry",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "raspberry",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "cantaloupe",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "honeydew",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "watermelon",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "grilled",
+      "pickled"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "melon",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "apricot",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "grilled",
+      "poached",
+      "baked"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "cherry",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "poached",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "nectarine",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "grilled",
+      "baked",
+      "poached"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "peach",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "grilled",
+      "baked",
+      "poached"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "plum",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "roasted",
+      "poached",
+      "pickled"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "apple",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked",
+      "sautéed",
+      "poached",
+      "roasted"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "pear",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "poached",
+      "baked",
+      "roasted",
+      "grilled"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "persimmon",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "baked"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "fig",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "grilled",
+      "baked"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "guava",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "simmered"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "kiwi",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "lychee",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "mango",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "grilled",
+      "pickled"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "papaya",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "dragon fruit",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 2
+  },
+  {
+    "name": "rambutan",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "tropical fruit",
+    "functions": [
+      "fresh-finish"
+    ],
+    "cookingMethods": [
+      "raw",
+      "grilled"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "milk",
+    "functions": [
+      "fat"
+    ],
+    "cookingMethods": [],
+    "intensity": 1
+  },
+  {
+    "name": "cottage cheese",
+    "functions": [
+      "fat"
+    ],
+    "cookingMethods": [
+      "raw"
+    ],
+    "intensity": 2
+  },
+  {
+    "name": "hummus",
+    "functions": [
+      "fat"
+    ],
+    "cookingMethods": [],
+    "intensity": 3
+  },
+  {
+    "name": "vegetable stock",
+    "functions": [
+      "umami-bomb"
+    ],
+    "cookingMethods": [
+      "simmered"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "harissa",
+    "functions": [
+      "umami-bomb"
+    ],
+    "cookingMethods": [],
+    "intensity": 8
+  },
+  {
+    "name": "sambal oelek",
+    "functions": [
+      "acid"
+    ],
+    "cookingMethods": [],
+    "intensity": 8
+  }
+]

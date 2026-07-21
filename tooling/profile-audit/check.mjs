@@ -137,8 +137,11 @@ for (const file of batchFiles) {
   }
 }
 
+// Full-audit passes must cover every ingredient; scoped passes (a targeted
+// field backfill, e.g. p7's functions gap) run with --partial to skip that.
+const partial = process.argv.includes('--partial');
 const missing = profiles.filter((p) => !seen.has(p.name)).map((p) => p.name);
-if (missing.length) errors.push(`Missing ${missing.length} ingredients: ${missing.slice(0, 20).join(', ')}${missing.length > 20 ? ', …' : ''}`);
+if (missing.length && !partial) errors.push(`Missing ${missing.length} ingredients: ${missing.slice(0, 20).join(', ')}${missing.length > 20 ? ', …' : ''}`);
 
 mkdirSync(join(HERE, 'output'), { recursive: true });
 const report = [
