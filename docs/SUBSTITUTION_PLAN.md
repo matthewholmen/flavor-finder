@@ -61,6 +61,24 @@ Also worth auditing while in there: ingredients whose `functions` are present
 but single-tagged where serving style changes the role (mushroom is `bulk`
 but shiitake is `umami-bomb, bulk` — the generic node should likely match).
 
+## Layer 0.6 — the aromatic-base vocabulary gap (found 2026-07-20)
+
+The extension surfaced garlic → peas. Not a tagging error — a vocabulary hole:
+the 8 functions have no term for **aromatic base** (garlic, onion, shallot,
+leek, ginger, lemongrass — the flavor engine of a dish), so those profiles are
+correctly `functions: []` under the current vocab, and the role guard's
+"target has no functions → skip" turns the guard off exactly where it matters
+most. Two candidate fixes, both data/vocab work (never admission changes):
+
+- **Add `aromatic-base` to `INGREDIENT_FUNCTIONS`** and tag the alliums,
+  ginger/galangal, lemongrass, celery-as-mirepoix, etc. Garlic's swaps then
+  collapse to shallot / leek / ramp / garlic powder — the right neighborhood.
+  Touches `types.ts` vocab + a scoped p8 audit batch; check dish-frame slot
+  constraints for interactions before shipping.
+- **Rank on the loudness data we already have**: aromatic taste value and
+  `intensity` (currently consumer-less) as a mismatch penalty or guard —
+  a 7-intensity aromatic shouldn't swap to a 3-intensity starch.
+
 ## Layer 1 — the substitution table (curated, pipeline-built)
 
 A first-class data set: directed, contextual substitution edges.
@@ -110,10 +128,64 @@ generic→specific become its own suggestion type ("be more specific") and make
 sibling swaps first-class. Subcategory + `sameFamily` covers ~80% of this
 today; only build the table if the flag proves too coarse.
 
+## Research & vetting plan (how Layer 1 gets its truth)
+
+We can't ingest published substitution lists wholesale (curated selections are
+copyrighted). We *can* compile our own from many sources — individual culinary
+facts aren't copyrightable, a selection is — and vet everything against
+independent references. The plan:
+
+### 1. Build a gold-standard eval set first (before generating anything)
+
+~50 hub ingredients (highest flavor-map degree × recipe frequency), each with
+5–10 known-good swaps and 3–5 known-bad "howlers" (garlic → peas), compiled by
+cross-referencing at least three independent references per ingredient:
+
+- **Validation-only references** (consult, never copy): *The Food Substitutions
+  Bible* (Joachim), Cook's Thesaurus (foodsubs.com), *The Flavor Bible*,
+  America's Test Kitchen / King Arthur substitution charts.
+- **Ingestible sources** (license permits reuse; keep provenance): US land-grant
+  extension-service substitution charts (public domain / free-use gov docs),
+  Wikidata/Wikipedia substitution relations (CC), academic substitution
+  datasets mined from Food.com reviews ("I used X instead of Y" — check each
+  dataset's license; usable for validation even when not shippable).
+
+The gold set lives in the repo (`tooling/substitution-audit/gold.json`) with a
+source count per pair — it IS shippable because it's our own selection.
+
+### 2. Baseline the current engine against it
+
+Score today's `suggestSubstitutes` output: precision@5 against gold, howler
+rate (share of suggestions matching known-bads), and per-category breakdown.
+This tells us exactly how much Layer 1 buys and which categories are weakest —
+and becomes the regression test every later change must beat.
+
+### 3. Generate, then vet — agreement is confidence
+
+LLM pass proposes subs with conditions (direction, preserved functions,
+methods, contexts). Each proposed edge is then vetted: does it appear in ≥1
+ingestible source? ≥2? Does the flavor map admit it against the ingredient's
+typical partners? Confidence tiers fall out of agreement:
+
+- `strong` — multiple independent sources + map-compatible
+- `situational` — one source or context-dependent (buttermilk→yogurt in
+  baking, not in dressing)
+- `engine-only` — similarity-derived, no external receipt (today's output)
+
+The UI can then show receipts ("classic swap" chip for strong) and the ranker
+can prefer vetted edges — admission still belongs to the flavor map alone.
+
+### 4. Human gate
+
+Matt reviews proposal batches (the taste authority) exactly like the P6 taste
+flags: mechanical checks catch structure, humans catch "technically fine,
+culinarily absurd".
+
 ## Sequence
 
-1. ✅ Layer 0 guards + `sameFamily` chip (this commit)
-2. Layer 0.5 function audit (~200 profiles, profile-audit pipeline)
-3. Layer 1 substitution table (new `tooling/substitution-audit`, seeded from
-   hub ingredients)
-4. Layer 2 rides the next corpus re-mine
+1. ✅ Layer 0 guards + `sameFamily` chip (572cc86)
+2. ✅ Layer 0.5 function backfill, 71 profiles (2787827)
+3. Layer 0.6 aromatic-base vocab fix (types.ts + scoped p8 batch)
+4. Gold-standard eval set + engine baseline (research plan §1–2)
+5. Layer 1 substitution table generated and vetted per §3–4
+6. Layer 2 rides the next corpus re-mine
