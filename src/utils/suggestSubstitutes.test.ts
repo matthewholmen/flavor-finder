@@ -60,6 +60,15 @@ describe('suggestSubstitutes', () => {
     expect(names).not.toContain('lemongrass');
   });
 
+  it('keeps aromatic-base swaps in their own lane (garlic never offers peas)', () => {
+    // Layer 0.6: garlic is aromatic-base, so map-admitted but role-less-similar
+    // candidates like peas (bulk) are dropped; fellow bases survive.
+    const map = mapOf({ thyme: ['peas', 'shallot', 'leek', 'ginger'] });
+    const names = suggestSubstitutes('garlic', ['thyme'], map).map(s => s.name);
+    expect(names).not.toContain('peas');
+    expect(names).toEqual(expect.arrayContaining(['shallot', 'leek', 'ginger']));
+  });
+
   it('flags same-subcategory candidates as sameFamily', () => {
     const map = mapOf({ 'sesame oil': ['eggplant', 'shiitake'] });
     const result = suggestSubstitutes('mushroom', ['sesame oil'], map);

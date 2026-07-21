@@ -1,0 +1,181 @@
+[
+  {
+    "name": "garlic",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "sautéed",
+      "fried",
+      "braised"
+    ],
+    "intensity": 7
+  },
+  {
+    "name": "onion",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "sautéed",
+      "roasted",
+      "braised",
+      "grilled",
+      "pickled"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "shallot",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "sautéed",
+      "roasted",
+      "fried",
+      "pickled"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "sweet onion",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "roasted",
+      "grilled",
+      "sautéed",
+      "fried"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "leek",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "braised",
+      "sautéed",
+      "roasted",
+      "simmered",
+      "grilled"
+    ],
+    "intensity": 3
+  },
+  {
+    "name": "ramp",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "sautéed",
+      "grilled",
+      "pickled"
+    ],
+    "intensity": 6
+  },
+  {
+    "name": "scallion",
+    "functions": [
+      "fresh-finish",
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "grilled",
+      "stir-fried",
+      "sautéed"
+    ],
+    "intensity": 4
+  },
+  {
+    "name": "red onion",
+    "functions": [
+      "fresh-finish",
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "pickled",
+      "grilled",
+      "roasted",
+      "sautéed"
+    ],
+    "intensity": 5
+  },
+  {
+    "name": "ginger",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "sautéed",
+      "stir-fried",
+      "simmered",
+      "pickled"
+    ],
+    "intensity": 7
+  },
+  {
+    "name": "galangal",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "simmered"
+    ],
+    "intensity": 7
+  },
+  {
+    "name": "lemongrass",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "simmered",
+      "grilled",
+      "raw"
+    ],
+    "intensity": 6
+  },
+  {
+    "name": "garlic powder",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [],
+    "intensity": 5
+  },
+  {
+    "name": "onion powder",
+    "functions": [
+      "aromatic-base"
+    ],
+    "cookingMethods": [],
+    "intensity": 4
+  },
+  {
+    "name": "celery",
+    "functions": [
+      "fresh-finish",
+      "aromatic-base"
+    ],
+    "cookingMethods": [
+      "raw",
+      "braised",
+      "sautéed",
+      "simmered"
+    ],
+    "intensity": 4
+  }
+]

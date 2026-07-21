@@ -24,6 +24,7 @@ export const FUNCTIONS = [
   'crunch-topper',
   'sweetener',
   'umami-bomb',
+  'aromatic-base',
 ];
 
 // Controlled cooking-method vocabulary (P6 audit pass). Methods the ingredient

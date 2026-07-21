@@ -39,6 +39,7 @@ export const INGREDIENT_FUNCTIONS = [
   'crunch-topper', // texture garnish: nuts, seeds, fried alliums
   'sweetener',     // adds sweetness: honey, sugars, syrups
   'umami-bomb',    // concentrated savoriness: fish sauce, miso, parmesan, anchovy
+  'aromatic-base', // the dish's flavor engine, cooked in early: alliums, ginger, lemongrass
 ] as const;
 export type IngredientFunction = (typeof INGREDIENT_FUNCTIONS)[number];
 
