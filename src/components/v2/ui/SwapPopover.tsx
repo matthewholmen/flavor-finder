@@ -163,6 +163,11 @@ export const SwapPopover = ({
                   <CategoryIcon size={15} strokeWidth={2.25} className="shrink-0 text-gray-400 dark:text-gray-500" />
                 )}
                 <span className="flex-1 min-w-0 text-sm font-medium capitalize truncate">{s.name}</span>
+                {s.sameFamily && (
+                  <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold shrink-0 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+                    same family
+                  </span>
+                )}
                 {chips.length > 0 && (
                   <span className="flex gap-1 shrink-0">
                     {chips.slice(0, 2).map(chip => (

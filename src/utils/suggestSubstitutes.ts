@@ -4,8 +4,10 @@
 // candidates are drawn from the flavor-map neighborhood of EVERY context ingredient
 // (set intersection — the engine as judge, per the inviolable-pairing rule), then
 // ranked by similarity to the target: taste-profile distance + texture/function
-// overlap. Texture and function only RANK candidates; they never admit one the
-// flavor map wouldn't allow.
+// overlap. Texture and function never ADMIT a candidate the flavor map wouldn't
+// allow — but they may narrow the pool further (the dish-frame class of move):
+// a swap must be able to play at least one of the target's structural roles and
+// suit at least one of its cooking methods (see SUBSTITUTION_PLAN Layer 0).
 //
 // Pure and UI-independent: the caller supplies the map (canonical Atlas graph for
 // reference surfaces, the user-filtered map inside generation).
@@ -23,6 +25,11 @@ export interface SubstituteSuggestion {
   sharedTextures: Texture[];
   /** Functions this candidate shares with the target — display-ready. */
   sharedFunctions: IngredientFunction[];
+  /**
+   * Same category+subcategory as the target (mushroom → shiitake): often the
+   * best swap, but the UI labels it "same family" rather than a true switch.
+   */
+  sameFamily: boolean;
 }
 
 // Max possible Euclidean distance over 7 dims of 0–10 → normalizer for tasteDistance.
@@ -86,11 +93,32 @@ export const suggestSubstitutes = (
     candidates = [...(map.get(target) ?? [])];
   }
 
+  const targetFns = targetProfile.functions ?? [];
+  const targetMethods = targetProfile.cookingMethods ?? [];
+
   const suggestions: SubstituteSuggestion[] = [];
   for (const name of candidates) {
     if (exclude.has(name)) continue;
     const profile = getProfile(name);
     if (!profile) continue;
+
+    // Role guard: a role-carrying ingredient (bulk, acid, …) can only be
+    // swapped for something able to play at least one of the same roles.
+    // Candidates with no structural role can't fill one, so they drop too —
+    // fixing tags (not loosening this) is the remedy when a good swap is
+    // missing (SUBSTITUTION_PLAN Layer 0.5).
+    if (targetFns.length > 0) {
+      const fns = profile.functions ?? [];
+      if (!fns.some(f => targetFns.includes(f))) continue;
+    }
+
+    // Technique guard: the swap must suit at least one of the target's
+    // cooking methods. `cookingMethods: []` means audited-not-applicable
+    // (condiments, vinegars) — not interchangeable with a cooked ingredient.
+    if (targetMethods.length > 0) {
+      const methods = profile.cookingMethods ?? [];
+      if (!methods.some(m => targetMethods.includes(m))) continue;
+    }
 
     const dist = tasteDistance(targetProfile, profile);
     const tasteSim = 1 - dist / MAX_TASTE_DISTANCE;
@@ -103,6 +131,9 @@ export const suggestSubstitutes = (
       tasteDistance: dist,
       sharedTextures: (targetProfile.textures ?? []).filter(t => profile.textures?.includes(t)),
       sharedFunctions: (targetProfile.functions ?? []).filter(f => profile.functions?.includes(f)),
+      sameFamily:
+        profile.category === targetProfile.category &&
+        profile.subcategory === targetProfile.subcategory,
     });
   }
 

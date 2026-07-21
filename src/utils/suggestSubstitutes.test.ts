@@ -34,13 +34,37 @@ describe('suggestSubstitutes', () => {
     expect(names.sort()).toEqual(['beet', 'parsnip']);
   });
 
-  it('ranks structurally similar ingredients above dissimilar ones', () => {
-    // Substituting a root vegetable: parsnip (root, tender, close taste) should
-    // outrank fish sauce (liquid umami-bomb) even though both are admitted.
+  it('drops candidates whose cooking methods never overlap the target (technique guard)', () => {
+    // Swapping a cooked vegetable: fish sauce is flavor-map-admitted here but
+    // has cookingMethods [] (audited, not-applicable condiment) — a bottled
+    // sauce can't stand in for something you roast.
     const map = mapOf({ onion: ['parsnip', 'fish sauce'] });
-    const result = suggestSubstitutes('carrot', ['onion'], map);
-    const names = result.map(s => s.name);
-    expect(names.indexOf('parsnip')).toBeLessThan(names.indexOf('fish sauce'));
+    const names = suggestSubstitutes('carrot', ['onion'], map).map(s => s.name);
+    expect(names).toContain('parsnip');
+    expect(names).not.toContain('fish sauce');
+  });
+
+  it('drops candidates that cannot play any of the target structural roles (role guard)', () => {
+    // The extension's mazemen failure case: mushroom (bulk) was offered
+    // sprouts (fresh-finish), mirin (sweetener), and lemongrass (no role).
+    // All are flavor-map-admitted via sesame oil; the role guard drops them.
+    // Eggplant and shiitake (both bulk, sear-friendly) survive.
+    const map = mapOf({
+      'sesame oil': ['sprouts', 'mirin', 'lemongrass', 'eggplant', 'shiitake'],
+    });
+    const names = suggestSubstitutes('mushroom', ['sesame oil'], map).map(s => s.name);
+    expect(names).toContain('eggplant');
+    expect(names).toContain('shiitake');
+    expect(names).not.toContain('sprouts');
+    expect(names).not.toContain('mirin');
+    expect(names).not.toContain('lemongrass');
+  });
+
+  it('flags same-subcategory candidates as sameFamily', () => {
+    const map = mapOf({ 'sesame oil': ['eggplant', 'shiitake'] });
+    const result = suggestSubstitutes('mushroom', ['sesame oil'], map);
+    expect(result.find(s => s.name === 'shiitake')?.sameFamily).toBe(true); // Mushrooms
+    expect(result.find(s => s.name === 'eggplant')?.sameFamily).toBe(false); // Fruit Vegetables
   });
 
   it('reports shared textures and functions with the target', () => {

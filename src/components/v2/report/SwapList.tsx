@@ -60,6 +60,11 @@ export const SwapList: React.FC<SwapListProps> = ({ entries }) => {
                 {subs.map(s => (
                   <li key={s.name} className="flex items-baseline gap-2 flex-wrap">
                     <span className="text-[13px] text-gray-700 dark:text-gray-200">{s.name}</span>
+                    {s.sameFamily && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+                        same family
+                      </span>
+                    )}
                     {[...s.sharedTextures, ...s.sharedFunctions].slice(0, 3).map(tag => (
                       <span
                         key={tag}
